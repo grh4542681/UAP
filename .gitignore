@@ -4,7 +4,7 @@
 *.swp
 *.a
 *.so
-/cppfram/log/
-/cppfram/bin/
-/cppfram/lib/
-/cppfram/build/
+log/
+bin/
+lib/
+build/
