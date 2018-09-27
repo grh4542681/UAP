@@ -4,10 +4,12 @@
 namespace base{
 
 typedef enum class _IpcRet: int {
+//common return val
     SUCCESS = 0x00,
     ERROR,
+    EMALLOC,
 
-//sem return val
+//sem system return val
     SEM_EEXIST,
     SEM_EACCES,
     SEM_EINVAL,

@@ -2,6 +2,7 @@
 #define __POSIX_SEM__
 
 #include <sys/types.h>
+#include <errno.h>
 
 #include "ipc_return.h"
 
@@ -30,15 +31,34 @@ private:
     }SemUn;
 
     int init_flag_;
-    int semid;
-    key_t key;
-    int semnum;
-    mode_t mode;
-    unsigned short semval;
+    int semid_;
+    key_t key_;
+    int semnum_;
+    mode_t mode_;
+    unsigned short semval_;
 
-    IpcRet Create();
-    IpcRet Destroy();
-    IpcRet Getid();
+    IpcRet _errno2ret(int ierrno){
+        switch (ierrno) {
+            case EEXIST:
+                return IpcRet::SEM_EEXIST;
+            case EACCES:
+                return IpcRet::SEM_EACCES;
+            case EINVAL:
+                return IpcRet::SEM_EINVAL;
+            case ENOENT:
+                return IpcRet::SEM_ENOENT;
+            case ENOMEM:
+                return IpcRet::SEM_ENOMEM;
+            case ENOSPC:
+                return IpcRet::SEM_ENOSPC;
+            default:
+                return IpcRet::ERROR;
+        }
+    }
+
+    IpcRet _create();
+    IpcRet _destroy();
+    IpcRet _getid();
 };
 
 } // namespace base
