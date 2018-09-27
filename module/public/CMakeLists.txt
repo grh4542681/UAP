@@ -1,4 +1,3 @@
-ADD_SUBDIRECTORY(
-    mutex
-)
+ADD_SUBDIRECTORY(mutex)
+ADD_SUBDIRECTORY(ipc)
 

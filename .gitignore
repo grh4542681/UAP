@@ -2,6 +2,8 @@
 .cproject
 .project
 *.swp
+*.a
+*.so
 /cppfram/log/
 /cppfram/bin/
 /cppfram/lib/

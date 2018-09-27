@@ -4,8 +4,8 @@
  *          Author: Ronghua Gao
  */
 
-#ifndef __BASE_RETVAL__
-#define __BASE_RETVAL__
+#ifndef __BASE_RETVAL_H__
+#define __BASE_RETVAL_H__
 
 #include <map>
 

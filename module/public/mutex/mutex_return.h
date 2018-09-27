@@ -1,5 +1,5 @@
-#ifndef __MUTEX_RETURN__
-#define __MUTEX_RETURN__
+#ifndef __MUTEX_RETURN_H__
+#define __MUTEX_RETURN_H__
 
 namespace base{
 
