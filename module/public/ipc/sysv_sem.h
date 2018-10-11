@@ -10,8 +10,11 @@ namespace base {
 
 class SysVSem{
 public:
+    SysVSem(key_t key);
     SysVSem(key_t key, unsigned int semnum, mode_t mode, unsigned short semval);
     ~SysVSem();
+
+    static key_t GenKey(const char *pathname, int proj_id);
 
     IpcRet Grab(unsigned int timeout);
     IpcRet Grab(unsigned int semnum, unsigned int timeout);
