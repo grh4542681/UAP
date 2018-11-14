@@ -1,0 +1,5 @@
+SET(SINGLETON_TEST_SRC singleton_test.cc)
+ADD_EXECUTABLE(singleton_test ${SINGLETON_TEST_SRC})
+INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/module/public/odp")
+INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/module/public/mutex")
+TARGET_LINK_LIBRARIES(singleton_test libgmutex.so)

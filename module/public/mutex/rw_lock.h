@@ -1,5 +1,5 @@
-#ifndef __READ_WRITE_LOCK_H__
-#define __READ_WRITE_LOCK_H__
+#ifndef __RW_LOCK_H__
+#define __RW_LOCK_H__
 
 #include "mutex_return.h"
 

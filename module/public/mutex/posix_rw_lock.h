@@ -2,7 +2,7 @@
 #define __POSIX_RW_LOCK_H__
 
 #include "mutex_return.h"
-#include "read_write_lock.h"
+#include "rw_lock.h"
 
 namespace base {
 

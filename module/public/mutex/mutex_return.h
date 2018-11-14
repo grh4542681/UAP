@@ -6,6 +6,8 @@ namespace base{
 typedef enum class _MutexRet: int {
     SUCCESS = 0x00,
     ERROR = 0xFF,
+
+    UNINIT = 0x01,
 } MutexRet;
 
 //typedef enum class _MutexRet MutexRet;
