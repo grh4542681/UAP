@@ -10,25 +10,40 @@ namespace base {
 template <typename T>
 class Singleton {
 public:
+    /**
+    * @brief getInstance - Get an instance
+    *
+    * @tparam [Args] -  Indefinite length parameter template.
+    * @param [args] - Parameters for instance.
+    *
+    * @returns  Instance pointer
+    */
     template <typename ... Args>
     static T* getInstance(Args&& ... args)
     {
-        if (!_pInstance) {
-            _mutex.lock();
-            if (!_pInstance) {
-                _pInstance = new T(std::forward<Args>(args)...);
+        if (!pInstance_) {
+            mutex_.lock();
+            if (!pInstance_) {
+                pInstance_ = new T(std::forward<Args>(args)...);
             }
-            _mutex.unlock();
+            mutex_.unlock();
         }
-        return _pInstance;
+        return pInstance_;
     }
 
     static void delInstance()
     {
-        if (_pInstance) {
-            delete _pInstance;
-            _pInstance = NULL;
+        if (pInstance_) {
+            delete pInstance_;
+            pInstance_ = NULL;
         }
+    }
+
+    template <typename ... Args>
+    static T* resetInstance(Args&& ... args)
+    {
+        delInstance();
+        return getInstance(std::forward<Args>(args)...);
     }
 
 private:
@@ -37,13 +52,12 @@ private:
     Singleton(const Singleton&);
     Singleton& operator = (const Singleton&);
 
-    static T* _pInstance;
-    static std::shared_ptr<T> _pInstance1;
-    static PthreadMutexLock _mutex;
+    static T* pInstance_;
+    static PthreadMutexLock mutex_;
 };
 
-template <typename T> T* Singleton<T>::_pInstance = NULL;
-template <typename T> PthreadMutexLock Singleton<T>::_mutex;
+template <typename T> T* Singleton<T>::pInstance_ = NULL;
+template <typename T> PthreadMutexLock Singleton<T>::mutex_;
 
 } //namespace odp end
 

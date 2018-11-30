@@ -1,5 +1,5 @@
-#ifndef __MUTEX_RETURN_H__
-#define __MUTEX_RETURN_H__
+#ifndef __IPC_RETURN_H__
+#define __IPC_RETURN_H__
 
 namespace base{
 
@@ -8,6 +8,10 @@ typedef enum class _IpcRet: int {
     SUCCESS = 0x00,
     ERROR,
     EMALLOC,
+    EINIT,
+    ETIMEOUT,
+
+    EUNKOWNERRNO,
 
 //sem system return val
     SEM_EEXIST,

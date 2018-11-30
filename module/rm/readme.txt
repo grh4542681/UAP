@@ -1,0 +1,1 @@
+RM : Resource manager

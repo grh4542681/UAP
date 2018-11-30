@@ -7,6 +7,8 @@ namespace base {
 
 class RWLock{
 public:
+    RWLock(){}
+    virtual ~RWLock();
     virtual MutexRet RLock();
     virtual MutexRet RUnLock();
     virtual MutexRet WLock();
