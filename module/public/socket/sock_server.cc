@@ -163,7 +163,6 @@ SockRet SockServer::Accept(SockFD* sockfd)
         SOCK_ERROR("%s", "UDP socket no need be accepted");
         return SockRet::ERROR;
     }
-    
     return SockRet::SUCCESS;
 }
 
