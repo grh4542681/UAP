@@ -1,9 +1,10 @@
 #ifndef __SOCK_ADDRESS_H__
 #define __SOCK_ADDRESS_H__
 
+#include <string>
+
 #include <sys/socket.h>
 #include "sock_common.h"
-#include "sock_server.h"
 
 namespace sock{
 
@@ -21,7 +22,7 @@ public:
 private:
     bool init_flag_;
 
-    SockFamily family_
+    SockFamily family_;
     std::string address_;
     unsigned short int port_;
     int domain_;

@@ -57,7 +57,7 @@ SockRet SockFD::setFD(unsigned int fd)
         if (temp_errno == EBADF) {
             SOCK_ERROR("%s", strerror(temp_errno));
             this->init_flag_ = false;
-            return _errno2ret(temp_errno);
+            return SockRet::ERROR;
         }
     } else {
         if (flag) {

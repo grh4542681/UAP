@@ -1,4 +1,5 @@
 #include "sock_address.h"
+#include "sock_log.h"
 
 namespace sock {
 

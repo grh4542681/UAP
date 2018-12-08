@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "rm_mempool.h"
-
 #include "sock_return.h"
 #include "sock_common.h"
 #include "sock_address.h"
@@ -18,7 +17,7 @@ public:
     SockServer(SockFamily family, unsigned short int port);
     SockServer(SockFamily family, char* address, unsigned short int port);
     SockServer(SockFamily family, char* address);
-    SockServer(SockAddress* address)
+    SockServer(SockAddress* address);
     ~SockServer();
 
     SockRet Bind();
@@ -31,7 +30,7 @@ private:
     bool init_flag_;
     rm::RMMemPool* mempool_;
 
-    SockAddress s_address_
+    SockAddress* s_address_;
     unsigned int listen_cache_;
     SockFD* listen_fd_;
 
