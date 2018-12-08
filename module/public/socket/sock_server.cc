@@ -125,6 +125,31 @@ SockRet SockServer::Accept(SockFD* sockfd)
         SOCK_ERROR("%s", "UDP socket no need be accepted");
         return SockRet::ERROR;
     }
+    int temp_errno;
+    struct sockaddr addr;
+    socklen_t addlen;
+    int acpt_fd = accept(this->listen_fd_->getFD(), &addr, &addrlen);
+    if (acpt_fd < 0) {
+        temp_errno = errno;
+        SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
+        return _errno2ret(temp_errno);
+    }
+    *sockfd = SockFD(acpt_fd);
+    sockfd->orig = SockAddress(this->s_address_);
+    switch(addr.sa_family) {
+        case AF_LOCAL:
+            sockfd->dest = SockAddress(this->family_, ((sockaddr_un)addr).sun_path);
+            break;
+        case AF_INET:
+            sockfd->dest = SockAddress(this->family_, inet_ntoa(((sockaddr_in)addr).sin_addr.s_addr), ((sockaddr_in)addr).sin_port);
+            break;
+        case AF_INET6:
+            sockfd->dest = SockAddress(this->family_, inet_ntop(AF_INET6, ((sockaddr_in6)addr).sin6_addr, ((sockaddr_in6)addr).sin6_port);
+            break;
+        default:
+            SOCK_ERROR("Unkown destnation family[%s]", addr.sa_family);
+            break;
+    }
     return SockRet::SUCCESS;
 }
 
@@ -146,6 +171,7 @@ SockRet SockServer::_socket()
     if (!this->listen_fd_) {
         return SockRet::EMALLOC;
     }
+    this->listen_fd_->orig = SockAddress(*(this->s_address_));
     return SockRet::SUCCESS;
 }
 

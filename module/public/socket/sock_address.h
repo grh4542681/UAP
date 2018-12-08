@@ -5,12 +5,15 @@
 
 #include <sys/socket.h>
 #include "sock_common.h"
+#include "sock_return.h"
 
 namespace sock{
 
 class SockAddress {
 public:
     friend class SockServer;
+    friend class SockFD;
+    SockAddress();
     SockAddress(SockFamily family, unsigned short int port);
     SockAddress(SockFamily family, char* address, unsigned short int port);
     SockAddress(SockFamily family, char* address);
@@ -28,6 +31,9 @@ private:
     int domain_;
     int type_;
 
+    SockRet _init(SockFamily family, unsigned short int port);
+    SockRet _init(SockFamily family, char* address, unsigned short int port);
+    SockRet _init(SockFamily family, char* address);
 };
 
 }

@@ -5,6 +5,7 @@
 
 #include "rm_mempool.h"
 #include "sock_return.h"
+#include "sock_address.h"
 
 namespace sock{
 
@@ -27,8 +28,8 @@ private:
 
     bool init_flag_;
     unsigned int fd_;
-    struct sockaddr orig;
-    struct sockaddr dest;
+    SockAddress orig;
+    SockAddress dest;
     rm::RMMemPool* mempool_;
 
     int _close();

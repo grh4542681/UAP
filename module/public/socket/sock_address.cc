@@ -1,12 +1,27 @@
 #include "sock_address.h"
-#include "sock_log.h"
 
 namespace sock {
 
-SockAddress::SockAddress(SockFamily family, unsigned short int port)
-            :family_(family), port_(port)
+SockAddress::SockAddress()
 {
-    switch(this->family_){
+    this->init_flag_ = false;
+}
+SockAddress(SockFamily family, unsigned short int port)
+{
+    _init(family, port);
+}
+SockAddress(SockFamily family, char* address, unsigned short int port)
+{
+    _init(family, address, port);
+}
+SockAddress(SockFamily family, char* address)
+{
+    _init(family, address);
+}
+
+SockRet SockAddress::_init(SockFamily family, unsigned short int port)
+{
+    switch(family_){
         case SockFamily::TCP_INET4:
             this->domain_ = AF_INET;
             this->type_ = SOCK_STREAM;
@@ -33,12 +48,13 @@ SockAddress::SockAddress(SockFamily family, unsigned short int port)
             this->init_flag_ = false;
             return;
     }
+    this->family_ = family;
+    this->port = port;
     this->address_.clear();
     this->init_flag_ = true;
 }
 
-SockAddress::SockAddress(SockFamily family, char* address, unsigned short int port)
-                    :family_(family), port_(port)
+SockRet SockAddress::_init(SockFamily family, char* address, unsigned short int port)
 {
     switch(this->family_){
         case SockFamily::TCP_INET4:
@@ -67,12 +83,13 @@ SockAddress::SockAddress(SockFamily family, char* address, unsigned short int po
             this->init_flag_ = false;
             return;
     }
+    this->family_ = family;
+    this->port = port;    
     this->address_ = address;
     this->init_flag_ = true;
 }
 
-SockAddress::SockAddress(SockFamily family, char* address)
-                    :family_(family)
+ SockRet SockAddress::_init(SockFamily family, char* address)
 {
     switch(this->family_){
         case SockFamily::TCP_LOCAL:
@@ -95,6 +112,7 @@ SockAddress::SockAddress(SockFamily family, char* address)
             this->init_flag_ = false;
             return;
     }
+    this->family_ = family;
     this->address_ = address;
     this->init_flag_ = true;
 }
