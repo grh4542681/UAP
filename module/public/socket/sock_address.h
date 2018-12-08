@@ -2,22 +2,30 @@
 #define __SOCK_ADDRESS_H__
 
 #include <sys/socket.h>
+#include "sock_common.h"
+#include "sock_server.h"
 
 namespace sock{
 
 class SockAddress {
 public:
-
-    SockAddress(unsigned short int port);
-    SockAddress(char* address, unsigned short int port);
-    SockAddress(char* unixfile);
+    friend class SockServer;
+    SockAddress(SockFamily family, unsigned short int port);
+    SockAddress(SockFamily family, char* address, unsigned short int port);
+    SockAddress(SockFamily family, char* address);
 
     sockaddr* getSockaddr();
     unsigned short int getPort();
     bool isLocal();
+    bool AddrChecek();
 private:
-    sockaddr address_;
+    bool init_flag_;
+
+    SockFamily family_
+    std::string address_;
     unsigned short int port_;
+    int domain_;
+    int type_;
 
 };
 

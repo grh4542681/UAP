@@ -7,8 +7,9 @@
 #include "rm_mempool.h"
 
 #include "sock_return.h"
-#include "sock_fd.h"
 #include "sock_common.h"
+#include "sock_address.h"
+#include "sock_fd.h"
 
 namespace sock{
 
@@ -17,6 +18,7 @@ public:
     SockServer(SockFamily family, unsigned short int port);
     SockServer(SockFamily family, char* address, unsigned short int port);
     SockServer(SockFamily family, char* address);
+    SockServer(SockAddress* address)
     ~SockServer();
 
     SockRet Bind();
@@ -29,13 +31,8 @@ private:
     bool init_flag_;
     rm::RMMemPool* mempool_;
 
-    SockFamily family_;
-    std::string address_;
-    unsigned short int port_;
-    int domain_;
-    int type_;
+    SockAddress s_address_
     unsigned int listen_cache_;
-
     SockFD* listen_fd_;
 
     static SockRet _errno2ret(int ierrno){

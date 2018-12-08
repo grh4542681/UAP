@@ -27,6 +27,8 @@ private:
 
     bool init_flag_;
     unsigned int fd_;
+    struct sockaddr orig;
+    struct sockaddr dest;
     rm::RMMemPool* mempool_;
 
     int _close();

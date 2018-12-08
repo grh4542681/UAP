@@ -57,6 +57,7 @@ SockRet SockFD::setFD(unsigned int fd)
         if (temp_errno == EBADF) {
             SOCK_ERROR("%s", strerror(temp_errno));
             this->init_flag_ = false;
+            return _errno2ret(temp_errno);
         }
     } else {
         if (flag) {
@@ -65,8 +66,10 @@ SockRet SockFD::setFD(unsigned int fd)
         } else {
             SOCK_ERROR("sock fd [%d] no be listened!", fd);
             this->init_flag_ = false;
+            return SockRet::ERROR;
         }
     }
+    return SockRet::SUCCESS;
 }
 
 unsigned int SockFD::getFD()
@@ -74,7 +77,7 @@ unsigned int SockFD::getFD()
     if (this->init_flag_) {
         return this->fd_;
     } else {
-        return (0);
+        return (-1);
     }
 }
 
