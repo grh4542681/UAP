@@ -14,9 +14,10 @@ namespace sock{
 
 class SockServer {
 public:
+    
     SockServer(SockFamily family, unsigned short int port);
-    SockServer(SockFamily family, char* address, unsigned short int port);
-    SockServer(SockFamily family, char* address);
+    SockServer(SockFamily family, const char* address, unsigned short int port);
+    SockServer(SockFamily family, const char* address);
     SockServer(SockAddress* address);
     ~SockServer();
 
@@ -29,7 +30,6 @@ private:
 
     bool init_flag_;
     rm::RMMemPool* mempool_;
-
     SockAddress* s_address_;
     unsigned int listen_cache_;
     SockFD* listen_fd_;

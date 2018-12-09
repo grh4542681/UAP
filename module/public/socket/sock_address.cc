@@ -1,22 +1,11 @@
 #include "sock_address.h"
+#include "sock_log.h"
 
 namespace sock {
 
 SockAddress::SockAddress()
 {
     this->init_flag_ = false;
-}
-SockAddress(SockFamily family, unsigned short int port)
-{
-    _init(family, port);
-}
-SockAddress(SockFamily family, char* address, unsigned short int port)
-{
-    _init(family, address, port);
-}
-SockAddress(SockFamily family, char* address)
-{
-    _init(family, address);
 }
 
 SockRet SockAddress::_init(SockFamily family, unsigned short int port)
@@ -42,19 +31,20 @@ SockRet SockAddress::_init(SockFamily family, unsigned short int port)
         case SockFamily::UDP_LOCAL:
             SOCK_ERROR("%s", "Local socket need unixfile not port!");
             this->init_flag_ = false;
-            return;
+            return SockRet::EINIT;
         default:
             SOCK_ERROR("%s", "Unknow socket family!");
             this->init_flag_ = false;
-            return;
+            return SockRet::EINIT;
     }
     this->family_ = family;
-    this->port = port;
+    this->port_ = port;
     this->address_.clear();
     this->init_flag_ = true;
+    return SockRet::SUCCESS;
 }
 
-SockRet SockAddress::_init(SockFamily family, char* address, unsigned short int port)
+SockRet SockAddress::_init(SockFamily family, const char* address, unsigned short int port)
 {
     switch(this->family_){
         case SockFamily::TCP_INET4:
@@ -77,19 +67,20 @@ SockRet SockAddress::_init(SockFamily family, char* address, unsigned short int 
         case SockFamily::UDP_LOCAL:
             SOCK_ERROR("%s", "Local socket need unixfile not port!");
             this->init_flag_ = false;
-            return;
+            return SockRet::EINIT;
         default:
             SOCK_ERROR("%s", "Unknow socket family!");
             this->init_flag_ = false;
-            return;
+            return SockRet::EINIT;
     }
     this->family_ = family;
-    this->port = port;    
+    this->port_ = port;    
     this->address_ = address;
     this->init_flag_ = true;
+    return SockRet::SUCCESS;
 }
 
- SockRet SockAddress::_init(SockFamily family, char* address)
+SockRet SockAddress::_init(SockFamily family, const char* address)
 {
     switch(this->family_){
         case SockFamily::TCP_LOCAL:
@@ -106,15 +97,16 @@ SockRet SockAddress::_init(SockFamily family, char* address, unsigned short int 
         case SockFamily::UDP_INET6:
             SOCK_ERROR("%s", "Inet socket need port!");
             this->init_flag_ = false;
-            return;
+            return SockRet::EINIT;
         default:
             SOCK_ERROR("%s", "Unknow socket family!");
             this->init_flag_ = false;
-            return;
+            return SockRet::EINIT;
     }
     this->family_ = family;
     this->address_ = address;
     this->init_flag_ = true;
+    return SockRet::SUCCESS;
 }
 
 bool SockAddress::AddrChecek()

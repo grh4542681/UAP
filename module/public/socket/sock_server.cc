@@ -9,6 +9,7 @@
 #include "sock_log.h"
 #include "sock_server.h"
 
+#define SOCK_ADDRESS_MAX_LEN (256)
 #define SOCK_DEFAULT_LISTEN_CACHE (100)
 
 namespace sock {
@@ -30,7 +31,7 @@ SockServer::SockServer(SockFamily family, unsigned short int port)
     this->init_flag_ = true;
 }
 
-SockServer::SockServer(SockFamily family, char* address, unsigned short int port)
+SockServer::SockServer(SockFamily family, const char* address, unsigned short int port)
 {
     this->mempool_ = rm::RMMemPool::getInstance();
     if (!this->mempool_) {
@@ -47,7 +48,7 @@ SockServer::SockServer(SockFamily family, char* address, unsigned short int port
     this->init_flag_ = true;
 }
 
-SockServer::SockServer(SockFamily family, char* address)
+SockServer::SockServer(SockFamily family, const char* address)
 {
     this->mempool_ = rm::RMMemPool::getInstance();
     if (!this->mempool_) {
@@ -126,28 +127,55 @@ SockRet SockServer::Accept(SockFD* sockfd)
         return SockRet::ERROR;
     }
     int temp_errno;
-    struct sockaddr addr;
-    socklen_t addlen;
-    int acpt_fd = accept(this->listen_fd_->getFD(), &addr, &addrlen);
-    if (acpt_fd < 0) {
-        temp_errno = errno;
-        SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
-        return _errno2ret(temp_errno);
-    }
-    *sockfd = SockFD(acpt_fd);
-    sockfd->orig = SockAddress(this->s_address_);
-    switch(addr.sa_family) {
+    int acpt_fd = -1;
+    switch(this->s_address_->type_) {
         case AF_LOCAL:
-            sockfd->dest = SockAddress(this->family_, ((sockaddr_un)addr).sun_path);
+            struct sockaddr_un un_addr;
+            socklen_t un_addrlen;
+            acpt_fd = accept(this->listen_fd_->getFD(), (struct sockaddr*)&un_addr, &un_addrlen);
+            if (acpt_fd < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            *sockfd = SockFD(acpt_fd);
+            sockfd->orig = SockAddress(*(this->s_address_));
+            sockfd->dest = SockAddress(this->s_address_->family_, un_addr.sun_path);
             break;
         case AF_INET:
-            sockfd->dest = SockAddress(this->family_, inet_ntoa(((sockaddr_in)addr).sin_addr.s_addr), ((sockaddr_in)addr).sin_port);
+            struct sockaddr_in in_addr;
+            socklen_t in_addrlen;
+            acpt_fd = accept(this->listen_fd_->getFD(), (struct sockaddr*)&in_addr, &in_addrlen);
+            if (acpt_fd < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            *sockfd = SockFD(acpt_fd);
+            sockfd->orig = SockAddress(*(this->s_address_));
+            sockfd->dest = SockAddress(this->s_address_->family_, inet_ntoa(in_addr.sin_addr), in_addr.sin_port);
             break;
         case AF_INET6:
-            sockfd->dest = SockAddress(this->family_, inet_ntop(AF_INET6, ((sockaddr_in6)addr).sin6_addr, ((sockaddr_in6)addr).sin6_port);
+            struct sockaddr_in6 in6_addr;
+            char c_in6_addr[SOCK_ADDRESS_MAX_LEN];
+            socklen_t in6_addrlen;
+            acpt_fd = accept(this->listen_fd_->getFD(), (struct sockaddr*)&in6_addr, &in6_addrlen);
+            if (acpt_fd < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            if (!inet_ntop(AF_INET6, &in6_addr.sin6_addr, c_in6_addr, SOCK_ADDRESS_MAX_LEN)) {
+                temp_errno = errno;
+                SOCK_ERROR("%s%s", "Accept socket error, inet_ntop error", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            *sockfd = SockFD(acpt_fd);
+            sockfd->orig = SockAddress(*(this->s_address_));
+            sockfd->dest = SockAddress(this->s_address_->family_, c_in6_addr, in6_addr.sin6_port);
             break;
         default:
-            SOCK_ERROR("Unkown destnation family[%s]", addr.sa_family);
+            SOCK_ERROR("Unkown destnation family[%d]", this->s_address_->type_);
             break;
     }
     return SockRet::SUCCESS;
@@ -211,7 +239,7 @@ SockRet SockServer::_bind()
         struct sockaddr_in6 addr;
         addr.sin6_family = AF_INET6;
         if (this->s_address_->address_.empty()) {
-            addr.sin6_addr = IN6ADDR_ANY_INIT;
+            addr.sin6_addr = in6addr_any;
         } else {
           ret = inet_pton(AF_INET6, this->s_address_->address_.c_str(), &(addr.sin6_addr));
           if (ret < 0) {
@@ -222,7 +250,7 @@ SockRet SockServer::_bind()
         }
         addr.sin6_port = htons(this->s_address_->port_);
 
-        ret = bind(this->listen_fd_->getFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr));
+        ret = bind(this->listen_fd_->getFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr_in6));
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "bind socket error, ", strerror(temp_errno));

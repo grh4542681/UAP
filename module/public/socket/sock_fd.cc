@@ -12,8 +12,6 @@ namespace sock{
 SockFD::SockFD(){
     this->mempool_ = rm::RMMemPool::getInstance();
     this->fd_ = -1;
-    this->orig = NULL;
-    this->dest = NULL;
     this->init_flag_ = false;
 }
 

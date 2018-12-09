@@ -11,6 +11,9 @@ namespace sock{
 
 class SockFD{
 public:
+    SockAddress orig;
+    SockAddress dest;
+
     SockFD();
     SockFD(unsigned int fd);
     ~SockFD();
@@ -28,8 +31,6 @@ private:
 
     bool init_flag_;
     unsigned int fd_;
-    SockAddress orig;
-    SockAddress dest;
     rm::RMMemPool* mempool_;
 
     int _close();

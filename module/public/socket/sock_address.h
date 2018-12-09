@@ -14,9 +14,15 @@ public:
     friend class SockServer;
     friend class SockFD;
     SockAddress();
-    SockAddress(SockFamily family, unsigned short int port);
-    SockAddress(SockFamily family, char* address, unsigned short int port);
-    SockAddress(SockFamily family, char* address);
+    SockAddress(SockFamily family, unsigned short int port):family_(family){
+        this->_init(family, port);
+    }
+    SockAddress(SockFamily family, const char* address, unsigned short int port):family_(family){
+        this->_init(family, address, port);
+    }
+    SockAddress(SockFamily family, const char* address):family_(family){
+        this->_init(family, address);
+    }
 
     sockaddr* getSockaddr();
     unsigned short int getPort();
@@ -32,8 +38,8 @@ private:
     int type_;
 
     SockRet _init(SockFamily family, unsigned short int port);
-    SockRet _init(SockFamily family, char* address, unsigned short int port);
-    SockRet _init(SockFamily family, char* address);
+    SockRet _init(SockFamily family, const char* address, unsigned short int port);
+    SockRet _init(SockFamily family, const char* address);
 };
 
 }
