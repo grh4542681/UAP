@@ -1,4 +1,4 @@
-SET(LIBGRHSOCKET_SRC sock_address.cc sock_fd.cc sock_server.cc)
+SET(LIBGRHSOCKET_SRC sock_address.cc sock_fd.cc sock_server.cc sock_client.cc)
 ADD_LIBRARY(GRHsocket_SO SHARED ${LIBGRHSOCKET_SRC})
 ADD_LIBRARY(GRHsocket_A STATIC ${LIBGRHSOCKET_SRC})
 INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/module/rm")

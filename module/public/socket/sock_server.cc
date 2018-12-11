@@ -9,7 +9,6 @@
 #include "sock_log.h"
 #include "sock_server.h"
 
-#define SOCK_ADDRESS_MAX_LEN (256)
 #define SOCK_DEFAULT_LISTEN_CACHE (100)
 
 namespace sock {
@@ -22,7 +21,7 @@ SockServer::SockServer(SockFamily family, unsigned short int port)
         return;
     }
     this->s_address_ = this->mempool_->Malloc<SockAddress>(family, port);
-    if (!this->s_address_->AddrChecek()) {
+    if (!this->s_address_->AddrCheck()) {
         this->init_flag_ = false;
         return;
     }
@@ -39,7 +38,7 @@ SockServer::SockServer(SockFamily family, const char* address, unsigned short in
         return;
     }
     this->s_address_ = this->mempool_->Malloc<SockAddress>(family, address, port);
-    if (!this->s_address_->AddrChecek()) {
+    if (!this->s_address_->AddrCheck()) {
         this->init_flag_ = false;
         return;
     }
@@ -56,7 +55,7 @@ SockServer::SockServer(SockFamily family, const char* address)
         return;
     }
     this->s_address_ = this->mempool_->Malloc<SockAddress>(family, address);
-    if (!this->s_address_->AddrChecek()) {
+    if (!this->s_address_->AddrCheck()) {
         this->init_flag_ = false;
         return;
     }
@@ -68,8 +67,12 @@ SockServer::SockServer(SockFamily family, const char* address)
 SockServer::SockServer(SockAddress* address)
 {
     this->mempool_ = rm::RMMemPool::getInstance();
+    if (!this->mempool_) {
+        this->init_flag_ = false;
+        return;
+    }
     this->s_address_ = this->mempool_->Malloc<SockAddress>(*address);
-    if (!this->s_address_->AddrChecek()) {
+    if (!this->s_address_->AddrCheck()) {
         this->init_flag_ = false;
         return;
     }
@@ -80,14 +83,12 @@ SockServer::SockServer(SockAddress* address)
 
 SockServer::~SockServer()
 {
-    if( this->init_flag_ ) {
-        if (this->listen_fd_) {
-            this->listen_fd_->Close();
-            this->mempool_->Free<SockFD>(this->listen_fd_);
-        }
-        if (this->s_address_) {
-            this->mempool_->Free<SockAddress>(this->s_address_);
-        }
+    if (this->listen_fd_) {
+        this->listen_fd_->Close();
+        this->mempool_->Free<SockFD>(this->listen_fd_);
+    }
+    if (this->s_address_) {
+        this->mempool_->Free<SockAddress>(this->s_address_);
     }
 }
 
@@ -99,6 +100,11 @@ SockRet SockServer::Bind()
         return SockRet::EINIT;
     }
     if ((ret = _socket()) != SockRet::SUCCESS) {
+        if (this->listen_fd_) {
+            this->listen_fd_->Close();
+            this->mempool_->Free<SockFD>(this->listen_fd_);
+            this->listen_fd_ = NULL;
+        }
         return ret;
     }
     if ((ret = _bind()) != SockRet::SUCCESS) {
@@ -128,7 +134,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
     }
     int temp_errno;
     int acpt_fd = -1;
-    switch(this->s_address_->type_) {
+    switch(this->s_address_->domain_) {
         case AF_LOCAL:
             struct sockaddr_un un_addr;
             socklen_t un_addrlen;
@@ -170,7 +176,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
                 SOCK_ERROR("%s%s", "Accept socket error, inet_ntop error", strerror(temp_errno));
                 return _errno2ret(temp_errno);
             }
-            *sockfd = SockFD(acpt_fd);
+            sockfd->setFD(acpt_fd);
             sockfd->orig = SockAddress(*(this->s_address_));
             sockfd->dest = SockAddress(this->s_address_->family_, c_in6_addr, in6_addr.sin6_port);
             break;
@@ -185,8 +191,14 @@ SockRet SockServer::_socket()
 {
     int temp_errno;
     int sockfd = 0;
+    int on = 1;
     sockfd = socket(this->s_address_->domain_, this->s_address_->type_, 0);
     if (sockfd < 0) {
+        temp_errno = errno;
+        SOCK_ERROR("%s%s", "Create socket error, ", strerror(temp_errno));
+        return _errno2ret(temp_errno);
+    }
+    if ((setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on))) < 0) {
         temp_errno = errno;
         SOCK_ERROR("%s%s", "Create socket error, ", strerror(temp_errno));
         return _errno2ret(temp_errno);

@@ -21,8 +21,12 @@ public:
     unsigned int getFD();
     SockRet setFD(unsigned int fd);
 
+    bool isClientFD();
+    bool isServerFD();
+    bool isAcceptFD();
+
     void Close();
-    size_t Send(void* data, size_t datalen);
+    size_t Send(const void* data, size_t datalen);
     size_t Recv(void* data, size_t datalen);
     size_t SendFD(struct sockaddr_in* dest, unsigned int fd, int flags);
     size_t RecvFD(struct sockaddr_in* orig, unsigned int *fd, int flags);
@@ -35,7 +39,7 @@ private:
 
     int _close();
 
-    size_t _send(struct sockaddr_in* dest, void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags);
+    size_t _send(struct sockaddr_in* dest, const void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags);
     size_t _recv(struct sockaddr_in* orig, void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags);
 };
 

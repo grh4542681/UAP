@@ -3,6 +3,8 @@
 
 namespace sock {
 
+#define SOCK_ADDRESS_MAX_LEN (256)
+
 typedef enum class _SockFamily{
     TCP_LOCAL = 0,
     TCP_INET4,

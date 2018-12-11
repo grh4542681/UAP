@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/socket.h>
 #include <string.h>
 #include <errno.h>
@@ -11,30 +12,26 @@ namespace sock{
 
 SockFD::SockFD(){
     this->mempool_ = rm::RMMemPool::getInstance();
-    this->fd_ = -1;
+    this->fd_ = 0;
     this->init_flag_ = false;
 }
 
 SockFD::SockFD(unsigned int fd){
     int temp_errno = 0;
-    int flag;
-    socklen_t flaglen;
-    if ((getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &flag, &flaglen))) {
+    struct stat fd_stat;
+    if (fstat(fd, &fd_stat)) {
         temp_errno = errno;
-        if (temp_errno == EBADF) {
-            SOCK_ERROR("%s", strerror(temp_errno));
-            this->init_flag_ = false;
-        }
-    } else {
-        if (flag) {
-            this->init_flag_ = true;
-            this->fd_ = fd;
-            this->mempool_ = rm::RMMemPool::getInstance();
-        } else {
-            SOCK_ERROR("sock fd [%d] no be listened!", fd);
-            this->init_flag_ = false;
-        }
+        SOCK_ERROR("%s", strerror(temp_errno));
+        this->init_flag_ = false;
     }
+    if (!S_ISSOCK(fd_stat.st_mode)) {
+        SOCK_ERROR("fd[%d] not a socket fd", fd);
+        this->init_flag_ = false;
+    }
+
+    this->mempool_ = rm::RMMemPool::getInstance();
+    this->fd_ = fd;
+    this->init_flag_ = true;
 }
 
 SockFD::~SockFD(){
@@ -45,30 +42,23 @@ SockFD::~SockFD(){
 
 SockRet SockFD::setFD(unsigned int fd)
 {
-    int temp_errno = 0;
-    int flag;
-    socklen_t flaglen;
     if (this->fd_ > 0) {
         _close();
-        this->fd_ = -1;
+        this->fd_ = 0;
     }
-    if ((getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &flag, &flaglen))) {
+    int temp_errno = 0;
+    struct stat fd_stat;
+    if (fstat(fd, &fd_stat)) {
         temp_errno = errno;
-        if (temp_errno == EBADF) {
-            SOCK_ERROR("%s", strerror(temp_errno));
-            this->init_flag_ = false;
-            return SockRet::ERROR;
-        }
-    } else {
-        if (flag) {
-            this->init_flag_ = true;
-            this->fd_ = fd;
-        } else {
-            SOCK_ERROR("sock fd [%d] no be listened!", fd);
-            this->init_flag_ = false;
-            return SockRet::ERROR;
-        }
+        SOCK_ERROR("%s", strerror(temp_errno));
+        this->init_flag_ = false;
     }
+    if (!S_ISSOCK(fd_stat.st_mode)) {
+        SOCK_ERROR("fd[%d] not a socket fd", fd);
+        this->init_flag_ = false;
+    }
+    this->fd_ = fd;
+    this->init_flag_ = true;
     return SockRet::SUCCESS;
 }
 
@@ -89,7 +79,7 @@ void SockFD::Close()
     this->init_flag_ = false;
 }
 
-size_t SockFD::Send(void* data, size_t datalen)
+size_t SockFD::Send(const void* data, size_t datalen)
 {
     return _send(NULL, data, datalen, NULL, 0, 0);
 }
@@ -142,10 +132,11 @@ size_t SockFD::RecvFD(struct sockaddr_in* dest, unsigned int* fd, int flags)
 //private
 int SockFD::_close()
 {
+    SOCK_DEBUG("sockfd[%d] closed", this->fd_);
     return close(this->fd_);
 }
 
-size_t SockFD::_send(struct sockaddr_in* dest, void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags)
+size_t SockFD::_send(struct sockaddr_in* dest, const void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags)
 {
     int ret = 0;
     if (!data && !ctrldata) {

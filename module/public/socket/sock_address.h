@@ -11,8 +11,9 @@ namespace sock{
 
 class SockAddress {
 public:
-    friend class SockServer;
     friend class SockFD;
+    friend class SockServer;
+    friend class SockClient;
     SockAddress();
     SockAddress(SockFamily family, unsigned short int port):family_(family){
         this->_init(family, port);
@@ -27,7 +28,7 @@ public:
     sockaddr* getSockaddr();
     unsigned short int getPort();
     bool isLocal();
-    bool AddrChecek();
+    bool AddrCheck();
 private:
     bool init_flag_;
 

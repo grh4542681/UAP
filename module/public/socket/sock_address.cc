@@ -109,7 +109,7 @@ SockRet SockAddress::_init(SockFamily family, const char* address)
     return SockRet::SUCCESS;
 }
 
-bool SockAddress::AddrChecek()
+bool SockAddress::AddrCheck()
 {
     return this->init_flag_;
 }
