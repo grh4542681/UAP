@@ -80,15 +80,36 @@ SockClient::SockClient(SockAddress* address)
 
 SockClient::~SockClient()
 {
-
+    if (this->conn_fd_) {
+        this->conn_fd_->Close();
+        this->mempool_->Free<SockFD>(this->conn_fd_);
+    }   
+    if (this->s_address_) {
+        this->mempool_->Free<SockAddress>(this->s_address_);
+    }
 }
 
-SockRet SockClient::Connect(SockFD* sockfd)
+SockFD* SockClient::getSockFD()
+{
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "Not initialized")
+        return NULL;
+    }
+    return this->conn_fd_;
+}
+
+SockRet SockClient::setTimeout(struct timeval* overtime)
+{
+    SOCK_DEBUG("Not support now");
+    return SockRet::SUCCESS;
+}
+
+SockFD* SockClient::Connect()
 {
     SockRet ret;
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "Not initialized")
-        return SockRet::EINIT;
+        return NULL;
     }
     if ((ret = _socket()) != SockRet::SUCCESS) {
         if (this->conn_fd_) {
@@ -96,7 +117,6 @@ SockRet SockClient::Connect(SockFD* sockfd)
             this->mempool_->Free<SockFD>(this->conn_fd_);
             this->conn_fd_ = NULL;
         }
-        return ret;
     }
     if (this->s_address_->type_ == SOCK_DGRAM) {
         SOCK_DEBUG("%s", "UDP no need connect");
@@ -105,11 +125,9 @@ SockRet SockClient::Connect(SockFD* sockfd)
             this->conn_fd_->Close();
             this->mempool_->Free<SockFD>(this->conn_fd_);
             this->conn_fd_ = NULL;
-            return ret;
         }
     }
-    sockfd->setFD(this->conn_fd_->getFD());
-    return SockRet::SUCCESS;
+    return this->conn_fd_;
 }
 
 //private

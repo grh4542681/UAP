@@ -18,7 +18,9 @@ public:
     SockClient(SockAddress* address);
     ~SockClient();
 
-    SockRet Connect(SockFD* sockfd);
+    SockFD* getSockFD();
+    SockRet setTimeout(struct timeval* overtime);
+    SockFD* Connect();
 
 private:
     SockClient(const SockClient&);

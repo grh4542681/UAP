@@ -11,8 +11,8 @@ namespace sock{
 
 class SockFD{
 public:
-    SockAddress orig;
-    SockAddress dest;
+    friend class SockServer;
+    friend class SockClient;
 
     SockFD();
     SockFD(unsigned int fd);
@@ -20,6 +20,11 @@ public:
 
     unsigned int getFD();
     SockRet setFD(unsigned int fd);
+
+    SockRet setSendBlock(struct timeval* overtime);
+    SockRet setSendNonBlock();
+    SockRet setRecvBlock(struct timeval* overtime);
+    SockRet setRecvNonBlock();
 
     bool isClientFD();
     bool isServerFD();
@@ -36,6 +41,8 @@ private:
     bool init_flag_;
     unsigned int fd_;
     rm::RMMemPool* mempool_;
+    SockAddress orig;
+    SockAddress dest;
 
     int _close();
 

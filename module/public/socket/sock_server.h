@@ -21,6 +21,8 @@ public:
     SockServer(SockAddress* address);
     ~SockServer();
 
+    SockFD* getSockFD();
+
     SockRet Bind();
     SockRet Accept(SockFD* sockfd);
 

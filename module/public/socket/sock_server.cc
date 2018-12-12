@@ -92,6 +92,15 @@ SockServer::~SockServer()
     }
 }
 
+SockFD* SockServer::getSockFD()
+{
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "Not initialized")
+        return NULL;
+    }
+    return this->listen_fd_;
+}
+
 SockRet SockServer::Bind()
 {
     SockRet ret;
@@ -128,7 +137,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
         SOCK_ERROR("%s", "Not initialized")
         return SockRet::ERROR;
     }
-    if (this->s_address_->domain_ == SOCK_DGRAM) {
+    if (this->s_address_->type_ == SOCK_DGRAM) {
         SOCK_ERROR("%s", "UDP socket no need be accepted");
         return SockRet::ERROR;
     }
@@ -144,7 +153,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
                 SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
                 return _errno2ret(temp_errno);
             }
-            *sockfd = SockFD(acpt_fd);
+            sockfd->setFD(acpt_fd);
             sockfd->orig = SockAddress(*(this->s_address_));
             sockfd->dest = SockAddress(this->s_address_->family_, un_addr.sun_path);
             break;
@@ -157,7 +166,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
                 SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
                 return _errno2ret(temp_errno);
             }
-            *sockfd = SockFD(acpt_fd);
+            sockfd->setFD(acpt_fd);
             sockfd->orig = SockAddress(*(this->s_address_));
             sockfd->dest = SockAddress(this->s_address_->family_, inet_ntoa(in_addr.sin_addr), in_addr.sin_port);
             break;

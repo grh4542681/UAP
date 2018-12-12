@@ -71,6 +71,30 @@ unsigned int SockFD::getFD()
     }
 }
 
+bool SockFD::isClientFD()
+{
+    if (!this->orig.AddrCheck() && this->dest.AddrCheck()) {
+        return true;
+    }
+    return false;
+}
+
+bool SockFD::isServerFD()
+{
+    if (this->orig.AddrCheck() && !this->dest.AddrCheck()) {
+        return true;
+    }
+    return false;
+}
+
+bool SockFD::isAcceptFD()
+{
+    if (this->orig.AddrCheck() && this->dest.AddrCheck()) {
+        return true;
+    }
+    return false;
+}
+
 void SockFD::Close()
 {
     if (this->init_flag_) {
