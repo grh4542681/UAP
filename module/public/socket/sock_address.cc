@@ -1,3 +1,7 @@
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/un.h>
+
 #include "sock_address.h"
 #include "sock_log.h"
 
@@ -106,6 +110,50 @@ SockRet SockAddress::_init(SockFamily family, const char* address)
     this->family_ = family;
     this->address_ = address;
     this->init_flag_ = true;
+    return SockRet::SUCCESS;
+}
+
+SockRet SockAddress::ToSockaddr(struct sockaddr* addr)
+{
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "Not initialized");
+        return SockRet::EINIT;
+    }
+    if (!addr) {
+        SOCK_ERROR("%s", "Bad arguments");
+        return SockRet::EBADARGS;
+    }
+
+    switch(this->domain_){
+        case AF_LOCAL:
+            ((struct sockaddr_un*)addr)->sun_family = this->domain_;
+            strcpy(((struct sockaddr_un*)addr)->sun_path, this->address_.c_str());
+            break;
+        case AF_INET:
+            ((struct sockaddr_in*)addr)->sin_family = this->domain_;
+            if (this->address_.empty()) {
+                ((struct sockaddr_in*)addr)->sin_addr.s_addr = htonl(INADDR_ANY);
+            } else {
+                ((struct sockaddr_in*)addr)->sin_addr.s_addr = htonl(inet_addr(this->address_.c_str()));
+            }   
+            ((struct sockaddr_in*)addr)->sin_port = htons(this->port_);
+            break;
+        case AF_INET6:
+            ((struct sockaddr_in6*)addr)->sin6_family = AF_INET6;
+            if (this->address_.empty()) {
+                ((struct sockaddr_in6*)addr)->sin6_addr = in6addr_any;
+            } else {
+                if (inet_pton(AF_INET6, this->address_.c_str(), &(((struct sockaddr_in6*)addr)->sin6_addr)) < 0) {
+                    SOCK_ERROR("Address is not in presentation format[%s]", this->address_.c_str());
+                    return SockRet::ERROR;
+                }
+            }
+            ((struct sockaddr_in6*)addr)->sin6_port = htons(this->port_);
+            break;
+        default:
+            SOCK_ERROR("%s", "Unknow socket family!");
+            return SockRet::ERROR;
+    }
     return SockRet::SUCCESS;
 }
 

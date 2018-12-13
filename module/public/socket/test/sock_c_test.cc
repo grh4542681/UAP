@@ -12,6 +12,7 @@ int main()
     //sock::SockClient s = sock::SockClient(sock::SockFamily::TCP_INET6, 60004);
     //sock::SockClient s = sock::SockClient(sock::SockFamily::TCP_INET4, 60004);
     fd = s.Connect();
+    sleep(5);
     fd->Send("hello world", 12);
     fd->Close();
     return 0;

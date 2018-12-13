@@ -95,7 +95,7 @@ SockServer::~SockServer()
 SockFD* SockServer::getSockFD()
 {
     if (!this->init_flag_) {
-        SOCK_ERROR("%s", "Not initialized")
+        SOCK_ERROR("%s", "Not initialized");
         return NULL;
     }
     return this->listen_fd_;
@@ -105,7 +105,7 @@ SockRet SockServer::Bind()
 {
     SockRet ret;
     if (!this->init_flag_) {
-        SOCK_ERROR("%s", "Not initialized")
+        SOCK_ERROR("%s", "Not initialized");
         return SockRet::EINIT;
     }
     if ((ret = _socket()) != SockRet::SUCCESS) {
@@ -134,7 +134,7 @@ SockRet SockServer::Bind()
 SockRet SockServer::Accept(SockFD* sockfd)
 {
     if (!this->init_flag_) {
-        SOCK_ERROR("%s", "Not initialized")
+        SOCK_ERROR("%s", "Not initialized");
         return SockRet::ERROR;
     }
     if (this->s_address_->type_ == SOCK_DGRAM) {

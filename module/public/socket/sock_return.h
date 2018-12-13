@@ -5,14 +5,16 @@ namespace sock{
 
 typedef enum class _SockRet: int {
 //common return val
-    SUCCESS = 0x00,
-    ERROR,
+    SUCCESS = 0,
+    ERROR = -999,
     EMALLOC,
     EINIT,
+    EBADARGS,
     ETIMEOUT,
     EUNKOWNERRNO,
 
 //socket
+    SOCK_LINKDOWN,
     SOCK_EACCES,
     SOCK_EAFNOSUPPORT,
     SOCK_EINVAL,
@@ -25,6 +27,7 @@ typedef enum class _SockRet: int {
     SOCK_EBADF,
     SOCK_ENOTSOCK,
     SOCK_EOPNOTSUPP,
+    SOCK_EAGAIN,
 
 } SockRet;
 

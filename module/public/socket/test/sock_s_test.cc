@@ -15,9 +15,11 @@ int main()
     while(1){
         sock::SockFD fd;
         s.Accept(&fd);
+        struct timeval overtime = {3,0};
+        fd.setRecvBlock(&overtime);
         memset(buff, 0x00, sizeof(buff));
-        fd.Recv(buff, sizeof(buff));
-        printf("%s\n", buff);
+        int ret = fd.Recv(buff, sizeof(buff));
+        printf("ret[%d][%s]\n", ret, buff);
         fd.Close();
     }
     return 0;
