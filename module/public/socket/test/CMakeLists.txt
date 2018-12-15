@@ -1,7 +1,0 @@
-SET(SOCK_S_TEST_SRC sock_s_test.cc)
-SET(SOCK_C_TEST_SRC sock_c_test.cc)
-ADD_EXECUTABLE(sock_s_test ${SOCK_S_TEST_SRC})
-ADD_EXECUTABLE(sock_c_test ${SOCK_C_TEST_SRC})
-INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/module/public/socket" "${FRAM_ROOT_PATH}/module/rm")
-TARGET_LINK_LIBRARIES(sock_s_test libgrm.so libgsocket.so)
-TARGET_LINK_LIBRARIES(sock_c_test libgrm.so libgsocket.so)
