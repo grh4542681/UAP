@@ -8,6 +8,15 @@
 
 namespace rm {
 
+class RMMempoolCenter{
+public:
+    static RMMempoolCenter* getInstance();
+private:
+    RMMempoolCenter();
+    ~RMMempoolCenter();
+    static RMMempoolCenter* pInstance;
+};
+
 class RMMemPool{
 public:
 
@@ -35,6 +44,7 @@ private:
     ~RMMemPool();
     thread_local static RMMemPool* pInstance;
 };
+
 
 }//namespace rm end
 

@@ -40,7 +40,7 @@ class Element {
         return (data);
     }
 
-}
+};
 
 template <typename T>
 class ThreadSafeList {
@@ -49,7 +49,7 @@ private:
     std::list<Element> list;
 
     mutex list_mutex;
-public;
+public:
     ThreadSafeList() = default;
     ThreadSafeList(ThreadSafeList&) = delete;
     ~ThreadSafeList();
@@ -63,7 +63,7 @@ public;
         list.remove(data);
     }
 
-    void exec_one(bool(judge)(data_type&), void(exec)(data_type&) {
+    void exec_one(bool (judge)(data_type&), void (exec)(data_type&)) {
         w_lock rk(list_mutex); 
         for (std::list<T>::iterator it = list.begin(); it != list.end(); it++) {
             if (func(*it)) {
@@ -79,10 +79,7 @@ public;
             exec(*it);
         }
     }
-
-    void read_one
 };
 
 }
-
 #endif
