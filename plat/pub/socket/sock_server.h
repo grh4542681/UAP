@@ -4,7 +4,7 @@
 #include <memory>
 #include <string.h>
 
-#include "rm_mempool.h"
+#include "mempool.h"
 #include "sock_return.h"
 #include "sock_common.h"
 #include "sock_address.h"
@@ -31,7 +31,7 @@ private:
     const SockServer& operator=(const SockServer&);
 
     bool init_flag_;
-    rm::RMMemPool* mempool_;
+    pub::MemPool* mempool_;
     SockAddress* s_address_;
     unsigned int listen_cache_;
     SockFD* listen_fd_;

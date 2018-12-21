@@ -1,7 +1,7 @@
 #ifndef __SOCK_CLIENT_H__
 #define __SOCK_CLIENT_H__
 
-#include "rm_mempool.h"
+#include "mempool.h"
 #include "sock_return.h"
 #include "sock_common.h"
 #include "sock_address.h"
@@ -27,7 +27,7 @@ private:
     const SockClient& operator=(const SockClient&);
 
     bool init_flag_;
-    rm::RMMemPool* mempool_;
+    pub::MemPool* mempool_;
     SockAddress* s_address_;
     SockFD* conn_fd_;
 

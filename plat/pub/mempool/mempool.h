@@ -1,23 +1,22 @@
-#ifndef __RM_MEMPOOL_H__
-#define __RM_MEMPOOL_H__
+#ifndef __MEMPOOL_MEMPOOL_H__
+#define __MEMPOOL_MEMPOOL_H__
 
 #include <stdlib.h>
 #include <utility>
 #include <string.h>
-#include "rm_controllable.h"
 
-namespace rm {
+namespace pub {
 
-class RMMempoolCenter{
+class MempoolCenter{
 public:
-    static RMMempoolCenter* getInstance();
+    static MempoolCenter* getInstance();
 private:
-    RMMempoolCenter();
-    ~RMMempoolCenter();
-    static RMMempoolCenter* pInstance;
+    MempoolCenter();
+    ~MempoolCenter();
+    static MempoolCenter* pInstance;
 };
 
-class RMMemPool{
+class MemPool{
 public:
 
     void* Malloc(size_t size);
@@ -38,14 +37,14 @@ public:
         return (new(ptr) T(std::forward<Args>(args)...));
     }
 
-    static RMMemPool* getInstance();
+    static MemPool* getInstance();
 private:
-    RMMemPool();
-    ~RMMemPool();
-    thread_local static RMMemPool* pInstance;
+    MemPool();
+    ~MemPool();
+    thread_local static MemPool* pInstance;
 };
 
 
-}//namespace rm end
+}//namespace pub end
 
 #endif

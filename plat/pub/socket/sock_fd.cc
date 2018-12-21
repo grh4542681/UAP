@@ -21,7 +21,7 @@ namespace sock{
 * @brief SockFD - Default consturctor
 */
 SockFD::SockFD(){
-    this->mempool_ = rm::RMMemPool::getInstance();
+    this->mempool_ = pub::MemPool::getInstance();
     this->fd_ = 0;
     this->init_flag_ = false;
 }
@@ -44,7 +44,7 @@ SockFD::SockFD(unsigned int fd){
         this->init_flag_ = false;
     }
 
-    this->mempool_ = rm::RMMemPool::getInstance();
+    this->mempool_ = pub::MemPool::getInstance();
     this->fd_ = fd;
     this->init_flag_ = true;
 }

@@ -3,7 +3,7 @@
 
 #include <netinet/in.h>
 
-#include "rm_mempool.h"
+#include "mempool.h"
 #include "sock_log.h"
 #include "sock_return.h"
 #include "sock_address.h"
@@ -42,7 +42,7 @@ private:
 
     bool init_flag_;
     unsigned int fd_;
-    rm::RMMemPool* mempool_;
+    pub::MemPool* mempool_;
     SockAddress orig;
     SockAddress dest;
 
