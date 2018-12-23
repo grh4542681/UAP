@@ -7,8 +7,6 @@
 #include <netinet/in.h>
 #include <pthread.h>
 
-#include "ns_monitor.h"
-
 namespace ns{
 
 typedef struct _DevInfo {
@@ -22,26 +20,40 @@ typedef struct _ThreadInfo {
     pthread_t tid;
 }ThreadInfo;
 
-typedef struct _NsEndPointInfo {
+typedef struct _EpState {
+    int state;
+}EpState;
+
+class NsEndPointInfo {
+public:
+    NsEndPointInfo();
+    NsEndPointInfo(NsEndPointInfo&);
+    ~NsEndPointInfo();
+
+    bool IsSameEp(NsEndPointInfo&);
+    bool IsSameProc(NsEndPointInfo&);
+    bool IsSameDev(NsEndPointInfo&);
+private:
     std::string ep_name_;
     DevInfo dev_info_;
     ThreadInfo thread_info_;
-    NsMonitorInfo monitor_info_;
-}NsEndPointInfo;
+    EpState state_;
+};
 
 class NsEndPoint {
 public:
-    static NsEndPoint* getInstance();
-    static NsEndPoint* getInstance(std::string ep_name);
+    NsEndPoint(std::string epname);
+    NsEndPoint(const NsEndPoint&);
 
     NsRet Register();
     NsRet Update();
     NsRet Unregister();
 
-    NsRet Send(std::string dest_ep_name);
+    NsRet Send();
+    NsRet Recv();
+
+    static NsRet Lookup(NsEndPoint*, std::string ep_name);
 private:
-    NsEndPoint(std::string epname);
-    NsEndPoint(const NsEndPoint&);
     ~NsEndPoint();
 
     bool init_flag_;
@@ -49,8 +61,6 @@ private:
     thread_local static NsEndPoint* pInstance;
 
     bool _init();
-    bool IsSameProc(NsEndPoint&);
-    bool IsSameDev(NsEndPoint&);
 };
 
 }// namesapce ns end
