@@ -9,7 +9,7 @@
 #include "rm_return.h""
 #include "rm_controllable.h"
 
-namespace base {
+namespace ipc {
 
 class SysVShm : public rm::RMControllable{
 public:
@@ -82,6 +82,6 @@ private:
     IpcRet _read(void* pstart, void* data, unsigned int datalen);
 };
 
-}//namespace base end
+}//namespace ipc end
 
 #endif

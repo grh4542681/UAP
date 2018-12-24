@@ -24,23 +24,6 @@ NsEndPoint::~NsEndPoint()
 
 }
 
-NsEndPoint* NsEndPoint::getInstance()
-{
-    if (!pInstance) {
-        NS_ERROR("Need an end point name");
-        return NULL;
-    }
-    return pInstance;
-}
-
-NsEndPoint* NsEndPoint::getInstance(std::string ep_name)
-{
-    if (!pInstance) {
-        pInstance = new NsEndPoint(ep_name);
-    }
-    return pInstance;
-}
-
 NsRet NsEndPoint::Register()
 {
 

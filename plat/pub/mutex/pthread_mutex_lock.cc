@@ -3,7 +3,7 @@
 #include "pthread_mutex_lock.h"
 #include "mutex_log.h"
 
-namespace base {
+namespace pub {
 
 PthreadMutexLock::PthreadMutexLock()
 {
@@ -50,4 +50,4 @@ MutexRet PthreadMutexLock::unlock()
     return MutexRet::SUCCESS;
 }
 
-} //namespace base end
+} //namespace pub end

@@ -3,7 +3,7 @@
 
 #include "mutex_return.h"
 
-namespace base {
+namespace pub {
 
 class RWLock{
 public:
@@ -15,7 +15,7 @@ public:
     virtual MutexRet WUnLock();
 };
 
-} // namespace base
+} // namespace pub
 
 
 #endif

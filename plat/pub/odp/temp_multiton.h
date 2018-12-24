@@ -7,7 +7,7 @@
 #include <utility>
 #include "pthread_mutex_lock.h"
 
-namespace base {
+namespace pub {
 
 #if 0
 template < typename T, typename K = string>
@@ -194,6 +194,6 @@ private:
 template <typename T, typename K> PthreadMutexLock Multiton<T, K>::mutex_;
 template <typename T, typename K> std::map<K, T*> Multiton<T, K>::instance_map_;
 
-} //namespace base end
+} //namespace pub end
 
 #endif

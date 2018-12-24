@@ -4,8 +4,8 @@
 int main()
 {
     printf("hello\n");
-    key_t key = base::SysVSem::GenKey(".",100);
-    base::SysVSem sem(key);
+    key_t key = ipc::SysVSem::GenKey(".",100);
+    ipc::SysVSem sem(key);
     sem.create();
     sem.P();
     sleep(10);

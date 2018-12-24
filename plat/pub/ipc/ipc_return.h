@@ -1,7 +1,7 @@
 #ifndef __IPC_RETURN_H__
 #define __IPC_RETURN_H__
 
-namespace base{
+namespace ipc{
 
 typedef enum class _IpcRet: int {
 //common return val
@@ -22,6 +22,6 @@ typedef enum class _IpcRet: int {
     SEM_ENOSPC,
 } IpcRet;
 
-} // namespace base
+} // namespace ipc
 
 #endif

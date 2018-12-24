@@ -7,7 +7,7 @@
 
 #include <pub_exception.h>
 
-namespace base {
+namespace pub {
 
 template<typename T>
 class ThreadSafeQueue{

@@ -5,7 +5,7 @@
 #include <memory>
 #include "pthread_mutex_lock.h"
 
-namespace base {
+namespace pub {
 
 template <typename T>
 class Singleton {
@@ -59,6 +59,6 @@ private:
 template <typename T> T* Singleton<T>::pInstance_ = NULL;
 template <typename T> PthreadMutexLock Singleton<T>::mutex_;
 
-} //namespace odp end
+} //namespace pub end
 
 #endif

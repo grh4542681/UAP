@@ -4,7 +4,7 @@
 #include "mutex_return.h"
 #include "rw_lock.h"
 
-namespace base {
+namespace pub {
 
 class PosixRWLock : public RWLock{
 public:
@@ -19,6 +19,6 @@ private:
     
 };
 
-} // namespace base
+} // namespace pub
 
 #endif

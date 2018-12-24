@@ -26,6 +26,7 @@ typedef struct _EpState {
 
 class NsEndPointInfo {
 public:
+    friend class NsEndPoint;
     NsEndPointInfo();
     NsEndPointInfo(NsEndPointInfo&);
     ~NsEndPointInfo();

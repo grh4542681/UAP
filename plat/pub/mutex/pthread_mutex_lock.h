@@ -4,7 +4,7 @@
 #include <pthread.h>
 #include "mutex_return.h"
 
-namespace base {
+namespace pub {
 
 class PthreadMutexLock {
 public:

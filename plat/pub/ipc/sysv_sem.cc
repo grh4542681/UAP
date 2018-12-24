@@ -11,7 +11,7 @@
 #include "sysv_sem.h"
 
 
-namespace base {
+namespace ipc {
 //public
 //
 /**
@@ -235,4 +235,4 @@ IpcRet SysVSem::_v(unsigned short sem_index, unsigned short op_num)
     return _errno2ret(tmp_errno);
 }
 
-} //namespace base
+} //namespace ipc

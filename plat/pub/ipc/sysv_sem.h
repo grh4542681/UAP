@@ -8,7 +8,7 @@
 #include "rm_return.h"
 #include "rm_controllable.h"
 
-namespace base {
+namespace ipc {
 
 class SysVSem : public rm::RMControllable{
 public:
@@ -94,6 +94,6 @@ private:
     IpcRet _v(unsigned short sem_index, unsigned short op_num);
 };
 
-} // namespace base
+} // namespace ipc
 
 #endif
