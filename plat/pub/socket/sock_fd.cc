@@ -8,6 +8,8 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
 
 #include "sock_log.h"
 #include "sock_fd.h"
@@ -117,20 +119,21 @@ SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* if_name, unsign
         return SockRet::EINIT;
     }
     if (!isMulitcastFD()) {
-        return SockRet::ENONSUPPORT
+        return SockRet::ENONSUPPORT;
     }
     int temp_errno = 0;
+    struct ip_mreq mreq;
+    struct ipv6_mreq mreq6;
     SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
     switch (paddr->domain_) {
         case AF_INET:
-            struct ip_mreq mreq;
             memset(&mreq, 0x00, sizeof(struct ip_mreq));
             mreq.imr_multiaddr.s_addr = inet_addr(mcast_addr);
             if (if_name || if_index > 0) {
                 struct ifreq ifreq;
                 memset(&ifreq, 0x00, sizeof(struct ifreq));
                 if (if_name) {
-                    strncpy(ifreq.ifr_name, if_name, IFNAMSIZ);
+                    memcpy(ifreq.ifr_name, if_name, IFNAMSIZ);
                 } else {
                     if (if_indextoname(if_index, ifreq.ifr_name) == NULL) {
                         temp_errno = errno;
@@ -154,24 +157,23 @@ SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* if_name, unsign
             }
             break;
         case AF_INET6:
-            struct ipv6_mreq mreq6;
             memset(&mreq6, 0x00, sizeof(struct ipv6_mreq));
             if (inet_pton(AF_INET6, mcast_addr, &mreq6.ipv6mr_multiaddr) < 0) {
-                    SOCK_ERROR("Address is not in presentation format[%s]", this->address_.c_str());
+                    SOCK_ERROR("Address is not in presentation format[%s]", mcast_addr);
                     return SockRet::ERROR;
             }
             if (if_name || if_index > 0) {
                 if (if_name) {
-                    if ((mreq.ipv6mr_interface = if_nametoindex(if_name)) == 0) {
+                    if ((mreq6.ipv6mr_interface = if_nametoindex(if_name)) == 0) {
                         temp_errno = errno;
                         SOCK_ERROR("%s", strerror(temp_errno));
                         return _errno2ret(temp_errno);
                     }
                 } else {
-                    mreq.ipv6mr_interface = if_index;
+                    mreq6.ipv6mr_interface = if_index;
                 }
             } else {
-                mreq.ipv6mr_interface = 0;
+                mreq6.ipv6mr_interface = 0;
             }
             if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, &mreq6, sizeof(struct ipv6_mreq)) < 0) {
                 temp_errno = errno;
@@ -193,13 +195,14 @@ SockRet SockFD::setMcastLeave(const char* mcast_addr)
         return SockRet::EINIT;
     }
     if (!isMulitcastFD()) {
-        return SockRet::ENONSUPPORT
+        return SockRet::ENONSUPPORT;
     }
     int temp_errno = 0;
+    struct ip_mreq mreq;
+    struct ipv6_mreq mreq6;
     SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
     switch (paddr->domain_) {
         case AF_INET:
-            struct ip_mreq mreq;
             memset(&mreq, 0x00, sizeof(struct ip_mreq));
             mreq.imr_multiaddr.s_addr = inet_addr(mcast_addr);
             mreq.imr_interface.s_addr = htonl(INADDR_ANY);
@@ -210,13 +213,12 @@ SockRet SockFD::setMcastLeave(const char* mcast_addr)
             }
             break;
         case AF_INET6:
-            struct ipv6_mreq mreq6;
             memset(&mreq6, 0x00, sizeof(struct ipv6_mreq));
             if (inet_pton(AF_INET6, mcast_addr, &mreq6.ipv6mr_multiaddr) < 0) {
-                    SOCK_ERROR("Address is not in presentation format[%s]", this->address_.c_str());
+                    SOCK_ERROR("Address is not in presentation format[%s]", mcast_addr);
                     return SockRet::ERROR;
             }
-            mreq.ipv6mr_interface = 0;
+            mreq6.ipv6mr_interface = 0;
             if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_DROP_MEMBERSHIP, &mreq6, sizeof(struct ipv6_mreq)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
@@ -237,19 +239,20 @@ SockRet SockFD::setMcastInterface(const char* if_name, unsigned int if_index)
         return SockRet::EINIT;
     }
     if (!isMulitcastFD()) {
-        return SockRet::ENONSUPPORT
+        return SockRet::ENONSUPPORT;
     }
     int temp_errno = 0;
+    struct in_addr addr;
+    unsigned int index = 0;
     SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
     switch (paddr->domain_) {
         case AF_INET:
-            struct in_addr addr;
             memset(&addr, 0x00, sizeof(struct in_addr));
             if (if_name || if_index > 0) {
                 struct ifreq ifreq;
                 memset(&ifreq, 0x00, sizeof(struct ifreq));
                 if (if_name) {
-                    strncpy(ifreq.ifr_name, if_name, IFNAMSIZ);
+                    memcpy(ifreq.ifr_name, if_name, IFNAMSIZ);
                 } else {
                     if (if_indextoname(if_index, ifreq.ifr_name) == NULL) {
                         temp_errno = errno;
@@ -266,14 +269,13 @@ SockRet SockFD::setMcastInterface(const char* if_name, unsigned int if_index)
             } else {
                 return SockRet::EBADARGS;
             }
-            if (setsockopt(this->fd_, IPPROTO_IP, IP_MULITCAST_IF, &addr, sizeof(struct in_addr)) < 0) {
+            if (setsockopt(this->fd_, IPPROTO_IP, IP_MULTICAST_IF, &addr, sizeof(struct in_addr)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
                 return _errno2ret(temp_errno);
             }
             break;
         case AF_INET6:
-            unsigned int index = 0;
             if (if_name || if_index > 0) {
                 if (if_name) {
                     if ((index = if_nametoindex(if_name)) == 0) {
@@ -287,7 +289,7 @@ SockRet SockFD::setMcastInterface(const char* if_name, unsigned int if_index)
             } else {
                 return SockRet::EBADARGS;
             }
-            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULITCAST_IF, &index, sizeof(index) < 0) {
+            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULTICAST_IF, &index, sizeof(index)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
                 return _errno2ret(temp_errno);
@@ -307,20 +309,20 @@ SockRet SockFD::setMcastTTL(unsigned int ttl)
         return SockRet::EINIT;
     }
     if (!isMulitcastFD()) {
-        return SockRet::ENONSUPPORT
+        return SockRet::ENONSUPPORT;
     }
     int temp_errno = 0;
     SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
     switch (paddr->domain_) {
         case AF_INET:
-            if (setsockopt(this->fd_, IPPROTO_IP, IP_MULITCAST_TTL, (char*)&ttl, sizeof(ttl)) < 0) {
+            if (setsockopt(this->fd_, IPPROTO_IP, IP_MULTICAST_TTL, (char*)&ttl, sizeof(ttl)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
                 return _errno2ret(temp_errno);
             }
             break;
         case AF_INET6:
-            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULITCAST_HOPS, &ttl, sizeof(ttl) < 0) {
+            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(ttl)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
                 return _errno2ret(temp_errno);
@@ -340,22 +342,22 @@ SockRet SockFD::setMcastloop(bool flag)
         return SockRet::EINIT;
     }
     if (!isMulitcastFD()) {
-        return SockRet::ENONSUPPORT
+        return SockRet::ENONSUPPORT;
     }
     int temp_errno = 0;
+    unsigned char loopflag = flag ? '1' : '\0';
+    unsigned int loopflag6 = flag ? 1 : 0;
     SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
     switch (paddr->domain_) {
         case AF_INET:
-            unsigned char loopflag = flag ? '1' : '';
-            if (setsockopt(this->fd_, IPPROTO_IP, IP_MULITCAST_LOOP, &loopflag, sizeof(loopflag)) < 0) {
+            if (setsockopt(this->fd_, IPPROTO_IP, IP_MULTICAST_LOOP, &loopflag, sizeof(loopflag)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
                 return _errno2ret(temp_errno);
             }
             break;
         case AF_INET6:
-            unsigned int loopflag6 = flag ? 1 : 0;
-            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULITCAST_LOOP, &loopflag6, sizeof(loopflag6) < 0) {
+            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &loopflag6, sizeof(loopflag6)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
                 return _errno2ret(temp_errno);
@@ -525,7 +527,7 @@ bool SockFD::isAcceptFD()
     return false;
 }
 
-bool isMulitcastFD()
+bool SockFD::isMulitcastFD()
 {
     SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
     return paddr->multicast_flag_;

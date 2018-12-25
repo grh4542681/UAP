@@ -26,8 +26,8 @@ public:
     SockRet setMcastJoin(const char* mcast_addr);
     SockRet setMcastJoin(const char* mcast_addr, const char* if_name, unsigned int if_index);
     SockRet setMcastLeave(const char* mcast_addr);
-    SockRet setMcastInterface(const char* if_name);
-    SockRet setMcastTTL(int ttl);
+    SockRet setMcastInterface(const char* if_name, unsigned int if_index);
+    SockRet setMcastTTL(unsigned int ttl);
     SockRet setMcastloop(bool flag);
 
     SockRet setSendBlock(struct timeval* overtime);
