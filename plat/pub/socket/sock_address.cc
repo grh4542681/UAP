@@ -35,11 +35,11 @@ SockRet SockAddress::_init(SockFamily family, const char* address, unsigned shor
         case SockFamily::MULTICAST_INET4:
             this->domain_ = AF_INET;
             this->type_ = SOCK_DGRAM;
-            this->multicast_flag_ = ture;
+            this->multicast_flag_ = true;
         case SockFamily::MULTICAST_INET6:
             this->domain_ = AF_INET6;
             this->type_ = SOCK_DGRAM;
-            this->multicast_flag_ = ture;
+            this->multicast_flag_ = true;
         case SockFamily::TCP_LOCAL:
         case SockFamily::UDP_LOCAL:
             SOCK_ERROR("%s", "Local socket need unixfile not port!");

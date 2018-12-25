@@ -132,7 +132,7 @@ SockRet SockServer::Bind()
     } else if (this->s_address_->type_ == SOCK_DGRAM) {
         //if multicast server and given multicast group, add socket to this multicast group
         if (this->s_address_->isMulticast() && !this->s_address_->address_.empty()) {
-            if ((ret = this->listen_fd_->setMcastJoin(this->s_address_->address_.c_str*())) != SockRet::SUCCESS) {
+            if ((ret = this->listen_fd_->setMcastJoin(this->s_address_->address_.c_str())) != SockRet::SUCCESS) {
                 this->listen_fd_->Close();
                 this->mempool_->Free<SockFD>(this->listen_fd_);
                 this->listen_fd_ = NULL;
