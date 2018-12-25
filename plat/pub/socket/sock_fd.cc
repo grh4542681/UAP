@@ -103,36 +103,268 @@ unsigned int SockFD::getFD()
 
 SockRet SockFD::setMcastJoin(const char* mcast_addr)
 {
-    return SockRet::SUCCESS;
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return SockRet::EINIT;
+    }
+    return setMcastJoin(mcast_addr, NULL, -1);
 }
 
-SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* mcast_if_addr)
+SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* if_name, unsigned int if_index)
 {
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return SockRet::EINIT;
+    }
+    if (!isMulitcastFD()) {
+        return SockRet::ENONSUPPORT
+    }
+    int temp_errno = 0;
+    SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
+    switch (paddr->domain_) {
+        case AF_INET:
+            struct ip_mreq mreq;
+            memset(&mreq, 0x00, sizeof(struct ip_mreq));
+            mreq.imr_multiaddr.s_addr = inet_addr(mcast_addr);
+            if (if_name || if_index > 0) {
+                struct ifreq ifreq;
+                memset(&ifreq, 0x00, sizeof(struct ifreq));
+                if (if_name) {
+                    strncpy(ifreq.ifr_name, if_name, IFNAMSIZ);
+                } else {
+                    if (if_indextoname(if_index, ifreq.ifr_name) == NULL) {
+                        temp_errno = errno;
+                        SOCK_ERROR("%s", strerror(temp_errno));
+                        return _errno2ret(temp_errno);
+                    }
+                }
+                if (ioctl(this->fd_, SIOCGIFADDR, &ifreq) < 0){
+                    temp_errno = errno;
+                    SOCK_ERROR("%s", strerror(temp_errno));
+                    return _errno2ret(temp_errno);
+                }
+                memcpy(&mreq.imr_interface, &((struct sockaddr_in*)&ifreq.ifr_addr)->sin_addr, sizeof(struct in_addr));
+            } else {
+                mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+            }
+            if (setsockopt(this->fd_, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(struct ip_mreq)) < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            break;
+        case AF_INET6:
+            struct ipv6_mreq mreq6;
+            memset(&mreq6, 0x00, sizeof(struct ipv6_mreq));
+            if (inet_pton(AF_INET6, mcast_addr, &mreq6.ipv6mr_multiaddr) < 0) {
+                    SOCK_ERROR("Address is not in presentation format[%s]", this->address_.c_str());
+                    return SockRet::ERROR;
+            }
+            if (if_name || if_index > 0) {
+                if (if_name) {
+                    if ((mreq.ipv6mr_interface = if_nametoindex(if_name)) == 0) {
+                        temp_errno = errno;
+                        SOCK_ERROR("%s", strerror(temp_errno));
+                        return _errno2ret(temp_errno);
+                    }
+                } else {
+                    mreq.ipv6mr_interface = if_index;
+                }
+            } else {
+                mreq.ipv6mr_interface = 0;
+            }
+            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, &mreq6, sizeof(struct ipv6_mreq)) < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            break;
+        default:
+            SOCK_ERROR("Unknow domain[%d]", paddr->domain_);
+            return SockRet::ERROR;
+    }
     return SockRet::SUCCESS;
 }
 
 SockRet SockFD::setMcastLeave(const char* mcast_addr)
 {
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return SockRet::EINIT;
+    }
+    if (!isMulitcastFD()) {
+        return SockRet::ENONSUPPORT
+    }
+    int temp_errno = 0;
+    SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
+    switch (paddr->domain_) {
+        case AF_INET:
+            struct ip_mreq mreq;
+            memset(&mreq, 0x00, sizeof(struct ip_mreq));
+            mreq.imr_multiaddr.s_addr = inet_addr(mcast_addr);
+            mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+            if (setsockopt(this->fd_, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(struct ip_mreq)) < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            break;
+        case AF_INET6:
+            struct ipv6_mreq mreq6;
+            memset(&mreq6, 0x00, sizeof(struct ipv6_mreq));
+            if (inet_pton(AF_INET6, mcast_addr, &mreq6.ipv6mr_multiaddr) < 0) {
+                    SOCK_ERROR("Address is not in presentation format[%s]", this->address_.c_str());
+                    return SockRet::ERROR;
+            }
+            mreq.ipv6mr_interface = 0;
+            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_DROP_MEMBERSHIP, &mreq6, sizeof(struct ipv6_mreq)) < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            break;
+        default:
+            SOCK_ERROR("Unknow domain[%d]", paddr->domain_);
+            return SockRet::ERROR;
+    }
     return SockRet::SUCCESS;
 }
 
-SockRet SockFD::setMcastLeave(const char* mcast_addr, const char* mcast_if_addr)
+SockRet SockFD::setMcastInterface(const char* if_name, unsigned int if_index)
 {
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return SockRet::EINIT;
+    }
+    if (!isMulitcastFD()) {
+        return SockRet::ENONSUPPORT
+    }
+    int temp_errno = 0;
+    SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
+    switch (paddr->domain_) {
+        case AF_INET:
+            struct in_addr addr;
+            memset(&addr, 0x00, sizeof(struct in_addr));
+            if (if_name || if_index > 0) {
+                struct ifreq ifreq;
+                memset(&ifreq, 0x00, sizeof(struct ifreq));
+                if (if_name) {
+                    strncpy(ifreq.ifr_name, if_name, IFNAMSIZ);
+                } else {
+                    if (if_indextoname(if_index, ifreq.ifr_name) == NULL) {
+                        temp_errno = errno;
+                        SOCK_ERROR("%s", strerror(temp_errno));
+                        return _errno2ret(temp_errno);
+                    }
+                }
+                if (ioctl(this->fd_, SIOCGIFADDR, &ifreq) < 0){
+                    temp_errno = errno;
+                    SOCK_ERROR("%s", strerror(temp_errno));
+                    return _errno2ret(temp_errno);
+                }
+                memcpy(&addr, &((struct sockaddr_in*)&ifreq.ifr_addr)->sin_addr, sizeof(struct in_addr));
+            } else {
+                return SockRet::EBADARGS;
+            }
+            if (setsockopt(this->fd_, IPPROTO_IP, IP_MULITCAST_IF, &addr, sizeof(struct in_addr)) < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            break;
+        case AF_INET6:
+            unsigned int index = 0;
+            if (if_name || if_index > 0) {
+                if (if_name) {
+                    if ((index = if_nametoindex(if_name)) == 0) {
+                        temp_errno = errno;
+                        SOCK_ERROR("%s", strerror(temp_errno));
+                        return _errno2ret(temp_errno);
+                    }
+                } else {
+                    index = if_index;
+                }
+            } else {
+                return SockRet::EBADARGS;
+            }
+            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULITCAST_IF, &index, sizeof(index) < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            break;
+        default:
+            SOCK_ERROR("Unknow domain[%d]", paddr->domain_);
+            return SockRet::ERROR;
+    }
     return SockRet::SUCCESS;
 }
 
-SockRet SockFD::setMcastInterface(const char* mcast_if_addr)
+SockRet SockFD::setMcastTTL(unsigned int ttl)
 {
-    return SockRet::SUCCESS;
-}
-
-SockRet SockFD::setMcastTTL(int ttl)
-{
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return SockRet::EINIT;
+    }
+    if (!isMulitcastFD()) {
+        return SockRet::ENONSUPPORT
+    }
+    int temp_errno = 0;
+    SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
+    switch (paddr->domain_) {
+        case AF_INET:
+            if (setsockopt(this->fd_, IPPROTO_IP, IP_MULITCAST_TTL, (char*)&ttl, sizeof(ttl)) < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            break;
+        case AF_INET6:
+            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULITCAST_HOPS, &ttl, sizeof(ttl) < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            break;
+        default:
+            SOCK_ERROR("Unknow domain[%d]", paddr->domain_);
+            return SockRet::ERROR;
+    }
     return SockRet::SUCCESS;
 }
 
 SockRet SockFD::setMcastloop(bool flag)
 {
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return SockRet::EINIT;
+    }
+    if (!isMulitcastFD()) {
+        return SockRet::ENONSUPPORT
+    }
+    int temp_errno = 0;
+    SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
+    switch (paddr->domain_) {
+        case AF_INET:
+            unsigned char loopflag = flag ? '1' : '';
+            if (setsockopt(this->fd_, IPPROTO_IP, IP_MULITCAST_LOOP, &loopflag, sizeof(loopflag)) < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            break;
+        case AF_INET6:
+            unsigned int loopflag6 = flag ? 1 : 0;
+            if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULITCAST_LOOP, &loopflag6, sizeof(loopflag6) < 0) {
+                temp_errno = errno;
+                SOCK_ERROR("%s", strerror(temp_errno));
+                return _errno2ret(temp_errno);
+            }
+            break;
+        default:
+            SOCK_ERROR("Unknow domain[%d]", paddr->domain_);
+            return SockRet::ERROR;
+    }
     return SockRet::SUCCESS;
 }
 
@@ -145,6 +377,10 @@ SockRet SockFD::setMcastloop(bool flag)
 */
 SockRet SockFD::setSendBlock(struct timeval* overtime)
 {
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return SockRet::EINIT;
+    }
     int temp_errno = 0;
     struct timeval otime;
     int flag = 0;
@@ -185,6 +421,10 @@ SockRet SockFD::setSendBlock(struct timeval* overtime)
 */
 SockRet SockFD::setRecvBlock(struct timeval* overtime)
 {
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return SockRet::EINIT;
+    }
     int temp_errno = 0;
     struct timeval otime;
     int flag = 0;
@@ -223,6 +463,10 @@ SockRet SockFD::setRecvBlock(struct timeval* overtime)
 */
 SockRet SockFD::setNonBlock()
 {
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return SockRet::EINIT;
+    }
     int temp_errno = 0;
     int flag = 0;
     flag = fcntl(this->fd_, F_GETFL);
@@ -281,6 +525,11 @@ bool SockFD::isAcceptFD()
     return false;
 }
 
+bool isMulitcastFD()
+{
+    SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
+    return paddr->multicast_flag_;
+}
 /**
 * @brief Close - Close FD
 */
@@ -302,6 +551,10 @@ void SockFD::Close()
 */
 size_t SockFD::Send(const void* data, size_t datalen)
 {
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return (-1);
+    }
     SockAddress* tmp = isClientFD() ? &(this->dest) : &(this->orig);
     if (tmp->type_ == SOCK_DGRAM) {
         SockAddress* dest = &(this->dest);
@@ -331,6 +584,10 @@ size_t SockFD::Send(const void* data, size_t datalen)
 */
 size_t SockFD::Recv(void* data, size_t datalen)
 {
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return (-1);
+    }
     return _recv(NULL, data, datalen, NULL, 0, 0);
 }
 
@@ -346,6 +603,10 @@ size_t SockFD::Recv(void* data, size_t datalen)
 */
 size_t SockFD::Send(SockAddress* dest, const void* data, size_t datalen)
 {
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return (-1);
+    }
     SockAddress* tmp = isClientFD() ? &(this->dest) : &(this->orig);
     if (tmp->type_ == SOCK_DGRAM) {
         if (!dest) {
@@ -380,7 +641,10 @@ size_t SockFD::Send(SockAddress* dest, const void* data, size_t datalen)
 size_t SockFD::Recv(SockAddress* orig, void* data, size_t datalen)
 {
     int ret = 0;
-
+    if (!this->init_flag_) {
+        SOCK_ERROR("%s", "fd not inited");
+        return (-1);
+    }
     SockAddress* tmp = isClientFD() ? &(this->dest) : &(this->orig);
     if (tmp->type_ == SOCK_DGRAM) {
         switch(tmp->domain_){

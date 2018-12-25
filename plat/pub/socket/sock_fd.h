@@ -24,10 +24,9 @@ public:
 
     //for multicast attrubit
     SockRet setMcastJoin(const char* mcast_addr);
-    SockRet setMcastJoin(const char* mcast_addr, const char* mcast_if_addr);
+    SockRet setMcastJoin(const char* mcast_addr, const char* if_name, unsigned int if_index);
     SockRet setMcastLeave(const char* mcast_addr);
-    SockRet setMcastLeave(const char* mcast_addr, const char* mcast_if_addr);
-    SockRet setMcastInterface(const char* mcast_if_addr);
+    SockRet setMcastInterface(const char* if_name);
     SockRet setMcastTTL(int ttl);
     SockRet setMcastloop(bool flag);
 
@@ -38,6 +37,7 @@ public:
     bool isClientFD();
     bool isServerFD();
     bool isAcceptFD();
+    bool isMulitcastFD();
 
     void Close();
     size_t Send(const void* data, size_t datalen);

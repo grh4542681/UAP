@@ -11,6 +11,7 @@ typedef enum class _SockRet: int {
     EINIT,
     EBADARGS,
     ETIMEOUT,
+    ENONSUPPORT,
     EUNKOWNERRNO,
 
 //socket
