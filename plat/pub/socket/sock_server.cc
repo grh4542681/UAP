@@ -122,11 +122,23 @@ SockRet SockServer::Bind()
         this->listen_fd_ = NULL;
         return ret;
     }
-    if ((ret = _listen()) != SockRet::SUCCESS) {
-        this->listen_fd_->Close();
-        this->mempool_->Free<SockFD>(this->listen_fd_);
-        this->listen_fd_ = NULL;
-        return ret;
+    if (this->s_address_->type_ == SOCK_STREAM) {
+        if ((ret = _listen()) != SockRet::SUCCESS) {
+            this->listen_fd_->Close();
+            this->mempool_->Free<SockFD>(this->listen_fd_);
+            this->listen_fd_ = NULL;
+            return ret;
+        }
+    } else if (this->s_address_->type_ == SOCK_DGRAM) {
+        //if multicast server and given multicast group, add socket to this multicast group
+        if (this->s_address_->isMulticast() && !this->s_address_->address_.empty()) {
+            if ((ret = this->listen_fd_->setMcastJoin(this->s_address_->address_.c_str*())) != SockRet::SUCCESS) {
+                this->listen_fd_->Close();
+                this->mempool_->Free<SockFD>(this->listen_fd_);
+                this->listen_fd_ = NULL;
+                return ret;
+            }
+        }
     }
     return SockRet::SUCCESS;
 }
@@ -243,7 +255,7 @@ SockRet SockServer::_bind()
     } else if (this->s_address_->domain_ == AF_INET) {
         struct sockaddr_in addr;
         addr.sin_family = AF_INET;
-        if (this->s_address_->address_.empty()) {
+        if (this->s_address_->address_.empty() || this->s_address_->isMulticast()) {
             addr.sin_addr.s_addr = htonl(INADDR_ANY);
         } else {
             addr.sin_addr.s_addr = htonl(inet_addr(this->s_address_->address_.c_str()));
@@ -256,7 +268,7 @@ SockRet SockServer::_bind()
             SOCK_ERROR("%s%s", "bind socket error, ", strerror(temp_errno));
             return _errno2ret(temp_errno);
         }
-    } else if (this->s_address_->domain_ == AF_INET6) {
+    } else if (this->s_address_->domain_ == AF_INET6 || this->s_address_->isMulticast()) {
         struct sockaddr_in6 addr;
         addr.sin6_family = AF_INET6;
         if (this->s_address_->address_.empty()) {

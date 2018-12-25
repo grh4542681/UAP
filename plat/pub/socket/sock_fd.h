@@ -22,6 +22,15 @@ public:
     unsigned int getFD();
     SockRet setFD(unsigned int fd);
 
+    //for multicast attrubit
+    SockRet setMcastJoin(const char* mcast_addr);
+    SockRet setMcastJoin(const char* mcast_addr, const char* mcast_if_addr);
+    SockRet setMcastLeave(const char* mcast_addr);
+    SockRet setMcastLeave(const char* mcast_addr, const char* mcast_if_addr);
+    SockRet setMcastInterface(const char* mcast_if_addr);
+    SockRet setMcastTTL(int ttl);
+    SockRet setMcastloop(bool flag);
+
     SockRet setSendBlock(struct timeval* overtime);
     SockRet setRecvBlock(struct timeval* overtime);
     SockRet setNonBlock();

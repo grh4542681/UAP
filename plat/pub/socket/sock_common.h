@@ -13,6 +13,9 @@ typedef enum class _SockFamily{
     UDP_LOCAL,
     UDP_INET4,
     UDP_INET6,
+    
+    MULTICAST_INET4,
+    MULTICAST_INET6,
 } SockFamily;
 
 }//namespace sock end

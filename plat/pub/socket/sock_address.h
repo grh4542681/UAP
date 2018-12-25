@@ -15,7 +15,7 @@ public:
     friend class SockServer;
     friend class SockClient;
     SockAddress(SockFamily family, unsigned short int port):family_(family){
-        this->_init(family, port);
+        this->_init(family, NULL, port);
     }
     SockAddress(SockFamily family, const char* address, unsigned short int port):family_(family){
         this->_init(family, address, port);
@@ -27,12 +27,14 @@ public:
     SockRet ToSockaddr(struct sockaddr* addr);
     unsigned short int getPort();
     bool isLocal();
+    bool isMulticast();
     bool AddrCheck();
 private:
     SockAddress();
     bool init_flag_;
 
     SockFamily family_;
+    bool multicast_flag_;
     std::string address_;
     unsigned short int port_;
     int domain_;
