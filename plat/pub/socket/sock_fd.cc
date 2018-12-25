@@ -101,6 +101,41 @@ unsigned int SockFD::getFD()
     }
 }
 
+SockRet SockFD::setMcastJoin(const char* mcast_addr)
+{
+    return SockRet::SUCCESS;
+}
+
+SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* mcast_if_addr)
+{
+    return SockRet::SUCCESS;
+}
+
+SockRet SockFD::setMcastLeave(const char* mcast_addr)
+{
+    return SockRet::SUCCESS;
+}
+
+SockRet SockFD::setMcastLeave(const char* mcast_addr, const char* mcast_if_addr)
+{
+    return SockRet::SUCCESS;
+}
+
+SockRet SockFD::setMcastInterface(const char* mcast_if_addr)
+{
+    return SockRet::SUCCESS;
+}
+
+SockRet SockFD::setMcastTTL(int ttl)
+{
+    return SockRet::SUCCESS;
+}
+
+SockRet SockFD::setMcastloop(bool flag)
+{
+    return SockRet::SUCCESS;
+}
+
 /**
 * @brief setSendBlock - Set Blocked when send msg
 *
