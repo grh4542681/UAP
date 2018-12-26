@@ -71,7 +71,7 @@ SockRet SockAddress::_init(SockFamily family, const char* address, unsigned shor
 
 SockRet SockAddress::_init(SockFamily family, const char* address)
 {
-    switch(family_){
+    switch(family){
         case SockFamily::TCP_LOCAL:
             this->domain_ = AF_LOCAL;
             this->type_ = SOCK_STREAM;
