@@ -14,6 +14,7 @@ public:
     friend class SockFD;
     friend class SockServer;
     friend class SockClient;
+    SockAddress();
     SockAddress(SockFamily family, unsigned short int port):family_(family){
         this->_init(family, NULL, port);
     }
@@ -24,13 +25,14 @@ public:
         this->_init(family, address);
     }
 
+    std::string getAddr();
+
     SockRet ToSockaddr(struct sockaddr* addr);
     unsigned short int getPort();
     bool isLocal();
     bool isMulticast();
     bool AddrCheck();
 private:
-    SockAddress();
     bool init_flag_;
 
     SockFamily family_;

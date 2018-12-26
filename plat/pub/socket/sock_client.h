@@ -12,7 +12,6 @@ namespace sock{
 class SockClient {
 public:
 
-    SockClient(SockFamily family, unsigned short int port);
     SockClient(SockFamily family, const char* address, unsigned short int port);
     SockClient(SockFamily family, const char* address);
     SockClient(SockAddress* address);

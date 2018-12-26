@@ -11,22 +11,6 @@
 
 namespace sock{
 
-SockClient::SockClient(SockFamily family, unsigned short int port)
-{
-    this->mempool_ = pub::MemPool::getInstance();
-    if (!this->mempool_) {
-        this->init_flag_ = false;
-        return;
-    }   
-    this->s_address_ = this->mempool_->Malloc<SockAddress>(family, port);
-    if (!this->s_address_->AddrCheck()) {
-        this->init_flag_ = false;
-        return;
-    }   
-    this->conn_fd_ = NULL;
-    this->init_flag_ = true;
-}
-
 SockClient::SockClient(SockFamily family, const char* address, unsigned short int port)
 {
     this->mempool_ = pub::MemPool::getInstance();

@@ -13,9 +13,19 @@ SockAddress::SockAddress()
     this->multicast_flag_ = false;
 }
 
+std::string SockAddress::getAddr()
+{
+    return this->address_;
+}
+
+SockRet SockAddress::_init(SockFamily family, unsigned short int port)
+{
+    return _init(family, NULL, port);
+}
+
 SockRet SockAddress::_init(SockFamily family, const char* address, unsigned short int port)
 {
-    switch(this->family_){
+    switch(family){
         case SockFamily::TCP_INET4:
             this->domain_ = AF_INET;
             this->type_ = SOCK_STREAM;
@@ -36,10 +46,12 @@ SockRet SockAddress::_init(SockFamily family, const char* address, unsigned shor
             this->domain_ = AF_INET;
             this->type_ = SOCK_DGRAM;
             this->multicast_flag_ = true;
+            break;
         case SockFamily::MULTICAST_INET6:
             this->domain_ = AF_INET6;
             this->type_ = SOCK_DGRAM;
             this->multicast_flag_ = true;
+            break;
         case SockFamily::TCP_LOCAL:
         case SockFamily::UDP_LOCAL:
             SOCK_ERROR("%s", "Local socket need unixfile not port!");
@@ -52,14 +64,14 @@ SockRet SockAddress::_init(SockFamily family, const char* address, unsigned shor
     }
     this->family_ = family;
     this->port_ = port;    
-    this->address_ = address;
+    this->address_ = address ? address : "";
     this->init_flag_ = true;
     return SockRet::SUCCESS;
 }
 
 SockRet SockAddress::_init(SockFamily family, const char* address)
 {
-    switch(this->family_){
+    switch(family_){
         case SockFamily::TCP_LOCAL:
             this->domain_ = AF_LOCAL;
             this->type_ = SOCK_STREAM;

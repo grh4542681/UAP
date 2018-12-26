@@ -109,7 +109,7 @@ SockRet SockFD::setMcastJoin(const char* mcast_addr)
         SOCK_ERROR("%s", "fd not inited");
         return SockRet::EINIT;
     }
-    return setMcastJoin(mcast_addr, NULL, -1);
+    return setMcastJoin(mcast_addr, NULL, 0);
 }
 
 SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* if_name, unsigned int if_index)
@@ -129,7 +129,7 @@ SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* if_name, unsign
         case AF_INET:
             memset(&mreq, 0x00, sizeof(struct ip_mreq));
             mreq.imr_multiaddr.s_addr = inet_addr(mcast_addr);
-            if (if_name || if_index > 0) {
+            if (if_name || if_index) {
                 struct ifreq ifreq;
                 memset(&ifreq, 0x00, sizeof(struct ifreq));
                 if (if_name) {
@@ -603,7 +603,7 @@ size_t SockFD::Recv(void* data, size_t datalen)
 *
 * @returns  SockRet or send length
 */
-size_t SockFD::Send(SockAddress* dest, const void* data, size_t datalen)
+size_t SockFD::Send(SockAddress* dest_addr, const void* data, size_t datalen)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -611,20 +611,20 @@ size_t SockFD::Send(SockAddress* dest, const void* data, size_t datalen)
     }
     SockAddress* tmp = isClientFD() ? &(this->dest) : &(this->orig);
     if (tmp->type_ == SOCK_DGRAM) {
-        if (!dest) {
-            dest = &(this->dest);
+        if (!dest_addr) {
+            dest_addr = &(this->dest);
         }
-        if (!dest->AddrCheck()) {
+        if (!dest_addr->AddrCheck()) {
             SOCK_ERROR("UDP send need destnation address");
             return (-1);
         }
-        struct sockaddr dest_addr;
-        memset(&dest_addr, 0x00, sizeof(struct sockaddr));
-        if (dest->ToSockaddr(&dest_addr) != SockRet::SUCCESS) {
+        struct sockaddr s_dest_addr;
+        memset(&s_dest_addr, 0x00, sizeof(struct sockaddr));
+        if (dest_addr->ToSockaddr(&s_dest_addr) != SockRet::SUCCESS) {
             SOCK_ERROR("Convert address error");
             return (-1);
         }
-        return _send(&dest_addr, data, datalen, NULL, 0, 0);
+        return _send(&s_dest_addr, data, datalen, NULL, 0, 0);
     } else {
         return _send(NULL, data, datalen, NULL, 0, 0);
     }
@@ -640,7 +640,7 @@ size_t SockFD::Send(SockAddress* dest, const void* data, size_t datalen)
 *
 * @returns  SockRet or recv length.
 */
-size_t SockFD::Recv(SockAddress* orig, void* data, size_t datalen)
+size_t SockFD::Recv(SockAddress* orig_addr, void* data, size_t datalen)
 {
     int ret = 0;
     if (!this->init_flag_) {
@@ -653,12 +653,12 @@ size_t SockFD::Recv(SockAddress* orig, void* data, size_t datalen)
             case AF_LOCAL:
                 struct sockaddr_un un_addr;
                 ret = _recv((struct sockaddr*)&un_addr, data, datalen, NULL, 0, 0);
-                orig->_init(tmp->family_, un_addr.sun_path);
+                orig_addr->_init(tmp->family_, un_addr.sun_path);
                 break;
             case AF_INET:
                 struct sockaddr_in in_addr;
                 ret = _recv((struct sockaddr*)&in_addr, data, datalen, NULL, 0, 0);
-                orig->_init(tmp->family_, inet_ntoa(in_addr.sin_addr), in_addr.sin_port);
+                orig_addr->_init(tmp->family_, inet_ntoa(in_addr.sin_addr), in_addr.sin_port);
                 break;
             case AF_INET6:
                 char c_in6_addr[SOCK_ADDRESS_MAX_LEN];
@@ -669,7 +669,7 @@ size_t SockFD::Recv(SockAddress* orig, void* data, size_t datalen)
                     SOCK_ERROR("%s%s", "Accept socket error, inet_ntop error", strerror(temp_errno));
                     return (-1);
                } 
-               orig->_init(tmp->family_, c_in6_addr, in6_addr.sin6_port);
+               orig_addr->_init(tmp->family_, c_in6_addr, in6_addr.sin6_port);
                break;
             default:
                 SOCK_ERROR("Unknow socket family");
@@ -855,6 +855,11 @@ size_t SockFD::_recv(struct sockaddr* orig, void* data, size_t datalen, void* ct
         msg.msg_controllen = ctrldatalen;
     }
 
+    if (orig) {
+        msg.msg_name = orig;
+        msg.msg_namelen = 16;
+    }
+
     ret = recvmsg(this->fd_, &msg, flags);
     if (ret == 0) {
         return (size_t)SockRet::SOCK_LINKDOWN;
@@ -867,13 +872,6 @@ size_t SockFD::_recv(struct sockaddr* orig, void* data, size_t datalen, void* ct
     if (data) {
         memcpy(data, buff, datalen);
         this->mempool_->Free(buff);
-    }
-
-    //fill addr
-    struct sockaddr dest_addr;
-    memset(&dest_addr, 0x00, sizeof(struct sockaddr));
-    if (orig) {
-        memcpy(orig, msg.msg_name, msg.msg_namelen);
     }
 
     return ret;
