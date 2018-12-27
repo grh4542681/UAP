@@ -1,12 +1,12 @@
 #ifndef __PARSER_XML_H__
 #define __PARSER_XML_H__
 
-namespace cm {
+namespace parser {
 
 class ParserXml{
     
 };
 
-}//namespace cm end
+}//namespace parser end
 
 #endif

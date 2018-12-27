@@ -1,12 +1,12 @@
 #ifndef __PERSER_JSON_H__
 #define __PERSER_JSON_H__
 
-namespace cm {
+namespace parser {
 
 class ParserJson{
 
 };
 
-}//namespace cm end
+}//namespace parser end
 
 #endif
