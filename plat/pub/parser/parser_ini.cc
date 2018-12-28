@@ -1,4 +1,6 @@
-#include <fstream>
+#include <iostream>
+#include <unistd.h>
+#include "parser_log.h"
 #include "parser_ini.h"
 
 #define PARSERINI_LINE_MAX_LEN (256)
@@ -7,13 +9,14 @@ namespace parser {
 
 ParserIni::ParserIni(std::string filename)
 {
+    this->init_flag_ = false;
+    this->filename_ = filename;
+    this->mempool_ = pub::MemPool::getInstance();
 	if (access(filename.c_str(),F_OK|R_OK)) {
-		PARSER_ERROR("File[%s] test error [%s]",filepath,strerror(errno));
+		PARSER_ERROR("File[%s] test error [%s]",this->filename_.c_str() ,strerror(errno));
 		return ;
 	}
-    this->mempool_ = rm::RMMemPool::getInstance();
-    this->filename_ = filename;
-    this->init_flag_ = false;
+    this->init_flag_ = true;
 }
 
 ParserIni::~ParserIni()
@@ -54,7 +57,19 @@ ParserRet ParserIni::Storage(std::string filename)
 
 ParserRet ParserIni::Print()
 {
-
+    std::map<std::string, Section*>::iterator section_it;
+    Section::iterator item_it;
+    section_it = this->conftree_.begin();
+    while (section_it != this->conftree_.end()) {
+        std::cout << "section:[" << section_it->first << "]" << std::endl;
+        item_it = section_it->second->begin();
+        while (item_it != section_it->second->end()) {
+            std::cout << "\tkey[" << item_it->first << "]\tvalue[" << item_it->second << "]" << std::endl;
+            item_it++;
+        }
+        section_it++;
+    }
+    return ParserRet::SUCCESS;
 }
 
 ParserRet ParserIni::Free()
@@ -68,9 +83,25 @@ ParserRet ParserIni::Free()
     }
 }
 
-std::string ParserIni::getConfig(std::string seciton, std::string item)
+std::string ParserIni::getConfig(std::string section, std::string item)
 {
-
+    std::map<std::string, Section*>::iterator section_it;
+    Section::iterator item_it;
+    section_it = this->conftree_.begin();
+    while (section_it != this->conftree_.end()) {
+        if (section_it->first.compare(section) == 0) {
+            item_it = section_it->second->begin();
+            while (item_it != section_it->second->end()) {
+                if (item_it->first.compare(item) == 0) {
+                    return item_it->second;
+                }
+                item_it++;
+            }
+        }
+        section_it++;
+    }
+    std::string s;
+    return s;
 }
 
 ParserRet ParserIni::setConfig(std::string section, std::string item, std::string value)
@@ -81,7 +112,7 @@ ParserRet ParserIni::setConfig(std::string section, std::string item, std::strin
 //private
 ParserRet ParserIni::_load()
 {
-	FILE* pfile = fopen(this->filename_,"r");
+	FILE* pfile = fopen(this->filename_.c_str(), "r");
 	if(!pfile)
 	{
 		PARSER_ERROR("File[%s] test error [%s]", this->filename_.c_str(), strerror(errno));
@@ -92,20 +123,20 @@ ParserRet ParserIni::_load()
     char line[PARSERINI_LINE_MAX_LEN];
 	char cursection[PARSERINI_LINE_MAX_LEN];
 	char curitemkey[PARSERINI_LINE_MAX_LEN];
-	char curitemvalue[INI_MAXLINE];
+	char curitemvalue[PARSERINI_LINE_MAX_LEN];
 	memset(line,0x00,sizeof(line));
 	memset(cursection,0x00,sizeof(cursection));
 	memset(curitemkey,0x00,sizeof(curitemkey));
 	memset(curitemvalue,0x00,sizeof(curitemvalue));
 
-    Section* pcursection = NULL;
+    Section* pcursection;
 
-    while (fgets(line, PARSEROINI_LINE_MAX_LEN, pfile)) {
+    while (fgets(line, PARSERINI_LINE_MAX_LEN, pfile)) {
         if (strlen(line)==0 || line[0]=='\n' || line[0]=='#')
             continue;
         if (line[0] == '[') {
             //read a section line
-            ptr_temp = strchr(']');
+            ptr_temp = strchr(line, ']');
             if (!ptr_temp) {
                 _free();
                 PARSER_ERROR("Not found ] in line[%s]", line);
@@ -119,20 +150,40 @@ ParserRet ParserIni::_load()
                     PARSER_ERROR("Create section map error[%s]", cursection);
                     return ParserRet::ERROR;
                 }
-                this->conftree_.insert(pair<Section>(cursection, pcrusection));
+                this->conftree_.insert(std::pair<std::string, Section*>(cursection, pcursection));
             }
         } else {
             //read an item line
             if (!pcursection) {
                 continue;
             }
+            ptr_temp = strchr(line,'=');
+            if (!ptr_temp) {
+                continue;
+            }
+            memset(curitemkey, 0x00, sizeof(curitemkey));
+            memset(curitemvalue, 0x00, sizeof(curitemvalue));
+            memcpy(curitemkey, line, ptr_temp - line);
+            memcpy(curitemvalue,ptr_temp + 1, strlen(line) - (ptr_temp - line) - 2);
+            pcursection->insert(std::pair<std::string, std::string>(curitemkey, curitemvalue));
         }
     }
+    return ParserRet::SUCCESS;
 }
 
 ParserRet ParserIni::_free()
 {
-    
+    std::map<std::string, Section*>::iterator section_it;
+    Section::iterator item_it;
+    section_it = this->conftree_.begin();
+    while (section_it != this->conftree_.end()) {
+        this->conftree_.erase(section_it);
+        if (section_it->second) {
+            this->mempool_->Free(section_it->second);
+        }
+        section_it++;
+    }
+    return ParserRet::SUCCESS;
 }
 
 }//namespace parser end
@@ -141,7 +192,7 @@ ParserRet ParserIni::_free()
 
 
 
-
+/*
 
 INISEC* LoadINI(char* filepath)
 {
@@ -249,3 +300,4 @@ void FreeINI(INISEC* Sectionhead)
 {
 	SectionDestroy(&Sectionhead);
 }
+*/

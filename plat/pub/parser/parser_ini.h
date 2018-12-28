@@ -4,13 +4,13 @@
 #include <map>
 
 #include "parser_return.h"
-#include "rm_mempool.h"
+#include "mempool.h"
 
 namespace parser {
 
 class ParserIni{
 public:
-    typedef std::map<std::string, char*> Section;
+    typedef std::map<std::string, std::string> Section;
 
     ParserIni(std::string filename);
     ~ParserIni();
@@ -21,14 +21,14 @@ public:
     ParserRet Free();
     ParserRet Print();
 
-    String getConfig(std::string section, std::string item);
+    std::string getConfig(std::string section, std::string item);
     ParserRet setConfig(std::string section, std::string item, std::string value);
 
+    std::map<std::string, Section*> conftree_;
 private:
     bool init_flag_;
-    rm::RMMemPool* mempool_;
+    pub::MemPool* mempool_;
     std::string filename_;
-    std::map<std::string, Section*> conftree_;
 
     ParserRet _load();
     ParserRet _free();
