@@ -10,6 +10,7 @@ typedef enum class _ParserRet: int {
     EMALLOC,
     EINIT,
     ETIMEOUT,
+    ENOTFOUND,
 
     EUNKOWNERRNO,
 

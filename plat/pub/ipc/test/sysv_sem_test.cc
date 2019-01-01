@@ -6,11 +6,11 @@ int main()
     printf("hello\n");
     key_t key = ipc::SysVSem::GenKey(".",100);
     ipc::SysVSem sem(key);
-    sem.create();
+    sem.Create();
     sem.P();
     sleep(10);
     sem.V();
     sleep(10);
-    sem.destory();
+    sem.Destory();
     return 0;
 }

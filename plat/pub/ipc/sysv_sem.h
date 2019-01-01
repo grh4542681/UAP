@@ -28,8 +28,8 @@ public:
     IpcRet V(unsigned short op_num);
     IpcRet V(unsigned short sem_index, unsigned short op_num);
 
-    rm::RmRet create();
-    rm::RmRet destory();
+    IpcRet Create();
+    IpcRet Destory();
 
 private:
     typedef union _semun {

@@ -96,7 +96,7 @@ IpcRet SysVSem::V(unsigned short sem_index, unsigned short op_num)
 *
 * @returns  IpcRet
 */
-rm::RmRet SysVSem::create()
+IpcRet SysVSem::Create()
 {
     int ret;
     int loop;
@@ -107,13 +107,13 @@ rm::RmRet SysVSem::create()
     if ((ret = semget(this->key_, this->semnum_, (this->mode_)|IPC_CREAT)) == -1) {
         tmp_errno = errno;
         SEM_ERROR("%s", strerror(tmp_errno));
-        return rm::RmRet::ERROR;
+        return IpcRet::ERROR;
     }
     this->semid_ = ret;
 
     ptr = (short unsigned int*)malloc(this->semnum_ * sizeof(unsigned short));
     if (!ptr) {
-        return rm::RmRet::ERROR;
+        return IpcRet::ERROR;
     }
 
     for (loop = 0; loop < this->semnum_; loop++) {
@@ -124,19 +124,19 @@ rm::RmRet SysVSem::create()
     if ((ret = semctl(this->semid_, 0, SETALL, args)) == -1) {
         tmp_errno = errno;
         free(ptr);
-        return rm::RmRet::ERROR;
+        return IpcRet::ERROR;
     }
     free(ptr);
     SEM_DEBUG("Create semaphore,semid [%d]", this->semid_);
     this->init_flag_ = 1;
 
-    return rm::RmRet::SUCCESS;
+    return IpcRet::SUCCESS;
 }
 
 /*
  * This function is destroy the semaphore set
  */
-rm::RmRet SysVSem::destory()
+IpcRet SysVSem::Destory()
 {
     int ret;
     int tmp_errno;
@@ -144,11 +144,11 @@ rm::RmRet SysVSem::destory()
         if ((ret = semctl(this->semid_, 0, IPC_RMID)) == -1) {
             tmp_errno = errno;
             SEM_ERROR("%s", strerror(tmp_errno));
-            return rm::RmRet::ERROR;
+            return IpcRet::ERROR;
         }
         SEM_DEBUG("Destroy semaphore,semid [%d]", this->semid_);
     }
-    return rm::RmRet::SUCCESS;
+    return IpcRet::SUCCESS;
 }
 
 //private

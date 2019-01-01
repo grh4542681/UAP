@@ -38,7 +38,7 @@ private:
     std::string ep_name_;
     DevInfo dev_info_;
     ThreadInfo thread_info_;
-    EpState state_;
+    EpState state_info_;
 };
 
 class NsEndPoint {

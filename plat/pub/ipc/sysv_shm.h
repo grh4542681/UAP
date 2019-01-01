@@ -6,20 +6,18 @@
 
 #include "ipc_log.h"
 #include "ipc_return.h"
-#include "rm_return.h""
+#include "rm_return.h"
 #include "rm_controllable.h"
 
 namespace ipc {
 
-class SysVShm : public rm::RMControllable{
+class SysVShm {
 public:
     SysVShm(key_t key, size_t size);
     SysVShm(key_t key, size_t size, mode_t mode);
-
     ~SysVShm();
-
-    rm::RmRet create();
-    rm::RmRet destroy();
+    
+    static key_t GenKey(const char *pathname, int proj_id);
     IpcRet At();
     IpcRet Dt();
 
@@ -27,7 +25,12 @@ public:
     IpcRet Write(void* pstart, void* data, void* datalen);
     IpcRet Read(void* data, void* datalen);
     IpcRet Read(void* pstart, void* data, void* datalen);
+
+    IpcRet Create();
+    IpcRet Destory();
+
 private:
+    RMControllable rm_ctrl_;
     int shmid_;
     key_t key_;
     size_t size;

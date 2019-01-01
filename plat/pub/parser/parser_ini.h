@@ -16,7 +16,7 @@ public:
     ~ParserIni();
 
     ParserRet Load();
-    ParserRet Reload();
+    ParserRet Reload(std::string filename);
     ParserRet Storage(std::string filename);
     ParserRet Free();
     ParserRet Print();

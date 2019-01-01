@@ -36,15 +36,20 @@ ParserRet ParserIni::Load()
     }
 }
 
-ParserRet ParserIni::Reload()
+ParserRet ParserIni::Reload(std::string filename)
 {
     if (!this->init_flag_) {
         return ParserRet::EINIT;
     } else {
         ParserRet ret;
+        if (access(filename.c_str(),F_OK|R_OK)) {
+		    PARSER_ERROR("File[%s] test error [%s]",filename_.c_str() ,strerror(errno));
+		    return ParserRet::EBADARGS;
+	    }
         if ((ret = _free()) != ParserRet::SUCCESS) {
             return ret;
         } else {
+            this->filename_ = filename;
             return _load();
         }
     }
@@ -52,7 +57,10 @@ ParserRet ParserIni::Reload()
 
 ParserRet ParserIni::Storage(std::string filename)
 {
-
+    if (filename.empty()) {
+        return ParserRet::EBADARGS;
+    }
+    unlink(filename.c_str());
 }
 
 ParserRet ParserIni::Print()
@@ -74,13 +82,9 @@ ParserRet ParserIni::Print()
 
 ParserRet ParserIni::Free()
 {
-    if (!this->init_flag_) {
-        return ParserRet::EINIT;
-    } else {
-        ParserRet ret = _free();
-        this->init_flag_ = false;
-        return ret;
-    }
+    ParserRet ret = _free();
+    this->init_flag_ = false;
+    return ret;
 }
 
 std::string ParserIni::getConfig(std::string section, std::string item)
@@ -106,7 +110,23 @@ std::string ParserIni::getConfig(std::string section, std::string item)
 
 ParserRet ParserIni::setConfig(std::string section, std::string item, std::string value)
 {
-
+    std::map<std::string, Section*>::iterator section_it;
+    Section::iterator item_it;
+    section_it = this->conftree_.begin();
+    while (section_it != this->conftree_.end()) {
+        if (section_it->first.compare(section) == 0) {
+            item_it = section_it->second->begin();
+            while (item_it != section_it->second->end()) {
+                if (item_it->first.compare(item) == 0) {
+                    item_it->second = value;
+                    return ParserRet::SUCCESS;
+                }
+                item_it++;
+            }
+        }
+        section_it++;
+    }
+    return ParserRet::ENOTFOUND;
 }
 
 //private
@@ -187,117 +207,3 @@ ParserRet ParserIni::_free()
 }
 
 }//namespace parser end
-
-
-
-
-
-/*
-
-INISEC* LoadINI(char* filepath)
-{
-	if(access(filepath,F_OK|R_OK))
-	{
-		SYSLOG(ERROR,"File[%s] test error [%s]",filepath,strerror(errno));
-		return NULL;
-	}
-
-	FILE* pfile = fopen(filepath,"r");
-	if(!pfile)
-	{
-		SYSLOG(ERROR,"File[%s] test error [%s]",filepath,strerror(errno));
-		return NULL;
-	}
-	
-	INISEC* INIhead = NULL;
-	INISEC* INIcurr = NULL;
-	char* ptmp1 = NULL;
-
-	char line[INI_MAXLINE];
-	char cursection[INI_MAXLINE];
-	char curitemkey[INI_MAXLINE];
-	char curitemvalue[INI_MAXLINE];
-	memset(line,0x00,sizeof(line));
-	memset(cursection,0x00,sizeof(cursection));
-	memset(curitemkey,0x00,sizeof(curitemkey));
-	memset(curitemvalue,0x00,sizeof(curitemvalue));
-
-	while(fgets(line,INI_MAXLINE,pfile))
-	{
-		if(strlen(line)==0 || line[0]=='\n' || line[0]=='#')
-			continue;
-		if(line[0]=='[')
-		{
-			ptmp1 = strchr(line,']');
-			if(!ptmp1)
-			{
-				SYSLOG(ERROR,"Match'[]' error on line:[%s]",line);
-				SectionDestroy(&INIhead);
-				return NULL;
-			}
-			else
-			{
-				// get section
-				memset(cursection,0x00,sizeof(cursection));
-				memcpy(cursection,line+1,ptmp1-line-1);
-				INIcurr = SectionADD(&INIhead,cursection);
-				if(!INIhead)
-				{
-					INIhead = INIcurr;
-				}
-			}
-		}
-		else
-		{
-			if(!INIcurr)
-				continue;
-			else
-			{
-				ptmp1 = strchr(line,'=');
-				if(!ptmp1)
-				{
-					SYSLOG(ERROR,"Search '=' error on line:[%s]",line);
-					SectionDestroy(&INIhead);
-					return NULL;
-				}
-				else
-				{
-					// get item
-					memset(curitemkey,0x00,sizeof(curitemkey));
-					memset(curitemvalue,0x00,sizeof(curitemvalue));
-					memcpy(curitemkey,line,ptmp1-line);
-					memcpy(curitemvalue,ptmp1+1,strlen(line)-strlen(curitemkey)-1-1);
-					SectionItemADD(INIcurr,curitemkey,curitemvalue);	
-				}
-			}
-		}
-		
-	}
-	return INIhead;
-}
-
-
-INISEC* GetSection(INISEC* Sectionhead,char* Section)
-{
-	return GetSectionByName(Sectionhead,Section);
-}
-
-INIITEM* GetSectionItem(INISEC* Sectionhead,char* Section,char* Item)
-{
-	INISEC* section = GetSectionByName(Sectionhead,Section);
-	if(!section)
-	{
-		SYSLOG(ERROR,"Con't find section [%s]",Section);
-		return NULL;
-	}
-	else
-	{
-		return GetItemByKey(section->child,Item);
-	}
-}
-
-void FreeINI(INISEC* Sectionhead)
-{
-	SectionDestroy(&Sectionhead);
-}
-*/
