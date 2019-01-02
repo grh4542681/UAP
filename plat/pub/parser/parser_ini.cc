@@ -61,6 +61,29 @@ ParserRet ParserIni::Storage(std::string filename)
         return ParserRet::EBADARGS;
     }
     unlink(filename.c_str());
+
+	FILE* pfile = fopen(filename.c_str(), "w");
+    if (!pfile) {
+        PARSER_ERROR("Open file[%s] error [%s]", filename.c_str(), strerror(errno));
+        return ParserRet::ERROR;
+    }
+
+    std::map<std::string, Section*>::iterator section_it;
+    Section::iterator item_it;
+    section_it = this->conftree_.begin();
+    while (section_it != this->conftree_.end()) {
+        fprintf(pfile, "[%s]\n", section_it->first.c_str());
+        item_it = section_it->second->begin();
+        while (item_it != section_it->second->end()) {
+            fprintf(pfile, "\t%s=%s\n", item_it->first.c_str(), item_it->second.c_str());
+            item_it++;
+        }
+        fprintf(pfile, "\n");
+        section_it++;
+    }
+    fclose(pfile);
+
+    return ParserRet::SUCCESS;
 }
 
 ParserRet ParserIni::Print()

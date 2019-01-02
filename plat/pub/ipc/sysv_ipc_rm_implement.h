@@ -1,20 +1,25 @@
 #ifndef __SYSV_IPC_RESOURCE_CTRL__
 #define __SYSV_IPC_RESOURCE_CTRL__
 
+#include "rm_return.h"
 #include "rm_controllable.h"
 
 namespace rm {
 
-class IpcCtrlElement : public RmControlElement{
+class SysVIpcRmCtrlElement : public RmControlElement{
     key_t ipc_key;
     
 };
 
-class IpcTransElement : public RmTransferElement{
+class SysVIpcRmTransElement : public RmTransferElement{
     ControlType ctype;
 };
 
-class IpcCtrlApi : public RmControlApi {
+class SysVIpcRmCtrlApi : public RmControlApi {
+public:
+    SysVIpcRmCtrlApi();
+    ~SysVIpcRmCtrlApi();
+
     RmRet Create(RmTransferElement*);
     RmRet Delete(RmTransferElement*);
     RmRet Update(RmTransferElement*);

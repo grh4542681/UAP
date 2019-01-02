@@ -3,24 +3,28 @@
 
 #include <list>
 #include <map>
+#include <sys/types.h>
+#include <pthread.h>
 #include "rm_return.h"
 #include "rm_common.h"
 
 namespace rm {
 
 class RmControlElement {
-    ResourceType type;
-    pid_t pid;
-    pthread_t tid;
+    ResourceType rtype_;
+    pid_t pid_;
+    pthread_t tid_;
 };
 
 class RmTransferElement {
-    ResourceType rtype;
-    ControlType ctype;
+    ResourceType rtype_;
+    ControlType ctype_;
 };
 
+//Inherited only need to implement the interface, not extendable
 class RmControlApi {
-    ResourceType type;
+public:
+    ResourceType type_;
     virtual RmRet Create(RmTransferElement*);
     virtual RmRet Delete(RmTransferElement*);
     virtual RmRet Update(RmTransferElement*);
@@ -33,9 +37,10 @@ class RMControllable{
 public:
     RMControllable(){ }
     ~RMControllable(){ }
+
 private:
     std::map<ResourceType, RmControlApi*> api_map_;
-    std::map<ResourceType,std::list<int,RmControlElement*>> rm_map_;
+    std::map<ResourceType, std::map<int, RmControlElement*>> rm_map_;
 };
 
 }//namespace rm end

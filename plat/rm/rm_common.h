@@ -1,13 +1,12 @@
 #ifndef __RM_COMMON_H__
 #define __RM_COMMON_H__
 
-#include <list>
 #include "rm_return.h"
 
 namespace rm {
 
 typedef enum class _ResourceType {
-    IPC_KEY,
+    SYSV_IPC_KEY,
     FD,
     MemoryPool,
     ThreadPool,
@@ -15,11 +14,10 @@ typedef enum class _ResourceType {
 } ResourceType;
 
 typedef enum class _ControlType {
-    IPC_KEY,
-    FD,
-    MemoryPool,
-    ThreadPool,
-    ProcessPool,
+    CREATE,
+    DELETE,
+    UPDATE,
+    SELECT,
 } ControlType;
 
 } //namespace end
