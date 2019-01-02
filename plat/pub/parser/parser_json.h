@@ -3,7 +3,10 @@
 
 namespace parser {
 
-class ParserJson{
+class ParserJson {
+public:
+    ParserJson();
+    ~ParserJson();
 
 };
 
