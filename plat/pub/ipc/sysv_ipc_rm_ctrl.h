@@ -8,6 +8,9 @@ public:
     SysVIpcRmCtrl();
     ~SysVIpcRmCtrl();
 
+    IpcRet Create();
+    IpcRet Update();
+    IpcRet Delete();
 };
 
 }//namespace end
