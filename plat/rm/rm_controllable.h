@@ -43,6 +43,9 @@ private:
     std::map<ResourceType, std::map<int, RmControlElement*>> rm_map_;
 };
 
+template <typename T>
+RmRet ApplyResource(T*);
+
 }//namespace rm end
 
 #endif
