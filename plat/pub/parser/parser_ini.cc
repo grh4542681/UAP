@@ -149,6 +149,9 @@ ParserRet ParserIni::setConfig(std::string section, std::string item, std::strin
         }
         section_it++;
     }
+    Section* pcursection = this->mempool_->Malloc<Section>();
+    this->conftree_.insert(std::pair<std::string, Section*>(section, pcursection));
+    pcursection->insert(std::pair<std::string, std::string>(item, value));
     return ParserRet::ENOTFOUND;
 }
 
