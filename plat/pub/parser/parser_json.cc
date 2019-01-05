@@ -13,6 +13,7 @@ namespace parser {
 ParserJsonObject::ParserJsonObject(rapidjson::Value* rpjValue)
 {
     this->rpjValue_ = rpjValue;
+    this->free_flag_ = false;
 }
 
 ParserJsonObject::~ParserJsonObject()
@@ -20,7 +21,13 @@ ParserJsonObject::~ParserJsonObject()
 
 }
 
-bool ParserJsonObject::isString(){
+void ParserJsonObject::Free()
+{
+    this->free_flag_ = true;
+}
+
+bool ParserJsonObject::isString()
+{
 
 }
 
@@ -69,6 +76,17 @@ ParserRet ParserJsonObject::getStruct()
 
 }
 
+ParserJsonObject* ParserJsonObject::get(const char* path)
+{
+    if (rapidjson::Value* data = rapidjson::Pointer(path).Get(this->rpjValue_)) {
+        this->rpjValue_ = data;
+        return this;
+    } else {
+        PARSER_ERROR("Can not find path[%s]", path);
+        return NULL;
+    }
+}
+
 //ParserJson class
 ParserJson::ParserJson()
 {
@@ -77,8 +95,8 @@ ParserJson::ParserJson()
 
 ParserJson::~ParserJson()
 {
-    for (auto it : this->object_map_) {
-        this->mempool_->Free(it.second);
+    for (auto it : this->object_list_) {
+        this->mempool_->Free(*it);
     }
 }
 
@@ -118,14 +136,24 @@ ParserRet ParserJson::ParserJsonString(const char* jsonstring)
 ParserJsonObject* ParserJson::get(const char* path)
 {
     std::map<std::string, ParserJsonObject*>::iterator it;
-    it = this->object_map_.find(path);
-    if (it != this->object_map_.end()) {
+    it = this->object_list_.find(path);
+    if (it != this->object_list_.end()) {
         return it->second;
     }
 
     if (rapidjson::Value* data = rapidjson::Pointer(path).Get(this->doc_)) {
-        ParserJsonObject* pobject = this->mempool_->Malloc<ParserJsonObject>(data);
-        this->object_map_.insert(std::pair<std::string, ParserJsonObject*>(path, pobject));
+        arserJsonObject* pobject = NULL;
+        for (auto it : this->object_list_) {
+            if ((*it)->free_flag_) {
+                pobject = *it;
+                (*it)->free_flag_ = false;
+                (*it)->rpjValue_ = data;
+            }
+        }
+        if (!pobject) {
+            pobject = this->mempool_->Malloc<ParserJsonObject>(&(this->doc_), data);
+            this->object_list_.push_back(pobject);
+        }
         return pobject;
     } else {
         PARSER_ERROR("Can not find path[%s]", path);

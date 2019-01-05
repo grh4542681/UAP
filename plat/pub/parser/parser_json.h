@@ -1,7 +1,7 @@
 #ifndef __PERSER_JSON_H__
 #define __PERSER_JSON_H__
 
-#include <map>
+#include <list>
 #include <vector>
 
 #include "parser_return.h"
@@ -18,6 +18,8 @@ public:
     friend class ParserJson;
     friend class pub::MemPool;
 
+    void Free();
+
     bool isString();
     bool isInt();
     bool isDouble();
@@ -30,11 +32,14 @@ public:
     ParserRet getVector(std::vector<ParserJsonObject*>* cache);
     ParserRet getStruct();
 
+    ParserJsonObject* get(const char* path);
 private:
-    ParserJsonObject(rapidjson::Value*);
+    ParserJsonObject(rapidjson::Document*, rapidjson::Value*);
     ~ParserJsonObject();
 
+    bool free_flag_;
     rapidjson::Value* rpjValue_;
+    rapidjson::Document* doc_;
 };
 
 class ParserJson {
@@ -50,7 +55,7 @@ public:
 private:
     bool init_flag_;
     pub::MemPool* mempool_;
-    std::map<std::string, ParserJsonObject*> object_map_;
+    std::list<ParserJsonObject*> object_list_;
 
     rapidjson::Document doc_;
 };
