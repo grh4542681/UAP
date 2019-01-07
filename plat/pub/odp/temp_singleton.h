@@ -3,7 +3,7 @@
 
 #include <utility>
 #include <memory>
-#include "pthread_mutex_lock.h"
+#include "thread_mutex_lock.h"
 
 namespace pub {
 
@@ -53,11 +53,11 @@ private:
     Singleton& operator = (const Singleton&);
 
     static T* pInstance_;
-    static PthreadMutexLock mutex_;
+    static thread::ThreadMutexLock mutex_;
 };
 
 template <typename T> T* Singleton<T>::pInstance_ = NULL;
-template <typename T> PthreadMutexLock Singleton<T>::mutex_;
+template <typename T> thread::ThreadMutexLock Singleton<T>::mutex_;
 
 } //namespace pub end
 

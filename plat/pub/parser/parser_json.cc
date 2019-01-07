@@ -10,9 +10,10 @@
 namespace parser {
 
 //ParserJsonObject class
-ParserJsonObject::ParserJsonObject(rapidjson::Value* rpjValue)
+ParserJsonObject::ParserJsonObject(ParserJson* pj_center, rapidjson::Value* rpj_value)
 {
-    this->rpjValue_ = rpjValue;
+    this->rpj_value_ = rpj_value;
+    this->pj_center_ = pj_center;
     this->free_flag_ = false;
 }
 
@@ -53,7 +54,20 @@ bool ParserJsonObject::isStruct()
     
 ParserRet ParserJsonObject::getString(char* cache, unsigned int cache_size)
 {
-
+    if (this->free_flag_) {
+        PARSER_ERROR("This object has already been free");
+        return ParserRet::EINIT;
+    }
+    if (this->rpj_value_->IsString()) {
+        if (cache_size > this->rpj_value_->GetStringLength()) {
+            memcpy(cache, this->rpj_value_->GetString(), this->rpj_value_->GetStringLength());
+            return ParserRet::SUCCESS;
+        } else {
+            PARSER_ERROR("Cache size is not enough, need at least [%d]",this->rpj_value_->GetStringLength());
+            return ParserRet::EBADARGS;
+        }
+    }
+    return ParserRet::ENOTFOUND;
 }
     
 ParserRet ParserJsonObject::getInt(int* cache)
@@ -76,10 +90,14 @@ ParserRet ParserJsonObject::getStruct()
 
 }
 
-ParserJsonObject* ParserJsonObject::get(const char* path)
+ParserJsonObject* ParserJsonObject::find(const char* path)
 {
-    if (rapidjson::Value* data = rapidjson::Pointer(path).Get(this->rpjValue_)) {
-        this->rpjValue_ = data;
+    if (this->free_flag_) {
+        PARSER_ERROR("This object has already been free");
+        return NULL;
+    }
+    if (rapidjson::Value* data = rapidjson::Pointer(path).Get(*(this->rpj_value_))) {
+        this->rpj_value_ = data;
         return this;
     } else {
         PARSER_ERROR("Can not find path[%s]", path);
@@ -96,7 +114,8 @@ ParserJson::ParserJson()
 ParserJson::~ParserJson()
 {
     for (auto it : this->object_list_) {
-        this->mempool_->Free(*it);
+        this->mempool_->Free<ParserJsonObject>(it);
+        printf("--------\n");
     }
 }
 
@@ -133,25 +152,19 @@ ParserRet ParserJson::ParserJsonString(const char* jsonstring)
     return ParserRet::SUCCESS;
 }
 
-ParserJsonObject* ParserJson::get(const char* path)
+ParserJsonObject* ParserJson::find(const char* path)
 {
-    std::map<std::string, ParserJsonObject*>::iterator it;
-    it = this->object_list_.find(path);
-    if (it != this->object_list_.end()) {
-        return it->second;
-    }
-
     if (rapidjson::Value* data = rapidjson::Pointer(path).Get(this->doc_)) {
-        arserJsonObject* pobject = NULL;
+        ParserJsonObject* pobject = NULL;
         for (auto it : this->object_list_) {
-            if ((*it)->free_flag_) {
-                pobject = *it;
-                (*it)->free_flag_ = false;
-                (*it)->rpjValue_ = data;
+            if (it->free_flag_) {
+                pobject = it;
+                it->free_flag_ = false;
+                it->rpj_value_ = data;
             }
         }
         if (!pobject) {
-            pobject = this->mempool_->Malloc<ParserJsonObject>(&(this->doc_), data);
+            pobject = this->mempool_->Malloc<ParserJsonObject>(this, data);
             this->object_list_.push_back(pobject);
         }
         return pobject;

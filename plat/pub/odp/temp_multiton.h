@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 #include <utility>
-#include "pthread_mutex_lock.h"
+#include "thread_mutex_lock.h"
 
 namespace pub {
 
@@ -188,10 +188,10 @@ private:
     Multiton(const Multiton&);
     Multiton& operator = (const Multiton&);
 
-    static PthreadMutexLock mutex_;
+    static thread::ThreadMutexLock mutex_;
     static std::map<K, T*> instance_map_;
 };
-template <typename T, typename K> PthreadMutexLock Multiton<T, K>::mutex_;
+template <typename T, typename K> thread::ThreadMutexLock Multiton<T, K>::mutex_;
 template <typename T, typename K> std::map<K, T*> Multiton<T, K>::instance_map_;
 
 } //namespace pub end

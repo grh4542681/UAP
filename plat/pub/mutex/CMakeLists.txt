@@ -1,5 +1,4 @@
-SET(LIBGRHMUTEX_SRC posix_rw_lock.cc
-                    pthread_mutex_lock.cc )
+SET(LIBGRHMUTEX_SRC posix_rw_lock.cc)
 ADD_LIBRARY(GRHmutex_SO SHARED ${LIBGRHMUTEX_SRC})
 ADD_LIBRARY(GRHmutex_A STATIC ${LIBGRHMUTEX_SRC})
 TARGET_LINK_LIBRARIES(GRHmutex_SO pthread)

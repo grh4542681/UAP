@@ -6,6 +6,7 @@
 
 #include "parser_return.h"
 #include "mempool.h"
+#include "thread_rw_lock.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 
@@ -13,6 +14,7 @@
 
 namespace parser {
 
+class ParserJson;
 class ParserJsonObject {
 public:
     friend class ParserJson;
@@ -32,14 +34,14 @@ public:
     ParserRet getVector(std::vector<ParserJsonObject*>* cache);
     ParserRet getStruct();
 
-    ParserJsonObject* get(const char* path);
+    ParserJsonObject* find(const char* path);
 private:
-    ParserJsonObject(rapidjson::Document*, rapidjson::Value*);
+    ParserJsonObject(ParserJson*, rapidjson::Value*);
     ~ParserJsonObject();
 
     bool free_flag_;
-    rapidjson::Value* rpjValue_;
-    rapidjson::Document* doc_;
+    rapidjson::Value* rpj_value_;
+    ParserJson* pj_center_;
 };
 
 class ParserJson {
@@ -51,10 +53,11 @@ public:
     ParserRet ParserJsonString(const char* jsonstring);
 
     ParserRet getString(const char* path, char* cache, unsigned int cache_size);
-    ParserJsonObject* get(const char* path);
+    ParserJsonObject* find(const char* path);
 private:
     bool init_flag_;
     pub::MemPool* mempool_;
+    thread::ThreadRWLock rwlock_;
     std::list<ParserJsonObject*> object_list_;
 
     rapidjson::Document doc_;

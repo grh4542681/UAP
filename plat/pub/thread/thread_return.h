@@ -1,6 +1,8 @@
 #ifndef __THREAD_RETURN_H__
 #define __THREAD_RETURN_H__
 
+#include <errno.h>
+
 namespace thread{
 
 typedef enum class _ThreadRet: int {
