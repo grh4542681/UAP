@@ -283,6 +283,26 @@ ParserRet ParserJsonObject::getVector(std::vector<ParserJsonObject>* cache)
     }
     return ParserRet::ENOTFOUND;
 }
+
+ParserRet ParserJsonObject::getVector(std::vector<ParserJsonObject>* cache, struct timespec* overtime)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        return ParserRet::EINIT;
+    }
+    ParserRet ret;
+    if ((ret = this->pj_center_->RLock(overtime)) != ParserRet::SUCCESS) {
+        PARSER_ERROR("Get read lock error!");
+        return ret;
+    }
+    if (this->rpj_value_->IsArray()) {
+        for (auto& a : this->rpj_value_->GetArray()) {
+            cache->push_back(ParserJsonObject(this->pj_center_, &a));
+        }
+        return ParserRet::SUCCESS;
+    }
+    return ParserRet::ENOTFOUND;
+}
     
 ParserRet ParserJsonObject::getStruct()
 {
@@ -316,9 +336,12 @@ ParserJsonObject& ParserJsonObject::Hfind(const char* name)
     }
     for (rapidjson::Value::ConstMemberIterator itr = this->rpj_value->MemberBegin();itr != this->rpj_value->MemberEnd(); ++itr) {
         if (!strcmp(itr->name.GetString(), name)) {
-
+            this->rpj_value_ = it;
+            return *this;
         }
     }
+    PARSER_ERROR("Can not find path[%s]", name);
+    return *this;
 }
 
 //ParserJson class
