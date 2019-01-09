@@ -1,5 +1,6 @@
 #include "parser_json.h"
 #include <vector>
+#include <map>
 
 
 int main()
@@ -15,14 +16,20 @@ int main()
     printf("%s\n", data);
     pj.find("/order/0").Vfind("/name").getString(data, 200);
     printf("%s\n", data);
+    printf("---------------\n");
     std::vector<parser::ParserJsonObject> v;
-    pj.find("/order").getVector(&v);
+    pj.find("/order").getArray(&v);
     for (auto& obj : v) {
+        std::map<std::string, parser::ParserJsonObject> m;
+        obj.getObject(&m);
+        m["name"].getString(data, 200);
+        printf("%s\n", data);
         obj.Vfind("/overtime").getInt(&idata);
         printf("%d\n", idata);
-        obj.Vfind("/name").getString(data, 200);
-        printf("%s\n", data);
     }
+    printf("---------------\n");
+    pj.find("/order")[0]["name"].getString(data, 200);
+    printf("%s\n", data);
 
     return 0;
 }

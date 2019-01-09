@@ -1,8 +1,8 @@
 #ifndef __PERSER_JSON_H__
 #define __PERSER_JSON_H__
 
-#include <list>
 #include <vector>
+#include <map>
 #include <time.h>
 
 #include "parser_return.h"
@@ -15,6 +15,15 @@
 
 namespace parser {
 
+typedef enum class _JsonType {
+    STRING,
+    INT,
+    DOUBLE,
+    BOOL,
+    ARRAY,
+    OBJECT,
+}JsonType;
+
 class ParserJson;
 class ParserJsonObject {
 public:
@@ -22,12 +31,14 @@ public:
     ParserJsonObject(ParserJson*, rapidjson::Value*);
     ~ParserJsonObject();
 
+    bool isEmpty();
+
     bool isString();
     bool isInt();
     bool isDouble();
     bool isNull();
     bool isBool();
-    bool isVector();
+    bool isArray();
     bool isStruct();
     
     ParserRet getString(char* cache, unsigned int cache_size);
@@ -38,22 +49,47 @@ public:
     ParserRet getDouble(double* cache, struct timespec*);
     ParserRet getBool(bool* cache);
     ParserRet getBool(bool* cache, struct timespec*);
-    ParserRet getVector(std::vector<ParserJsonObject>* cache);
-    ParserRet getVector(std::vector<ParserJsonObject>* cache, struct timespec*);
-    ParserRet getStruct();
+    ParserRet getArray(std::vector<ParserJsonObject>* cache);
+    ParserRet getArray(std::vector<ParserJsonObject>* cache, struct timespec*);
+    ParserRet getObject(std::map<std::string, ParserJsonObject>* cache);
+    ParserRet getObject(std::map<std::string, ParserJsonObject>* cache, struct timespec*);
 
-    ParserRet set();
+    ParserRet setString(char* cache, unsigned int cache_size);
+    ParserRet setString(char* cache, unsigned int cache_size, struct timespec*);
+    ParserRet setInt(int cache);
+    ParserRet setInt(int cache, struct timespec*);
+    ParserRet setDouble(double cache);
+    ParserRet setDouble(double cache, struct timespec*);
+    ParserRet setBool(bool cache);
+    ParserRet setBool(bool cache, struct timespec*);
+    ParserJsonObject& arrayAdd(ParserJsonObject&);
+    ParserJsonObject& arrayAdd(ParserJsonObject&, struct timespec*);
+    ParserJsonObject& arrayDel(ParserJsonObject&);
+    ParserJsonObject& arrayDel(ParserJsonObject&, struct timespec*);
+    ParserJsonObject& objectAdd(const char* key, const char* value, unsigned int len);
+    ParserJsonObject& objectAdd(const char* key, int value);
+    ParserJsonObject& objectAdd(const char* key, double value);
+    ParserJsonObject& objectAdd(const char* key, bool value);
+    ParserJsonObject& objectAdd(const char*, JsonType);
+    ParserJsonObject& objectAdd(ParserJsonObject&, struct timespec*);
+    ParserJsonObject& objectDel(ParserJsonObject&);
+    ParserJsonObject& objectDel(ParserJsonObject&, struct timespec*);
 
     ParserJsonObject& Vfind(const char* path);
     ParserJsonObject& Hfind(const char* path);
+
+    ParserJsonObject operator[](int index);
+    ParserJsonObject operator[](const char* name);
 private:
     bool init_flag_;
     rapidjson::Value* rpj_value_;
+    rapidjson::Value new_rpj_value_;
     ParserJson* pj_center_;
 };
 
 class ParserJson {
 public:
+    friend class ParserJsonObject;
     ParserJson();
     ~ParserJson();
 

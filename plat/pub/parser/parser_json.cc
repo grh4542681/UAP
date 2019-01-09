@@ -33,6 +33,11 @@ ParserJsonObject::~ParserJsonObject()
 
 }
 
+bool ParserJsonObject::isEmpty()
+{
+    return this->init_flag_;
+}
+
 bool ParserJsonObject::isString()
 {
     if (!this->init_flag_) {
@@ -78,7 +83,7 @@ bool ParserJsonObject::isBool()
     return this->rpj_value_->IsBool();
 }
 
-bool ParserJsonObject::isVector()
+bool ParserJsonObject::isArray()
 {
     if (!this->init_flag_) {
         PARSER_ERROR("This object has not init");
@@ -264,7 +269,7 @@ ParserRet ParserJsonObject::getBool(bool* cache, struct timespec* overtime)
     return ParserRet::ENOTFOUND;
 }
     
-ParserRet ParserJsonObject::getVector(std::vector<ParserJsonObject>* cache)
+ParserRet ParserJsonObject::getArray(std::vector<ParserJsonObject>* cache)
 {
     if (!this->init_flag_) {
         PARSER_ERROR("This object has not init");
@@ -279,12 +284,14 @@ ParserRet ParserJsonObject::getVector(std::vector<ParserJsonObject>* cache)
         for (auto& a : this->rpj_value_->GetArray()) {
             cache->push_back(ParserJsonObject(this->pj_center_, &a));
         }
+        this->pj_center_->UnLock();
         return ParserRet::SUCCESS;
     }
+    this->pj_center_->UnLock();
     return ParserRet::ENOTFOUND;
 }
 
-ParserRet ParserJsonObject::getVector(std::vector<ParserJsonObject>* cache, struct timespec* overtime)
+ParserRet ParserJsonObject::getArray(std::vector<ParserJsonObject>* cache, struct timespec* overtime)
 {
     if (!this->init_flag_) {
         PARSER_ERROR("This object has not init");
@@ -299,18 +306,70 @@ ParserRet ParserJsonObject::getVector(std::vector<ParserJsonObject>* cache, stru
         for (auto& a : this->rpj_value_->GetArray()) {
             cache->push_back(ParserJsonObject(this->pj_center_, &a));
         }
+        this->pj_center_->UnLock();
         return ParserRet::SUCCESS;
     }
+    this->pj_center_->UnLock();
     return ParserRet::ENOTFOUND;
 }
-    
-ParserRet ParserJsonObject::getStruct()
+
+ParserRet ParserJsonObject::getObject(std::map<std::string, ParserJsonObject>* cache)
 {
     if (!this->init_flag_) {
         PARSER_ERROR("This object has not init");
         return ParserRet::EINIT;
     }
+    ParserRet ret;
+    if ((ret = this->pj_center_->RLock()) != ParserRet::SUCCESS) {
+        PARSER_ERROR("Get read lock error!");
+        return ret;
+    }
+    if (this->rpj_value_->IsObject()) {
+        for (auto& m : this->rpj_value_->GetObject()) {
+       //     cache->insert(std::pair<std::string, ParserJsonObject>(m.name.GetString(), ParserJsonObject(this->pj_center_, &(m.value))));
+        }
+        this->pj_center_->UnLock();
+        return ParserRet::SUCCESS;
+    }
+    this->pj_center_->UnLock();
+    return ParserRet::ENOTFOUND;
+}
 
+ParserRet ParserJsonObject::getObject(std::map<std::string, ParserJsonObject>* cache, struct timespec* overtime)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        return ParserRet::EINIT;
+    }
+    ParserRet ret;
+    if ((ret = this->pj_center_->RLock(overtime)) != ParserRet::SUCCESS) {
+        PARSER_ERROR("Get read lock error!");
+        return ret;
+    }
+    if (this->rpj_value_->IsObject()) {
+        for (auto& m : this->rpj_value_->GetObject()) {
+ //           cache->insert(std::pair<std::string, ParserJsonObject>(m.name.GetString(), ParserJsonObject(this->pj_center_, &(m.value))));
+        }
+        this->pj_center_->UnLock();
+        return ParserRet::SUCCESS;
+    }
+    this->pj_center_->UnLock();
+    return ParserRet::ENOTFOUND;
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, JsonType type)
+{
+    rapidjson::Type value_type;
+    switch (type) {
+        case JsonType::ARRAY:
+            value_type = rapidjson::Type::kArrayType;
+            break;
+        default:
+            break;
+    }
+    rapidjson::Value value(value_type);
+    this->rpj_value_->AddMember(key, value, this->pj_center_->doc_.GetAllocator());
+    return *this;
 }
 
 ParserJsonObject& ParserJsonObject::Vfind(const char* path)
@@ -330,18 +389,59 @@ ParserJsonObject& ParserJsonObject::Vfind(const char* path)
 
 ParserJsonObject& ParserJsonObject::Hfind(const char* name)
 {
+    PARSER_ERROR("Not support");
+    return *this;
+}
+
+ParserJsonObject ParserJsonObject::operator[](int index)
+{
     if (!this->init_flag_) {
         PARSER_ERROR("This object has not init");
-        return *this;
+        return ParserJsonObject();
     }
-    for (rapidjson::Value::ConstMemberIterator itr = this->rpj_value->MemberBegin();itr != this->rpj_value->MemberEnd(); ++itr) {
-        if (!strcmp(itr->name.GetString(), name)) {
-            this->rpj_value_ = it;
-            return *this;
+    ParserRet ret;
+    if ((ret = this->pj_center_->RLock()) != ParserRet::SUCCESS) {
+        PARSER_ERROR("Get read lock error!");
+        return ParserJsonObject();
+    }
+    if (this->rpj_value_->IsArray()) {
+        if (index < 0 || static_cast<unsigned int>(index) > this->rpj_value_->Size()) {
+            this->pj_center_->UnLock();
+            return ParserJsonObject();
+        } else {
+            this->pj_center_->UnLock();
+            return ParserJsonObject(this->pj_center_, &((*(this->rpj_value_))[index]));
         }
     }
-    PARSER_ERROR("Can not find path[%s]", name);
-    return *this;
+    this->pj_center_->UnLock();
+    return ParserJsonObject();
+}
+
+ParserJsonObject ParserJsonObject::operator[](const char* name)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        return ParserJsonObject();
+    }
+    ParserRet ret;
+    if ((ret = this->pj_center_->RLock()) != ParserRet::SUCCESS) {
+        PARSER_ERROR("Get read lock error!");
+        return ParserJsonObject();
+    }
+    if (this->rpj_value_->IsObject()) {
+        rapidjson::Value::ConstMemberIterator itr = this->rpj_value_->FindMember(name);
+        if (itr == this->rpj_value_->MemberEnd()) {
+            this->pj_center_->UnLock();
+            return ParserJsonObject();
+        } else {
+            this->pj_center_->UnLock();
+            return ParserJsonObject(this->pj_center_, const_cast<rapidjson::Value*>(&(itr->value)));
+        }
+    } else {
+        PARSER_ERROR("Not correct type");
+        this->pj_center_->UnLock();
+        return ParserJsonObject();
+    }
 }
 
 //ParserJson class
