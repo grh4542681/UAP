@@ -22,6 +22,7 @@ typedef enum class _JsonType {
     BOOL,
     ARRAY,
     OBJECT,
+    ONULL,
 }JsonType;
 
 class ParserJson;
@@ -29,6 +30,7 @@ class ParserJsonObject {
 public:
     ParserJsonObject();
     ParserJsonObject(ParserJson*, rapidjson::Value*);
+    ParserJsonObject(const parser::ParserJsonObject&);
     ~ParserJsonObject();
 
     bool isEmpty();
@@ -62,6 +64,8 @@ public:
     ParserRet setDouble(double cache, struct timespec*);
     ParserRet setBool(bool cache);
     ParserRet setBool(bool cache, struct timespec*);
+    ParserRet setArray();
+    ParserRet setObject();
     ParserJsonObject& arrayAdd(ParserJsonObject&);
     ParserJsonObject& arrayAdd(ParserJsonObject&, struct timespec*);
     ParserJsonObject& arrayDel(ParserJsonObject&);
@@ -95,6 +99,7 @@ public:
 
     ParserRet ParserJsonFile(const char* filename);
     ParserRet ParserJsonString(const char* jsonstring);
+    ParserRet StorageJsonFile(const char* filename);
 
     ParserRet RLock();
     ParserRet RLock(struct timespec*);

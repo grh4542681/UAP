@@ -6,6 +6,8 @@
 
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
+#include "rapidjson/filewritestream.h"
+#include "rapidjson/writer.h"
 
 namespace parser {
 
@@ -26,6 +28,13 @@ ParserJsonObject::ParserJsonObject(ParserJson* pj_center, rapidjson::Value* rpj_
     } else {
         this->init_flag_ = true;
     }
+}
+
+ParserJsonObject::ParserJsonObject(const parser::ParserJsonObject& old)
+{
+    this->rpj_value_ = old.rpj_value_;
+    this->pj_center_ = old.pj_center_;
+    this->init_flag_ = old.init_flag_;
 }
 
 ParserJsonObject::~ParserJsonObject()
@@ -326,7 +335,7 @@ ParserRet ParserJsonObject::getObject(std::map<std::string, ParserJsonObject>* c
     }
     if (this->rpj_value_->IsObject()) {
         for (auto& m : this->rpj_value_->GetObject()) {
-       //     cache->insert(std::pair<std::string, ParserJsonObject>(m.name.GetString(), ParserJsonObject(this->pj_center_, &(m.value))));
+            cache->insert(std::pair<std::string, ParserJsonObject>(m.name.GetString(), ParserJsonObject(this->pj_center_, &(m.value))));
         }
         this->pj_center_->UnLock();
         return ParserRet::SUCCESS;
@@ -348,13 +357,59 @@ ParserRet ParserJsonObject::getObject(std::map<std::string, ParserJsonObject>* c
     }
     if (this->rpj_value_->IsObject()) {
         for (auto& m : this->rpj_value_->GetObject()) {
- //           cache->insert(std::pair<std::string, ParserJsonObject>(m.name.GetString(), ParserJsonObject(this->pj_center_, &(m.value))));
+            cache->insert(std::pair<std::string, ParserJsonObject>(m.name.GetString(), ParserJsonObject(this->pj_center_, &(m.value))));
         }
         this->pj_center_->UnLock();
         return ParserRet::SUCCESS;
     }
     this->pj_center_->UnLock();
     return ParserRet::ENOTFOUND;
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, const char* value, unsigned int len)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        return *this;
+    }
+    if (this->rpj_value_->IsObject()) {
+        if (this->pj_center_->WLock() != ParserRet::SUCCESS) {
+            PARSER_ERROR("Get write lock error!");
+            return *this;
+        }
+        rapidjson::Value rvalue(value, len, this->pj_center_->doc_.GetAllocator());
+        rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+        this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+        this->pj_center_->UnLock();
+        return *this;
+    } else {
+        PARSER_ERROR("This object type is not OBJECT");
+        return *this;
+    }
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, int value)
+{
+    rapidjson::Value rvalue(value);
+    rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+    this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+    return *this;
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, double value)
+{
+    rapidjson::Value rvalue(value);
+    rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+    this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+    return *this;
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, bool value)
+{
+    rapidjson::Value rvalue(value);
+    rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+    this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+    return *this;
 }
 
 ParserJsonObject& ParserJsonObject::objectAdd(const char* key, JsonType type)
@@ -364,11 +419,15 @@ ParserJsonObject& ParserJsonObject::objectAdd(const char* key, JsonType type)
         case JsonType::ARRAY:
             value_type = rapidjson::Type::kArrayType;
             break;
+        case JsonType::OBJECT:
+            value_type = rapidjson::Type::kObjectType;
+            break;
         default:
             break;
     }
-    rapidjson::Value value(value_type);
-    this->rpj_value_->AddMember(key, value, this->pj_center_->doc_.GetAllocator());
+    rapidjson::Value rvalue(value_type);
+    rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+    this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
     return *this;
 }
 
@@ -473,6 +532,7 @@ ParserRet ParserJson::ParserJsonFile(const char* filename)
     rapidjson::FileReadStream frs(fp, jsoncache, MAXJSONFILESIZE);
     if (this->doc_.ParseStream(frs).HasParseError()) {
         fclose(fp);
+        PARSER_ERROR("Parser json file[%s] error", filename);
         return ParserRet::ERROR;
     }
 
@@ -485,6 +545,25 @@ ParserRet ParserJson::ParserJsonString(const char* jsonstring)
     if (this->doc_.Parse(jsonstring).HasParseError()) {
         return ParserRet::ERROR;
     }
+    return ParserRet::SUCCESS;
+}
+
+ParserRet ParserJson::StorageJsonFile(const char* filename)
+{
+    unlink(filename);
+
+    FILE* fp = fopen(filename, "wb");
+    if (!fp) {
+        PARSER_ERROR("Can not open file[%s] [%s]", filename, strerror(errno));
+        return ParserRet::EBADARGS;
+    }
+
+    char jsoncache[MAXJSONFILESIZE];
+    memset(jsoncache, 0x00, sizeof(jsoncache));
+    rapidjson::FileWriteStream fws(fp, jsoncache, sizeof(jsoncache));
+    rapidjson::Writer<rapidjson::FileWriteStream> writer(fws);
+    this->doc_.Accept(writer);
+    fclose(fp);
     return ParserRet::SUCCESS;
 }
 

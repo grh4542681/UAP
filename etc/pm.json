@@ -12,5 +12,8 @@
             "overtime" : 30,
             "dependent" : ["ns"]
         }
-    ]
+    ],
+    "root" : {
+        "name" : "test"
+    }
 }
