@@ -422,8 +422,15 @@ ParserJsonObject& ParserJsonObject::objectAdd(const char* key, JsonType type)
         case JsonType::OBJECT:
             value_type = rapidjson::Type::kObjectType;
             break;
-        default:
+        case JsonType::ONULL:
+            value_type = rapidjson::Type::kNullType;
             break;
+        case JsonType::INT:
+            value_type = rapidjson::Type::kNumberType;
+            break;
+        default:
+            PARSER_ERROR("Unsupport object type[%d]", static_cast<int>(type));
+            return *this;
     }
     rapidjson::Value rvalue(value_type);
     rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());

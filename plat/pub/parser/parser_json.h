@@ -15,8 +15,8 @@
 
 namespace parser {
 
-typedef enum class _JsonType {
-    STRING,
+typedef enum class _JsonType : int {
+    STRING = 1,
     INT,
     DOUBLE,
     BOOL,

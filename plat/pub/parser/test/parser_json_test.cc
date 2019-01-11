@@ -31,7 +31,7 @@ int main()
     pj.find("/order")[0]["name"].getString(data, 200);
     printf("%s\n", data);
 
-    pj.find("/root").objectAdd("testobj", parser::JsonType::OBJECT)["testobj"].objectAdd("teststring", "hello", 4).objectAdd("testint", 200).objectAdd("testbool", false).objectAdd("testdouble", 12.12);
+    pj.find("/root").objectAdd("testobj", parser::JsonType::OBJECT)["testobj"].objectAdd("teststring", "hello", 4).objectAdd("testint", 200).objectAdd("testbool", false).objectAdd("testdouble", 12.12).objectAdd("123",parser::JsonType::INT);
     pj.StorageJsonFile("test_json.json");
 
     return 0;
