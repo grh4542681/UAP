@@ -34,6 +34,7 @@ public:
     ~ParserJsonObject();
 
     bool isEmpty();
+    ParserRet getLastRet();
 
     bool isString();
     bool isInt();
@@ -41,6 +42,7 @@ public:
     bool isNull();
     bool isBool();
     bool isArray();
+    bool isObject();
     bool isStruct();
     
     ParserRet getString(char* cache, unsigned int cache_size);
@@ -65,7 +67,7 @@ public:
     ParserRet setBool(bool cache);
     ParserRet setBool(bool cache, struct timespec*);
     ParserRet setArray();
-    ParserRet setArray(struct timespec*)
+    ParserRet setArray(struct timespec*);
     ParserRet setObject();
     ParserRet setObject(struct timespec*);
 
@@ -75,6 +77,7 @@ public:
     ParserJsonObject& arrayDel(ParserJsonObject&);
     ParserJsonObject& arrayDel(ParserJsonObject&, struct timespec*);
 
+    bool hasObject(const char* key);
     ParserJsonObject& objectAdd(const char* key, const char* value, unsigned int len);
     ParserJsonObject& objectAdd(const char* key, const char* value, unsigned int len, struct timespec*);
     ParserJsonObject& objectAdd(const char* key, int value);
@@ -101,6 +104,11 @@ private:
     rapidjson::Value* rpj_value_;
     rapidjson::Value new_rpj_value_;
     ParserJson* pj_center_;
+    ParserRet last_ret_;
+
+    void _setret(ParserRet ret) {
+        this->last_ret_ = ret;
+    }
 };
 
 class ParserJson {

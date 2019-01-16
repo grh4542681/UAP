@@ -13,6 +13,10 @@ typedef enum class _ParserRet: int {
     EBADARGS,
     ENOTFOUND,
     ELOCK,
+    EGETRLOCK,
+    EGETWLOCK,
+    EUNLOCK,
+    EMAHTYPE,
 
     EUNKOWNERRNO,
 
