@@ -38,17 +38,19 @@ public:
 
     bool isString();
     bool isInt();
+    bool isLong();
     bool isDouble();
     bool isNull();
     bool isBool();
     bool isArray();
     bool isObject();
-    bool isStruct();
     
     ParserRet getString(char* cache, unsigned int cache_size);
     ParserRet getString(char* cache, unsigned int cache_size, struct timespec*);
     ParserRet getInt(int* cache);
     ParserRet getInt(int* cache, struct timespec*);
+    ParserRet getLong(long* cache);
+    ParserRet getLong(long* cache, struct timespec*);
     ParserRet getDouble(double* cache);
     ParserRet getDouble(double* cache, struct timespec*);
     ParserRet getBool(bool* cache);
@@ -62,6 +64,8 @@ public:
     ParserRet setString(char* cache, unsigned int cache_size, struct timespec*);
     ParserRet setInt(int cache);
     ParserRet setInt(int cache, struct timespec*);
+    ParserRet setLong(long* cache);
+    ParserRet setLong(long* cache, struct timespec*);
     ParserRet setDouble(double cache);
     ParserRet setDouble(double cache, struct timespec*);
     ParserRet setBool(bool cache);
@@ -71,28 +75,40 @@ public:
     ParserRet setObject();
     ParserRet setObject(struct timespec*);
 
-    ParserJsonObject& arrayAdd(ParserJsonObject&);
-    ParserJsonObject& arrayAdd(ParserJsonObject&, struct timespec*);
+    ParserJsonObject& arrayPush(const char* key, const char* value, unsigned int len);
+    ParserJsonObject& arrayPush(const char* key, const char* value, unsigned int len, struct timespec*);
+    ParserJsonObject& arrayPush(const char* key, int value);
+    ParserJsonObject& arrayPush(const char* key, int value, struct timespec*);
+    ParserJsonObject& arrayPush(const char* key, long value);
+    ParserJsonObject& arrayPush(const char* key, long value, struct timespec*);
+    ParserJsonObject& arrayPush(const char* key, double value);
+    ParserJsonObject& arrayPush(const char* key, double value, struct timespec*);
+    ParserJsonObject& arrayPush(const char* key, bool value);
+    ParserJsonObject& arrayPush(const char* key, bool value, struct timespec*);
+    ParserJsonObject& arrayPush(const char*, JsonType);
+    ParserJsonObject& arrayPush(const char*, JsonType, struct timespec*);
 
-    ParserJsonObject& arrayDel(ParserJsonObject&);
-    ParserJsonObject& arrayDel(ParserJsonObject&, struct timespec*);
+    ParserJsonObject& arrayPop();
+    ParserJsonObject& arrayPop(struct timespec*);
 
     bool hasObject(const char* key);
     ParserJsonObject& objectAdd(const char* key, const char* value, unsigned int len);
     ParserJsonObject& objectAdd(const char* key, const char* value, unsigned int len, struct timespec*);
     ParserJsonObject& objectAdd(const char* key, int value);
     ParserJsonObject& objectAdd(const char* key, int value, struct timespec*);
+    ParserJsonObject& objectAdd(const char* key, long value);
+    ParserJsonObject& objectAdd(const char* key, long value, struct timespec*);
     ParserJsonObject& objectAdd(const char* key, double value);
     ParserJsonObject& objectAdd(const char* key, double value, struct timespec*);
     ParserJsonObject& objectAdd(const char* key, bool value);
     ParserJsonObject& objectAdd(const char* key, bool value, struct timespec*);
     ParserJsonObject& objectAdd(const char*, JsonType);
     ParserJsonObject& objectAdd(const char*, JsonType, struct timespec*);
-    ParserJsonObject& objectAdd(ParserJsonObject&);
-    ParserJsonObject& objectAdd(ParserJsonObject&, struct timespec*);
+    ParserJsonObject& objectAdd(ParserJson&);
+    ParserJsonObject& objectAdd(ParserJson&, struct timespec*);
 
-    ParserJsonObject& objectDel(ParserJsonObject&);
-    ParserJsonObject& objectDel(ParserJsonObject&, struct timespec*);
+    ParserJsonObject& objectDel(const char* key);
+    ParserJsonObject& objectDel(const char* key, struct timespec*);
 
     ParserJsonObject& Vfind(const char* path);
     ParserJsonObject& Hfind(const char* path);
@@ -102,7 +118,6 @@ public:
 private:
     bool init_flag_;
     rapidjson::Value* rpj_value_;
-    rapidjson::Value new_rpj_value_;
     ParserJson* pj_center_;
     ParserRet last_ret_;
 
@@ -122,6 +137,9 @@ public:
     ParserRet StorageJsonFile(const char* filename);
     ParserRet StorageJsonString(const char* jsonstring, unsigned int len);
 
+    void setThreadSafe();
+    void UnsetThreadSafe();
+
     ParserRet RLock();
     ParserRet RLock(struct timespec*);
     ParserRet WLock();
@@ -131,6 +149,7 @@ public:
     ParserJsonObject find(const char* path);
 private:
     bool init_flag_;
+    bool thread_safe_flag_;
     pub::MemPool* mempool_;
     thread::ThreadRWLock rwlock_;
 

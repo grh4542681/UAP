@@ -116,6 +116,11 @@ bool ParserJsonObject::isInt()
     return this->rpj_value_->IsInt();
 }
 
+bool ParserJsonObject::isLong()
+{
+
+}
+
 /**
 * @brief isDouble - Determine if the value of the current object is a double
 *
@@ -328,7 +333,17 @@ ParserRet ParserJsonObject::getInt(int* cache, struct timespec* overtime)
     this->pj_center_->UnLock();
     return ParserRet::ENOTFOUND;
 }
-    
+
+ParserRet ParserJsonObject::getLong(long* cache)
+{
+
+}
+
+ParserRet ParserJsonObject::getLong(long* cache, struct timespec*)
+{
+
+}
+
 /**
 * @brief getDouble - If the current object is of type double, then get its value.
 *
@@ -567,6 +582,149 @@ ParserRet ParserJsonObject::getObject(std::map<std::string, ParserJsonObject>* c
     return ParserRet::ENOTFOUND;
 }
 
+
+ParserRet ParserJsonObject::setString(char* cache, unsigned int cache_size)
+{
+
+}
+
+ParserRet ParserJsonObject::setString(char* cache, unsigned int cache_size, struct timespec*)
+{
+
+}
+
+ParserRet ParserJsonObject::setInt(int cache)
+{
+
+}
+
+ParserRet ParserJsonObject::setInt(int cache, struct timespec*)
+{
+
+}
+
+ParserRet ParserJsonObject::setLong(long* cache)
+{
+
+}
+
+ParserRet ParserJsonObject::setLong(long* cache, struct timespec*)
+{
+
+}
+
+ParserRet ParserJsonObject::setDouble(double cache)
+{
+
+}
+
+ParserRet ParserJsonObject::setDouble(double cache, struct timespec*)
+{
+
+}
+
+ParserRet ParserJsonObject::setBool(bool cache)
+{
+
+}
+
+ParserRet ParserJsonObject::setBool(bool cache, struct timespec*)
+{
+
+}
+
+ParserRet ParserJsonObject::setArray()
+{
+
+}
+
+ParserRet ParserJsonObject::setArray(struct timespec*)
+{
+
+}
+
+ParserRet ParserJsonObject::setObject()
+{
+
+}
+
+ParserRet ParserJsonObject::setObject(struct timespec*)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char* key, const char* value, unsigned int len)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char* key, const char* value, unsigned int len, struct timespec*)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char* key, int value)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char* key, int value, struct timespec*)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char* key, long value)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char* key, long value, struct timespec*)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char* key, double value)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char* key, double value, struct timespec*)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char* key, bool value)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char* key, bool value, struct timespec*)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char*, JsonType)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(const char*, JsonType, struct timespec*)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPop()
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::arrayPop(struct timespec*)
+{
+
+}
+
+
+
 /**
 * @brief hasObject - Determine whether the current object has the specified child object.
 *
@@ -699,6 +857,42 @@ ParserJsonObject& ParserJsonObject::objectAdd(const char* key, int value)
     }
 }
 
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, int value, struct timespec* overtime)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        _setret(ParserRet::EINIT);
+        return *this;
+    }
+    if (this->rpj_value_->IsObject()) {
+        if (this->pj_center_->WLock(overtime) != ParserRet::SUCCESS) {
+            PARSER_ERROR("Get write lock error!");
+            _setret(ParserRet::EGETWLOCK);
+            return *this;
+        }
+        rapidjson::Value rvalue(value);
+        rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+        this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+        this->pj_center_->UnLock();
+        _setret(ParserRet::SUCCESS);
+        return *this;
+    } else {
+        PARSER_ERROR("This object type is not OBJECT");
+        _setret(ParserRet::EMAHTYPE);
+        return *this;
+    }
+}
+
+ParserJsonObject& objectAdd(const char* key, long value)
+{
+
+}
+
+ParserJsonObject& objectAdd(const char* key, long value, struct timespec*)
+{
+
+}
+
 ParserJsonObject& ParserJsonObject::objectAdd(const char* key, double value)
 {
     if (!this->init_flag_) {
@@ -725,6 +919,32 @@ ParserJsonObject& ParserJsonObject::objectAdd(const char* key, double value)
     }
 }
 
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, double value, struct timespec* overtime)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        _setret(ParserRet::EINIT);
+        return *this;
+    }
+    if (this->rpj_value_->IsObject()) {
+        if (this->pj_center_->WLock(overtime) != ParserRet::SUCCESS) {
+            PARSER_ERROR("Get write lock error!");
+            _setret(ParserRet::EGETWLOCK);
+            return *this;
+        }
+        rapidjson::Value rvalue(value);
+        rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+        this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+        this->pj_center_->UnLock();
+        _setret(ParserRet::SUCCESS);
+        return *this;
+    } else {
+        PARSER_ERROR("This object type is not OBJECT");
+        _setret(ParserRet::EMAHTYPE);
+        return *this;
+    }
+}
+
 ParserJsonObject& ParserJsonObject::objectAdd(const char* key, bool value)
 {
     if (!this->init_flag_) {
@@ -734,6 +954,32 @@ ParserJsonObject& ParserJsonObject::objectAdd(const char* key, bool value)
     }
     if (this->rpj_value_->IsObject()) {
         if (this->pj_center_->WLock() != ParserRet::SUCCESS) {
+            PARSER_ERROR("Get write lock error!");
+            _setret(ParserRet::EGETWLOCK);
+            return *this;
+        }
+        rapidjson::Value rvalue(value);
+        rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+        this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+        this->pj_center_->UnLock();
+        _setret(ParserRet::SUCCESS);
+        return *this;
+    } else {
+        PARSER_ERROR("This object type is not OBJECT");
+        _setret(ParserRet::EMAHTYPE);
+        return *this;
+    }
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, bool value, struct timespec* overtime)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        _setret(ParserRet::EINIT);
+        return *this;
+    }
+    if (this->rpj_value_->IsObject()) {
+        if (this->pj_center_->WLock(overtime) != ParserRet::SUCCESS) {
             PARSER_ERROR("Get write lock error!");
             _setret(ParserRet::EGETWLOCK);
             return *this;
@@ -794,6 +1040,71 @@ ParserJsonObject& ParserJsonObject::objectAdd(const char* key, JsonType type)
         _setret(ParserRet::EMAHTYPE);
         return *this;
     }
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, JsonType type, struct timespec* overtime)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        _setret(ParserRet::EINIT);
+        return *this;
+    }
+    if (this->rpj_value_->IsObject()) {
+        if (this->pj_center_->WLock(overtime) != ParserRet::SUCCESS) {
+            PARSER_ERROR("Get write lock error!");
+            _setret(ParserRet::EGETWLOCK);
+            return *this;
+        }
+        rapidjson::Type value_type;
+        switch (type) {
+            case JsonType::ARRAY:
+                value_type = rapidjson::Type::kArrayType;
+                break;
+            case JsonType::OBJECT:
+                value_type = rapidjson::Type::kObjectType;
+                break;
+            case JsonType::ONULL:
+                value_type = rapidjson::Type::kNullType;
+                break;
+            case JsonType::INT:
+                value_type = rapidjson::Type::kNumberType;
+                break;
+            default:
+                PARSER_ERROR("Unsupport object type[%d]", static_cast<int>(type));
+                _setret(ParserRet::EMAHTYPE);
+                return *this;
+        }
+        rapidjson::Value rvalue(value_type);
+        rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+        this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+        this->pj_center_->UnLock();
+        _setret(ParserRet::SUCCESS);
+        return *this;
+    } else {
+        PARSER_ERROR("This object type is not OBJECT");
+        _setret(ParserRet::EMAHTYPE);
+        return *this;
+    }
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(ParserJson& jsontree)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(ParserJson& jsontree, struct timespec* overtime)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::objectDel(const char* key)
+{
+
+}
+
+ParserJsonObject& ParserJsonObject::objectDel(const char* key, struct timespec*)
+{
+
 }
 
 ParserJsonObject& ParserJsonObject::Vfind(const char* path)
@@ -886,6 +1197,7 @@ ParserJsonObject ParserJsonObject::operator[](const char* name)
 ParserJson::ParserJson()
 {
     this->init_flag_ = false;
+    this->thread_safe_flag_ = false;
 }
 
 ParserJson::~ParserJson()
@@ -946,8 +1258,21 @@ ParserRet ParserJson::StorageJsonFile(const char* filename)
     return ParserRet::SUCCESS;
 }
 
+void ParserJson::setThreadSafe()
+{
+    this->thread_safe_flag_ = true;
+}
+
+void ParserJson::UnsetThreadSafe()
+{
+    this->thread_safe_flag_ = false;
+}
+
 ParserRet ParserJson::RLock()
 {
+    if (!(this->thread_safe_flag_)) {
+        return ParserRet::SUCCESS;
+    }
     if (this->rwlock_.RLock() != thread::ThreadRet::SUCCESS) {
         return ParserRet::ELOCK;
     }
@@ -956,6 +1281,9 @@ ParserRet ParserJson::RLock()
 
 ParserRet ParserJson::RLock(struct timespec* overtime)
 {
+    if (!(this->thread_safe_flag_)) {
+        return ParserRet::SUCCESS;
+    }
     if (this->rwlock_.RLock(overtime) != thread::ThreadRet::SUCCESS) {
         return ParserRet::ELOCK;
     }
@@ -964,6 +1292,9 @@ ParserRet ParserJson::RLock(struct timespec* overtime)
 
 ParserRet ParserJson::WLock()
 {
+    if (!(this->thread_safe_flag_)) {
+        return ParserRet::SUCCESS;
+    }
     if (this->rwlock_.WLock() != thread::ThreadRet::SUCCESS) {
         return ParserRet::ELOCK;
     }
@@ -972,6 +1303,9 @@ ParserRet ParserJson::WLock()
 
 ParserRet ParserJson::WLock(struct timespec* overtime)
 {
+    if (!(this->thread_safe_flag_)) {
+        return ParserRet::SUCCESS;
+    }
     if (this->rwlock_.WLock(overtime) != thread::ThreadRet::SUCCESS) {
         return ParserRet::ELOCK;
     }
@@ -980,6 +1314,9 @@ ParserRet ParserJson::WLock(struct timespec* overtime)
 
 ParserRet ParserJson::UnLock()
 {
+    if (!(this->thread_safe_flag_)) {
+        return ParserRet::SUCCESS;
+    }
     if (this->rwlock_.UnLock() != thread::ThreadRet::SUCCESS) {
         return ParserRet::ELOCK;
     }
