@@ -32,7 +32,21 @@ int main()
     printf("%s\n", data);
 
     pj.find("/root").objectAdd("testobj", parser::JsonType::OBJECT)["testobj"].objectAdd("teststring", "hello", 4).objectAdd("testint", 200).objectAdd("testbool", false).objectAdd("testdouble", 12.12).objectAdd("123",parser::JsonType::INT);
-    pj.StorageJsonFile("test_json.json");
+    pj.find("/").objectAdd("testobj2", parser::JsonType::OBJECT)["testobj2"].objectAdd("testarray", parser::JsonType::ARRAY)["testarray"].arrayPush(1).arrayPush(2).arrayPush(3).arrayPush("4");
+    //pj.find("/testobj2").objectAdd("testarray2", parser::JsonType::ARRAY)["testarray2"].arrayPush("1",1).arrayPush("2",1).arrayPush("3",1).arrayPush(4);
+    pj.find("/testobj2").objectAdd("testarray2", parser::JsonType::ARRAY)["testarray2"].arrayPush("1").arrayPush("2").arrayPush("3").arrayPush(4);
+    pj.find("/testobj2").objectAdd("testarray3", parser::JsonType::ARRAY)["testarray3"].arrayPush(parser::JsonType::OBJECT,3)[1].objectAdd("id",1).objectAdd("name","zhang san", 9);
+    pj.StorageJsonFile("test_json1.json");
+    pj.find("/testobj2/testarray2").arrayClear();
+    pj.find("/testobj2/testarray3")[1].objectClear();
+    pj.StorageJsonFile("test_json2.json");
+
+    parser::ParserJson o1;
+    parser::ParserJson o2;
+    o2.find("/").setObject().objectAdd("sid1",1);
+    o1.find("/").setObject().objectAdd("id1",1).objectAdd("o2",o2);
+    pj.find("/testobj2/testarray3").arrayPush(o1).arrayPush(o2);
+    pj.StorageJsonFile("test_json3.json");
 
     return 0;
 }
