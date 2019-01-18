@@ -6,7 +6,9 @@
 int main()
 {
 
+    printf("---------------\n");
     parser::ParserJson pj;
+    printf("---------------\n");
     pj.ParserJsonFile("/home/ezgaoro/workspace/cppfram/etc/pm.json");
     char data[200];
     int idata;
@@ -35,7 +37,7 @@ int main()
     pj.find("/").objectAdd("testobj2", parser::JsonType::OBJECT)["testobj2"].objectAdd("testarray", parser::JsonType::ARRAY)["testarray"].arrayPush(1).arrayPush(2).arrayPush(3).arrayPush("4");
     //pj.find("/testobj2").objectAdd("testarray2", parser::JsonType::ARRAY)["testarray2"].arrayPush("1",1).arrayPush("2",1).arrayPush("3",1).arrayPush(4);
     pj.find("/testobj2").objectAdd("testarray2", parser::JsonType::ARRAY)["testarray2"].arrayPush("1").arrayPush("2").arrayPush("3").arrayPush(4);
-    pj.find("/testobj2").objectAdd("testarray3", parser::JsonType::ARRAY)["testarray3"].arrayPush(parser::JsonType::OBJECT,3)[1].objectAdd("id",1).objectAdd("name","zhang san", 9);
+    pj.find("/testobj2").objectAdd("testarray3", parser::JsonType::ARRAY)["testarray3"].arrayPush(parser::JsonType::OBJECT,3)[1].objectAdd("id",1).objectAdd("name","zhang san");
     pj.StorageJsonFile("test_json1.json");
     pj.find("/testobj2/testarray2").arrayClear();
     pj.find("/testobj2/testarray3")[1].objectClear();
@@ -44,8 +46,8 @@ int main()
     parser::ParserJson o1;
     parser::ParserJson o2;
     o2.find("/").setObject().objectAdd("sid1",1);
-    o1.find("/").setObject().objectAdd("id1",1).objectAdd("o2",o2);
-    pj.find("/testobj2/testarray3").arrayPush(o1).arrayPush(o2);
+    o1.find("/").setObject().objectAdd("id1",1).objectAdd("o2",o2.root);
+    pj.find("/testobj2/testarray3").arrayPush(o1.find("/")).arrayPush(o2.find("/"));
     pj.StorageJsonFile("test_json3.json");
 
     return 0;

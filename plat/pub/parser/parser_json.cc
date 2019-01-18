@@ -55,6 +55,14 @@ ParserJsonObject::ParserJsonObject(const parser::ParserJsonObject& old)
     this->last_ret_ = old.last_ret_;
 }
 
+ParserJsonObject::ParserJsonObject(const parser::ParserJsonObject&& old)
+{
+    this->rpj_value_ = old.rpj_value_;
+    this->pj_center_ = old.pj_center_;
+    this->init_flag_ = old.init_flag_;
+    this->last_ret_ = old.last_ret_;
+}
+
 /**
 * @brief ~ParserJsonObject - Destructor
 */
@@ -64,13 +72,23 @@ ParserJsonObject::~ParserJsonObject()
 }
 
 /**
-* @brief isEmpty - Determine if the object is available
+* @brief isAvailable - Determine if the object is available
 *
 * @returns  bool
 */
-bool ParserJsonObject::isEmpty()
+bool ParserJsonObject::isAvailable()
 {
     return this->init_flag_;
+}
+
+/**
+* @brief hasError - Has error last operator
+*
+* @returns  bool
+*/
+bool ParserJsonObject::hasError()
+{
+    return (this->last_ret_ == ParserRet::SUCCESS);
 }
 
 /**
@@ -1045,6 +1063,14 @@ ParserJsonObject& ParserJsonObject::setObject(struct timespec* overtime)
     return *this;
 }
 
+/**
+* @brief arraySize - If this object is an array type.
+*                    Get the array size.
+*
+* @param [size] - Array size.
+*
+* @returns  ParserRet.
+*/
 ParserRet ParserJsonObject::arraySize(unsigned int* size)
 {
     if (!this->init_flag_) {
@@ -1064,6 +1090,14 @@ ParserRet ParserJsonObject::arraySize(unsigned int* size)
     return (ParserRet::SUCCESS);
 }
 
+/**
+* @brief arrayPush - If this object is an array type
+*                    Push an string object at the end of array.
+*
+* @param [value] - Value address.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(const char* value)
 {
     if (!this->init_flag_) {
@@ -1088,6 +1122,16 @@ ParserJsonObject& ParserJsonObject::arrayPush(const char* value)
 }
 
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push an string object at the end of array.
+*                    This function will block until other thread change this object done.
+*
+* @param [value] - Value address.
+* @param [overtime] - Over time.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(const char* value, struct timespec* overtime)
 {
     if (!this->init_flag_) {
@@ -1111,6 +1155,15 @@ ParserJsonObject& ParserJsonObject::arrayPush(const char* value, struct timespec
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push an string object at the end of array.
+*
+* @param [value] - Value address.
+* @param [len] - Value size.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(const char* value, unsigned int len)
 {
     if (!this->init_flag_) {
@@ -1135,6 +1188,17 @@ ParserJsonObject& ParserJsonObject::arrayPush(const char* value, unsigned int le
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push an string object at the end of array.
+*                    This function will block until other thread change this object done.
+*
+* @param [value] - Value address.
+* @param [len] - Value size.
+* @param [overtime] - Over time.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(const char* value, unsigned int len, struct timespec* overtime)
 {
     if (!this->init_flag_) {
@@ -1159,6 +1223,14 @@ ParserJsonObject& ParserJsonObject::arrayPush(const char* value, unsigned int le
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push an int object at the end of array.
+*
+* @param [value] - Value.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(int value)
 {
     if (!this->init_flag_) {
@@ -1182,6 +1254,16 @@ ParserJsonObject& ParserJsonObject::arrayPush(int value)
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push an int object at the end of array.
+*                    This function will block until other thread change this object done.
+*
+* @param [value] - Value.
+* @param [overtime] - Over time.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(int value, struct timespec* overtime)
 {
     if (!this->init_flag_) {
@@ -1205,6 +1287,14 @@ ParserJsonObject& ParserJsonObject::arrayPush(int value, struct timespec* overti
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push a long object at the end of array.
+*
+* @param [value] - Value.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(long value)
 {
     if (!this->init_flag_) {
@@ -1228,6 +1318,16 @@ ParserJsonObject& ParserJsonObject::arrayPush(long value)
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push a long object at the end of array.
+*                    This function will block until other thread change this object done.
+*
+* @param [value] - Value.
+* @param [overtime] - Over time.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(long value, struct timespec* overtime)
 {
     if (!this->init_flag_) {
@@ -1251,6 +1351,14 @@ ParserJsonObject& ParserJsonObject::arrayPush(long value, struct timespec* overt
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push a long object at the end of array.
+*
+* @param [value] - Value.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(double value)
 {
     if (!this->init_flag_) {
@@ -1274,6 +1382,16 @@ ParserJsonObject& ParserJsonObject::arrayPush(double value)
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push a long object at the end of array.
+*                    This function will block until other thread change this object done.
+*
+* @param [value] - Value.
+* @param [overtime] - Over time.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(double value, struct timespec* overtime)
 {
     if (!this->init_flag_) {
@@ -1297,6 +1415,14 @@ ParserJsonObject& ParserJsonObject::arrayPush(double value, struct timespec* ove
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push a bool object at the end of array.
+*
+* @param [value] - Value.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(bool value)
 {
     if (!this->init_flag_) {
@@ -1320,6 +1446,16 @@ ParserJsonObject& ParserJsonObject::arrayPush(bool value)
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push a bool object at the end of array.
+*                    This function will block until other thread change this object done.
+*
+* @param [value] - Value.
+* @param [overtime] - Over time.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(bool value, struct timespec* overtime)
 {
     if (!this->init_flag_) {
@@ -1343,6 +1479,15 @@ ParserJsonObject& ParserJsonObject::arrayPush(bool value, struct timespec* overt
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push specify the number of empty object with specify type at the array tail.
+*
+* @param [type] - Specify type.
+* @param [size] - Object count.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(JsonType type, unsigned int size)
 {
     if (!this->init_flag_) {
@@ -1433,7 +1578,7 @@ ParserJsonObject& ParserJsonObject::arrayPush(JsonType type, unsigned int size, 
     return *this;
 }
 
-ParserJsonObject& ParserJsonObject::arrayPush(ParserJson& jsontree)
+ParserJsonObject& ParserJsonObject::arrayPush(ParserJsonObject&& jsontree)
 {
     if (!this->init_flag_) {
         PARSER_ERROR("This object has not init");
@@ -1451,14 +1596,39 @@ ParserJsonObject& ParserJsonObject::arrayPush(ParserJson& jsontree)
         return *this;
     }
     rapidjson::Value rvalue;
-    rvalue.CopyFrom(jsontree.doc_, this->pj_center_->doc_.GetAllocator());
+    rvalue.CopyFrom(*(jsontree.rpj_value_), this->pj_center_->doc_.GetAllocator());
     this->rpj_value_->PushBack(rvalue, this->pj_center_->doc_.GetAllocator());
     this->pj_center_->UnLock();
     _setret(ParserRet::SUCCESS);
     return *this;
 }
 
-ParserJsonObject& ParserJsonObject::arrayPush(ParserJson& jsontree, struct timespec* overtime)
+ParserJsonObject& ParserJsonObject::arrayPush(ParserJsonObject& jsontree)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        _setret(ParserRet::EINIT);
+        return *this;
+    }
+    if (!this->rpj_value_->IsArray()) {
+        PARSER_ERROR("This object type is not Array");
+        _setret(ParserRet::EMAHTYPE);
+        return *this;
+    }
+    if (this->pj_center_->WLock() != ParserRet::SUCCESS) {
+        PARSER_ERROR("Get write lock error!");
+        _setret(ParserRet::EGETWLOCK);
+        return *this;
+    }
+    rapidjson::Value rvalue;
+    rvalue.CopyFrom(*(jsontree.rpj_value_), this->pj_center_->doc_.GetAllocator());
+    this->rpj_value_->PushBack(rvalue, this->pj_center_->doc_.GetAllocator());
+    this->pj_center_->UnLock();
+    _setret(ParserRet::SUCCESS);
+    return *this;
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(ParserJsonObject&& jsontree, struct timespec* overtime)
 {
     if (!this->init_flag_) {
         PARSER_ERROR("This object has not init");
@@ -1476,7 +1646,32 @@ ParserJsonObject& ParserJsonObject::arrayPush(ParserJson& jsontree, struct times
         return *this;
     }
     rapidjson::Value rvalue;
-    rvalue.CopyFrom(jsontree.doc_, this->pj_center_->doc_.GetAllocator());
+    rvalue.CopyFrom(*(jsontree.rpj_value_), this->pj_center_->doc_.GetAllocator());
+    this->rpj_value_->PushBack(rvalue, this->pj_center_->doc_.GetAllocator());
+    this->pj_center_->UnLock();
+    _setret(ParserRet::SUCCESS);
+    return *this;
+}
+
+ParserJsonObject& ParserJsonObject::arrayPush(ParserJsonObject& jsontree, struct timespec* overtime)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        _setret(ParserRet::EINIT);
+        return *this;
+    }
+    if (!this->rpj_value_->IsArray()) {
+        PARSER_ERROR("This object type is not Array");
+        _setret(ParserRet::EMAHTYPE);
+        return *this;
+    }
+    if (this->pj_center_->WLock(overtime) != ParserRet::SUCCESS) {
+        PARSER_ERROR("Get write lock error!");
+        _setret(ParserRet::EGETWLOCK);
+        return *this;
+    }
+    rapidjson::Value rvalue;
+    rvalue.CopyFrom(*(jsontree.rpj_value_), this->pj_center_->doc_.GetAllocator());
     this->rpj_value_->PushBack(rvalue, this->pj_center_->doc_.GetAllocator());
     this->pj_center_->UnLock();
     _setret(ParserRet::SUCCESS);
@@ -1626,6 +1821,78 @@ ParserRet ParserJsonObject::objectSize(unsigned int* size)
     } else {
         PARSER_ERROR("This object type is not OBJECT");
         return (ParserRet::EMAHTYPE);
+    }
+}
+
+/**
+* @brief objectAdd - If the current object is of type object, then add a child object.
+*                    This function add a string object.
+*
+* @param [key] - Object name.
+* @param [value] - String address.
+*
+* @returns  Self reference.
+*/
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, const char* value)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        _setret(ParserRet::EINIT);
+        return *this;
+    }
+    if (this->rpj_value_->IsObject()) {
+        if (this->pj_center_->WLock() != ParserRet::SUCCESS) {
+            PARSER_ERROR("Get write lock error!");
+            _setret(ParserRet::EGETWLOCK);
+            return *this;
+        }
+        rapidjson::Value rvalue(value, this->pj_center_->doc_.GetAllocator());
+        rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+        this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+        this->pj_center_->UnLock();
+        _setret(ParserRet::SUCCESS);
+        return *this;
+    } else {
+        PARSER_ERROR("This object type is not OBJECT");
+        _setret(ParserRet::EMAHTYPE);
+        return *this;
+    }
+}
+
+/**
+* @brief objectAdd - If the current object is of type object, then add a child object.
+*                    This function add a string object.
+*                    This function will block until other thread change this object done.
+*
+* @param [key] - Object name.
+* @param [value] - String address.
+* @param [overtime] - Over time.
+*
+* @returns  Self reference.
+*/
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, const char* value, struct timespec* overtime)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        _setret(ParserRet::EINIT);
+        return *this;
+    }
+    if (this->rpj_value_->IsObject()) {
+        if (this->pj_center_->WLock(overtime) != ParserRet::SUCCESS) {
+            PARSER_ERROR("Get write lock error!");
+            _setret(ParserRet::EGETWLOCK);
+            return *this;
+        }
+        rapidjson::Value rvalue(value, this->pj_center_->doc_.GetAllocator());
+        rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+        this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+        this->pj_center_->UnLock();
+        _setret(ParserRet::SUCCESS);
+        return *this;
+    } else {
+        PARSER_ERROR("This object type is not OBJECT");
+        _setret(ParserRet::EMAHTYPE);
+        return *this;
     }
 }
 
@@ -2109,7 +2376,7 @@ ParserJsonObject& ParserJsonObject::objectAdd(const char* key, JsonType type, st
 *
 * @returns  Self reference.
 */
-ParserJsonObject& ParserJsonObject::objectAdd(const char* key, ParserJson& jsontree)
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, ParserJsonObject&& jsontree)
 {
     if (!this->init_flag_) {
         PARSER_ERROR("This object has not init");
@@ -2124,7 +2391,34 @@ ParserJsonObject& ParserJsonObject::objectAdd(const char* key, ParserJson& jsont
         }
         rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
         rapidjson::Value rvalue;
-        rvalue.CopyFrom(jsontree.doc_, this->pj_center_->doc_.GetAllocator());
+        rvalue.CopyFrom(*(jsontree.rpj_value_), this->pj_center_->doc_.GetAllocator());
+        this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+        this->pj_center_->UnLock();
+        _setret(ParserRet::SUCCESS);
+        return *this;
+    } else {
+        PARSER_ERROR("This object type is not OBJECT");
+        _setret(ParserRet::EMAHTYPE);
+        return *this;
+    }
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, ParserJsonObject& jsontree)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        _setret(ParserRet::EINIT);
+        return *this;
+    }
+    if (this->rpj_value_->IsObject()) {
+        if (this->pj_center_->WLock() != ParserRet::SUCCESS) {
+            PARSER_ERROR("Get write lock error!");
+            _setret(ParserRet::EGETWLOCK);
+            return *this;
+        }
+        rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+        rapidjson::Value rvalue;
+        rvalue.CopyFrom(*(jsontree.rpj_value_), this->pj_center_->doc_.GetAllocator());
         this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
         this->pj_center_->UnLock();
         _setret(ParserRet::SUCCESS);
@@ -2147,7 +2441,7 @@ ParserJsonObject& ParserJsonObject::objectAdd(const char* key, ParserJson& jsont
 *
 * @returns  Self reference.
 */
-ParserJsonObject& ParserJsonObject::objectAdd(const char* key, ParserJson& jsontree, struct timespec* overtime)
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, ParserJsonObject&& jsontree, struct timespec* overtime)
 {
     if (!this->init_flag_) {
         PARSER_ERROR("This object has not init");
@@ -2162,7 +2456,34 @@ ParserJsonObject& ParserJsonObject::objectAdd(const char* key, ParserJson& jsont
         }
         rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
         rapidjson::Value rvalue;
-        rvalue.CopyFrom(jsontree.doc_, this->pj_center_->doc_.GetAllocator());
+        rvalue.CopyFrom(*(jsontree.rpj_value_), this->pj_center_->doc_.GetAllocator());
+        this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
+        this->pj_center_->UnLock();
+        _setret(ParserRet::SUCCESS);
+        return *this;
+    } else {
+        PARSER_ERROR("This object type is not OBJECT");
+        _setret(ParserRet::EMAHTYPE);
+        return *this;
+    }
+}
+
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, ParserJsonObject& jsontree, struct timespec* overtime)
+{
+    if (!this->init_flag_) {
+        PARSER_ERROR("This object has not init");
+        _setret(ParserRet::EINIT);
+        return *this;
+    }
+    if (this->rpj_value_->IsObject()) {
+        if (this->pj_center_->WLock(overtime) != ParserRet::SUCCESS) {
+            PARSER_ERROR("Get write lock error!");
+            _setret(ParserRet::EGETWLOCK);
+            return *this;
+        }
+        rapidjson::Value rkey(key, this->pj_center_->doc_.GetAllocator());
+        rapidjson::Value rvalue;
+        rvalue.CopyFrom(*(jsontree.rpj_value_), this->pj_center_->doc_.GetAllocator());
         this->rpj_value_->AddMember(rkey, rvalue, this->pj_center_->doc_.GetAllocator());
         this->pj_center_->UnLock();
         _setret(ParserRet::SUCCESS);
@@ -2342,11 +2663,10 @@ ParserJsonObject& ParserJsonObject::Hfind(const char* name)
 /**
 * @brief operator[] - If the current object is of type array.
 *                     Then you can manipulate the current object as you would an array.
-*                     If find new node, it will change self point to new node.
 *
 * @param [index] - index.
 *
-* @returns  Self reference.
+* @returns  The object you find
 */
 ParserJsonObject ParserJsonObject::operator[](int index)
 {
@@ -2381,11 +2701,10 @@ ParserJsonObject ParserJsonObject::operator[](int index)
 /**
 * @brief operator[] - If the current object is of type object.
 *                     Then you can manipulate the current object as you would an map.
-*                     If find new node, it will change self point to new node.
 *
 * @param [name] - object name.
 *
-* @returns  Self reference.
+* @returns  The object you want.
 */
 ParserJsonObject ParserJsonObject::operator[](const char* name)
 {
@@ -2419,11 +2738,36 @@ ParserJsonObject ParserJsonObject::operator[](const char* name)
     }
 }
 
+ParserJsonObject& ParserJsonObject::operator=(const ParserJsonObject& other)
+{
+    if (this == &other) {
+        return *this;
+    }
+    this->init_flag_ = other.init_flag_;
+    this->rpj_value_ = other.rpj_value_;
+    this->pj_center_ = other.pj_center_;
+    this->last_ret_ = other.last_ret_;
+    return *this;
+}
+
+ParserJsonObject& ParserJsonObject::operator=(const ParserJsonObject&& other)
+{
+    if (this == &other) {
+        return *this;
+    }
+    this->init_flag_ = other.init_flag_;
+    this->rpj_value_ = other.rpj_value_;
+    this->pj_center_ = other.pj_center_;
+    this->last_ret_ = other.last_ret_;
+    return *this;
+}
+
 //ParserJson class
 ParserJson::ParserJson()
 {
     this->init_flag_ = false;
     this->thread_safe_flag_ = false;
+    this->root = ParserJsonObject(this, &(this->doc_));
 }
 
 ParserJson::~ParserJson()

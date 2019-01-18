@@ -31,9 +31,11 @@ public:
     ParserJsonObject();
     ParserJsonObject(ParserJson*, rapidjson::Value*);
     ParserJsonObject(const parser::ParserJsonObject&);
+    ParserJsonObject(const parser::ParserJsonObject&&);
     ~ParserJsonObject();
 
-    bool isEmpty();
+    bool isAvailable();
+    bool hasError();
     ParserRet getLastRet();
 
     bool isString();
@@ -92,8 +94,10 @@ public:
     ParserJsonObject& arrayPush(bool value, struct timespec* overtime);
     ParserJsonObject& arrayPush(JsonType type, unsigned int size);
     ParserJsonObject& arrayPush(JsonType type, unsigned int size,  struct timespec* overtime);
-    ParserJsonObject& arrayPush(ParserJson& jsontree);
-    ParserJsonObject& arrayPush(ParserJson& jsontree, struct timespec* overtime);
+    ParserJsonObject& arrayPush(ParserJsonObject&& jsontree);
+    ParserJsonObject& arrayPush(ParserJsonObject& jsontree);
+    ParserJsonObject& arrayPush(ParserJsonObject&& jsontree, struct timespec* overtime);
+    ParserJsonObject& arrayPush(ParserJsonObject& jsontree, struct timespec* overtime);
 
     ParserJsonObject& arrayPop();
     ParserJsonObject& arrayPop(struct timespec* overtime);
@@ -102,6 +106,8 @@ public:
 
     bool hasObject(const char* key);
     ParserRet objectSize(unsigned int* size);
+    ParserJsonObject& objectAdd(const char* key, const char* value);
+    ParserJsonObject& objectAdd(const char* key, const char* value, struct timespec* overtime);
     ParserJsonObject& objectAdd(const char* key, const char* value, unsigned int len);
     ParserJsonObject& objectAdd(const char* key, const char* value, unsigned int len, struct timespec* overtime);
     ParserJsonObject& objectAdd(const char* key, int value);
@@ -114,8 +120,10 @@ public:
     ParserJsonObject& objectAdd(const char* key, bool value, struct timespec* overtime);
     ParserJsonObject& objectAdd(const char* key, JsonType type);
     ParserJsonObject& objectAdd(const char* key, JsonType type, struct timespec* overtime);
-    ParserJsonObject& objectAdd(const char* key, ParserJson& jsontree);
-    ParserJsonObject& objectAdd(const char* key, ParserJson& jsontree, struct timespec* overtime);
+    ParserJsonObject& objectAdd(const char* key, ParserJsonObject&& jsontree);
+    ParserJsonObject& objectAdd(const char* key, ParserJsonObject& jsontree);
+    ParserJsonObject& objectAdd(const char* key, ParserJsonObject&& jsontree, struct timespec* overtime);
+    ParserJsonObject& objectAdd(const char* key, ParserJsonObject& jsontree, struct timespec* overtime);
 
     ParserJsonObject& objectDel(const char* key);
     ParserJsonObject& objectDel(const char* key, struct timespec* overtime);
@@ -127,12 +135,15 @@ public:
 
     ParserJsonObject operator[](int index);
     ParserJsonObject operator[](const char* name);
+    ParserJsonObject& operator=(const ParserJsonObject& other);
+    ParserJsonObject& operator=(const ParserJsonObject&& other);
 private:
     bool init_flag_;
     rapidjson::Value* rpj_value_;
     ParserJson* pj_center_;
     ParserRet last_ret_;
 
+private:
     void _setret(ParserRet ret) {
         this->last_ret_ = ret;
     }
@@ -141,6 +152,11 @@ private:
 class ParserJson {
 public:
     friend class ParserJsonObject;
+
+public:
+    ParserJsonObject root;
+
+public:
     ParserJson();
     ~ParserJson();
 
