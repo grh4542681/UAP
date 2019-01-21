@@ -23,13 +23,13 @@ public:
     void Free(void* ptr);
 
     template < typename T > T* Malloc(T&& other){
-        T* ptr = (T*)malloc(sizeof(T));
+        T* ptr = (T*)Malloc(sizeof(T));
         memset((char*)ptr, 0x00, sizeof(T));
         memcpy(ptr, &other, sizeof(T));
         return ptr;
     }
     template < typename T, typename ... Args> T* Malloc(Args&& ... args){
-        T* ptr = (T*)malloc(sizeof(T));
+        T* ptr = (T*)Malloc(sizeof(T));
         memset((char*)ptr, 0x00, sizeof(T));
         return (new(ptr) T(std::forward<Args>(args)...));
     }
@@ -48,7 +48,7 @@ public:
 
     template < typename T > void Free(T* ptr){
         ptr->~T();
-        free(ptr);
+        Free(ptr);
     }
 
     static MemPool* getInstance();

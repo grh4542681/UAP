@@ -34,17 +34,40 @@ private:
 
     public:
         LinkNode(pub::MemPool* mp, T&& data) {
-            data_ = mp->Malloc(sizeof(T));
-            memset()
+            data_ = NULL;
+            prev = NULL;
+            next = NULL;
+            data_ = mp->Malloc<T>(data);
         }
+
         template<typename ... Args>
         LinkNode(pub::MemPool* mp, Args&& ... args) {
+            data_ = NULL;
+            prev = NULL;
+            next = NULL;
+            data_ = mp->Malloc<T>(std::forward<Args>(args)...);
         }
-        ~LinkNode() {}
+
+        ~LinkNode() {
+            if (data_) {
+                mp->Free<T>(data_);
+            }
+        }
 
         void erase() {
+            if (prev) {
+                prev->next = next;
+            }
+            if (next) {
+                next->prev = prev
+            }
+            prev = NULL;
+            next = NULL;
+            mp->Free<T>(data_);
         }
-        void swap(T&& newdata) {
+
+        void reset(T&& newdata) {
+            mp->Reset<T>(newdata);
         }
     private:
     };
@@ -64,6 +87,14 @@ public:
             ptr = ptr->next;
             return *this;
         }
+
+        void erase() {
+            ptr->erase();
+        }
+
+        void reset(T&& newdata) {
+            ptr->reset(newdata);
+        }
     private:
         LinkNode* ptr;
     };
@@ -80,7 +111,7 @@ public:
     iterator end () const { return iterator(tail); }
 
     void pushback(T& data) {
-        LinkNode newnode(std::move(data);
+        LinkNode* ptr = mempool_->Malloc<LinkNode>(mempool, data);
     }
 
     void pushback(T&& data) {
@@ -132,6 +163,20 @@ public:
     }
 private:
     pub::MemPool* mempool_;
+
+    void _push_before(ListNode* currnode, ListNode* newnode) {
+        currnode->prev->next = newnode;
+        newnode->prev = currnode->prev;
+        currnode->prev = newnode;
+        newnode->next = currnode;
+    }
+
+    void _push_after(ListNode* currnode, ListNode* newnode) {
+        currnode->next->prev = newnode;
+        newnode->next = currnode->next;
+        currnode->next = newnode;
+        newnode->prev = currnode;
+    }
 };
 
 } //namespace end
