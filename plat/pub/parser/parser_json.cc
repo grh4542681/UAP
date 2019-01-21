@@ -1,3 +1,13 @@
+/*******************************************************
+# Copyright (C) For free.
+# All rights reserved.
+# ******************************************************
+# Author       : Ronghua Gao
+# Last modified: 2019-01-21 03:33
+# Email        : grh4542681@163.com
+# Filename     : parser_json.cc
+# Description  : Parser Json.
+* ******************************************************/
 #include <unistd.h>
 
 #include "parser_log.h"
@@ -1533,6 +1543,17 @@ ParserJsonObject& ParserJsonObject::arrayPush(JsonType type, unsigned int size)
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push specify the number of empty object with specify type at the array tail.
+*                    This function will block until other thread change this object done.
+*
+* @param [type] - Specify type.
+* @param [size] - Object count
+* @param [overtime] - Over time.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(JsonType type, unsigned int size, struct timespec* overtime)
 {
     if (!this->init_flag_) {
@@ -1578,6 +1599,14 @@ ParserJsonObject& ParserJsonObject::arrayPush(JsonType type, unsigned int size, 
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push specify the number of empty object with specify type at the array tail.
+*
+* @param [jsontree] - Other object.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(ParserJsonObject&& jsontree)
 {
     if (!this->init_flag_) {
@@ -1628,6 +1657,16 @@ ParserJsonObject& ParserJsonObject::arrayPush(ParserJsonObject& jsontree)
     return *this;
 }
 
+/**
+* @brief arrayPush - If this object is an array type.
+*                    Push specify the number of empty object with specify type at the array tail.
+*                    This function will block until other thread change this object done.
+*
+* @param [jsontree] - Other object.
+* @param [overtime] - Over time.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPush(ParserJsonObject&& jsontree, struct timespec* overtime)
 {
     if (!this->init_flag_) {
@@ -1678,6 +1717,12 @@ ParserJsonObject& ParserJsonObject::arrayPush(ParserJsonObject& jsontree, struct
     return *this;
 }
 
+/**
+* @brief arrayPop - If this object is an array type.
+*                   Delete the last object.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPop()
 {
     if (!this->init_flag_) {
@@ -1701,6 +1746,15 @@ ParserJsonObject& ParserJsonObject::arrayPop()
     return *this;
 }
 
+/**
+* @brief arrayPop - If this object is an array type.
+*                   Delete the last object.
+*                   This function will block until other thread change this object done.
+*
+* @param [overtime] - Over time.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayPop(struct timespec* overtime)
 {
     if (!this->init_flag_) {
@@ -1724,6 +1778,12 @@ ParserJsonObject& ParserJsonObject::arrayPop(struct timespec* overtime)
     return *this;
 }
 
+/**
+* @brief arrayClear - If this object is an array type.
+*                     Delete all object.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayClear()
 {
     if (!this->init_flag_) {
@@ -1747,6 +1807,15 @@ ParserJsonObject& ParserJsonObject::arrayClear()
     return *this;
 }
 
+/**
+* @brief arrayClear - If this object is an array type.
+*                     Delete all object.
+*                     This function will block until other thread change this object done.
+*
+* @param [overtime] - Over time
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::arrayClear(struct timespec* overtime)
 {
     if (!this->init_flag_) {
@@ -2572,6 +2641,11 @@ ParserJsonObject& ParserJsonObject::objectDel(const char* key, struct timespec* 
     }
 }
 
+/**
+* @brief objectClear - If the cruuent object is of type object, then delete all sub-object.
+*
+* @returns  Self reference.
+*/
 ParserJsonObject& ParserJsonObject::objectClear()
 {
     if (!this->init_flag_) {
@@ -2775,6 +2849,13 @@ ParserJson::~ParserJson()
 
 }
 
+/**
+* @brief ParserJsonFile - Parser a json file.
+*
+* @param [filename] - File name.
+*
+* @returns  ParserRet.
+*/
 ParserRet ParserJson::ParserJsonFile(const char* filename)
 {
     if (access(filename, F_OK|R_OK)) {
@@ -2801,6 +2882,13 @@ ParserRet ParserJson::ParserJsonFile(const char* filename)
     return ParserRet::SUCCESS;
 }
 
+/**
+* @brief ParserJsonString - Parser a json string.
+*
+* @param [jsonstring] - String
+*
+* @returns  ParserRet.
+*/
 ParserRet ParserJson::ParserJsonString(const char* jsonstring)
 {
     if (this->doc_.Parse(jsonstring).HasParseError()) {
@@ -2809,6 +2897,13 @@ ParserRet ParserJson::ParserJsonString(const char* jsonstring)
     return ParserRet::SUCCESS;
 }
 
+/**
+* @brief StorageJsonFile - Storage json doc to a file.
+*
+* @param [filename] - File name.
+*
+* @returns  ParserRet.
+*/
 ParserRet ParserJson::StorageJsonFile(const char* filename)
 {
     unlink(filename);
@@ -2828,11 +2923,17 @@ ParserRet ParserJson::StorageJsonFile(const char* filename)
     return ParserRet::SUCCESS;
 }
 
+/**
+* @brief setThreadSafe - Enable thread safety.
+*/
 void ParserJson::setThreadSafe()
 {
     this->thread_safe_flag_ = true;
 }
 
+/**
+* @brief UnsetThreadSafe - Disable thread safety.
+*/
 void ParserJson::UnsetThreadSafe()
 {
     this->thread_safe_flag_ = false;
@@ -2893,6 +2994,13 @@ ParserRet ParserJson::UnLock()
     return ParserRet::SUCCESS;
 }
 
+/**
+* @brief find - Find an object by path
+*
+* @param [path] - Path
+*
+* @returns  Object.
+*/
 ParserJsonObject ParserJson::find(const char* path)
 {
     if (!strcmp(path, "/")) {

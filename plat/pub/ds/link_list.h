@@ -1,11 +1,31 @@
+/*******************************************************
+# Copyright (C) For free.
+# All rights reserved.
+# ******************************************************
+# Author       : Ronghua Gao
+# Last modified: 2019-01-21 03:37
+# Email        : grh4542681@163.com
+# Filename     : link_list.h
+# Description  : Bidirectional linear list.
+* ******************************************************/
 #ifndef __LINK_LIST_H__
 #define __LINK_LIST_H__
 
+#include "mempool.h"
+
 namespace ds {
 
+/**
+* @brief - Doubly linked list class.
+*
+* @tparam [T] - Data type.
+*/
 template <typename T>
 class LinkList {
 private:
+    /**
+    * @brief - List node.
+    */
     class LinkNode {
     public:
         T* data_;
@@ -13,10 +33,12 @@ private:
         LinkNode* next;
 
     public:
-        LinkNode(T&& data) {
+        LinkNode(pub::MemPool* mp, T&& data) {
+            data_ = mp->Malloc(sizeof(T));
+            memset()
         }
         template<typename ... Args>
-        LinkNode(Args&& ... args) {
+        LinkNode(pub::MemPool* mp, Args&& ... args) {
         }
         ~LinkNode() {}
 
@@ -25,10 +47,12 @@ private:
         void swap(T&& newdata) {
         }
     private:
-        //pub::MemPool* mempool_;
     };
 
 public:
+    /**
+    * @brief - List iterator.
+    */
     class iterator {
     public:
         iterator(LinkNode* node) : ptr(node) {}
@@ -49,7 +73,7 @@ public:
     LinkNode* tail;
 
 public:
-    LinkList() {}
+    LinkList() { mempool_ = pub::MemPool::getInstance(); }
     ~LinkList() {}
 
     iterator begin () const { return iterator(head); }
@@ -106,6 +130,8 @@ public:
     void pushafter(iterator& target, Args&& ... args) {
         LinkNode newnode(std::forward<Args>(args)...);
     }
+private:
+    pub::MemPool* mempool_;
 };
 
 } //namespace end

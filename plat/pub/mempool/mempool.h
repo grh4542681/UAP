@@ -22,19 +22,33 @@ public:
     void* Malloc(size_t size);
     void Free(void* ptr);
 
+    template < typename T > T* Malloc(T&& other){
+        T* ptr = (T*)malloc(sizeof(T));
+        memset((char*)ptr, 0x00, sizeof(T));
+        memcpy(ptr, &other, sizeof(T));
+        return ptr;
+    }
     template < typename T, typename ... Args> T* Malloc(Args&& ... args){
         T* ptr = (T*)malloc(sizeof(T));
         memset((char*)ptr, 0x00, sizeof(T));
         return (new(ptr) T(std::forward<Args>(args)...));
     }
-    template < typename T > void Free(T* ptr){
+
+    template < typename T > T* Reset(T* ptr, T&& other){
         ptr->~T();
-        free(ptr);
+        memset((char*)ptr, 0x00, sizeof(T));
+        memcpy(ptr, &other, sizeof(T));
+        return ptr;
     }
     template < typename T, typename ... Args> T* Reset(T* ptr, Args&& ... args){
         ptr->~T();
         memset((char*)ptr, 0x00, sizeof(T));
         return (new(ptr) T(std::forward<Args>(args)...));
+    }
+
+    template < typename T > void Free(T* ptr){
+        ptr->~T();
+        free(ptr);
     }
 
     static MemPool* getInstance();

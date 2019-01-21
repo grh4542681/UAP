@@ -1,3 +1,13 @@
+/*******************************************************
+# Copyright (C) For free.
+# All rights reserved.
+# ******************************************************
+# Author       : Ronghua Gao
+# Last modified: 2019-01-21 03:34
+# Email        : grh4542681@163.com
+# Filename     : parser_json.h
+# Description  : Parser json header. base on rapidjson
+* ******************************************************/
 #ifndef __PERSER_JSON_H__
 #define __PERSER_JSON_H__
 
