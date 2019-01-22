@@ -28,46 +28,55 @@ private:
     */
     class LinkNode {
     public:
+        LinkList* list;
         T* data_;
         LinkNode* prev;
         LinkNode* next;
 
     public:
-        LinkNode(pub::MemPool* mp, T&& data) {
+        LinkNode(LinkList* mlist, T&& data) : list(mlist) {
             data_ = NULL;
             prev = NULL;
             next = NULL;
-            data_ = mp->Malloc<T>(data);
+            data_ = list->mp->Malloc<T>(data);
         }
 
         template<typename ... Args>
-        LinkNode(pub::MemPool* mp, Args&& ... args) {
+        LinkNode(LinkList* mlist, Args&& ... args) : list(mlist) {
             data_ = NULL;
             prev = NULL;
             next = NULL;
-            data_ = mp->Malloc<T>(std::forward<Args>(args)...);
+            data_ = list->mp->Malloc<T>(std::forward<Args>(args)...);
         }
 
         ~LinkNode() {
             if (data_) {
-                mp->Free<T>(data_);
+                erase();
             }
         }
 
         void erase() {
-            if (prev) {
+            if (prev && next) {
                 prev->next = next;
-            }
-            if (next) {
+                next->prev = prev;
+            } else if (prev) {
+                prev->next = next;
+                list->tail = prev;
+            } else if (next) {
                 next->prev = prev
+                list->head = next;
+            } else {
+                list->tail = prev;
+                list->head = next;
             }
             prev = NULL;
             next = NULL;
-            mp->Free<T>(data_);
+            list->mp->Free<T>(data_);
+            --(list->count);
         }
 
         void reset(T&& newdata) {
-            mp->Reset<T>(newdata);
+            list->mp->Reset<T>(newdata);
         }
     private:
     };
@@ -104,78 +113,114 @@ public:
     LinkNode* tail;
 
 public:
-    LinkList() { mempool_ = pub::MemPool::getInstance(); }
+    LinkList() {
+        count = 0;
+        mp = pub::MemPool::getInstance();
+    }
     ~LinkList() {}
 
     iterator begin () const { return iterator(head); }
     iterator end () const { return iterator(tail); }
 
+    unsigned int size() { return count; }
+
     void pushback(T& data) {
-        LinkNode* ptr = mempool_->Malloc<LinkNode>(mempool, data);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::move(data));
+        _push_after(tail, ptr);
     }
 
     void pushback(T&& data) {
-        LinkNode newnode(data);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, data);
+        _push_after(tail, ptr);
     }
 
     template<typename ... Args>
     void pushback(Args&& ... args) {
-        LinkNode newnode(std::forward<Args>(args)...);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::forward<Args>(args)...);
+        _push_after(tail, ptr);
     }
 
     void pushfront(T& data) {
-        LinkNode newnode(std::move(data);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::move(data));
+        _push_before(head, ptr);
     }
 
     void pushfront(T&& data) {
-        LinkNode newnode(data);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, data);
+        _push_before(head, ptr);
     }
 
     template<typename ... Args>
     void pushfront(Args&& ... args) {
-        LinkNode newnode(std::forward<Args>(args)...);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::forward<Args>(args)...);
+        _push_before(head, ptr);
     }
 
     void pushbefore(iterator& target, T& data) {
-        LinkNode newnode(std::move(data);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::move(data));
+        _push_before(target.ptr, ptr);
     }
 
     void pushbefore(iterator& target, T&& data) {
-        LinkNode newnode(data);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, data);
+        _push_before(target.ptr, ptr);
     }
 
     template<typename ... Args>
     void pushbefore(iterator& target, Args&& ... args) {
-        LinkNode newnode(std::forward<Args>(args)...);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::forward<Args>(args)...);
+        _push_before(target.ptr, ptr);
     }
 
     void pushafter(iterator& target, T& data) {
-        LinkNode newnode(std::move(data);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::move(data));
+        _push_after(target.ptr, ptr);
     }
 
     void pushafter(iterator& target, T&& data) {
-        LinkNode newnode(data);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, data);
+        _push_after(target.ptr, ptr);
     }
 
     template<typename ... Args>
     void pushafter(iterator& target, Args&& ... args) {
-        LinkNode newnode(std::forward<Args>(args)...);
+        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::forward<Args>(args)...);
+        _push_after(target.ptr, ptr);
     }
 private:
-    pub::MemPool* mempool_;
+    unsigned int count;
+    pub::MemPool* mp;
 
     void _push_before(ListNode* currnode, ListNode* newnode) {
-        currnode->prev->next = newnode;
-        newnode->prev = currnode->prev;
-        currnode->prev = newnode;
-        newnode->next = currnode;
+        if (!currnode) {
+            head = tail = newnode;
+            newnode->prev = NULL;
+            newnode->next = NULL;
+        } else {
+            currnode->prev->next = newnode;
+            newnode->prev = currnode->prev;
+            currnode->prev = newnode;
+            newnode->next = currnode;
+            if (!(newnode->prev))
+                head = newnode;
+        }
+        ++count;
     }
 
     void _push_after(ListNode* currnode, ListNode* newnode) {
-        currnode->next->prev = newnode;
-        newnode->next = currnode->next;
-        currnode->next = newnode;
-        newnode->prev = currnode;
+        if (!currnode) {
+            head = tail = newnode;
+            newnode->prev = NULL;
+            newnode->next = NULL;
+        } else {
+            currnode->next->prev = newnode;
+            newnode->next = currnode->next;
+            currnode->next = newnode;
+            newnode->prev = currnode;
+            if (!(newnode->next))
+                tail = newnode;
+        }
+        ++count;
     }
 };
 
