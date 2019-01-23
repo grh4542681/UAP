@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "mempool.h"
 
 namespace pub {

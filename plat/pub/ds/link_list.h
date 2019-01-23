@@ -11,6 +11,8 @@
 #ifndef __LINK_LIST_H__
 #define __LINK_LIST_H__
 
+#include <type_traits>
+#include <iterator>
 #include "mempool.h"
 
 namespace ds {
@@ -50,9 +52,6 @@ private:
         }
 
         ~LinkNode() {
-            if (data_) {
-                erase();
-            }
         }
 
         void erase() {
@@ -63,7 +62,7 @@ private:
                 prev->next = next;
                 list->tail = prev;
             } else if (next) {
-                next->prev = prev
+                next->prev = prev;
                 list->head = next;
             } else {
                 list->tail = prev;
@@ -85,16 +84,23 @@ public:
     /**
     * @brief - List iterator.
     */
-    class iterator {
+    class iterator : public std::iterator<std::input_iterator_tag, LinkNode> {
     public:
-        iterator(LinkNode* node) : ptr(node) {}
+        iterator(LinkNode* node = NULL) : ptr(node) {}
+        iterator(const iterator& other) : ptr(other.ptr) { }
         ~iterator() {}
 
-        T& operator*() const { return *(ptr->data_); }
-        bool operator!=(const iterator&& other) const { return (ptr != other.ptr); }
+        T& operator*() { return *(ptr->data_); }
+        bool operator!=(const iterator& other) const { return (ptr != other.ptr); }
+        bool operator==(const iterator& other) const { return (ptr == other.ptr); }
         const iterator& operator++() {
             ptr = ptr->next;
             return *this;
+        }
+        const iterator operator++(int) {
+            iterator tmp = *this;
+            ptr = ptr->next;
+            return tmp;
         }
 
         void erase() {
@@ -114,13 +120,15 @@ public:
 
 public:
     LinkList() {
+        head = NULL;
+        tail = NULL;
         count = 0;
         mp = pub::MemPool::getInstance();
     }
     ~LinkList() {}
 
     iterator begin () const { return iterator(head); }
-    iterator end () const { return iterator(tail); }
+    iterator end () const { return iterator(NULL); }
 
     unsigned int size() { return count; }
 
@@ -191,34 +199,44 @@ private:
     unsigned int count;
     pub::MemPool* mp;
 
-    void _push_before(ListNode* currnode, ListNode* newnode) {
+    void _push_before(LinkNode* currnode, LinkNode* newnode) {
         if (!currnode) {
             head = tail = newnode;
             newnode->prev = NULL;
             newnode->next = NULL;
         } else {
-            currnode->prev->next = newnode;
-            newnode->prev = currnode->prev;
-            currnode->prev = newnode;
-            newnode->next = currnode;
-            if (!(newnode->prev))
+            if (!(currnode->prev)) {
+                newnode->prev = currnode->prev;
+                newnode->next = currnode;
+                currnode->prev = newnode;
                 head = newnode;
+            } else {
+                currnode->prev->next = newnode;
+                newnode->prev = currnode->prev;
+                currnode->prev = newnode;
+                newnode->next = currnode;
+            }
         }
         ++count;
     }
 
-    void _push_after(ListNode* currnode, ListNode* newnode) {
+    void _push_after(LinkNode* currnode, LinkNode* newnode) {
         if (!currnode) {
             head = tail = newnode;
             newnode->prev = NULL;
             newnode->next = NULL;
         } else {
-            currnode->next->prev = newnode;
-            newnode->next = currnode->next;
-            currnode->next = newnode;
-            newnode->prev = currnode;
-            if (!(newnode->next))
+            if (!(currnode->next)) {
+                newnode->next = currnode->next;
+                newnode->prev = currnode;
+                currnode->next = newnode;
                 tail = newnode;
+            } else {
+                currnode->next->prev = newnode;
+                newnode->next = currnode->next;
+                currnode->next = newnode;
+                newnode->prev = currnode;
+            }
         }
         ++count;
     }

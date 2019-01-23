@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <utility>
 #include <string.h>
+#include <new>
 
 namespace pub {
 
