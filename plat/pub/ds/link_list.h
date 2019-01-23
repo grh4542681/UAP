@@ -36,25 +36,17 @@ private:
         LinkNode* next;
 
     public:
-        LinkNode(LinkList* mlist, T&& data) : list(mlist) {
+        LinkNode(LinkList* mlist, T* data) : list(mlist) {
             data_ = NULL;
             prev = NULL;
             next = NULL;
-            data_ = list->mp->Malloc<T>(data);
-        }
-
-        template<typename ... Args>
-        LinkNode(LinkList* mlist, Args&& ... args) : list(mlist) {
-            data_ = NULL;
-            prev = NULL;
-            next = NULL;
-            data_ = list->mp->Malloc<T>(std::forward<Args>(args)...);
+            data_ = data;
         }
 
         ~LinkNode() {
         }
 
-        void erase() {
+        void detach() {
             if (prev && next) {
                 prev->next = next;
                 next->prev = prev;
@@ -70,12 +62,10 @@ private:
             }
             prev = NULL;
             next = NULL;
-            list->mp->Free<T>(data_);
             --(list->count);
         }
 
         void reset(T&& newdata) {
-            list->mp->Reset<T>(newdata);
         }
     private:
     };
@@ -104,7 +94,11 @@ public:
         }
 
         void erase() {
-            ptr->erase();
+            ptr->detach();
+            pub::MemPool* mp = pub::MemPool::getInstance();
+            mp->Destruct<T>(ptr->data_);
+            mp->Destruct<LinkNode>(ptr);
+            mp->Free(ptr);
         }
 
         void reset(T&& newdata) {
@@ -118,7 +112,6 @@ public:
     LinkNode* head;
     LinkNode* tail;
 
-public:
     LinkList() {
         head = NULL;
         tail = NULL;
@@ -133,67 +126,79 @@ public:
     unsigned int size() { return count; }
 
     void pushback(T& data) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::move(data));
-        _push_after(tail, ptr);
+        pushback(std::move(data));
     }
 
     void pushback(T&& data) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, data);
-        _push_after(tail, ptr);
+        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), data);
+        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        _push_after(tail, pnode);
     }
 
     template<typename ... Args>
     void pushback(Args&& ... args) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::forward<Args>(args)...);
-        _push_after(tail, ptr);
+        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), std::forward<Args>(args)...);
+        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        _push_after(tail, pnode);
     }
 
     void pushfront(T& data) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::move(data));
-        _push_before(head, ptr);
+        pushfront(std::move(data));
     }
 
     void pushfront(T&& data) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, data);
-        _push_before(head, ptr);
+        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), data);
+        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        _push_before(head, pnode);
     }
 
     template<typename ... Args>
     void pushfront(Args&& ... args) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::forward<Args>(args)...);
-        _push_before(head, ptr);
+        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), std::forward<Args>(args)...);
+        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        _push_before(head, pnode);
     }
 
     void pushbefore(iterator& target, T& data) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::move(data));
-        _push_before(target.ptr, ptr);
+        pushbefore(std::move(data));
     }
 
     void pushbefore(iterator& target, T&& data) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, data);
-        _push_before(target.ptr, ptr);
+        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), data);
+        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        _push_before(target.ptr, pnode);
     }
 
     template<typename ... Args>
     void pushbefore(iterator& target, Args&& ... args) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::forward<Args>(args)...);
-        _push_before(target.ptr, ptr);
+        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), std::forward<Args>(args)...);
+        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        _push_before(target.ptr, pnode);
     }
 
     void pushafter(iterator& target, T& data) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::move(data));
-        _push_after(target.ptr, ptr);
+        pushafter(std::move(data));
     }
 
     void pushafter(iterator& target, T&& data) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, data);
-        _push_after(target.ptr, ptr);
+        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), data);
+        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        _push_after(target.ptr, pnode);
     }
 
     template<typename ... Args>
     void pushafter(iterator& target, Args&& ... args) {
-        LinkNode* ptr = mp->Malloc<LinkNode>(this, std::forward<Args>(args)...);
-        _push_after(target.ptr, ptr);
+        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), std::forward<Args>(args)...);
+        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        _push_after(target.ptr, pnode);
     }
 private:
     unsigned int count;
