@@ -24,11 +24,49 @@ public:
     }
 
     ~HashTable() {
-
+        clear();
     }
 
     unsigned long size() { return size_; }
     unsigned long count() { return count_; }
+
+    T* insert(T& data) {
+        return insert(std::move(data));
+    }
+    T* insert(T&& data) {
+        unsigned long hash = hashcode_(data);
+        if (hash > size_) {
+            return NULL;
+        }
+        void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
+        if (*reinterpret_cast<char*>(offset)) {
+            pub::MemPool::Destruct<T>(offset);
+        }
+        T* pnode = pub::MemPool::Construct<T>(offset, data);
+        return pnode;
+    }
+    template<typename ... Args>
+    T* insert(Args&& ... args) {
+
+    }
+
+    void remove(T& data) {
+
+    }
+    void remove(T&& data) {
+
+    }
+
+    T* find(T& data) {
+
+    }
+    T* find(T&& data) {
+        
+    }
+
+    void clear() {
+
+    }
 
 private:
     unsigned long size_;

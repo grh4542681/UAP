@@ -188,8 +188,8 @@ public:
     void pop(iterator& target) {
         LinkNode* pnode = _pop(target.ptr);
         if (pnode) {
-            mp->Destruct<T>(pnode->data_);
-            mp->Destruct<LinkNode>(pnode);
+            pub::MemPool::Destruct<T>(pnode->data_);
+            pub::MemPool::Destruct<LinkNode>(pnode);
             mp->Free((void*)(pnode->data_));
         }
     }
@@ -197,8 +197,8 @@ public:
     void popfront() {
         LinkNode* pnode = _pop(head);
         if (pnode) {
-            mp->Destruct<T>(pnode->data_);
-            mp->Destruct<LinkNode>(pnode);
+            pub::MemPool::Destruct<T>(pnode->data_);
+            pub::MemPool::Destruct<LinkNode>(pnode);
             mp->Free((void*)(pnode->data_));
         }
     }
@@ -206,8 +206,8 @@ public:
     void popback() {
         LinkNode* pnode = _pop(tail);
         if (pnode) {
-            mp->Destruct<T>(pnode->data_);
-            mp->Destruct<LinkNode>(pnode);
+            pub::MemPool::Destruct<T>(pnode->data_);
+            pub::MemPool::Destruct<LinkNode>(pnode);
             mp->Free((void*)(pnode->data_));
         }
     }
