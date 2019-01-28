@@ -30,13 +30,12 @@ private:
     */
     class LinkNode {
     public:
-        LinkList* list;
         T* data_;
         LinkNode* prev;
         LinkNode* next;
 
     public:
-        LinkNode(LinkList* mlist, T* data) : list(mlist) {
+        LinkNode(T* data) {
             data_ = NULL;
             prev = NULL;
             next = NULL;
@@ -44,25 +43,6 @@ private:
         }
 
         ~LinkNode() {
-        }
-
-        void detach() {
-            if (prev && next) {
-                prev->next = next;
-                next->prev = prev;
-            } else if (prev) {
-                prev->next = next;
-                list->tail = prev;
-            } else if (next) {
-                next->prev = prev;
-                list->head = next;
-            } else {
-                list->tail = prev;
-                list->head = next;
-            }
-            prev = NULL;
-            next = NULL;
-            --(list->count);
         }
 
         void reset(T&& newdata) {
@@ -76,6 +56,7 @@ public:
     */
     class iterator : public std::iterator<std::input_iterator_tag, LinkNode> {
     public:
+        friend class LinkList;
         iterator(LinkNode* node = NULL) : ptr(node) {}
         iterator(const iterator& other) : ptr(other.ptr) { }
         ~iterator() {}
@@ -83,6 +64,15 @@ public:
         T& operator*() { return *(ptr->data_); }
         bool operator!=(const iterator& other) const { return (ptr != other.ptr); }
         bool operator==(const iterator& other) const { return (ptr == other.ptr); }
+        const iterator& operator--() {
+            ptr = ptr->prev;
+            return *this;
+        }
+        const iterator operator--(int) {
+            iterator tmp = *this;
+            ptr = ptr->prev;
+            return tmp;
+        }
         const iterator& operator++() {
             ptr = ptr->next;
             return *this;
@@ -91,14 +81,6 @@ public:
             iterator tmp = *this;
             ptr = ptr->next;
             return tmp;
-        }
-
-        void erase() {
-            ptr->detach();
-            pub::MemPool* mp = pub::MemPool::getInstance();
-            mp->Destruct<T>(ptr->data_);
-            mp->Destruct<LinkNode>(ptr);
-            mp->Free(ptr);
         }
 
         void reset(T&& newdata) {
@@ -131,16 +113,16 @@ public:
 
     void pushback(T&& data) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), data);
-        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        T* pdata = pub::MemPool::Construct<T>(ptr, data);
+        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_after(tail, pnode);
     }
 
     template<typename ... Args>
     void pushback(Args&& ... args) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), std::forward<Args>(args)...);
-        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        T* pdata = pub::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
+        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_after(tail, pnode);
     }
 
@@ -150,16 +132,16 @@ public:
 
     void pushfront(T&& data) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), data);
-        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        T* pdata = pub::MemPool::Construct<T>(ptr, data);
+        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_before(head, pnode);
     }
 
     template<typename ... Args>
     void pushfront(Args&& ... args) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), std::forward<Args>(args)...);
-        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        T* pdata = pub::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
+        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_before(head, pnode);
     }
 
@@ -169,16 +151,16 @@ public:
 
     void pushbefore(iterator& target, T&& data) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), data);
-        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        T* pdata = pub::MemPool::Construct<T>(ptr, data);
+        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_before(target.ptr, pnode);
     }
 
     template<typename ... Args>
     void pushbefore(iterator& target, Args&& ... args) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), std::forward<Args>(args)...);
-        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        T* pdata = pub::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
+        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_before(target.ptr, pnode);
     }
 
@@ -188,23 +170,59 @@ public:
 
     void pushafter(iterator& target, T&& data) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), data);
-        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        T* pdata = pub::MemPool::Construct<T>(ptr, data);
+        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_after(target.ptr, pnode);
     }
 
     template<typename ... Args>
     void pushafter(iterator& target, Args&& ... args) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr + sizeof(T), std::forward<Args>(args)...);
-        Linknode* pnode = pub::MemPool::Construct<LinkNode>(ptr, this, pdata);
+        T* pdata = pub::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
+        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_after(target.ptr, pnode);
+    }
+
+    void pop(iterator& target) {
+        LinkNode* pnode = _pop(target.ptr);
+        if (pnode) {
+            mp->Destruct<T>(pnode->data_);
+            mp->Destruct<LinkNode>(pnode);
+            mp->Free((void*)(pnode->data_));
+        }
+    }
+
+    void popfront() {
+        LinkNode* pnode = _pop(head);
+        if (pnode) {
+            mp->Destruct<T>(pnode->data_);
+            mp->Destruct<LinkNode>(pnode);
+            mp->Free((void*)(pnode->data_));
+        }
+    }
+
+    void popback() {
+        LinkNode* pnode = _pop(tail);
+        if (pnode) {
+            mp->Destruct<T>(pnode->data_);
+            mp->Destruct<LinkNode>(pnode);
+            mp->Free((void*)(pnode->data_));
+        }
+    }
+
+    void clear() {
+        while (head) {
+            popfront();
+        }
     }
 private:
     unsigned int count;
     pub::MemPool* mp;
 
     void _push_before(LinkNode* currnode, LinkNode* newnode) {
+        if (!newnode) {
+            return;
+        }
         if (!currnode) {
             head = tail = newnode;
             newnode->prev = NULL;
@@ -226,6 +244,9 @@ private:
     }
 
     void _push_after(LinkNode* currnode, LinkNode* newnode) {
+        if (!newnode) {
+            return;
+        }
         if (!currnode) {
             head = tail = newnode;
             newnode->prev = NULL;
@@ -244,6 +265,27 @@ private:
             }
         }
         ++count;
+    }
+
+    LinkNode* _pop(LinkNode* node) {
+        if (!node) {
+            return NULL;
+        }
+        if (node->next && node->prev) {
+            node->prev->next = node->next;
+            node->next->prev = node->prev;
+        } else if (node->next) {
+            node->next->prev = node->prev;
+            head = node->next;
+        } else if (node->prev) {
+            node->prev->next = node->next;
+            tail = node->prev;
+        } else {
+            head = NULL;
+            tail = NULL;
+        }
+        --count;
+        return node;
     }
 };
 

@@ -26,7 +26,7 @@ public:
     template < typename T > T* Malloc(T&& other){
         T* ptr = (T*)Malloc(sizeof(T));
         memset((char*)ptr, 0x00, sizeof(T));
-        return (new(ptr) T(std::forward<T>(other));
+        return (new(ptr) T(std::forward<T>(other)));
     }
 
     template < typename T, typename ... Args> T* Malloc(Args&& ... args){
@@ -38,7 +38,7 @@ public:
     template < typename T > T* Reset(T* ptr, T&& other){
         ptr->~T();
         memset((char*)ptr, 0x00, sizeof(T));
-        return (new(ptr) T(std::forward<T>(other));
+        return (new(ptr) T(std::forward<T>(other)));
     }
 
     template < typename T, typename ... Args> T* Reset(T* ptr, Args&& ... args){
@@ -56,7 +56,7 @@ public:
 
     template < typename T, typename ... Args> static T* Construct(void* ptr, T&& other){
         memset((char*)ptr, 0x00, sizeof(T));
-        return (new(ptr) T(std::forward<T>(other));
+        return (new(ptr) T(std::forward<T>(other)));
     }
 
     template < typename T, typename ... Args> static T* Construct(void* ptr, Args&& ... args){

@@ -16,15 +16,28 @@ int main()
     l.pushfront(9);
     l.pushfront(10);
     printf("size %d\n", l.size());
-    for (auto it = l.begin(); it != l.end(); it++){
-        printf("%d\n", *it);
-        if (*it == 5) {
-            it.erase();
+    for (auto it : l) {
+        printf("%d\n", it);
+    }
+    printf("=============================\n");
+    for (auto it = l.begin(); it != l.end(); ++it){
+        if (*it == 7 || *it == 8 || *it ==5 || *it == 10) {
+            l.pop(it);
         }
     }
     for (auto it : l) {
         printf("%d\n", it);
     }
+    printf("size %d\n", l.size());
+    printf("=============================\n");
+    l.popfront();
+    l.popback();
+    for (auto it : l) {
+        printf("%d\n", it);
+    }
+    printf("size %d\n", l.size());
+    printf("=============================\n");
+    l.clear();
     printf("size %d\n", l.size());
 
     return 0;
