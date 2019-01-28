@@ -100,7 +100,9 @@ public:
         count = 0;
         mp = pub::MemPool::getInstance();
     }
-    ~LinkList() {}
+    ~LinkList() {
+        clear();
+    }
 
     iterator begin () const { return iterator(head); }
     iterator end () const { return iterator(NULL); }
