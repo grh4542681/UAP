@@ -61,18 +61,19 @@ public:
 
     }
 
-    void remove(T& data) {
+    template<typename ... Args>
+    void remove(Args&& ... args) {
 
     }
-    void remove(T&& data) {
 
-    }
-
-    T* find(T& data) {
-
-    }
-    T* find(T&& data) {
-        
+    template<typename ... Args>
+    T* find(Args&& ... args) {
+        unsigned long hash = hashcode_(std::forward<Args>(args)...);
+        if (hash > size_) {
+            return NULL;
+        }
+        void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
+        return (*reinterpret_cast<char*>(offset)) ? reinterpret_cast<T*>(offset) : NULL;
     }
 
     void clear() {
