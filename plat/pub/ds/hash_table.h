@@ -5,19 +5,23 @@
 
 namespace ds {
 
-template < typename T >
+typedef unsigned long (*StringHash)(char*, unsigned long);
+
+template < typename T, typename F = StringHash >
 class HashTable {
 public:
     
     HashTable(unsigned long size) : size_(size) {
         freesize_ = size_;
+        count_ = 0;
         mp = pub::MemPool::getInstance();
         memblock = mp->Malloc(sizeof(T)*size);
         memset(memblock, 0x00, sizeof(T)*size);
     }
 
-    HashTable(unsigned long size, unsigned long (*hashcode)(T&)) : size_(size), hashcode_(hashcode) {
+    HashTable(unsigned long size, F hashcode) : size_(size), hashcode_(hashcode) {
         freesize_ = size_;
+        count_ = 0;
         mp = pub::MemPool::getInstance();
         memblock = mp->Malloc(sizeof(T)*size);
         memset(memblock, 0x00, sizeof(T)*size);
@@ -30,23 +34,30 @@ public:
     unsigned long size() { return size_; }
     unsigned long count() { return count_; }
 
-    T* insert(T& data) {
-        return insert(std::move(data));
+    template<typename ... Args>
+    T* insert(T& data, Args&& ... args) {
+        return insert(std::move(data), std::forward<Args>(args)...);
     }
-    T* insert(T&& data) {
-        unsigned long hash = hashcode_(data);
+    template<typename ... Args>
+    T* insert(T&& data, Args&& ... args) {
+        unsigned long hash = hashcode_(std::forward<Args>(args)...);
         if (hash > size_) {
             return NULL;
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
+        T* pnode = NULL;
         if (*reinterpret_cast<char*>(offset)) {
-            pub::MemPool::Destruct<T>(offset);
+            pub::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
+            pnode = pub::MemPool::Construct<T>(offset, data);
+        } else {
+            pnode = pub::MemPool::Construct<T>(offset, data);
+            ++count_;
+            --freesize_;
         }
-        T* pnode = pub::MemPool::Construct<T>(offset, data);
         return pnode;
     }
-    template<typename ... Args>
-    T* insert(Args&& ... args) {
+    template<typename ... NArgs, template <typename...> class C, typename ... Args>
+    T* insert(const C <NArgs...> &, Args&& ... args) {
 
     }
 
@@ -72,7 +83,7 @@ private:
     unsigned long size_;
     unsigned long freesize_;
     unsigned long count_;
-    unsigned long (*hashcode_)(T&);
+    F hashcode_;
     pub::MemPool* mp;
     void* memblock;
 };

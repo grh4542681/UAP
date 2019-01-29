@@ -39,6 +39,17 @@ int main()
     printf("=============================\n");
     l.clear();
     printf("size %d\n", l.size());
+    struct aaa {
+        int i;
+        char a;
+    };
+    struct aaa test1 = { 1,'1'};
+    ds::LinkList<struct aaa> l2;
+    l2.pushback(test1);
+    printf("size %d\n", l2.size());
+    for (auto it : l2) {
+        printf("%d\n", it.i);
+    }
 
     return 0;
 }
