@@ -2,6 +2,7 @@
 #define __HASH_TABLE_H__
 
 #include "mempool.h"
+#include "thread_rw_lock.h"
 
 namespace ds {
 
@@ -14,6 +15,7 @@ public:
     HashTable(unsigned long size) : size_(size) {
         freesize_ = size_;
         count_ = 0;
+        thread_safe_flag_ = false;
         mp = pub::MemPool::getInstance();
         memblock = mp->Malloc(sizeof(T)*size);
         memset(memblock, 0x00, sizeof(T)*size);
@@ -22,6 +24,7 @@ public:
     HashTable(unsigned long size, F hashcode) : size_(size), hashcode_(hashcode) {
         freesize_ = size_;
         count_ = 0;
+        thread_safe_flag_ = false;
         mp = pub::MemPool::getInstance();
         memblock = mp->Malloc(sizeof(T)*size);
         memset(memblock, 0x00, sizeof(T)*size);
@@ -33,6 +36,9 @@ public:
 
     unsigned long size() { return size_; }
     unsigned long count() { return count_; }
+    unsigned long available() { return freesize_; }
+    void setThreadSafe(bool flag) { thread_safe_flag_ = flag; }
+    bool getThreadSafe() { return thread_safe_flag_; }
 
     template<typename ... Args>
     T* insert(T& data, Args&& ... args) {
@@ -63,7 +69,17 @@ public:
 
     template<typename ... Args>
     void remove(Args&& ... args) {
-
+        unsigned long hash = hashcode_(std::forward<Args>(args)...);
+        if (hash > size_) {
+            return;
+        }
+        void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
+        if (*reinterpret_cast<char*>(offset)) {
+            pub::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
+            memset(offset, 0x00, sizeof(T));
+            --count_;
+            ++freesize_;
+        }
     }
 
     template<typename ... Args>
@@ -84,8 +100,10 @@ private:
     unsigned long size_;
     unsigned long freesize_;
     unsigned long count_;
+    bool thread_safe_flag_;
     F hashcode_;
     pub::MemPool* mp;
+    thread::ThreadRWLock rwlock_;
     void* memblock;
 };
 
