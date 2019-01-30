@@ -15,6 +15,7 @@ ThreadRWLock::ThreadRWLock()
         return;
     }
     this->init_flag_ = true;
+    this->nonblock_flag_ = false;
 }
 
 ThreadRWLock::~ThreadRWLock()
@@ -22,6 +23,16 @@ ThreadRWLock::~ThreadRWLock()
     if (this->init_flag_) {
         pthread_rwlock_destroy(&(this->rwlock_));
     }
+}
+
+void ThreadRWLock::setNonBlock(bool flag)
+{
+    this->nonblock_flag_ = flag;
+}
+
+bool ThreadRWLock::getNonBlock()
+{
+    return this->nonblock_flag_;
 }
 
 ThreadRet ThreadRWLock::RLock()
@@ -49,27 +60,35 @@ ThreadRet ThreadRWLock::WLock()
 ThreadRet ThreadRWLock::RLock(struct timespec* overtime)
 {
     int ret;
-    if (!overtime) {
-        if ((ret = pthread_rwlock_rdlock(&(this->rwlock_))) != 0) {
+    if (this->nonblock_flag_) {
+        if ((ret = pthread_rwlock_tryrdlock(&(this->rwlock_))) != 0)
+        {
             THREAD_ERROR("Locked failed [%s]", strerror(ret));
-            return _errno2ret(ret);
+            return ThreadRet::ERROR;
         }
     } else {
-        struct timespec curr_time;
-        struct timespec finish_time;
-        memset(&curr_time, 0x00, sizeof(struct timespec));
-        memset(&finish_time, 0x00, sizeof(struct timespec));
-        finish_time.tv_sec = curr_time.tv_sec + overtime->tv_sec;
-        finish_time.tv_nsec = curr_time.tv_nsec + overtime->tv_nsec;
+        if (!overtime) {
+            if ((ret = pthread_rwlock_rdlock(&(this->rwlock_))) != 0) {
+                THREAD_ERROR("Locked failed [%s]", strerror(ret));
+                return _errno2ret(ret);
+            }
+        } else {
+            struct timespec curr_time;
+            struct timespec finish_time;
+            memset(&curr_time, 0x00, sizeof(struct timespec));
+            memset(&finish_time, 0x00, sizeof(struct timespec));
+            finish_time.tv_sec = curr_time.tv_sec + overtime->tv_sec;
+            finish_time.tv_nsec = curr_time.tv_nsec + overtime->tv_nsec;
 
-        do {
-            clock_gettime(CLOCK_REALTIME, &curr_time);
-            ret = pthread_rwlock_timedrdlock(&(this->rwlock_), overtime);
-        } while ( ret == EAGAIN && _time_compare(&curr_time, &finish_time) < 0);
+            do {
+                clock_gettime(CLOCK_REALTIME, &curr_time);
+                ret = pthread_rwlock_timedrdlock(&(this->rwlock_), overtime);
+            } while ( ret == EAGAIN && _time_compare(&curr_time, &finish_time) < 0);
 
-        if (ret) {
-            THREAD_ERROR("Locked failed [%s]", strerror(ret));
-            return _errno2ret(ret);
+            if (ret) {
+                THREAD_ERROR("Locked failed [%s]", strerror(ret));
+                return _errno2ret(ret);
+            }
         }
     }
     return ThreadRet::SUCCESS;
@@ -78,27 +97,35 @@ ThreadRet ThreadRWLock::RLock(struct timespec* overtime)
 ThreadRet ThreadRWLock::WLock(struct timespec* overtime)
 {
     int ret;
-    if (!overtime) {
-        if ((ret = pthread_rwlock_wrlock(&(this->rwlock_))) != 0) {
+    if (this->nonblock_flag_) {
+        if ((ret = pthread_rwlock_trywrlock(&(this->rwlock_))) != 0)
+        {
             THREAD_ERROR("Locked failed [%s]", strerror(ret));
             return _errno2ret(ret);
         }
     } else {
-        struct timespec curr_time;
-        struct timespec finish_time;
-        memset(&curr_time, 0x00, sizeof(struct timespec));
-        memset(&finish_time, 0x00, sizeof(struct timespec));
-        finish_time.tv_sec = curr_time.tv_sec + overtime->tv_sec;
-        finish_time.tv_nsec = curr_time.tv_nsec + overtime->tv_nsec;
+        if (!overtime) {
+            if ((ret = pthread_rwlock_wrlock(&(this->rwlock_))) != 0) {
+                THREAD_ERROR("Locked failed [%s]", strerror(ret));
+                return _errno2ret(ret);
+            }
+        } else {
+            struct timespec curr_time;
+            struct timespec finish_time;
+            memset(&curr_time, 0x00, sizeof(struct timespec));
+            memset(&finish_time, 0x00, sizeof(struct timespec));
+            finish_time.tv_sec = curr_time.tv_sec + overtime->tv_sec;
+            finish_time.tv_nsec = curr_time.tv_nsec + overtime->tv_nsec;
 
-        do {
-            clock_gettime(CLOCK_REALTIME, &curr_time);
-            ret = pthread_rwlock_timedwrlock(&(this->rwlock_), overtime);
-        } while ( ret == EAGAIN && _time_compare(&curr_time, &finish_time) < 0);
+            do {
+                clock_gettime(CLOCK_REALTIME, &curr_time);
+                ret = pthread_rwlock_timedwrlock(&(this->rwlock_), overtime);
+            } while ( ret == EAGAIN && _time_compare(&curr_time, &finish_time) < 0);
 
-        if (ret) {
-            THREAD_ERROR("Locked failed [%s]", strerror(ret));
-            return _errno2ret(ret);
+            if (ret) {
+                THREAD_ERROR("Locked failed [%s]", strerror(ret));
+                return _errno2ret(ret);
+            }
         }
     }
     return ThreadRet::SUCCESS;

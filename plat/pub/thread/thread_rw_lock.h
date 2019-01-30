@@ -12,6 +12,9 @@ public:
     ThreadRWLock();
     ~ThreadRWLock();
 
+    void setNonBlock(bool);
+    bool getNonBlock();
+
     ThreadRet RLock();
     ThreadRet WLock();
     ThreadRet RLock(struct timespec* overtime);
@@ -20,6 +23,7 @@ public:
 
 private:
     bool init_flag_;
+    bool nonblock_flag_;
     pthread_rwlock_t rwlock_;
 
     static int _time_compare(struct timespec* a, struct timespec* b) {
