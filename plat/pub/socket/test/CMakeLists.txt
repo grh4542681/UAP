@@ -1,4 +1,5 @@
 #SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+SET(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH}/test)
 ADD_EXECUTABLE(sock_tcp_c sock_tcp_c.cc)
 ADD_EXECUTABLE(sock_tcp_s sock_tcp_s.cc)
 ADD_EXECUTABLE(sock_udp_c sock_udp_c.cc)

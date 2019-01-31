@@ -1,3 +1,4 @@
+SET(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH}/test)
 SET(TEST_LINK_LIST_SRC test_link_list.cc)
 SET(TEST_HASH_TABLE_SEC test_hash_table.cc)
 ADD_EXECUTABLE(test_link_list ${TEST_LINK_LIST_SRC})
