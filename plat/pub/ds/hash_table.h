@@ -1,3 +1,13 @@
+/*******************************************************
+# Copyright (C) For free.
+# All rights reserved.
+# ******************************************************
+# Author       : Ronghua Gao
+# Last modified: 2019-02-04 07:10
+# Email        : grh4542681@163.com
+# Filename     : hash_table.h
+# Description  : Hash table data struct.
+* ******************************************************/
 #ifndef __HASH_TABLE_H__
 #define __HASH_TABLE_H__
 
