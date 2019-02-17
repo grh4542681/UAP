@@ -28,11 +28,19 @@
  */
 #endif
 
-namespace {
+namespace ds{
 
 template < typename T >
 class TrieTree {
 public:
+    enum class DictConfig : unsigned int {
+        All = 0xFFFFFFFF,
+        Capital = 1 << 1,
+        Number = 1 << 2,
+        Punctuation = 1 << 3,
+        SpecialSymbol = 1 << 4,
+    };
+
     class TTNode {
     public:
         TTNode() {
@@ -50,11 +58,24 @@ public:
     };
 
 public:
-    TrieTree() {
+    TrieTree(unsigned int dictflag) {
 
     }
     ~TrieTree() {
 
+    }
+
+    static bool isSupportCapital(unsigned int dictflag) {
+        return dictflag & DictConfig::Capital;
+    }
+    static bool isSupportNumber(unsigned int dictflag) {
+        return dictflag & DictConfig::Number;
+    }
+    static bool isSupportPunctuation(unsigned int dictflag) {
+        return dictflag & DictConfig::Punctuation;
+    }
+    static bool isSupportSpecialSymbol(unsigned int dictflag) {
+        return dictflag & DictConfig::SpecialSymbold;
     }
 
 private:
