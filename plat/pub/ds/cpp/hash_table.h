@@ -16,10 +16,32 @@
 
 namespace ds {
 
-typedef unsigned long (*StringHash)(char*, unsigned long);
+enum class HashTableRet : int {
+    SUCCESS = 0,
+    ERROR = -999,
+    EHASHINDEX,
+    ERLOCK,
+    EWLOCK,
+    EUNLOCK,
+};
+
+typedef unsigned long (*StringHash)(const char*);
 
 template < typename T, typename F = StringHash >
 class HashTable {
+public:
+    //hash function
+    static unsigned long BKDRHash(const char* str) {
+        unsigned long hash = 0;
+        if (!str) {
+            return 0;
+        }
+        while (*str) {
+            hash = hash * 31 + (*str++);
+        }
+        return (hash);
+    }
+
 public:
     
     HashTable(unsigned long size) : size_(size) {
@@ -29,6 +51,7 @@ public:
         mp = pub::MemPool::getInstance();
         memblock = mp->Malloc(sizeof(T)*size);
         memset(memblock, 0x00, sizeof(T)*size);
+        hashcode_ = BKDRHash;
     }
 
     HashTable(unsigned long size, F hashcode) : size_(size), hashcode_(hashcode) {
@@ -49,10 +72,13 @@ public:
     unsigned long available() { return freesize_; }
     void setThreadSafe(bool flag) { thread_safe_flag_ = flag; }
     bool getThreadSafe() { return thread_safe_flag_; }
+    void setNonBlock(bool flag) { rwlock_.setNonBlock(flag); }
+    bool getNonBlock() { return rwlock_.getNonBlock(); }
+    HashTableRet getLastRet(){ return last_return_; }
 
     template<typename ... Args>
-    unsigned long gethash(Args&& ... args) {
-        return hashcode_(std::forward<Args>(args)...);
+    unsigned long hashcode(Args&& ... args) {
+        return (hashcode_(std::forward<Args>(args)...) % size_);
     }
 
     /**
@@ -65,8 +91,9 @@ public:
     * @returns  Object pointer.
     */
     template<typename ... Args>
-    T* insert(unsigned long hash, Args&& ... args) {
+    T* insert(Args&& ... args, unsigned long hash) {
         if (hash > size_) {
+            _setret(HashTableRet::EHASHINDEX);
             return NULL;
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
@@ -97,8 +124,38 @@ public:
     }
     template<typename ... Args>
     T* insert(T&& data, Args&& ... args) {
-        unsigned long hash = hashcode_(std::forward<Args>(args)...);
+        unsigned long hash = hashcode_(std::forward<Args>(args)...) % size_;
         if (hash > size_) {
+            _setret(HashTableRet::EHASHINDEX);
+            return NULL;
+        }
+        void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
+        T* pnode = NULL;
+        if (*reinterpret_cast<char*>(offset)) {
+            pub::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
+            pnode = pub::MemPool::Construct<T>(offset, data);
+        } else {
+            pnode = pub::MemPool::Construct<T>(offset, data);
+            ++count_;
+            --freesize_;
+        }
+        return pnode;
+    }
+
+    /**
+    * @brief insert - Insert an object into a hash table.
+    *
+    * @param [data] - Object referene.
+    * @param [hash] - Index in hash table.
+    *
+    * @returns  Object pointer.
+    */
+    T* insert(T& data, unsigned long hash) {
+        return insert(std::move(data), hash);
+    }
+    T* insert(T&& data, unsigned long hash) {
+        if (hash > size_) {
+            _setret(HashTableRet::EHASHINDEX);
             return NULL;
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
@@ -122,8 +179,12 @@ public:
     */
     template<typename ... Args>
     void remove(Args&& ... args) {
-        unsigned long hash = hashcode_(std::forward<Args>(args)...);
+        unsigned long hash = hashcode_(std::forward<Args>(args)...) % size_;
+        remove(hash);
+    }
+    void remove(unsigned long hash) {
         if (hash > size_) {
+            _setret(HashTableRet::EHASHINDEX);
             return;
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
@@ -145,8 +206,9 @@ public:
     */
     template<typename ... Args>
     T* find(Args&& ... args) {
-        unsigned long hash = hashcode_(std::forward<Args>(args)...);
+        unsigned long hash = hashcode_(std::forward<Args>(args)...) % size_;
         if (hash > size_) {
+            _setret(HashTableRet::EHASHINDEX);
             return NULL;
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
@@ -168,6 +230,40 @@ public:
         }
     }
 
+    HashTableRet rlock(struct timespec* overtime) {
+        if (!thread_safe_flag_) {
+            return HashTableRet::SUCCESS;
+        } else {
+            if (rwlock_.RLock(overtime) != thread::ThreadRet::SUCCESS) {
+                return HashTableRet::ERLOCK;
+            } else {
+                return HashTableRet::SUCCESS;
+            }
+        }
+    }
+    HashTableRet wlock(struct timespec* overtime) {
+        if (!thread_safe_flag_) {
+            return HashTableRet::SUCCESS;
+        } else {
+            if (rwlock_.WLock(overtime) != thread::ThreadRet::SUCCESS) {
+                return HashTableRet::EWLOCK;
+            } else {
+                return HashTableRet::SUCCESS;
+            }
+        }
+    }
+    HashTableRet unlock() {
+        if (!thread_safe_flag_) {
+            return HashTableRet::SUCCESS;
+        } else {
+            if (rwlock_.UnLock() != thread::ThreadRet::SUCCESS) {
+                return HashTableRet::EUNLOCK;
+            } else {
+                return HashTableRet::SUCCESS;
+            }
+        }
+    }
+
 private:
     unsigned long size_;
     unsigned long freesize_;
@@ -177,6 +273,9 @@ private:
     pub::MemPool* mp;
     thread::ThreadRWLock rwlock_;
     void* memblock;
+
+    HashTableRet last_return_;
+    void _setret(HashTableRet ret) { last_return_ = ret; }
 };
 
 } //namespace end

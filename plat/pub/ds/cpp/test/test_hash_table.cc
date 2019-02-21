@@ -18,5 +18,14 @@ int main()
     printf("size %ld count %ld free %ld\n", ht.size(), ht.count(), ht.available());
     ht.clear();
     printf("size %ld count %ld free %ld\n", ht.size(), ht.count(), ht.available());
+
+
+    ds::HashTable<int> ht2(25);
+    printf("hash index[%ld]\n",ht2.hashcode("aa"));
+    printf("hash index[%ld]\n",ht2.hashcode("ab"));
+    printf("hash index[%ld]\n",ht2.hashcode("alksanefnb"));
+
+    ht2.insert(100, "asda");
+    printf("get value[%d]\n", *(ht2.find("asda")));
     return 0;
 }
