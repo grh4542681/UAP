@@ -207,6 +207,9 @@ public:
     template<typename ... Args>
     T* find(Args&& ... args) {
         unsigned long hash = hashcode_(std::forward<Args>(args)...) % size_;
+        return find(hash);
+    }
+    T* find(unsigned long hash) {
         if (hash > size_) {
             _setret(HashTableRet::EHASHINDEX);
             return NULL;
@@ -253,14 +256,10 @@ public:
         }
     }
     HashTableRet unlock() {
-        if (!thread_safe_flag_) {
-            return HashTableRet::SUCCESS;
+        if (rwlock_.UnLock() != thread::ThreadRet::SUCCESS) {
+            return HashTableRet::EUNLOCK;
         } else {
-            if (rwlock_.UnLock() != thread::ThreadRet::SUCCESS) {
-                return HashTableRet::EUNLOCK;
-            } else {
-                return HashTableRet::SUCCESS;
-            }
+            return HashTableRet::SUCCESS;
         }
     }
 
