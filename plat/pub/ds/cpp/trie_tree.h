@@ -32,7 +32,7 @@ enum class TrieTreeDict : unsigned int {
     All = 0xFFFFFFFF,
     Capital = 1 << 1,
     Number = 1 << 2,
-    PubctuateSymbols = 1 << 3
+    PubctuateSymbols = 1 << 3,
     MathSymbols = 1 << 4,
     SpecialSymbols = 1 << 5,
 };
@@ -89,7 +89,7 @@ public:
         return dictflag & TrieTreeDict::Number;
     }
     static bool isSupportPunctuateSymbols(unsigned int dictflag) {
-        return dictflag & TrieTreeDict::PunctuaeSymbols;
+        return dictflag & TrieTreeDict::PubctuateSymbols;
     }
     static bool isSupportMathSymbols(unsigned int dictflag) {
         return dictflag & TrieTreeDict::MathSymbols;
@@ -105,6 +105,7 @@ private:
 
     unsigned int count;
     TTNode* slots_[TT_DICT_NUM];
+
 };
 
 }// namespace end
