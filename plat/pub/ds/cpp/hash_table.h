@@ -65,6 +65,7 @@ public:
 
     ~HashTable() {
         clear();
+        mp->Free(memblock);
     }
 
     unsigned long size() { return size_; }

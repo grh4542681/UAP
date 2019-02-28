@@ -15,12 +15,12 @@ MemPool::~MemPool()
 
 }
 
-void* MemPool::Malloc(size_t size)
+void* MemPool::_malloc(size_t size)
 {
     return malloc(size);
 }
 
-void MemPool::Free(void* ptr)
+void MemPool::_free(void* ptr)
 {
     free(ptr);
 }

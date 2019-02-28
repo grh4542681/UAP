@@ -2,6 +2,7 @@
 #define __MEMPOOL_MEMPOOL_H__
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <utility>
 #include <string.h>
 #include <new>
@@ -20,8 +21,9 @@ private:
 class MemPool{
 public:
 
-    void* Malloc(size_t size);
-    void Free(void* ptr);
+    void* Malloc(size_t size){
+        return _malloc(size);
+    }
 
     template < typename T > T* Malloc(T&& other){
         T* ptr = (T*)Malloc(sizeof(T));
@@ -47,12 +49,13 @@ public:
         return (new(ptr) T(std::forward<Args>(args)...));
     }
 
+    void Free(void* ptr){
+        _free(ptr);
+    }
     template < typename T > void Free(T* ptr){
         ptr->~T();
-        Free(ptr);
+        _free(ptr);
     }
-
-    static MemPool* getInstance();
 
     template < typename T, typename ... Args> static T* Construct(void* ptr, T&& other){
         memset((char*)ptr, 0x00, sizeof(T));
@@ -68,10 +71,15 @@ public:
         ptr->~T();
         return ptr;
     }
+
+    static MemPool* getInstance();
 private:
     MemPool();
     ~MemPool();
     thread_local static MemPool* pInstance;
+
+    void* _malloc(size_t size);
+    void _free(void* ptr);
 };
 
 

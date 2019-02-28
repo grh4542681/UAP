@@ -1,111 +1,395 @@
 /*******************************************************
-# Copyright (C) For free.
-# All rights reserved.
-# ******************************************************
-# Author       : Ronghua Gao
-# Last modified: 2019-02-04 07:14
-# Email        : grh4542681@163.com
-# Filename     : trie_tree.h
-# Description  : Tire tree data struct.
-* ******************************************************/
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-02-28 10:36
+ * @file     : trie_tree.h
+ * @brief    : 
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #ifndef __TRIE_TREE_H__
 #define __TRIE_TREE_H__
 
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string>
 #include "mempool.h"
 
 namespace ds{
+/*
+ * Dictionary supported characters (ASCII code)
+ * 
+ * Dec Hex   char |  Dec  Hex   char  |  Dec  Hex    char
+ * 32 0x20  space |   68  0x44    D   |   104 0x68    h
+ * 33 0x21    !   |   69  0x45    E   |   105 0x69    i
+ * 34 0x22    "   |   70  0x46    F   |   106 0x6A    j
+ * 35 0x23    #   |   71  0x47    G   |   107 0x6B    k
+ * 36 0x24    $   |   72  0x48    H   |   108 0x6C    l
+ * 37 0x25    %   |   73  0x49    I   |   109 0x6D    m
+ * 38 0x26    &   |   74  0x4A    J   |   110 0x6E    n
+ * 39 0x27    '   |   75  0x4B    K   |   111 0x6F    o
+ * 40 0x28    (   |   76  0x4C    L   |   112 0x70    p
+ * 41 0x29    )   |   77  0x4D    M   |   113 0x71    q
+ * 42 0x2A    *   |   78  0x4E    N   |   114 0x72    r
+ * 43 0x2B    +   |   79  0x4F    O   |   115 0x73    s
+ * 44 0x2C    ,   |   80  0x50    P   |   116 0x74    t
+ * 45 0x2D    -   |   81  0x51    Q   |   117 0x75    u
+ * 46 0x2E    .   |   82  0x52    R   |   118 0x76    v
+ * 47 0x2F    /   |   83  0x53    S   |   119 0x77    w
+ * 48 0x30    0   |   84  0x54    T   |   120 0x78    x
+ * 49 0x31    1   |   85  0x55    U   |   121 0x79    y
+ * 50 0x32    2   |   86  0x56    V   |   122 0x7A    z
+ * 51 0x33    3   |   87  0x57    W   |   123 0x7B    {
+ * 52 0x34    4   |   88  0x58    X   |   124 0x7C    |
+ * 53 0x35    5   |   89  0x59    Y   |   125 0x7D    }
+ * 54 0x36    6   |   90  0x5A    Z   |   126 0x7E    ~
+ * 55 0x37    7   |   91  0x5B    [
+ * 56 0x38    8   |   92  0x5C    \
+ * 57 0x39    9   |   93  0x5D    ]
+ * 58 0x3A    :   |   94  0x5E    ^
+ * 59 0x3B    ;   |   95  0x5F    _
+ * 60 0x3C    <   |   96  0x60    `
+ * 61 0x3D    =   |   97  0x61    a
+ * 62 0x3E    >   |   98  0x62    b
+ * 63 0x3F    ?   |   99  0x63    c
+ * 64 0x40    @   |   100 0x64    d
+ * 65 0x41    A   |   101 0x65    e
+ * 66 0x42    B   |   102 0x66    f
+ * 67 0x43    C   |   103 0x67    g
+ */
 
-#define TT_DICT_BASE_NUM (26) 
-/*  'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z' */
-#define TT_DICT_CAPITAL_NUM (26)
-/*  'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z' */
-#define TT_DICT_NUMBER_NUM (10)
-/*  '0','1','2','3','4','5','6','7','8','9' */
-#define TT_DICT_PUNCTUATESYMBOLS_NUM (13)
-/*  ()[]{};:'",.? */
-#define TT_DICT_MATHSYMBOLS_NUM (13)
-/*  !~|&^+-*%/=<> */
-#define TT_DICT_SPECIALSYMBOLS_NUM (6)
-/*  @#$`\_ */
+#define TT_DEFAULT_MAX_KEY_LENGTH (128)
 
-enum class TrieTreeDict : unsigned int {
-    All = 0xFFFFFFFF,
-    Capital = 1 << 1,
-    Number = 1 << 2,
-    PubctuateSymbols = 1 << 3,
-    MathSymbols = 1 << 4,
-    SpecialSymbols = 1 << 5,
+#define TT_DICT_SIZE (95)
+#define TT_DICT_INDEX(c) (c & (~0x20))
+#define TT_DICT_CHAR(c) (c | (0x20))
+
+/**
+* \brief - Tire tree return value
+*/
+enum class TireTreeRet : int {
+    SUCCESS = 0,
+    ERROR = -999,
+    ENOTFOUND,
+    EMEMORY,
+    EKEY,
+    ETTINDEX,
+    ERLOCK,
+    EWLOCK,
+    EUNLOCK,
 };
-unsigned int operator&(TrieTreeDict t1, TrieTreeDict t2) {
-    return static_cast<unsigned int>(t1) & static_cast<unsigned int>(t2);
-}
-unsigned int operator&(TrieTreeDict t1, unsigned int t2) {
-    return static_cast<unsigned int>(t1) & t2;
-}
-unsigned int operator&(unsigned int t1, TrieTreeDict t2) {
-    return t1 & static_cast<unsigned int>(t2);
-}
-unsigned int operator|(TrieTreeDict t1, TrieTreeDict t2) {
-    return static_cast<unsigned int>(t1) | static_cast<unsigned int>(t2);
-}
-unsigned int operator|(TrieTreeDict t1, unsigned int t2) {
-    return static_cast<unsigned int>(t1) | t2;
-}
-unsigned int operator|(unsigned int t1, TrieTreeDict t2) {
-    return t1 | static_cast<unsigned int>(t2);
-}
 
+/**
+* @brief - Tire Tree.
+*
+* @tparam [T] - Element type.
+*/
 template < typename T >
 class TrieTree {
 public:
-    class TTNode {
-    public:
-        TTNode() {
-
-        }
-        ~TTNode() {
-
-        }
-    private:
-        unsigned int level_;
+    /**
+    * @brief - Data struct of tire tree elements.
+    */
+    struct TTNode {
+        TTNode* parent_;
+        int level_;
         unsigned int offset_;
         T* data_;
-        TTNode* parent_;
-        TTNode* slots_[TT_DICT_NUM];
+        struct TTNode* slots_[TT_DICT_SIZE];
     };
 
 public:
-    TrieTree(unsigned int dictflag) {
-        
+    TrieTree() {
+        TT_max_key_length = TT_DEFAULT_MAX_KEY_LENGTH;
+        count_ = 0;
+        mp_ = pub::MemPool::getInstance();        
+        root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
+        _TTNode_init(root_);
+    }
+    TrieTree(unsigned int max_len) {
+        TT_max_key_length = max_len;
+        count_ = 0;
+        mp_ = pub::MemPool::getInstance();        
+        root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
+        _TTNode_init(root_);
     }
     ~TrieTree() {
-
+        _TTNode_delete_tree(root_);
     }
 
-    static bool isSupportCapital(unsigned int dictflag) {
-        return dictflag & (unsigned int)TrieTreeDict::Capital;
+    /**
+    * @brief getMaxKeyLen - Get the max key length in this TrieTree.
+    *
+    * @returns  Length.
+    */
+    unsigned int getMaxKeyLen() { return TT_max_key_length; }
+    /**
+    * @brief getCount -Get count of elements int this TrieTree. 
+    *
+    * @returns  Counts.
+    */
+    unsigned int getCount() { return count_; }
+
+    /**
+    * @brief getLastRet - Get last return value.
+    *
+    * @returns  TireTreeRet.
+    */
+    TireTreeRet getLastRet() { return last_return_; }
+
+    /**
+    * @brief find - Find element.
+    *
+    * @param [key] - Key of element.
+    *
+    * @returns  Element data.
+    */
+    T* find(std::string key) {
+        _setret(TireTreeRet::SUCCESS);
+        if (key.empty() || key.size() > TT_max_key_length) {
+            _setret(TireTreeRet::EKEY);
+            return NULL;
+        }
+        TTNode* curnode = root_;
+        unsigned int curoffset = 0;
+        for (auto it : key) {
+            curoffset = TT_DICT_INDEX(it);
+            if (curoffset > TT_DICT_SIZE) {
+                _setret(TireTreeRet::ETTINDEX);
+                return NULL;
+            }
+            if (!curnode->slots_[curoffset]) {
+                _setret(TireTreeRet::ENOTFOUND);
+                return NULL;
+            }
+            curnode = curnode->slots_[curoffset];
+        }
+        return curnode->data_;
+        
     }
-    static bool isSupportNumber(unsigned int dictflag) {
-        return dictflag & TrieTreeDict::Number;
+
+    /**
+    * @brief insert - Insert an element.
+    *
+    * @tparam [Args] - Template of element construct function arguments
+    * @param [key] - Key of element.
+    * @param [args] - Element's construct function arguments.
+    *
+    * @returns  Element pointer in TrieTree.
+    */
+    template<typename ... Args>
+    T* insert(std::string key, Args&& ... args) {
+        _setret(TireTreeRet::SUCCESS);
+        if (key.empty() || key.size() > TT_max_key_length) {
+            _setret(TireTreeRet::EKEY);
+            return NULL;
+        }
+        TTNode* curnode = root_;
+        unsigned int curlevel = 0;
+        unsigned int curoffset = 0;
+        for (auto it : key) {
+            curlevel++;
+            curoffset = TT_DICT_INDEX(it);
+            if (curoffset > TT_DICT_SIZE) {
+                _setret(TireTreeRet::ETTINDEX);
+                return NULL;
+            }
+            if (!curnode->slots_[curoffset]) {
+                curnode->slots_[curoffset] = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
+                if (!(curnode->slots_[curoffset])) {
+                    //Clean up empty nodes on the path
+                    _TTNode_clean_reverse(curnode);
+                    _setret(TireTreeRet::EMEMORY);
+                    return NULL;
+                }
+                _TTNode_init(curnode->slots_[curoffset]);
+                curnode->slots_[curoffset]->level_ = curlevel;
+                curnode->slots_[curoffset]->offset_ = curoffset;
+                curnode->slots_[curoffset]->data_ = NULL;
+                curnode->slots_[curoffset]->parent_ = curnode;
+            }
+            curnode = curnode->slots_[curoffset];
+        }
+
+        if (!(curnode->data_)) {
+            curnode->data_ = reinterpret_cast<T*>(mp_->Malloc(sizeof(T)));
+            pub::MemPool::Construct<T>(curnode->data_, std::forward<Args>(args)...);
+        } else {
+            pub::MemPool::Destruct<T>(curnode->data_);
+            pub::MemPool::Construct<T>(curnode->data_, std::forward<Args>(args)...);
+        }
+
+        if (!(curnode->data_)) {
+            //Clean up empty nodes on the path
+            _TTNode_clean_reverse(curnode);
+            _setret(TireTreeRet::EMEMORY);
+        }
+        count_++;
+        return curnode->data_;
     }
-    static bool isSupportPunctuateSymbols(unsigned int dictflag) {
-        return dictflag & TrieTreeDict::PubctuateSymbols;
+
+    /**
+    * @brief remove - Remove an element.
+    *
+    * @param [key] - Key of element.
+    *
+    * @returns  TireTreeRet.
+    */
+    TireTreeRet remove(std::string key) {
+        _setret(TireTreeRet::SUCCESS);
+        if (key.empty() || key.size() > TT_max_key_length) {
+            _setret(TireTreeRet::EKEY);
+            return TireTreeRet::EKEY;
+        }
+        TTNode* curnode = root_;
+        unsigned int curoffset = 0;
+        for (auto it : key) {
+            curoffset = TT_DICT_INDEX(it);
+            if (curoffset > TT_DICT_SIZE) {
+            _setret(TireTreeRet::ETTINDEX);
+                return TireTreeRet::ETTINDEX;
+            }
+            if (!curnode->slots_[curoffset]) {
+            _setret(TireTreeRet::ENOTFOUND);
+                return TireTreeRet::ENOTFOUND;
+            }
+            curnode = curnode->slots_[curoffset];
+        }
+        if (!curnode->data_) {
+            _setret(TireTreeRet::ENOTFOUND);
+            return TireTreeRet::ENOTFOUND;
+        } else {
+            _TTNode_delete_data(curnode);
+        }
+        _setret(TireTreeRet::SUCCESS);
+        return TireTreeRet::SUCCESS;
     }
-    static bool isSupportMathSymbols(unsigned int dictflag) {
-        return dictflag & TrieTreeDict::MathSymbols;
+
+    /**
+    * @brief empty - Clean up TrieTree.
+    */
+    void empty() {
+        for (auto it : root_->slots_) {
+            _TTNode_delete_tree(it);
+        }
     }
-    static bool isSupportSpecialSymbols(unsigned int dictflag) {
-        return dictflag & TrieTreeDict::SpecialSymbols;
+
+    /**
+    * @brief display - Display TrieTree like "key --- data address".
+    */
+    void display() {
+        _TTNode_print_tree(root_);
     }
 
 private:
-    pub::MemPool* mp;
-    unsigned int slots_size;
+    //limmit
+    unsigned int TT_max_key_length;
 
+    pub::MemPool* mp_;
+    unsigned int count_;
+    struct TTNode* root_;
+    TireTreeRet last_return_;
 
-    unsigned int count;
-    TTNode* slots_[TT_DICT_NUM];
+    void _setret(TireTreeRet ret) { last_return_ = ret; }
 
+    void _TTNode_init(struct TTNode* node) {
+        node->level_ = -1;
+        node->offset_ = 0;
+        node->data_ = NULL;
+        node->parent_ = NULL;
+        for (auto &it : node->slots_) {
+            it = NULL;
+        }
+    }
+
+    void _TTNode_delete_data(struct TTNode* node) {
+        if (!node) {
+            return;
+        }
+        pub::MemPool::Destruct<T>(node->data_);
+        mp_->Free(node->data_);
+        node->data_ = NULL;
+        _TTNode_clean_reverse(node);
+        count_--;
+    }
+
+    void _TTNode_delete_tree(struct TTNode* node) {
+        if (!node) {
+            return;
+        }
+        for (auto it : node->slots_) {
+            _TTNode_delete_tree(it);
+        }
+        if (node->data_) {
+            pub::MemPool::Destruct<T>(node->data_);
+            mp_->Free(node->data_);
+            node->data_ = NULL;
+            count_--;
+        }
+        if (node->parent_) {
+            node->parent_->slots_[node->offset_] = NULL;
+        }
+        mp_->Free(node);
+    }
+
+    void _TTNode_clean_reverse(struct TTNode* node) {
+        if (!node) {
+            return;
+        }
+        struct TTNode* curnode = node;
+        while (curnode->parent_) {
+            bool emptyflag = false;
+            if (!curnode->data_) {
+                emptyflag = true;
+                for (auto it : curnode->slots_) {
+                    if (it) {
+                        emptyflag = false;
+                        break;
+                    }
+                }
+            }
+            if (emptyflag) {
+                struct TTNode* tmp = curnode;
+                curnode->parent_->slots_[curnode->offset_] = NULL;
+                curnode = curnode->parent_;
+                mp_->Free(tmp);
+            } else {
+                curnode = curnode->parent_;
+            }
+        };
+    }
+
+    void _TTNode_print_tree(struct TTNode* node) {
+        if (!node) {
+            return;
+        }
+        if (node->data_) {
+            std::string key = _TTNode_get_key(node);
+            printf("%s -- %p\n", key.c_str(), node->data_);
+        }
+        struct TTNode* curnode = node;
+        for (int loop = 0; loop < TT_DICT_SIZE; loop++) {
+            if (curnode->slots_[loop]) {
+                _TTNode_print_tree(curnode->slots_[loop]);
+            }
+        }
+    }
+
+    std::string _TTNode_get_key(struct TTNode* node) {
+        std::string key;
+        key.clear();
+        if (!node) {
+            return key;
+        }
+        struct TTNode* curnode = node;
+        while (curnode->parent_) {
+            key.append(1, (static_cast<char>(TT_DICT_CHAR(curnode->offset_))));
+            curnode = curnode->parent_;
+        }
+        return std::string(key.rbegin(), key.rend());
+    }
 };
 
 }// namespace end
