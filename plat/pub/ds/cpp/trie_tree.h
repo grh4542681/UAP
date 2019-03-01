@@ -5,7 +5,8 @@
  * @author   : Ronghua Gao
  * @date     : 2019-02-28 10:36
  * @file     : trie_tree.h
- * @brief    : 
+ * @brief    : Trie tree header file. It need libgmp.so for 
+ *             alloc memory.
  * @note     : Email - grh4542681@163.com
  * ******************************************************/
 #ifndef __TRIE_TREE_H__
@@ -60,29 +61,13 @@ namespace ds{
  * 67 0x43    C   |   103 0x67    g
  */
 
-#define TT_DEFAULT_MAX_KEY_LENGTH (128)
-
-#define TT_DICT_SIZE (95)
-#define TT_DICT_INDEX(c) (c & (~0x20))
-#define TT_DICT_CHAR(c) (c | (0x20))
-
-/**
-* \brief - Tire tree return value
-*/
-enum class TireTreeRet : int {
-    SUCCESS = 0,
-    ERROR = -999,
-    ENOTFOUND,
-    EMEMORY,
-    EKEY,
-    ETTINDEX,
-    ERLOCK,
-    EWLOCK,
-    EUNLOCK,
-};
+#define TT_DEFAULT_MAX_KEY_LENGTH (128) ///< Default max tire tree key lengtn.
+#define TT_DICT_SIZE (95)               ///< Tire tree dictionary size.
+#define TT_DICT_INDEX(c) (c & (~0x20))  ///< Calculate the offset of a character.
+#define TT_DICT_CHAR(c) (c | (0x20))    ///< Calculate characters by offset.
 
 /**
-* @brief - Tire Tree.
+* @brief - Tire Tree class.
 *
 * @tparam [T] - Element type.
 */
@@ -90,31 +75,57 @@ template < typename T >
 class TrieTree {
 public:
     /**
+    * @brief - Tire tree return value
+    */
+    enum class Ret : int {
+        SUCCESS = 0,    ///< sucess.
+        ERROR = -999,   ///< error.
+        ENOTFOUND,      ///< key not found.
+        EMEMORY,        ///< memory error.
+        EKEY,           ///< bad key.
+        ETTINDEX,       ///< bad offset in TT slots.
+        ERLOCK,         ///< read lock error.
+        EWLOCK,         ///< write lock error.
+        EUNLOCK,        ///< release lock error.
+    };
+
+    /**
     * @brief - Data struct of tire tree elements.
     */
     struct TTNode {
-        TTNode* parent_;
-        int level_;
-        unsigned int offset_;
-        T* data_;
-        struct TTNode* slots_[TT_DICT_SIZE];
+        int level_;                             ///< current node level(length of the current key).
+        unsigned int offset_;                   ///< offset in parent node word slots.
+        T* data_;                               ///< element data.
+        TTNode* parent_;                        ///< parent node pointer.
+        struct TTNode* slots_[TT_DICT_SIZE];    ///< next word slots.
     };
 
 public:
+    /**
+    * @brief TrieTree - Default construct function.
+    */
     TrieTree() {
+        count_ = 0;
         TT_max_key_length = TT_DEFAULT_MAX_KEY_LENGTH;
-        count_ = 0;
         mp_ = pub::MemPool::getInstance();        
         root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
         _TTNode_init(root_);
     }
+    /**
+    * @brief TrieTree - Construct function.
+    *
+    * @param [max_len] - Key maximum length limit.
+    */
     TrieTree(unsigned int max_len) {
-        TT_max_key_length = max_len;
         count_ = 0;
+        TT_max_key_length = max_len;
         mp_ = pub::MemPool::getInstance();        
         root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
         _TTNode_init(root_);
     }
+    /**
+    * @brief ~TrieTree - Destruct function.
+    */
     ~TrieTree() {
         _TTNode_delete_tree(root_);
     }
@@ -122,34 +133,35 @@ public:
     /**
     * @brief getMaxKeyLen - Get the max key length in this TrieTree.
     *
-    * @returns  Length.
+    * @returns  Key maximum length limit.
     */
     unsigned int getMaxKeyLen() { return TT_max_key_length; }
     /**
-    * @brief getCount -Get count of elements int this TrieTree. 
+    * @brief getCount -Get count of elements int this TrieTree now. 
     *
-    * @returns  Counts.
+    * @returns  Element counts.
     */
     unsigned int getCount() { return count_; }
 
     /**
     * @brief getLastRet - Get last return value.
     *
-    * @returns  TireTreeRet.
+    * @returns  Ret.
     */
-    TireTreeRet getLastRet() { return last_return_; }
+    Ret getLastRet() { return last_return_; }
 
     /**
     * @brief find - Find element.
     *
     * @param [key] - Key of element.
     *
-    * @returns  Element data.
+    * @returns  Element data pointer. If return NULL, you can use function getLastRet
+    *           get return value.
     */
     T* find(std::string key) {
-        _setret(TireTreeRet::SUCCESS);
+        _setret(Ret::SUCCESS);
         if (key.empty() || key.size() > TT_max_key_length) {
-            _setret(TireTreeRet::EKEY);
+            _setret(Ret::EKEY);
             return NULL;
         }
         TTNode* curnode = root_;
@@ -157,11 +169,11 @@ public:
         for (auto it : key) {
             curoffset = TT_DICT_INDEX(it);
             if (curoffset > TT_DICT_SIZE) {
-                _setret(TireTreeRet::ETTINDEX);
+                _setret(Ret::ETTINDEX);
                 return NULL;
             }
             if (!curnode->slots_[curoffset]) {
-                _setret(TireTreeRet::ENOTFOUND);
+                _setret(Ret::ENOTFOUND);
                 return NULL;
             }
             curnode = curnode->slots_[curoffset];
@@ -177,13 +189,14 @@ public:
     * @param [key] - Key of element.
     * @param [args] - Element's construct function arguments.
     *
-    * @returns  Element pointer in TrieTree.
+    * @returns  Element data pointer. If return NULL, you can use function getLastRet
+    *           get return value.
     */
     template<typename ... Args>
     T* insert(std::string key, Args&& ... args) {
-        _setret(TireTreeRet::SUCCESS);
+        _setret(Ret::SUCCESS);
         if (key.empty() || key.size() > TT_max_key_length) {
-            _setret(TireTreeRet::EKEY);
+            _setret(Ret::EKEY);
             return NULL;
         }
         TTNode* curnode = root_;
@@ -193,7 +206,7 @@ public:
             curlevel++;
             curoffset = TT_DICT_INDEX(it);
             if (curoffset > TT_DICT_SIZE) {
-                _setret(TireTreeRet::ETTINDEX);
+                _setret(Ret::ETTINDEX);
                 return NULL;
             }
             if (!curnode->slots_[curoffset]) {
@@ -201,7 +214,7 @@ public:
                 if (!(curnode->slots_[curoffset])) {
                     //Clean up empty nodes on the path
                     _TTNode_clean_reverse(curnode);
-                    _setret(TireTreeRet::EMEMORY);
+                    _setret(Ret::EMEMORY);
                     return NULL;
                 }
                 _TTNode_init(curnode->slots_[curoffset]);
@@ -224,7 +237,7 @@ public:
         if (!(curnode->data_)) {
             //Clean up empty nodes on the path
             _TTNode_clean_reverse(curnode);
-            _setret(TireTreeRet::EMEMORY);
+            _setret(Ret::EMEMORY);
         }
         count_++;
         return curnode->data_;
@@ -235,40 +248,40 @@ public:
     *
     * @param [key] - Key of element.
     *
-    * @returns  TireTreeRet.
+    * @returns  Ret.
     */
-    TireTreeRet remove(std::string key) {
-        _setret(TireTreeRet::SUCCESS);
+    Ret remove(std::string key) {
+        _setret(Ret::SUCCESS);
         if (key.empty() || key.size() > TT_max_key_length) {
-            _setret(TireTreeRet::EKEY);
-            return TireTreeRet::EKEY;
+            _setret(Ret::EKEY);
+            return Ret::EKEY;
         }
         TTNode* curnode = root_;
         unsigned int curoffset = 0;
         for (auto it : key) {
             curoffset = TT_DICT_INDEX(it);
             if (curoffset > TT_DICT_SIZE) {
-            _setret(TireTreeRet::ETTINDEX);
-                return TireTreeRet::ETTINDEX;
+            _setret(Ret::ETTINDEX);
+                return Ret::ETTINDEX;
             }
             if (!curnode->slots_[curoffset]) {
-            _setret(TireTreeRet::ENOTFOUND);
-                return TireTreeRet::ENOTFOUND;
+            _setret(Ret::ENOTFOUND);
+                return Ret::ENOTFOUND;
             }
             curnode = curnode->slots_[curoffset];
         }
         if (!curnode->data_) {
-            _setret(TireTreeRet::ENOTFOUND);
-            return TireTreeRet::ENOTFOUND;
+            _setret(Ret::ENOTFOUND);
+            return Ret::ENOTFOUND;
         } else {
             _TTNode_delete_data(curnode);
         }
-        _setret(TireTreeRet::SUCCESS);
-        return TireTreeRet::SUCCESS;
+        _setret(Ret::SUCCESS);
+        return Ret::SUCCESS;
     }
 
     /**
-    * @brief empty - Clean up TrieTree.
+    * @brief empty - Clean up all element in the TrieTree.
     */
     void empty() {
         for (auto it : root_->slots_) {
@@ -285,14 +298,19 @@ public:
 
 private:
     //limmit
-    unsigned int TT_max_key_length;
+    unsigned int TT_max_key_length; ///< Key maximum length limit.
 
-    pub::MemPool* mp_;
-    unsigned int count_;
-    struct TTNode* root_;
-    TireTreeRet last_return_;
+    pub::MemPool* mp_;              ///< Mempool interface class pointer.
+    unsigned int count_;            ///< Current count of elements.
+    struct TTNode* root_;           ///< Root node pointer.
+    Ret last_return_;       ///< Last return value.
 
-    void _setret(TireTreeRet ret) { last_return_ = ret; }
+    /**
+    * @brief _setret - Set last return value.
+    *
+    * @param [ret] - Ret.
+    */
+    void _setret(Ret ret) { last_return_ = ret; }
 
     void _TTNode_init(struct TTNode* node) {
         node->level_ = -1;
@@ -304,6 +322,11 @@ private:
         }
     }
 
+    /**
+    * @brief _TTNode_delete_data - Delete current node element data.
+    *
+    * @param [node] - Node pointer.
+    */
     void _TTNode_delete_data(struct TTNode* node) {
         if (!node) {
             return;
@@ -315,6 +338,11 @@ private:
         count_--;
     }
 
+    /**
+    * @brief _TTNode_delete_tree - Delete current node tree.
+    *
+    * @param [node] - Node pointer.
+    */
     void _TTNode_delete_tree(struct TTNode* node) {
         if (!node) {
             return;
@@ -334,6 +362,12 @@ private:
         mp_->Free(node);
     }
 
+    /**
+    * @brief _TTNode_clean_reverse - Reverse clean unuse slots memory
+    *                                marked by current node.
+    *
+    * @param [node] - Node pointer.
+    */
     void _TTNode_clean_reverse(struct TTNode* node) {
         if (!node) {
             return;
@@ -361,6 +395,11 @@ private:
         };
     }
 
+    /**
+    * @brief _TTNode_print_tree - Print all elements of node tree.
+    *
+    * @param [node] - Node pointer.
+    */
     void _TTNode_print_tree(struct TTNode* node) {
         if (!node) {
             return;
@@ -377,6 +416,13 @@ private:
         }
     }
 
+    /**
+    * @brief _TTNode_get_key - Get current node' key.
+    *
+    * @param [node] - Node pointer.
+    *
+    * @returns  Key.
+    */
     std::string _TTNode_get_key(struct TTNode* node) {
         std::string key;
         key.clear();

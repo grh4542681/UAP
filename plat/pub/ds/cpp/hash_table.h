@@ -1,13 +1,13 @@
 /*******************************************************
-# Copyright (C) For free.
-# All rights reserved.
-# ******************************************************
-# Author       : Ronghua Gao
-# Last modified: 2019-02-04 07:10
-# Email        : grh4542681@163.com
-# Filename     : hash_table.h
-# Description  : Hash table data struct.
-* ******************************************************/
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-03-01 03:41
+ * @file     : hash_table.h
+ * @brief    : 
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #ifndef __HASH_TABLE_H__
 #define __HASH_TABLE_H__
 
@@ -16,14 +16,6 @@
 
 namespace ds {
 
-enum class HashTableRet : int {
-    SUCCESS = 0,
-    ERROR = -999,
-    EHASHINDEX,
-    ERLOCK,
-    EWLOCK,
-    EUNLOCK,
-};
 
 typedef unsigned long (*StringHash)(const char*);
 
@@ -43,7 +35,23 @@ public:
     }
 
 public:
+    /**
+    * @brief - Hash table return value
+    */
+    enum class Ret : int {
+        SUCCESS = 0,    ///< sucess.
+        ERROR = -999,   ///< error.
+        EHASHINDEX,     ///< bad hash value.
+        ERLOCK,         ///< read lock error.
+        EWLOCK,         ///< write lock error.
+        EUNLOCK,        ///< release lock error.
+    };
     
+    /**
+    * @brief HashTable - Default Construct function.
+    *
+    * @param [size] - Max hash table slots size.
+    */
     HashTable(unsigned long size) : size_(size) {
         freesize_ = size_;
         count_ = 0;
@@ -54,6 +62,12 @@ public:
         hashcode_ = BKDRHash;
     }
 
+    /**
+    * @brief HashTable - Construct function.
+    *
+    * @param [size] - Max hash table slots size.
+    * @param [hashcode] - Hash function.
+    */
     HashTable(unsigned long size, F hashcode) : size_(size), hashcode_(hashcode) {
         freesize_ = size_;
         count_ = 0;
@@ -63,38 +77,90 @@ public:
         memset(memblock, 0x00, sizeof(T)*size);
     }
 
+    /**
+    * @brief ~HashTable - Destruct function.
+    */
     ~HashTable() {
-        clear();
+        empty();
         mp->Free(memblock);
     }
 
+    /**
+    * @brief size - Get current hash table max slots size.
+    *
+    * @returns  Hash table max size.
+    */
     unsigned long size() { return size_; }
+    /**
+    * @brief count - Get current hast table element count.
+    *
+    * @returns  Element count.
+    */
     unsigned long count() { return count_; }
+    /**
+    * @brief available - Get current hash table available slots.
+    *
+    * @returns  Available slots size.
+    */
     unsigned long available() { return freesize_; }
+    /**
+    * @brief setThreadSafe - Enable thread safety.
+    *
+    * @param [flag] - True or false.
+    */
     void setThreadSafe(bool flag) { thread_safe_flag_ = flag; }
+    /**
+    * @brief getThreadSafe - Get thread safety flag.
+    *
+    * @returns  True or false.
+    */
     bool getThreadSafe() { return thread_safe_flag_; }
+    /**
+    * @brief setNonBlock - Set non-blocking mode.
+    *
+    * @param [flag] - True or false.
+    */
     void setNonBlock(bool flag) { rwlock_.setNonBlock(flag); }
+    /**
+    * @brief getNonBlock - Get current blocking mode.
+    *
+    * @returns  True or false.
+    */
     bool getNonBlock() { return rwlock_.getNonBlock(); }
-    HashTableRet getLastRet(){ return last_return_; }
+    /**
+    * @brief getLastRet - Get last return value.
+    *
+    * @returns  Ret.
+    */
+    Ret getLastRet(){ return last_return_; }
 
+    /**
+    * @brief hashcode - Calculate the hash value.
+    *
+    * @tparam [Args] - Template arguments of hash function.
+    * @param [args] - Hash function arguments.
+    *
+    * @returns  Hash value.
+    */
     template<typename ... Args>
     unsigned long hashcode(Args&& ... args) {
         return (hashcode_(std::forward<Args>(args)...) % size_);
     }
 
     /**
-    * @brief insert - Insert an object into a hash table.
+    * @brief insert - Insert an element into hash table.
     *
-    * @tparam [Args] - Parameter package template.
-    * @param [hash] - Index in hash table.
-    * @param [args] - Parameters for construct object.
+    * @tparam [Args] - Template arguments of element constructor.
+    * @param [args] - Element constructor arguments.
+    * @param [hash] - Hash value.
     *
-    * @returns  Object pointer.
+    * @returns  Element pointer. If return NULL, you can get last return value
+    *           by getLastRet().
     */
     template<typename ... Args>
     T* insert(Args&& ... args, unsigned long hash) {
         if (hash > size_) {
-            _setret(HashTableRet::EHASHINDEX);
+            _setret(Ret::EHASHINDEX);
             return NULL;
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
@@ -111,13 +177,14 @@ public:
     }
 
     /**
-    * @brief insert - Insert an object into a hash table.
+    * @brief insert - Insert an element into hash table.
     *
-    * @tparam [Args] - Parameter package template.
-    * @param [data] - Object reference.
-    * @param [args] - Parameters for hash function.
+    * @tparam [Args] - Template arguments of hash function.
+    * @param [data] - Element reference.
+    * @param [args] - Arguments for hash function.
     *
-    * @returns  Object pointer.
+    * @returns  Element pointer. If return NULL, you can get last return value
+    *           by getLastRet().
     */
     template<typename ... Args>
     T* insert(T& data, Args&& ... args) {
@@ -127,7 +194,7 @@ public:
     T* insert(T&& data, Args&& ... args) {
         unsigned long hash = hashcode_(std::forward<Args>(args)...) % size_;
         if (hash > size_) {
-            _setret(HashTableRet::EHASHINDEX);
+            _setret(Ret::EHASHINDEX);
             return NULL;
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
@@ -144,19 +211,20 @@ public:
     }
 
     /**
-    * @brief insert - Insert an object into a hash table.
+    * @brief insert - Insert an element into hash table.
     *
-    * @param [data] - Object referene.
-    * @param [hash] - Index in hash table.
+    * @param [data] - Element referene.
+    * @param [hash] - Hash value.
     *
-    * @returns  Object pointer.
+    * @returns  Element pointer. If return NULL, you can get last return value
+    *           by getLastRet().
     */
     T* insert(T& data, unsigned long hash) {
         return insert(std::move(data), hash);
     }
     T* insert(T&& data, unsigned long hash) {
         if (hash > size_) {
-            _setret(HashTableRet::EHASHINDEX);
+            _setret(Ret::EHASHINDEX);
             return NULL;
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
@@ -173,10 +241,10 @@ public:
     }
 
     /**
-    * @brief remove - Remove an object from hash table.
+    * @brief remove - Remove an element from hash table.
     *
-    * @tparam [Args] - Parameter package template.
-    * @param [args] - Parameters for hash function.
+    * @tparam [Args] - Template arguments of hash function.
+    * @param [args] - Arguments for hash function.
     */
     template<typename ... Args>
     void remove(Args&& ... args) {
@@ -185,7 +253,7 @@ public:
     }
     void remove(unsigned long hash) {
         if (hash > size_) {
-            _setret(HashTableRet::EHASHINDEX);
+            _setret(Ret::EHASHINDEX);
             return;
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
@@ -198,12 +266,13 @@ public:
     }
 
     /**
-    * @brief find - Find an object from hash table
+    * @brief find - Find an element from hash table
     *
-    * @tparam [Args] - Parameter package template.
-    * @param [args] - Parameters for hash function.
+    * @tparam [Args] - Template arguments of hash function.
+    * @param [args] - Arguments for hash function.
     *
-    * @returns  Object pointer.
+    * @returns  Element pointer. If return NULL, you can get last return value
+    *           by getLastRet().
     */
     template<typename ... Args>
     T* find(Args&& ... args) {
@@ -212,7 +281,7 @@ public:
     }
     T* find(unsigned long hash) {
         if (hash > size_) {
-            _setret(HashTableRet::EHASHINDEX);
+            _setret(Ret::EHASHINDEX);
             return NULL;
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
@@ -220,9 +289,9 @@ public:
     }
 
     /**
-    * @brief clear - Clean hash table
+    * @brief empty - Clean all element in hash table
     */
-    void clear() {
+    void empty() {
         for (unsigned long loop = 0; loop < size_; loop++) {
             void* offset = reinterpret_cast<char*>(memblock) + loop * sizeof(T);
             if (*reinterpret_cast<char*>(offset)) {
@@ -234,48 +303,67 @@ public:
         }
     }
 
-    HashTableRet rlock(struct timespec* overtime) {
+    /**
+    * @brief rlock - Get read lock.
+    *
+    * @param [overtime] - Over time.
+    *
+    * @returns  Ret.
+    */
+    Ret rlock(struct timespec* overtime) {
         if (!thread_safe_flag_) {
-            return HashTableRet::SUCCESS;
+            return Ret::SUCCESS;
         } else {
             if (rwlock_.RLock(overtime) != thread::ThreadRet::SUCCESS) {
-                return HashTableRet::ERLOCK;
+                return Ret::ERLOCK;
             } else {
-                return HashTableRet::SUCCESS;
+                return Ret::SUCCESS;
             }
         }
     }
-    HashTableRet wlock(struct timespec* overtime) {
+    /**
+    * @brief wlock - Get write lock.
+    *
+    * @param [overtime] - Over time.
+    *
+    * @returns  Ret.
+    */
+    Ret wlock(struct timespec* overtime) {
         if (!thread_safe_flag_) {
-            return HashTableRet::SUCCESS;
+            return Ret::SUCCESS;
         } else {
             if (rwlock_.WLock(overtime) != thread::ThreadRet::SUCCESS) {
-                return HashTableRet::EWLOCK;
+                return Ret::EWLOCK;
             } else {
-                return HashTableRet::SUCCESS;
+                return Ret::SUCCESS;
             }
         }
     }
-    HashTableRet unlock() {
+    /**
+    * @brief unlock - Release lock/
+    *
+    * @returns  Ret.
+    */
+    Ret unlock() {
         if (rwlock_.UnLock() != thread::ThreadRet::SUCCESS) {
-            return HashTableRet::EUNLOCK;
+            return Ret::EUNLOCK;
         } else {
-            return HashTableRet::SUCCESS;
+            return Ret::SUCCESS;
         }
     }
 
 private:
-    unsigned long size_;
-    unsigned long freesize_;
-    unsigned long count_;
-    bool thread_safe_flag_;
-    F hashcode_;
-    pub::MemPool* mp;
-    thread::ThreadRWLock rwlock_;
-    void* memblock;
+    unsigned long size_;        ///< hash table max slots.
+    unsigned long freesize_;    ///< available slots size.
+    unsigned long count_;       ///< current element count.
+    bool thread_safe_flag_;     ///< thread safety flag.
+    F hashcode_;                ///< hash function.
+    pub::MemPool* mp;           ///< mempool interface pointer.
+    thread::ThreadRWLock rwlock_;   ///< read write thread lock instance.
+    void* memblock;             ///< hash table memory.
 
-    HashTableRet last_return_;
-    void _setret(HashTableRet ret) { last_return_ = ret; }
+    Ret last_return_;           ///< last return value.
+    void _setret(Ret ret) { last_return_ = ret; }
 };
 
 } //namespace end

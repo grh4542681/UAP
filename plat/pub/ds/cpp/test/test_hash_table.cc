@@ -16,7 +16,7 @@ int main()
     ht.remove(3);
     printf("get value[%d]\n", *test);
     printf("size %ld count %ld free %ld\n", ht.size(), ht.count(), ht.available());
-    ht.clear();
+    ht.empty();
     printf("size %ld count %ld free %ld\n", ht.size(), ht.count(), ht.available());
 
 

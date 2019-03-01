@@ -1,13 +1,13 @@
 /*******************************************************
-# Copyright (C) For free.
-# All rights reserved.
-# ******************************************************
-# Author       : Ronghua Gao
-# Last modified: 2019-01-21 03:37
-# Email        : grh4542681@163.com
-# Filename     : link_list.h
-# Description  : Bidirectional linear list.
-* ******************************************************/
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-03-01 04:09
+ * @file     : link_list.h
+ * @brief    : 
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #ifndef __LINK_LIST_H__
 #define __LINK_LIST_H__
 
@@ -20,44 +20,27 @@ namespace ds {
 /**
 * @brief - Doubly linked list class.
 *
-* @tparam [T] - Data type.
+* @tparam [T] - Element type.
 */
 template <typename T>
 class LinkList {
 private:
     /**
-    * @brief - List node.
+    * @brief - List element node.
     */
-    class LinkNode {
-    public:
+    struct LinkNode {
         T* data_;
-        LinkNode* prev;
-        LinkNode* next;
-
-    public:
-        LinkNode(T* data) {
-            data_ = NULL;
-            prev = NULL;
-            next = NULL;
-            data_ = data;
-        }
-
-        ~LinkNode() {
-        }
-
-        void reset(T&& newdata) {
-        }
-    private:
+        struct LinkNode* prev;
+        struct LinkNode* next;
     };
-
 public:
     /**
     * @brief - List iterator.
     */
-    class iterator : public std::iterator<std::input_iterator_tag, LinkNode> {
+    class iterator : public std::iterator<std::input_iterator_tag, struct LinkNode> {
     public:
         friend class LinkList;
-        iterator(LinkNode* node = NULL) : ptr(node) {}
+        iterator(struct LinkNode* node = NULL) : ptr(node) {}
         iterator(const iterator& other) : ptr(other.ptr) { }
         ~iterator() {}
 
@@ -87,141 +70,161 @@ public:
             ptr->reset(newdata);
         }
     private:
-        LinkNode* ptr;
+        struct LinkNode* ptr;
     };
 
 public:
-    LinkNode* head;
-    LinkNode* tail;
+    struct LinkNode* head;  ///< list head element.
+    struct LinkNode* tail;  ///< list tail element.
 
+    /**
+    * @brief LinkList - Default construct function.
+    */
     LinkList() {
         head = NULL;
         tail = NULL;
-        count = 0;
+        count_ = 0;
         mp = pub::MemPool::getInstance();
     }
+    /**
+    * @brief ~LinkList - Destruct function
+    */
     ~LinkList() {
         clear();
     }
 
+    /**
+    * @brief begin - Get head node iterator.
+    *
+    * @returns  Element iterator.
+    */
     iterator begin () const { return iterator(head); }
+    /**
+    * @brief end - Tail iterator.(It should be NULL).
+    *
+    * @returns  Element iterator.
+    */
     iterator end () const { return iterator(NULL); }
+    /**
+    * @brief count - Get current element count in list.
+    *
+    * @returns  Element count.
+    */
+    unsigned int count() { return count_; }
 
-    unsigned int size() { return count; }
-
-    void pushback(T& data) {
-        pushback(std::move(data));
-    }
-
-    void pushback(T&& data) {
-        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr, data);
-        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
-        _push_after(tail, pnode);
-    }
-
+    /**
+    * @brief pushback - Push an element at the head of list.
+    *
+    * @tparam [Args] - Template arguments of element constuctor.
+    * @param [args] - Arguments of element constructor.
+    */
     template<typename ... Args>
     void pushback(Args&& ... args) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
         T* pdata = pub::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
-        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
+        //struct LinkNode* pnode = pub::MemPool::Construct<struct LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
+        struct LinkNode* pnode = reinterpret_cast<struct LinkNode*>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_after(tail, pnode);
     }
 
-    void pushfront(T& data) {
-        pushfront(std::move(data));
-    }
-
-    void pushfront(T&& data) {
-        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr, data);
-        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
-        _push_before(head, pnode);
-    }
-
+    /**
+    * @brief pushfront - Push an element at the end of list.
+    *
+    * @tparam [Args] - Template arguments of element constructor.
+    * @param [args] - Arguments of element constructor.
+    */
     template<typename ... Args>
     void pushfront(Args&& ... args) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
         T* pdata = pub::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
-        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
+        //struct LinkNode* pnode = pub::MemPool::Construct<struct LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
+        struct LinkNode* pnode = reinterpret_cast<struct LinkNode*>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_before(head, pnode);
     }
 
-    void pushbefore(iterator& target, T& data) {
-        pushbefore(std::move(data));
-    }
-
-    void pushbefore(iterator& target, T&& data) {
-        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr, data);
-        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
-        _push_before(target.ptr, pnode);
-    }
-
+    /**
+    * @brief pushbefore - Push an element before the iterator.
+    *
+    * @tparam [Args] - Template arguments of element constructor.
+    * @param [target] - Element iterator.
+    * @param [args] - Arguments of element constructor.
+    */
     template<typename ... Args>
     void pushbefore(iterator& target, Args&& ... args) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
         T* pdata = pub::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
-        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
+        //struct LinkNode* pnode = pub::MemPool::Construct<struct LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
+        struct LinkNode* pnode = reinterpret_cast<struct LinkNode*>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_before(target.ptr, pnode);
     }
 
-    void pushafter(iterator& target, T& data) {
-        pushafter(std::move(data));
-    }
-
-    void pushafter(iterator& target, T&& data) {
-        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
-        T* pdata = pub::MemPool::Construct<T>(ptr, data);
-        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
-        _push_after(target.ptr, pnode);
-    }
-
+    /**
+    * @brief pushafter - Push an element after the iterator.
+    *
+    * @tparam [Args] - Template arguments of element constructor.
+    * @param [target] - Element iterator.
+    * @param [args] - Arguments of element constructor.
+    */
     template<typename ... Args>
     void pushafter(iterator& target, Args&& ... args) {
         void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
         T* pdata = pub::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
-        LinkNode* pnode = pub::MemPool::Construct<LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
+        //struct LinkNode* pnode = pub::MemPool::Construct<struct LinkNode>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
+        struct LinkNode* pnode = reinterpret_cast<struct LinkNode*>(reinterpret_cast<char*>(ptr) + sizeof(T), pdata);
         _push_after(target.ptr, pnode);
     }
 
+    /**
+    * @brief pop - Pop(delete) an element.
+    *
+    * @param [target] - Element iterator.
+    */
     void pop(iterator& target) {
-        LinkNode* pnode = _pop(target.ptr);
+        struct LinkNode* pnode = _pop(target.ptr);
         if (pnode) {
             pub::MemPool::Destruct<T>(pnode->data_);
-            pub::MemPool::Destruct<LinkNode>(pnode);
+            //pub::MemPool::Destruct<struct LinkNode>(pnode);
             mp->Free((void*)(pnode->data_));
         }
     }
 
+    /**
+    * @brief popfront - Pop(delete) list's first element.
+    */
     void popfront() {
-        LinkNode* pnode = _pop(head);
+        struct LinkNode* pnode = _pop(head);
         if (pnode) {
             pub::MemPool::Destruct<T>(pnode->data_);
-            pub::MemPool::Destruct<LinkNode>(pnode);
+            //pub::MemPool::Destruct<struct LinkNode>(pnode);
             mp->Free((void*)(pnode->data_));
         }
     }
 
+    /**
+    * @brief popback - Pop(delete) list's last element.
+    */
     void popback() {
-        LinkNode* pnode = _pop(tail);
+        struct LinkNode* pnode = _pop(tail);
         if (pnode) {
             pub::MemPool::Destruct<T>(pnode->data_);
-            pub::MemPool::Destruct<LinkNode>(pnode);
+            //pub::MemPool::Destruct<struct LinkNode>(pnode);
             mp->Free((void*)(pnode->data_));
         }
     }
 
+    /**
+    * @brief clear - Pop(delete) all element.
+    */
     void clear() {
         while (head) {
             popfront();
         }
     }
 private:
-    unsigned int count;
-    pub::MemPool* mp;
+    unsigned int count_;    ///< current element counts.
+    pub::MemPool* mp;       ///< mempool interface pointer.
 
-    void _push_before(LinkNode* currnode, LinkNode* newnode) {
+    void _push_before(struct LinkNode* currnode, struct LinkNode* newnode) {
         if (!newnode) {
             return;
         }
@@ -242,10 +245,10 @@ private:
                 newnode->next = currnode;
             }
         }
-        ++count;
+        ++count_;
     }
 
-    void _push_after(LinkNode* currnode, LinkNode* newnode) {
+    void _push_after(struct LinkNode* currnode, struct LinkNode* newnode) {
         if (!newnode) {
             return;
         }
@@ -266,10 +269,10 @@ private:
                 newnode->prev = currnode;
             }
         }
-        ++count;
+        ++count_;
     }
 
-    LinkNode* _pop(LinkNode* node) {
+    struct LinkNode* _pop(struct LinkNode* node) {
         if (!node) {
             return NULL;
         }
@@ -286,7 +289,7 @@ private:
             head = NULL;
             tail = NULL;
         }
-        --count;
+        --count_;
         return node;
     }
 };
