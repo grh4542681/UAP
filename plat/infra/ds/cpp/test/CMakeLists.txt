@@ -8,7 +8,7 @@ ADD_EXECUTABLE(test_link_list ${TEST_LINK_LIST_SRC})
 ADD_EXECUTABLE(test_hash_table ${TEST_HASH_TABLE_SRC})
 ADD_EXECUTABLE(test_trie_tree ${TEST_TRIE_TREE_SRC})
 
-INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/plat/pub/ds/cpp" "${FRAM_ROOT_PATH}/plat/pub/mempool" "${FRAM_ROOT_PATH}/plat/pub/thread")
+INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/plat/infra/ds/cpp" "${FRAM_ROOT_PATH}/plat/infra/mempool" "${FRAM_ROOT_PATH}/plat/infra/thread")
 TARGET_LINK_LIBRARIES(test_link_list libgmp.so pthread libgthread.so)
 TARGET_LINK_LIBRARIES(test_hash_table libgmp.so pthread libgthread.so)
 TARGET_LINK_LIBRARIES(test_trie_tree libgmp.so pthread libgthread.so)

@@ -1,7 +1,7 @@
 SET(LIBGRHPARSER_SRC parser_ini.cc parser_json.cc)
 ADD_LIBRARY(GRHparser_SO SHARED ${LIBGRHPARSER_SRC})
 ADD_LIBRARY(GRHparser_A STATIC ${LIBGRHPARSER_SRC})
-INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/plat/pub/mempool" "${FRAM_ROOT_PATH}/3pp" "${FRAM_ROOT_PATH}/plat/pub/thread")
+INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/plat/infra/mempool" "${FRAM_ROOT_PATH}/3pp" "${FRAM_ROOT_PATH}/plat/infra/thread")
 TARGET_LINK_LIBRARIES(GRHparser_SO libgmp.so libgthread.so)
 TARGET_LINK_LIBRARIES(GRHparser_A libgmp.A libgthread.A)
 SET_TARGET_PROPERTIES(GRHparser_SO PROPERTIES OUTPUT_NAME "gparser" CLEAN_DIRECT_OUTPUT 1)

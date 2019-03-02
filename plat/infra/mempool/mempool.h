@@ -8,7 +8,7 @@
 #include <new>
 
 namespace pub {
-
+/*
 class MempoolCenter{
 public:
     static MempoolCenter* getInstance();
@@ -17,7 +17,7 @@ private:
     ~MempoolCenter();
     static MempoolCenter* pInstance;
 };
-
+*/
 class MemPool{
 public:
 

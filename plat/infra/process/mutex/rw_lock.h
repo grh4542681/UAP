@@ -1,9 +1,9 @@
-#ifndef __RW_LOCK_H__
-#define __RW_LOCK_H__
+#ifndef __PROCESS_MUTEX_RW_LOCK_H__
+#define __PROCESS_MUTEX_RW_LOCK_H__
 
 #include "mutex_return.h"
 
-namespace pub {
+namespace infra::process::mutex {
 
 class RWLock{
 public:
@@ -15,7 +15,6 @@ public:
     virtual MutexRet WUnLock();
 };
 
-} // namespace pub
-
+}
 
 #endif

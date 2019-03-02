@@ -3,17 +3,21 @@
 
 namespace pub{
 
-typedef enum class _MempoolRet: int {
+/**
+ * @brief Memory pool return value.
+ * 
+ */
+enum class MempoolRet: int {
 //common return val
-    SUCCESS = 0x00,
-    ERROR,
+    SUCCESS = 0,
+    ERROR = -999,
     EMALLOC,
     EINIT,
     ETIMEOUT,
 
     EUNKOWNERRNO,
-} MempoolRet;
+};
 
-} // namespace base
+} // namespace mempool
 
 #endif

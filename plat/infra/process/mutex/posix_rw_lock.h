@@ -1,10 +1,10 @@
-#ifndef __POSIX_RW_LOCK_H__
-#define __POSIX_RW_LOCK_H__
+#ifndef __PROCESS_MUTEX_POSIX_RW_LOCK_H__
+#define __PROCESS_MUTEX_POSIX_RW_LOCK_H__
 
 #include "mutex_return.h"
 #include "rw_lock.h"
 
-namespace pub {
+namespace infra::process::mutex {
 
 class PosixRWLock : public RWLock{
 public:
@@ -19,6 +19,6 @@ private:
     
 };
 
-} // namespace pub
+}
 
 #endif
