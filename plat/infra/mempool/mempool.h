@@ -7,6 +7,8 @@
 #include <string.h>
 #include <new>
 
+#include "mempool_center.h"
+
 namespace pub {
 /*
 class MempoolCenter{
@@ -19,6 +21,14 @@ private:
 };
 */
 class MemPool{
+private:
+    class ThreadCache {
+    public:
+        ThreadCache();
+        ~ThreadCache();
+    private:
+        MemPoolCenter* center_;
+    };
 public:
 
     void* Malloc(size_t size){

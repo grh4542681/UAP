@@ -5,7 +5,6 @@ namespace pub{
 
 /**
  * @brief Memory pool return value.
- * 
  */
 enum class MempoolRet: int {
 //common return val
