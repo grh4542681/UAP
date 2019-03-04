@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-03-04 09:58
+ * @file     : sock_log.h
+ * @brief    : Socket log api header.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #ifndef __SOCK_LOG_H__
 #define __SOCK_LOG_H__
 
