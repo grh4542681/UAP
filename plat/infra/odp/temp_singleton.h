@@ -5,7 +5,7 @@
 #include <memory>
 #include "thread_mutex_lock.h"
 
-namespace pub {
+namespace odp {
 
 template <typename T>
 class Singleton {
@@ -53,12 +53,12 @@ private:
     Singleton& operator = (const Singleton&);
 
     static T* pInstance_;
-    static thread::ThreadMutexLock mutex_;
+    static thread::mutex::ThreadMutexLock mutex_;
 };
 
 template <typename T> T* Singleton<T>::pInstance_ = NULL;
-template <typename T> thread::ThreadMutexLock Singleton<T>::mutex_;
+template <typename T> thread::mutex::ThreadMutexLock Singleton<T>::mutex_;
 
-} //namespace pub end
+} //namespace odp end
 
 #endif

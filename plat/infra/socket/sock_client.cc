@@ -13,7 +13,7 @@ namespace sock{
 
 SockClient::SockClient(SockFamily family, const char* address, unsigned short int port)
 {
-    this->mempool_ = pub::MemPool::getInstance();
+    this->mempool_ = mempool::MemPool::getInstance();
     if (!this->mempool_) {
         this->init_flag_ = false;
         return;
@@ -30,7 +30,7 @@ SockClient::SockClient(SockFamily family, const char* address, unsigned short in
 
 SockClient::SockClient(SockFamily family, const char* address)
 {
-    this->mempool_ = pub::MemPool::getInstance();
+    this->mempool_ = mempool::MemPool::getInstance();
     if (!this->mempool_) {
         this->init_flag_ = false;
         return;
@@ -47,7 +47,7 @@ SockClient::SockClient(SockFamily family, const char* address)
 
 SockClient::SockClient(SockAddress* address)
 {
-    this->mempool_ = pub::MemPool::getInstance();
+    this->mempool_ = mempool::MemPool::getInstance();
     if (!this->mempool_) {
         this->init_flag_ = false;
         return;

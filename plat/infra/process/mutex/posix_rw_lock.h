@@ -4,7 +4,7 @@
 #include "mutex_return.h"
 #include "rw_lock.h"
 
-namespace infra::process::mutex {
+namespace process::mutex {
 
 class PosixRWLock : public RWLock{
 public:

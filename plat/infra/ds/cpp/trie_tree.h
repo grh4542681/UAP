@@ -107,7 +107,7 @@ public:
     TrieTree() {
         count_ = 0;
         TT_max_key_length = TT_DEFAULT_MAX_KEY_LENGTH;
-        mp_ = pub::MemPool::getInstance();        
+        mp_ = mempool::MemPool::getInstance();        
         root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
         _TTNode_init(root_);
     }
@@ -119,7 +119,7 @@ public:
     TrieTree(unsigned int max_len) {
         count_ = 0;
         TT_max_key_length = max_len;
-        mp_ = pub::MemPool::getInstance();        
+        mp_ = mempool::MemPool::getInstance();        
         root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
         _TTNode_init(root_);
     }
@@ -228,10 +228,10 @@ public:
 
         if (!(curnode->data_)) {
             curnode->data_ = reinterpret_cast<T*>(mp_->Malloc(sizeof(T)));
-            pub::MemPool::Construct<T>(curnode->data_, std::forward<Args>(args)...);
+            mempool::MemPool::Construct<T>(curnode->data_, std::forward<Args>(args)...);
         } else {
-            pub::MemPool::Destruct<T>(curnode->data_);
-            pub::MemPool::Construct<T>(curnode->data_, std::forward<Args>(args)...);
+            mempool::MemPool::Destruct<T>(curnode->data_);
+            mempool::MemPool::Construct<T>(curnode->data_, std::forward<Args>(args)...);
         }
 
         if (!(curnode->data_)) {
@@ -300,7 +300,7 @@ private:
     //limmit
     unsigned int TT_max_key_length; ///< Key maximum length limit.
 
-    pub::MemPool* mp_;              ///< Mempool interface class pointer.
+    mempool::MemPool* mp_;              ///< Mempool interface class pointer.
     unsigned int count_;            ///< Current count of elements.
     struct TTNode* root_;           ///< Root node pointer.
     Ret last_return_;       ///< Last return value.
@@ -331,7 +331,7 @@ private:
         if (!node) {
             return;
         }
-        pub::MemPool::Destruct<T>(node->data_);
+        mempool::MemPool::Destruct<T>(node->data_);
         mp_->Free(node->data_);
         node->data_ = NULL;
         _TTNode_clean_reverse(node);
@@ -351,7 +351,7 @@ private:
             _TTNode_delete_tree(it);
         }
         if (node->data_) {
-            pub::MemPool::Destruct<T>(node->data_);
+            mempool::MemPool::Destruct<T>(node->data_);
             mp_->Free(node->data_);
             node->data_ = NULL;
             count_--;

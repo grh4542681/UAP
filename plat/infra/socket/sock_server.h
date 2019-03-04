@@ -31,7 +31,7 @@ private:
     const SockServer& operator=(const SockServer&);
 
     bool init_flag_;
-    pub::MemPool* mempool_;
+    mempool::MemPool* mempool_;
     SockAddress* s_address_;
     unsigned int listen_cache_;
     SockFD* listen_fd_;

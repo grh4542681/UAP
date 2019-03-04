@@ -4,7 +4,7 @@
 #include <boost/thread/mutex>
 #include <list>
 
-namespace pub {
+namespace odp {
 
 template <typename T>
 class Element {

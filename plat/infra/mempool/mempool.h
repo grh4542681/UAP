@@ -9,7 +9,7 @@
 
 #include "mempool_center.h"
 
-namespace pub {
+namespace mempool {
 /*
 class MempoolCenter{
 public:
@@ -86,6 +86,7 @@ public:
 private:
     MemPool();
     ~MemPool();
+    MemPoolCenter* pcenter_;
     thread_local static MemPool* pInstance;
 
     void* _malloc(size_t size);

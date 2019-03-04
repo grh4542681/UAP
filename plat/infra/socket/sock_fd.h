@@ -51,7 +51,7 @@ private:
 
     bool init_flag_;
     unsigned int fd_;
-    pub::MemPool* mempool_;
+    mempool::MemPool* mempool_;
     SockAddress orig;
     SockAddress dest;
 

@@ -27,7 +27,7 @@ public:
     std::map<std::string, Section*> conftree_;
 private:
     bool init_flag_;
-    pub::MemPool* mempool_;
+    mempool::MemPool* mempool_;
     std::string filename_;
 
     ParserRet _load();

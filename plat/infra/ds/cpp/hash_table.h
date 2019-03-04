@@ -56,7 +56,7 @@ public:
         freesize_ = size_;
         count_ = 0;
         thread_safe_flag_ = false;
-        mp = pub::MemPool::getInstance();
+        mp = mempool::MemPool::getInstance();
         memblock = mp->Malloc(sizeof(T)*size);
         memset(memblock, 0x00, sizeof(T)*size);
         hashcode_ = BKDRHash;
@@ -72,7 +72,7 @@ public:
         freesize_ = size_;
         count_ = 0;
         thread_safe_flag_ = false;
-        mp = pub::MemPool::getInstance();
+        mp = mempool::MemPool::getInstance();
         memblock = mp->Malloc(sizeof(T)*size);
         memset(memblock, 0x00, sizeof(T)*size);
     }
@@ -166,10 +166,10 @@ public:
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
         T* pnode = NULL;
         if (*reinterpret_cast<char*>(offset)) {
-            pub::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
-            pnode = pub::MemPool::Construct<T>(offset, std::forward<Args>(args)...);
+            mempool::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
+            pnode = mempool::MemPool::Construct<T>(offset, std::forward<Args>(args)...);
         } else {
-            pnode = pub::MemPool::Construct<T>(offset, std::forward<Args>(args)...);
+            pnode = mempool::MemPool::Construct<T>(offset, std::forward<Args>(args)...);
             ++count_;
             --freesize_;
         }
@@ -200,10 +200,10 @@ public:
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
         T* pnode = NULL;
         if (*reinterpret_cast<char*>(offset)) {
-            pub::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
-            pnode = pub::MemPool::Construct<T>(offset, data);
+            mempool::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
+            pnode = mempool::MemPool::Construct<T>(offset, data);
         } else {
-            pnode = pub::MemPool::Construct<T>(offset, data);
+            pnode = mempool::MemPool::Construct<T>(offset, data);
             ++count_;
             --freesize_;
         }
@@ -230,10 +230,10 @@ public:
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
         T* pnode = NULL;
         if (*reinterpret_cast<char*>(offset)) {
-            pub::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
-            pnode = pub::MemPool::Construct<T>(offset, data);
+            mempool::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
+            pnode = mempool::MemPool::Construct<T>(offset, data);
         } else {
-            pnode = pub::MemPool::Construct<T>(offset, data);
+            pnode = mempool::MemPool::Construct<T>(offset, data);
             ++count_;
             --freesize_;
         }
@@ -258,7 +258,7 @@ public:
         }
         void* offset = reinterpret_cast<char*>(memblock) + hash * sizeof(T);
         if (*reinterpret_cast<char*>(offset)) {
-            pub::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
+            mempool::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
             memset(offset, 0x00, sizeof(T));
             --count_;
             ++freesize_;
@@ -295,7 +295,7 @@ public:
         for (unsigned long loop = 0; loop < size_; loop++) {
             void* offset = reinterpret_cast<char*>(memblock) + loop * sizeof(T);
             if (*reinterpret_cast<char*>(offset)) {
-                pub::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
+                mempool::MemPool::Destruct<T>(reinterpret_cast<T*>(offset));
                 memset(offset, 0x00, sizeof(T));
                 --count_;
                 ++freesize_;
@@ -358,8 +358,8 @@ private:
     unsigned long count_;       ///< current element count.
     bool thread_safe_flag_;     ///< thread safety flag.
     F hashcode_;                ///< hash function.
-    pub::MemPool* mp;           ///< mempool interface pointer.
-    thread::ThreadRWLock rwlock_;   ///< read write thread lock instance.
+    mempool::MemPool* mp;           ///< mempool interface pointer.
+    thread::mutex::ThreadRWLock rwlock_;   ///< read write thread lock instance.
     void* memblock;             ///< hash table memory.
 
     Ret last_return_;           ///< last return value.

@@ -1,9 +1,9 @@
 #include <pthread.h>
 #include <errno.h>
+#include "../thread_log.h"
 #include "thread_mutex_lock.h"
-#include "thread_log.h"
 
-namespace thread {
+namespace thread::mutex {
 
 ThreadMutexLock::ThreadMutexLock()
 {
@@ -50,4 +50,4 @@ ThreadRet ThreadMutexLock::unlock()
     return ThreadRet::SUCCESS;
 }
 
-} //namespace thread end
+} //namespace end

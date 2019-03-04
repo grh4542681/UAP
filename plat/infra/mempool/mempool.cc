@@ -2,13 +2,13 @@
 #include "mempool.h"
 #include "mempool_center.h"
 
-namespace pub {
+namespace mempool {
 
 thread_local MemPool* MemPool::pInstance = NULL;
 
 MemPool::MemPool()
 {
-
+    pcenter_ = MemPoolCenter::getInstance();
 }
 
 MemPool::~MemPool()

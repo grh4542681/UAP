@@ -1,11 +1,10 @@
 #include <string.h>
 #include <time.h>
 
-#include "thread_log.h"
-#include "thread_return.h"
+#include "../thread_log.h"
 #include "thread_rw_lock.h"
 
-namespace thread {
+namespace thread::mutex {
 
 ThreadRWLock::ThreadRWLock()
 {
@@ -33,28 +32,6 @@ void ThreadRWLock::setNonBlock(bool flag)
 bool ThreadRWLock::getNonBlock()
 {
     return this->nonblock_flag_;
-}
-
-ThreadRet ThreadRWLock::RLock()
-{
-    int ret;
-    if ((ret = pthread_rwlock_tryrdlock(&(this->rwlock_))) != 0)
-    {
-        THREAD_ERROR("Locked failed [%s]", strerror(ret));
-        return ThreadRet::ERROR;
-    }
-    return ThreadRet::SUCCESS;
-}
-
-ThreadRet ThreadRWLock::WLock()
-{
-    int ret;
-    if ((ret = pthread_rwlock_trywrlock(&(this->rwlock_))) != 0)
-    {
-        THREAD_ERROR("Locked failed [%s]", strerror(ret));
-        return _errno2ret(ret);
-    }
-    return ThreadRet::SUCCESS;
 }
 
 ThreadRet ThreadRWLock::RLock(struct timespec* overtime)

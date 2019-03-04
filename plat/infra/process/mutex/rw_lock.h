@@ -3,7 +3,7 @@
 
 #include "mutex_return.h"
 
-namespace infra::process::mutex {
+namespace process::mutex {
 
 class RWLock{
 public:

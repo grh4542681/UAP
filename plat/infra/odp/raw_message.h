@@ -1,13 +1,13 @@
 #ifndef __RAW_MESSAGE_H__
 #define __RAW_MESSAGE_H__
 
-namespace pub {
+namespace odp {
 
 class RawMessage {
 public:
     RawMessage();
 };
 
-}// namespace pub end
+}// namespace odp end
 
 #endif

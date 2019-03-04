@@ -10,15 +10,15 @@ public:
     };
     
 public:
-    MemPoolCenter();
-    ~MemPoolCenter();
+    static MemPoolCenter* pInstance;
 
     void report();
     static MemPoolCenter* getInstance();
 private:
+    MemPoolCenter();
+    ~MemPoolCenter();
 };
 
-static MemPoolCenter* pInstance;
 
 } //namespace end
 

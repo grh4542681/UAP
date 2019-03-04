@@ -26,7 +26,7 @@ private:
     const SockClient& operator=(const SockClient&);
 
     bool init_flag_;
-    pub::MemPool* mempool_;
+    mempool::MemPool* mempool_;
     SockAddress* s_address_;
     SockFD* conn_fd_;
 

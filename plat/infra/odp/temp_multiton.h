@@ -7,7 +7,7 @@
 #include <utility>
 #include "thread_mutex_lock.h"
 
-namespace pub {
+namespace odp {
 
 #if 0
 template < typename T, typename K = string>
@@ -188,12 +188,12 @@ private:
     Multiton(const Multiton&);
     Multiton& operator = (const Multiton&);
 
-    static thread::ThreadMutexLock mutex_;
+    static thread::mutex::ThreadMutexLock mutex_;
     static std::map<K, T*> instance_map_;
 };
-template <typename T, typename K> thread::ThreadMutexLock Multiton<T, K>::mutex_;
+template <typename T, typename K> thread::mutex::ThreadMutexLock Multiton<T, K>::mutex_;
 template <typename T, typename K> std::map<K, T*> Multiton<T, K>::instance_map_;
 
-} //namespace pub end
+} //namespace odp end
 
 #endif

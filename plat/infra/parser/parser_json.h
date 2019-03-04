@@ -152,8 +152,8 @@ public:
 private:
     bool init_flag_;
     bool thread_safe_flag_;
-    pub::MemPool* mempool_;
-    thread::ThreadRWLock rwlock_;
+    mempool::MemPool* mempool_;
+    thread::mutex::ThreadRWLock rwlock_;
 
     rapidjson::Document doc_;
 };
