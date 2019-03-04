@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-03-04 09:04
+ * @file     : parser_ini.cc
+ * @brief    : Parser ini format.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #include <iostream>
 #include <unistd.h>
 #include "parser_log.h"

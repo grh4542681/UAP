@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-03-04 09:08
+ * @file     : thread_rw_lock.cc
+ * @brief    : Thread level read/write lock.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #include <string.h>
 #include <time.h>
 

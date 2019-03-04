@@ -1,13 +1,13 @@
 /*******************************************************
-# Copyright (C) For free.
-# All rights reserved.
-# ******************************************************
-# Author       : Ronghua Gao
-# Last modified: 2019-01-21 03:33
-# Email        : grh4542681@163.com
-# Filename     : parser_json.cc
-# Description  : Parser Json.
-* ******************************************************/
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-03-04 09:03
+ * @file     : parser_json.cc
+ * @brief    : Parser Json format.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #include <unistd.h>
 
 #include "parser_log.h"

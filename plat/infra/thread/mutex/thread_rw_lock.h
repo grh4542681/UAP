@@ -5,7 +5,7 @@
  * @author   : Ronghua Gao
  * @date     : 2019-03-04 04:04
  * @file     : thread_rw_lock.h
- * @brief    : 
+ * @brief    : Thread level read/write lock header.
  * @note     : Email - grh4542681@163.com
  * ******************************************************/
 #ifndef __THREAD_RW_LOCK_H__

@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-03-04 09:07
+ * @file     : thread_mutex_lock.cc
+ * @brief    : Thread level mutex lock.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #include <pthread.h>
 #include <errno.h>
 #include "../thread_log.h"

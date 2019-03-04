@@ -1,13 +1,13 @@
 /*******************************************************
-# Copyright (C) For free.
-# All rights reserved.
-# ******************************************************
-# Author       : Ronghua Gao
-# Last modified: 2019-01-21 03:34
-# Email        : grh4542681@163.com
-# Filename     : parser_json.h
-# Description  : Parser json header. base on rapidjson
-* ******************************************************/
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-03-04 09:03
+ * @file     : parser_json.h
+ * @brief    : Parser json format header.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #ifndef __PERSER_JSON_H__
 #define __PERSER_JSON_H__
 
@@ -25,17 +25,23 @@
 
 namespace parser {
 
+/**
+* @brief - Type of json field.
+*/
 typedef enum class _JsonType : int {
-    STRING = 1,
-    INT,
-    DOUBLE,
-    BOOL,
-    ARRAY,
-    OBJECT,
-    ONULL,
+    STRING = 1, ///< string.
+    INT,        ///< int.
+    DOUBLE,     ///< double.
+    BOOL,       ///< bool.
+    ARRAY,      ///< array.
+    OBJECT,     ///< object.
+    ONULL,      ///< NULL.
 }JsonType;
 
 class ParserJson;
+/**
+* @brief - Json tree element class.
+*/
 class ParserJsonObject {
 public:
     ParserJsonObject();
@@ -122,12 +128,15 @@ private:
     }
 };
 
+/**
+* @brief - Main class of parser json.
+*/
 class ParserJson {
 public:
     friend class ParserJsonObject;
 
 public:
-    ParserJsonObject root;
+    ParserJsonObject root;  ////< root element.
 
 public:
     ParserJson();

@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-03-04 09:06
+ * @file     : thread_log.h
+ * @brief    : 
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #ifndef __THREAD_LOG_H__
 #define __THREAD_LOG_H__
 

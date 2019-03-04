@@ -5,7 +5,7 @@
  * @author   : Ronghua Gao
  * @date     : 2019-03-04 04:02
  * @file     : thread_mutex_lock.h
- * @brief    : 
+ * @brief    : Thread level mutex lock header.
  * @note     : Email - grh4542681@163.com
  * ******************************************************/
 #ifndef __THREAD_MUTEX_LOCK_H__
