@@ -73,8 +73,30 @@ public:
         count_ = 0;
         thread_safe_flag_ = false;
         mp = mempool::MemPool::getInstance();
-        memblock = mp->Malloc(sizeof(T)*size);
-        memset(memblock, 0x00, sizeof(T)*size);
+        memblock = mp->Malloc(sizeof(T)*size_);
+        memset(memblock, 0x00, sizeof(T)*size_);
+    }
+
+    /**
+    * @brief HashTable - Copy construct function.
+    *
+    * @param [other] - Other instance.
+    */
+    HashTable(HashTable& other) {
+        size_ = other.size_;
+        hashcode_ = other.hashcode_;
+        thread_safe_flag_ = other.thread_safe_flag_;
+
+        freesize_ = size_;
+        count_ = 0;
+        mp = mempool::MemPool::getInstance();
+        memblock = mp->Malloc(sizeof(T)*size_);
+        memset(memblock, 0x00, sizeof(T)*size_);
+        T* p = NULL;
+        unsigned long loop = 0;
+        for (p = (T*)memblock, loop = size_; loop > 0; --loop,++p) {
+            insert(*p, size_ - loop);    
+        }
     }
 
     /**

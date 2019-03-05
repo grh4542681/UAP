@@ -13,7 +13,10 @@
 
 namespace sock{
 
-typedef enum class _SockRet: int {
+/**
+* @brief - Socket api return value.
+*/
+enum class SockRet: int {
 //common return val
     SUCCESS = 0,        ///< success.
     ERROR = -999,       ///< error.
@@ -25,22 +28,22 @@ typedef enum class _SockRet: int {
     EUNKOWNERRNO,       ///< unknow error.
 
 //socket
-    SOCK_LINKDOWN,
-    SOCK_EACCES,
-    SOCK_EAFNOSUPPORT,
-    SOCK_EINVAL,
-    SOCK_EMFILE,
-    SOCK_ENFILE,
-    SOCK_ENOBUFS,
-    SOCK_ENOMEM,
-    SOCK_EPROTONOSUPPORT,
-    SOCK_EADDRINUSE,
-    SOCK_EBADF,
-    SOCK_ENOTSOCK,
-    SOCK_EOPNOTSUPP,
-    SOCK_EAGAIN,
+    SOCK_LINKDOWN,      ///< link down.
+    SOCK_EACCES,        ///< errno EACCES.
+    SOCK_EAFNOSUPPORT,  ///< errno EAFNOSUPPORT.
+    SOCK_EINVAL,        ///< errno EINVAL.
+    SOCK_EMFILE,        ///< errno EMFILE.
+    SOCK_ENFILE,        ///< errno ENFILE.
+    SOCK_ENOBUFS,       ///< errno ENOBUFS.
+    SOCK_ENOMEM,        ///< errno ENOMEM.
+    SOCK_EPROTONOSUPPORT,   ///< errno EPROTONOSUPPORT.
+    SOCK_EADDRINUSE,    ///< errno EADDRINUSE.
+    SOCK_EBADF,         ///< errno EBADF.
+    SOCK_ENOTSOCK,      ///< errno ENOTSOCK.
+    SOCK_EOPNOTSUPP,    ///< errno EOPNOTSUPP.
+    SOCK_EAGAIN,        ///< errno EAGAIN.
 
-} SockRet;
+};
 
 } // namespace sock
 

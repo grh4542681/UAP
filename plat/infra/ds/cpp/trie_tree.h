@@ -124,6 +124,19 @@ public:
         _TTNode_init(root_);
     }
     /**
+    * @brief TrieTree - Copy construct function.
+    *
+    * @param [other] - Other instance.
+    */
+    TrieTree(TrieTree& other) {
+        count_ = 0;
+        TT_max_key_length = other.TT_max_key_length;
+        mp_ = mempool::MemPool::getInstance();
+        root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
+        _TTNode_init(root_);
+        _TTNode_insert_tree(other.getRoot());
+    }
+    /**
     * @brief ~TrieTree - Destruct function.
     */
     ~TrieTree() {
@@ -142,6 +155,8 @@ public:
     * @returns  Element counts.
     */
     unsigned int getCount() { return count_; }
+
+    TTNode* getRoot() { return root_; }
 
     /**
     * @brief getLastRet - Get last return value.
@@ -412,6 +427,27 @@ private:
         for (int loop = 0; loop < TT_DICT_SIZE; loop++) {
             if (curnode->slots_[loop]) {
                 _TTNode_print_tree(curnode->slots_[loop]);
+            }
+        }
+    }
+
+    /**
+    * @brief _TTNode_insert_tree - Insert a TT tree.
+    *
+    * @param [node] - Node pointer.
+    */
+    void _TTNode_insert_tree(struct TTNode* node) {
+        if (!node) {
+            return;
+        }
+        if (node->data_) {
+            std::string key = _TTNode_get_key(node);
+            insert(key, *(node->data_));
+        }
+        struct TTNode* curnode = node;
+        for (int loop = 0; loop < TT_DICT_SIZE; loop++) {
+            if (curnode->slots_[loop]) {
+                _TTNode_insert_tree(curnode->slots_[loop]);
             }
         }
     }

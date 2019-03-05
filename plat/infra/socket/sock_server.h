@@ -12,6 +12,9 @@
 
 namespace sock{
 
+/**
+* @brief - Socket server class.
+*/
 class SockServer {
 public:
     
@@ -21,9 +24,26 @@ public:
     SockServer(SockAddress* address);
     ~SockServer();
 
+    /**
+    * @brief getSockFD - Get current socket file descriptor.
+    *
+    * @returns  SockFD pointer.
+    */
     SockFD* getSockFD();
 
+    /**
+    * @brief Bind - bind
+    *
+    * @returns  SockRet.
+    */
     SockRet Bind();
+    /**
+    * @brief Accept - accept.
+    *
+    * @param [sockfd] - Output arguments SockFd pointer.
+    *
+    * @returns  SockRet.
+    */
     SockRet Accept(SockFD* sockfd);
 
 private:

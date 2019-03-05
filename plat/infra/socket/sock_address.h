@@ -9,28 +9,86 @@
 
 namespace sock{
 
+/**
+* @brief - Socket address operator class.
+*/
 class SockAddress {
 public:
     friend class SockFD;
     friend class SockServer;
     friend class SockClient;
+    /**
+    * @brief SockAddress - Default constructor
+    */
     SockAddress();
+    /**
+    * @brief SockAddress - Constructor (use default address.)
+    *
+    * @param [family] - SockFamily.
+    * @param [port] - Port number.
+    */
     SockAddress(SockFamily family, unsigned short int port):family_(family){
         this->_init(family, NULL, port);
     }
+    /**
+    * @brief SockAddress - Constructor 
+    *
+    * @param [family] - SockFamily.
+    * @param [address] - Address.
+    * @param [port] - Port number.
+    */
     SockAddress(SockFamily family, const char* address, unsigned short int port):family_(family){
         this->_init(family, address, port);
     }
+    /**
+    * @brief SockAddress - Constructor (Local interprocess communication)
+    *
+    * @param [family] - SpckFamily.
+    * @param [address] - File name.
+    */
     SockAddress(SockFamily family, const char* address):family_(family){
         this->_init(family, address);
     }
 
+    /**
+    * @brief getAddr - get address.
+    *
+    * @returns  address.
+    */
     std::string getAddr();
 
-    SockRet ToSockaddr(struct sockaddr* addr);
+    /**
+    * @brief getPort - get port.
+    *
+    * @returns  port number.
+    */
+
     unsigned short int getPort();
+    /**
+    * @brief ToSockaddr - Convertor struct sockaddr to SockAddress.
+    *
+    * @param [addr] - struct sockaddr
+    *
+    * @returns  SockRet.
+    */
+    SockRet ToSockaddr(struct sockaddr* addr);
+    /**
+    * @brief isLocal - Is local SockAddress.
+    *
+    * @returns  ture/false.
+    */
     bool isLocal();
+    /**
+    * @brief isMulticast - Is multicast SockAddress.
+    *
+    * @returns  ture/flase.
+    */
     bool isMulticast();
+    /**
+    * @brief AddrCheck - Is this instance available.
+    *
+    * @returns  ture/false.
+    */
     bool AddrCheck();
 private:
     bool init_flag_;

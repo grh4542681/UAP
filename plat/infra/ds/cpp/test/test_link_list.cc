@@ -36,6 +36,18 @@ int main()
         printf("%d\n", it);
     }
     printf("count %d\n", l.count());
+    printf("=======copy======================\n");
+    ds::LinkList<int> ll(l);
+    for (auto it : ll) {
+        printf("%d\n", it);
+    }
+    printf("count %d\n", ll.count());
+    printf("===== oper= =======================\n");
+    ds::LinkList<int> lll = l;
+    for (auto it : lll) {
+        printf("%d\n", it);
+    }
+    printf("count %d\n", lll.count());
     printf("=============================\n");
     l.clear();
     printf("count %d\n", l.count());

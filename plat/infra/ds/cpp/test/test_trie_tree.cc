@@ -13,11 +13,19 @@ int main(){
     printf("abcdef7 : [%d]\n", *(tt.find("abcdef7")));
     printf("abcef7 : [%d]\n", *(tt.find("abcef7")));
     tt.display();
+    printf("---copy-----------\n");
+    ds::TrieTree<int> ttt(tt);
+    printf("---copy-----------\n");
+    printf("count [%d]\n", ttt.getCount());
+    printf("abcdef7 : [%d]\n", *(ttt.find("abcdef7")));
+    printf("abcef7 : [%d]\n", *(ttt.find("abcef7")));
+    ttt.display();
     printf("--------------\n");
     tt.remove("bce7ssss");
     tt.display();
     tt.empty();
     tt.display();
     printf("count [%d]\n", tt.getCount());
+    ttt.display();
     return 0;
 }

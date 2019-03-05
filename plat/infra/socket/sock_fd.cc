@@ -15,10 +15,7 @@
 #include "sock_fd.h"
 
 namespace sock{
-
 //public
-
-
 /**
 * @brief SockFD - Default consturctor
 */
@@ -103,6 +100,13 @@ unsigned int SockFD::getFD()
     }
 }
 
+/**
+* @brief setMcastJoin - Add the current socket descriptor to the multicast address.
+*
+* @param [mcast_addr] - Multicast address.
+*
+* @returns  SockRet.
+*/
 SockRet SockFD::setMcastJoin(const char* mcast_addr)
 {
     if (!this->init_flag_) {
@@ -112,6 +116,17 @@ SockRet SockFD::setMcastJoin(const char* mcast_addr)
     return setMcastJoin(mcast_addr, NULL, 0);
 }
 
+/**
+* @brief setMcastJoin - Add the current socket descriptor to the multicast address
+*                       If you specify both if_name and if_index,Ipv6 used if_index
+*                       and Ipv4 used if_name.
+*
+* @param [mcast_addr] - Multicast address.
+* @param [if_name] - Interface name.
+* @param [if_index] - Interface index
+*
+* @returns  
+*/
 SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* if_name, unsigned int if_index)
 {
     if (!this->init_flag_) {
@@ -188,6 +203,13 @@ SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* if_name, unsign
     return SockRet::SUCCESS;
 }
 
+/**
+* @brief setMcastLeave - Remove the current socket descriptor from the multicast address
+*
+* @param [mcast_addr] - Multicast address.
+*
+* @returns  SockRet.
+*/
 SockRet SockFD::setMcastLeave(const char* mcast_addr)
 {
     if (!this->init_flag_) {
@@ -232,6 +254,16 @@ SockRet SockFD::setMcastLeave(const char* mcast_addr)
     return SockRet::SUCCESS;
 }
 
+/**
+* @brief setMcastInterface - Modify current multicast interface.
+*                            If you specify both if_name and if_index,Ipv6 used if_index
+*                            and Ipv4 used if_name.
+*
+* @param [if_name] - Interface name.
+* @param [if_index] - Interface index.
+*
+* @returns  SockRet.
+*/
 SockRet SockFD::setMcastInterface(const char* if_name, unsigned int if_index)
 {
     if (!this->init_flag_) {
@@ -302,6 +334,13 @@ SockRet SockFD::setMcastInterface(const char* if_name, unsigned int if_index)
     return SockRet::SUCCESS;
 }
 
+/**
+* @brief setMcastTTL - Set the TTL value of the multicast group data
+*
+* @param [ttl] - TTL value.
+*
+* @returns  SockRet.
+*/
 SockRet SockFD::setMcastTTL(unsigned int ttl)
 {
     if (!this->init_flag_) {
@@ -335,6 +374,13 @@ SockRet SockFD::setMcastTTL(unsigned int ttl)
     return SockRet::SUCCESS;
 }
 
+/**
+* @brief setMcastloop - Disable multicast data echo
+*
+* @param [flag] - true/false.
+*
+* @returns  SockRet.
+*/
 SockRet SockFD::setMcastloop(bool flag)
 {
     if (!this->init_flag_) {
@@ -527,11 +573,17 @@ bool SockFD::isAcceptFD()
     return false;
 }
 
+/**
+* @brief isMulitcastFD - Check this FD was joined in multicast.
+*
+* @returns  true or false.
+*/
 bool SockFD::isMulitcastFD()
 {
     SockAddress* paddr = this->orig.AddrCheck() ? &(this->orig) : &(this->dest);
     return paddr->multicast_flag_;
 }
+
 /**
 * @brief Close - Close FD
 */

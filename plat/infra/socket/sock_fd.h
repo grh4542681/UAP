@@ -10,6 +10,9 @@
 
 namespace sock{
 
+/**
+* @brief - Socker file descriptor operator class.
+*/
 class SockFD{
 public:
     friend class SockServer;
@@ -49,12 +52,19 @@ public:
     
 private:
 
-    bool init_flag_;
-    unsigned int fd_;
-    mempool::MemPool* mempool_;
-    SockAddress orig;
-    SockAddress dest;
+    bool init_flag_;            ///< init flag.
+    unsigned int fd_;           ///< socket file descriptor.
+    mempool::MemPool* mempool_; ///< memory pool interface.
+    SockAddress orig;           ///< source address.
+    SockAddress dest;           ///< destination address.
 
+    /**
+    * @brief _errno2ret - Convert errno to SockRet.
+    *
+    * @param [ierrno] - errno.
+    *
+    * @returns  SockRet.
+    */
     static SockRet _errno2ret(int ierrno){
         switch (ierrno) {
             case 0:

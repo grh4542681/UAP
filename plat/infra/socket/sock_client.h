@@ -9,6 +9,9 @@
 
 namespace sock{
 
+/**
+* @brief - Socket client class.
+*/
 class SockClient {
 public:
 
@@ -17,8 +20,25 @@ public:
     SockClient(SockAddress* address);
     ~SockClient();
 
+    /**
+    * @brief getSockFD - Get current socket file descriptor.
+    *
+    * @returns  SockFD pointer.
+    */
     SockFD* getSockFD();
+    /**
+    * @brief setTimeout - Set connect over time.
+    *
+    * @param [overtime] - Over time.
+    *
+    * @returns  SockRet.
+    */
     SockRet setTimeout(struct timeval* overtime);
+    /**
+    * @brief Connect - connect.
+    *
+    * @returns  SockFD pointer.
+    */
     SockFD* Connect();
 
 private:

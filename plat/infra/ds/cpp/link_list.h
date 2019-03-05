@@ -87,10 +87,31 @@ public:
         mp = mempool::MemPool::getInstance();
     }
     /**
+    * @brief LinkList - Copy construct function.
+    *
+    * @param [other] - Source instance.
+    */
+    LinkList(LinkList& other) {
+        head = NULL;
+        tail = NULL;
+        count_ = 0;
+        mp = mempool::MemPool::getInstance();
+        for (auto it : other) {
+            pushback(it);                   
+        }
+    }
+    /**
     * @brief ~LinkList - Destruct function
     */
     ~LinkList() {
         clear();
+    }
+
+    LinkList& operator=(LinkList& other) {
+        clear();
+        for (auto it : other) {
+            pushback(it);
+        }
     }
 
     /**
@@ -120,7 +141,7 @@ public:
     */
     template<typename ... Args>
     void pushback(Args&& ... args) {
-        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        void* ptr = mp->Malloc(sizeof(LinkNode) + sizeof(T));
         T* pdata = mempool::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
         struct LinkNode* pnode = reinterpret_cast<struct LinkNode*>(reinterpret_cast<char*>(ptr) + sizeof(T));
         pnode->data_ = pdata;
@@ -135,7 +156,7 @@ public:
     */
     template<typename ... Args>
     void pushfront(Args&& ... args) {
-        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        void* ptr = mp->Malloc(sizeof(LinkNode) + sizeof(T));
         T* pdata = mempool::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
         struct LinkNode* pnode = reinterpret_cast<struct LinkNode*>(reinterpret_cast<char*>(ptr) + sizeof(T));
         pnode->data_ = pdata;
@@ -151,7 +172,7 @@ public:
     */
     template<typename ... Args>
     void pushbefore(iterator& target, Args&& ... args) {
-        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        void* ptr = mp->Malloc(sizeof(LinkNode) + sizeof(T));
         T* pdata = mempool::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
         struct LinkNode* pnode = reinterpret_cast<struct LinkNode*>(reinterpret_cast<char*>(ptr) + sizeof(T));
         pnode->data_ = pdata;
@@ -167,7 +188,7 @@ public:
     */
     template<typename ... Args>
     void pushafter(iterator& target, Args&& ... args) {
-        void* ptr = mp->Malloc(sizeof(LinkList) + sizeof(T));
+        void* ptr = mp->Malloc(sizeof(LinkNode) + sizeof(T));
         T* pdata = mempool::MemPool::Construct<T>(ptr, std::forward<Args>(args)...);
         struct LinkNode* pnode = reinterpret_cast<struct LinkNode*>(reinterpret_cast<char*>(ptr) + sizeof(T));
         pnode->data_ = pdata;
@@ -216,6 +237,7 @@ public:
         while (head) {
             popfront();
         }
+        count_ = 0;
     }
 private:
     unsigned int count_;    ///< current element counts.

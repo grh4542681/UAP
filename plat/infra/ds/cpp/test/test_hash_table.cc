@@ -24,8 +24,14 @@ int main()
     printf("hash index[%ld]\n",ht2.hashcode("aa"));
     printf("hash index[%ld]\n",ht2.hashcode("ab"));
     printf("hash index[%ld]\n",ht2.hashcode("alksanefnb"));
-
     ht2.insert(100, "asda");
     printf("get value[%d]\n", *(ht2.find("asda")));
+    printf("==========copy==========\n");
+    ds::HashTable<int> ht3(ht2);
+    printf("hash index[%ld]\n",ht3.hashcode("aa"));
+    printf("hash index[%ld]\n",ht3.hashcode("ab"));
+    printf("hash index[%ld]\n",ht3.hashcode("alksanefnb"));
+    ht3.insert(100, "asda");
+    printf("get value[%d]\n", *(ht3.find("asda")));
     return 0;
 }
