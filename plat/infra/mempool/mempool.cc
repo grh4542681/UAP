@@ -8,7 +8,6 @@ thread_local MemPool* MemPool::pInstance = NULL;
 
 MemPool::MemPool()
 {
-    pcenter_ = MemPoolCenter::getInstance();
 }
 
 MemPool::~MemPool()

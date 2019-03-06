@@ -7,28 +7,11 @@
 #include <string.h>
 #include <new>
 
-#include "mempool_center.h"
+#include "mempool_threadcache.h"
 
 namespace mempool {
-/*
-class MempoolCenter{
-public:
-    static MempoolCenter* getInstance();
-private:
-    MempoolCenter();
-    ~MempoolCenter();
-    static MempoolCenter* pInstance;
-};
-*/
+
 class MemPool{
-private:
-    class ThreadCache {
-    public:
-        ThreadCache();
-        ~ThreadCache();
-    private:
-        MemPoolCenter* center_;
-    };
 public:
 
     void* Malloc(size_t size){
@@ -86,7 +69,7 @@ public:
 private:
     MemPool();
     ~MemPool();
-    MemPoolCenter* pcenter_;
+    MemPoolThreadCache threadcache_;
     thread_local static MemPool* pInstance;
 
     void* _malloc(size_t size);
