@@ -5,15 +5,13 @@
 #include <stddef.h>
 #include <sys/types.h>
 
-#include "mempool_freelist.h"
-
 namespace mempool {
 
 /**
 * @brief - Small obejct size map.
 */
 class MemPoolSizeMap {
-private:
+public:
     /**
     * @brief - Small object size map element.
     */
@@ -41,7 +39,6 @@ public:
     MemPoolSizeMap();
     ~MemPoolSizeMap();
 
-
 private:
     struct MemPoolSizeClass size_class_array_[g_sobj_array_size];  ///< Size class array.
 
@@ -65,6 +62,15 @@ private:
     */
     size_t LargeSizeClass(size_t s) {
         return (static_cast<uint32_t>(s) + 127 + (120 << 7)) >> 7;
+    }
+
+    int AlignmentForSize(size_t s) {
+        int alignment = g_alignment;
+        if (s > g_sobj_max_size) {
+            alignment = g_page_size;
+        } else if (s >= 128) {
+            
+        }
     }
 };
 
