@@ -1,12 +1,12 @@
-#ifndef __FILE_FD_H__
-#define __FILE_FD_H__
+#ifndef __FILE_H__
+#define __FILE_H__
 
 namespace file{
 
-class FileFD{
+class File{
 public:
-    FileFD(){ }
-    virtual ~FileFD(){ }
+    File(){ }
+    virtual ~File(){ }
 
     virtual int Read(void* data, unsigned int datalen);
     virtual int Write(void* data, unsigned int datalen);
