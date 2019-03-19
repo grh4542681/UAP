@@ -15,7 +15,7 @@
 
 namespace thread{
 
-typedef enum class _ThreadRet: int {
+enum class ThreadRet: int {
 //common return val
     SUCCESS = 0,    ///< sucess.
     ERROR = -999,   ///< error.
@@ -25,7 +25,7 @@ typedef enum class _ThreadRet: int {
     ETIMEOUT,       ///< time out.
     EUNKOWNERRNO,   ///< unknow error.
 
-} ThreadRet;
+};
 
 } // namespace THREAD
 
