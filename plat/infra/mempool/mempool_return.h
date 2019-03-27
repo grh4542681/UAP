@@ -6,13 +6,18 @@ namespace pub{
 /**
  * @brief Memory pool return value.
  */
-enum class MempoolRet: int {
+enum class MemPoolRet: int {
 //common return val
     SUCCESS = 0,
     ERROR = -999,
     EMALLOC,
     EINIT,
     ETIMEOUT,
+
+//busy list
+    EBUSYLISTINSERT,
+    EBUSYLISTNOTFOUND,
+    EBUSYLISTDUPADDRESS,
 
     EUNKOWNERRNO,
 };

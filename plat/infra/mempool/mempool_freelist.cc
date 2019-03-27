@@ -2,11 +2,13 @@
 
 namespace mempool {
 
-MemPoolFreeList::MemPoolFreeList() {
+MemPoolFreeList::MemPoolFreeList()
+{
 
 }
 
-MemPoolFreeList::~MemPoolFreeList() {
+MemPoolFreeList::~MemPoolFreeList()
+{
 
 }
 
