@@ -9,16 +9,17 @@ MemPoolOsProxy::MemPoolOsProxy()
 
 }
 
-MemPoolOsProxy::~MemPoolOsProxy{
+MemPoolOsProxy::~MemPoolOsProxy()
+{
 
 }
 
-static void* MemPoolOsProxy::alloc(size_t size)
+void* MemPoolOsProxy::Alloc(size_t size)
 {
     return malloc(size);
 }
 
-static void MemPoolOsProxy::free(void* ptr)
+void MemPoolOsProxy::Free(void* ptr)
 {
     return free(ptr);
 }

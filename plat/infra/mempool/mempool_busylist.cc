@@ -44,6 +44,15 @@ MemPoolRet MemPoolBusyList::Remove(void* ptr)
     return MemPoolRet::SUCCESS;
 }
 
+MemPoolItemOri MemPoolBusyList::Origin(void* ptr)
+{
+    auto it = busy_map_.find(ptr);
+    if (it == busy_map_.end()) {
+        return MemPoolItemOri::NONE;
+    }
+    return it.ori_;
+}
+
 unsigned int MemPoolBusyList::Size()
 {
     return busy_list_.size();

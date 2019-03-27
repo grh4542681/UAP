@@ -24,6 +24,8 @@ public:
 
     MemPoolRet Insert(void* ptr, MemPoolItemOri ori);
     MemPoolRet Remove(void* ptr);
+    MemPoolItemOri Origin(void* ptr);
+    
     unsigned int Size();
     MemPoolRet Clear();
 

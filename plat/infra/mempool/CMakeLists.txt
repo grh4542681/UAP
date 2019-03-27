@@ -1,4 +1,4 @@
-SET(LIBGRHMP_SRC mempool_freelist.cc mempool_center.cc mempool_threadcache.cc mempool_sizemap.cc mempool.cc)
+SET(LIBGRHMP_SRC mempool_osproxy.cc mempool_busylist.cc mempool_freelist.cc mempool_center.cc mempool_threadcache.cc mempool_sizemap.cc mempool.cc)
 ADD_LIBRARY(GRHmp_SO SHARED ${LIBGRHMP_SRC})
 ADD_LIBRARY(GRHmp_A STATIC ${LIBGRHMP_SRC})
 TARGET_LINK_LIBRARIES(GRHmp_SO pthread)

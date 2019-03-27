@@ -13,6 +13,10 @@ enum class MemPoolRet: int {
     EMALLOC,
     EINIT,
     ETIMEOUT,
+    EBADARGS,
+
+//memort
+    EALLOC,
 
 //busy list
     EBUSYLISTINSERT,

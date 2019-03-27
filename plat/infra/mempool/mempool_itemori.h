@@ -5,7 +5,8 @@ namespace mempool {
 
 enum class MemPoolItemOri :int {
     POOL,
-    OS
+    OS,
+    NONE
 };
 
 };

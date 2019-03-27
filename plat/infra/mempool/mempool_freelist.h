@@ -13,6 +13,9 @@ public:
     MemPoolFreeList();
     ~MemPoolFreeList();
 
+    void* Alloc(size_t size);
+    void Free(void* ptr);
+    
     MemPoolRet Clear();
 private:
     MemPoolMemoryList list_array_[MemPoolSizeMap::g_sobj_array_size];

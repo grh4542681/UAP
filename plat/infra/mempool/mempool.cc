@@ -17,12 +17,12 @@ MemPool::~MemPool()
 
 void* MemPool::_malloc(size_t size)
 {
-    return malloc(size);
+    return threadcache_.Alloc(size);
 }
 
 void MemPool::_free(void* ptr)
 {
-    free(ptr);
+    threadcache_.Free(ptr);
 }
 
 MemPool* MemPool::getInstance()

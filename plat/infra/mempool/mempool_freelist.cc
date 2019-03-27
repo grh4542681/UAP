@@ -12,4 +12,19 @@ MemPoolFreeList::~MemPoolFreeList()
 
 }
 
+void* MemPoolFreeList::Alloc(size_t size)
+{
+
+}
+
+void MemPoolFreeList::Free(void* ptr)
+{
+
+}
+
+MemPoolRet MemPoolFreeList::Clear()
+{
+
+}
+
 } //namespace end

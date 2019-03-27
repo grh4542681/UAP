@@ -10,8 +10,8 @@ public:
     MemPoolOsProxy();
     ~MemPoolOsProxy();
 
-    static void* alloc(size_t size);
-    static void free(void* ptr);
+    static void* Alloc(size_t size);
+    static void Free(void* ptr);
 };
 
 };
