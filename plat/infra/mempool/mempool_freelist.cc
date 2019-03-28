@@ -4,7 +4,6 @@ namespace mempool {
 
 MemPoolFreeList::MemPoolFreeList()
 {
-
 }
 
 MemPoolFreeList::~MemPoolFreeList()
@@ -24,7 +23,7 @@ void MemPoolFreeList::Free(void* ptr)
 
 MemPoolRet MemPoolFreeList::Clear()
 {
-
+    return MemPoolRet::SUCCESS;
 }
 
 } //namespace end

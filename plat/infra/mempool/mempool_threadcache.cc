@@ -1,4 +1,5 @@
 #include "mempool_threadcache.h"
+#include "mempool_osproxy.h"
 
 namespace mempool {
 
@@ -36,22 +37,22 @@ void* MemPoolThreadCache::Alloc(size_t size)
     if (init_flag_) {
         ptr = free_list_.Alloc(size);
         if (!ptr) {
-            return MemPoolRet::EALLOC;
+            return NULL;
         }
         if ((ret = busy_list_.Insert(ptr, MemPoolItemOri::POOL)) != MemPoolRet::SUCCESS) {
             free_list_.Free(ptr);
             ptr = NULL;
-            return ret;
+            return NULL;
         }
     } else {
         ptr = MemPoolOsProxy::Alloc(size);
         if (!ptr) {
-            return MemPoolRet::EALLOC;
+            return NULL;
         }
         if ((ret = busy_list_.Insert(ptr, MemPoolItemOri::OS)) != MemPoolRet::SUCCESS) {
             MemPoolOsProxy::Free(ptr);
             ptr = NULL;
-            return ret;
+            return NULL;
         }
     }
     return ptr;
@@ -60,7 +61,7 @@ void* MemPoolThreadCache::Alloc(size_t size)
 void MemPoolThreadCache::Free(void* ptr)
 {
     if (!ptr) {
-        return MemPoolRet::EBADARGS;
+        return;
     }
     MemPoolItemOri origin = busy_list_.Origin(ptr);
     switch (origin) {
@@ -73,11 +74,16 @@ void MemPoolThreadCache::Free(void* ptr)
             busy_list_.Remove(ptr);
             return;
         case MemPoolItemOri::NONE:
-            MEMPOOL_ERROR("Free address %p is untrack address.");
+            MEMPOOL_ERROR("Free address %p is untrack address.", ptr);
             return;
         default:
             return;
     }
+}
+
+void MemPoolThreadCache::ReportThread(int fd)
+{
+
 }
 
 } //namespace end

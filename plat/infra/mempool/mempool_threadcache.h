@@ -18,6 +18,8 @@ public:
 
     void* Alloc(size_t size);
     void Free(void* ptr);
+
+    void ReportThread(int fd);
 private:
     bool init_flag_;
     pthread_t tid_;

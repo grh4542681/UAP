@@ -9,10 +9,10 @@ MemPoolBusyList::MemPoolBusyList()
 
 MemPoolBusyList::~MemPoolBusyList()
 {
-    busy_map_clear();
+    busy_map_.clear();
 }
 
-MemPoolRet MemPoolBusyList::Insert(void* ptr, MemPoolItenOri ori)
+MemPoolRet MemPoolBusyList::Insert(void* ptr, MemPoolItemOri ori)
 {
     struct MemPoolBusyItem item;
     item.ptr_ = ptr;
@@ -50,12 +50,17 @@ MemPoolItemOri MemPoolBusyList::Origin(void* ptr)
     if (it == busy_map_.end()) {
         return MemPoolItemOri::NONE;
     }
-    return it.ori_;
+    return it->second.ori_;
 }
 
 unsigned int MemPoolBusyList::Size()
 {
-    return busy_list_.size();
+    return busy_map_.size();
+}
+
+MemPoolRet MemPoolBusyList::Clear()
+{
+    return MemPoolRet::SUCCESS;
 }
 
 };

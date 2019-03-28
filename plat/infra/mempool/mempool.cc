@@ -17,6 +17,7 @@ MemPool::~MemPool()
 
 void* MemPool::_malloc(size_t size)
 {
+    printf("---%d---%s--\n",__LINE__,__FILE__);
     return threadcache_.Alloc(size);
 }
 
@@ -28,7 +29,9 @@ void MemPool::_free(void* ptr)
 MemPool* MemPool::getInstance()
 {
     if (!pInstance) {
+    printf("---%d---%s--\n",__LINE__,__FILE__);
         pInstance = new MemPool();
+    printf("---%d---%s--\n",__LINE__,__FILE__);
     }
     return pInstance;
 }

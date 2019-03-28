@@ -1,7 +1,7 @@
 #ifndef __MEMPOOL_RETURN_H__
 #define __MEMPOOL_RETURN_H__
 
-namespace pub{
+namespace mempool {
 
 /**
  * @brief Memory pool return value.

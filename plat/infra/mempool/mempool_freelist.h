@@ -18,7 +18,7 @@ public:
     
     MemPoolRet Clear();
 private:
-    MemPoolMemoryList list_array_[MemPoolSizeMap::g_sobj_array_size];
+//    MemPoolMemoryList list_array_[MemPoolSizeMap::g_sobj_array_size];
 
 };
 
