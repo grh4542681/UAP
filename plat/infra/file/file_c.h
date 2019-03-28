@@ -16,7 +16,7 @@
 
 namespace file{
 
-class FileC : public File{
+class FileC : public File {
 public:
     FileC(int fd);
     FileC(FILE* ffd);
@@ -24,6 +24,11 @@ public:
 
     ~FileC();
 
+    int GetFd();
+    FILE* GetFFd();
+
+    FileRet Open(unsigned int mode);
+    FileRet Close();
     int Read(void* data, unsigned int datalen);
     int Write(void* data, unsigned int datalen);
 
@@ -63,7 +68,7 @@ public:
                 return FileRet::EUNKOWNERRNO;
         }
     }
-}
+};
 
 }//namespcae file end
 

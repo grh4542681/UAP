@@ -7,7 +7,7 @@ FileC::FileC(std::string filename)
     file_name_ = filename;
     fd_ = -1;
     ffd_ = NULL;
-    state_ = FileState::NONE;
+    state_ = FileState::INTERCLOSEED;
 }
 
 FileC::FileC(int fd)
@@ -33,7 +33,7 @@ FileC::FileC(int fd)
                 state_ = FileState::INVALID;
                 FILE_ERROR("Convert file descriptor to file stream pointer error.");
             } else {
-                state_ = FileState::INTEROPENED;
+                state_ = FileState::EXTEROPENED;
             }
         }
     }
@@ -57,12 +57,50 @@ FileC::FileC(File* ffd)
             FILE_ERROR("Get filename from file descriptor error.");
         } else {
             ffd_ = ffd;
-            state_ = FileState::INTEROPENED;
+            state_ = FileState::EXTEROPENED;
         }
     }
 }
 
-FileRet _GetFileName(int fd, std::string& filename)
+int FileC::GetFd()
+{
+    return fd_;
+}
+
+FILE* FileC::GetFFd()
+{
+    return ffd_;
+}
+
+FileRet FileC::Open(unsigned int mode)
+{
+    if (state_ == FileState::INVALID) {
+        return FileRet::EINIT;
+    } else if (state_ == FileState::EXTEROPENED) {
+        return FileRet::SUCCESS;
+    } else if (state_ == FileState::INTERCLOSEED) {
+        
+    } else {
+        return FileRet::ESTATE;
+    }
+}
+
+FileRet FileC::Close()
+{
+
+}
+
+int FileC::Read(void* data, unsigned int datalen)
+{
+
+}
+
+int FileC::Write(void* data, unsigned int datalen)
+{
+
+}
+
+FileRet FileC::_GetFileName(int fd, std::string& filename)
 {
     char buf[1024];
     char filename[1024];
@@ -78,7 +116,7 @@ FileRet _GetFileName(int fd, std::string& filename)
     return FileRet::SUCCESS;
 }
 
-FileRet _GetFileName(FILE* ffd, std::string& filename)
+FileRet FileC::_GetFileName(FILE* ffd, std::string& filename)
 {
     return _GetFileNname(fileno(ffd), filename);
 }

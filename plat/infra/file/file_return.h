@@ -15,6 +15,8 @@ enum class FileRet: int {
     EUNKOWNERRNO,       ///< unknow error.
 
 //file return val
+    ESTATE,
+
     FILE_EACCES,
     FILE_EFAULT,
     FILE_EINVAL,
