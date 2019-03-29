@@ -13,6 +13,7 @@
 #include "file_return.h"
 #include "file.h"
 #include "file_state.h"
+#include "file_mode.h"
 
 namespace file{
 
@@ -28,9 +29,10 @@ public:
     FILE* GetFFd();
 
     FileRet Open(unsigned int mode);
+    FileRet Open(FileMode mode);
     FileRet Close();
     int Read(void* data, unsigned int datalen);
-    int Write(void* data, unsigned int datalen);
+    int Write(const void* data, unsigned int datalen);
 
     static FileRet GetFileName(int fd, std::string& filename);
     static FileRet GetFileName(FILE* ffd, std::string& filename);
@@ -46,7 +48,7 @@ public:
             case 0:
                 return FileRet::SUCCESS;
             case EACCES:
-                return FileRet::FILE_EACCESS;
+                return FileRet::FILE_EACCES;
             case EFAULT:
                 return FileRet::FILE_EFAULT;
             case EINVAL:

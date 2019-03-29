@@ -7,13 +7,13 @@ namespace file{
 
 class File{
 public:
-    File(){ }
-    virtual ~File(){ }
+    File() { };
+    virtual ~File() { };
 
-    virtual FileRet Open(unsigned int mode);
-    virtual FileRet Close();
-    virtual int Read(void* data, unsigned int datalen);
-    virtual int Write(void* data, unsigned int datalen);
+    virtual FileRet Open(unsigned int mode) { return FileRet::SUCCESS; };
+    virtual FileRet Close() { return FileRet::SUCCESS; };
+    virtual int Read(void* data, unsigned int datalen) { return 0; };
+    virtual int Write(const void* data, unsigned int datalen) { return 0; };
 };
 
 }//namespace file end

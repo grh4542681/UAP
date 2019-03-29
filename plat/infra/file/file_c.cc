@@ -1,3 +1,6 @@
+#include <string.h>
+#include <unistd.h>
+
 #include "file_c.h"
 
 namespace file {
@@ -14,14 +17,14 @@ FileC::FileC(int fd)
 {
     int flag = fcntl(fd, F_GETFL);
     if (flag < 0) {
-        filename = "";
+        file_name_ = "";
         fd_ = -1;
         ffd_ = NULL;
         state_ = FileState::INVALID;
         FILE_ERROR("File descriptor invalid.");
     } else {
-        if (_GetFileName(fd, file_name_) != FileRet::SUCCESS) {
-            filename = "";
+        if (GetFileName(fd, file_name_) != FileRet::SUCCESS) {
+            file_name_ = "";
             fd_ = -1;
             ffd_ = NULL;
             state_ = FileState::INVALID;
@@ -39,18 +42,18 @@ FileC::FileC(int fd)
     }
 }
 
-FileC::FileC(File* ffd)
+FileC::FileC(FILE* ffd)
 {
     if (!ffd || fileno(ffd) < 0) {
-        filename = "";
+        file_name_ = "";
         fd_ = -1;
         ffd_ = NULL;
         state_ = FileState::INVALID;
         FILE_ERROR("File stream pointer invalid.");
     } else {
         fd_ = fileno(ffd);
-        if (_GetFileName(fd, file_name_) != FileRet::SUCCESS) {
-            filename = "";
+        if (GetFileName(fd_, file_name_) != FileRet::SUCCESS) {
+            file_name_ = "";
             fd_ = -1;
             ffd_ = NULL;
             state_ = FileState::INVALID;
@@ -59,6 +62,13 @@ FileC::FileC(File* ffd)
             ffd_ = ffd;
             state_ = FileState::EXTEROPENED;
         }
+    }
+}
+
+FileC::~FileC()
+{
+    if (state_ == FileState::INTEROPENED) {
+        Close();
     }
 }
 
@@ -85,9 +95,17 @@ FileRet FileC::Open(unsigned int mode)
     }
 }
 
+FileRet FileC::Open(FileMode mode)
+{
+    return Open((int)mode);
+}
+
 FileRet FileC::Close()
 {
+    if (state_ == FileState::INTEROPENED) {
 
+    }
+    return FileRet::SUCCESS;
 }
 
 int FileC::Read(void* data, unsigned int datalen)
@@ -95,12 +113,16 @@ int FileC::Read(void* data, unsigned int datalen)
 
 }
 
-int FileC::Write(void* data, unsigned int datalen)
+int FileC::Write(const void* data, unsigned int datalen)
 {
-
+    if (state_ == FileState::EXTEROPENED || state_ == FileState::INTERCLOSEED) {
+        return fwrite(data, datalen, 1, ffd_);
+    } else {
+        return 0;
+    }
 }
 
-FileRet FileC::_GetFileName(int fd, std::string& filename)
+FileRet FileC::GetFileName(int fd, std::string& ofilename)
 {
     char buf[1024];
     char filename[1024];
@@ -112,13 +134,13 @@ FileRet FileC::_GetFileName(int fd, std::string& filename)
         int tmperrno = errno;
         return _error2ret(tmperrno);
     }
-    filename = std::string(filename);
+    ofilename = std::string(filename);
     return FileRet::SUCCESS;
 }
 
-FileRet FileC::_GetFileName(FILE* ffd, std::string& filename)
+FileRet FileC::GetFileName(FILE* ffd, std::string& filename)
 {
-    return _GetFileNname(fileno(ffd), filename);
+    return GetFileName(fileno(ffd), filename);
 }
 
 }

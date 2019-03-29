@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "mempool_busylist.h"
 
 namespace mempool {
@@ -61,6 +63,28 @@ unsigned int MemPoolBusyList::Size()
 MemPoolRet MemPoolBusyList::Clear()
 {
     return MemPoolRet::SUCCESS;
+}
+
+void MemPoolBusyList::Report(file::File& fd)
+{
+    char line[1024];
+    for (auto it : busy_map_) {
+        memset(line, 0x00, sizeof(line));
+        sprintf(line, "Address: %p\t alloctime: %lu\t", it.second.ptr_, it.second.alloc_time_);
+        switch (it.second.ori_) {
+            case MemPoolItemOri::OS:
+                strcat(line, " ORI: OS");
+                break;
+            case MemPoolItemOri::POOL:
+                strcat(line, " ORI: POOL");
+                break;
+            default:
+                strcat(line, " ORI: Unknow");
+                break;
+        }
+        strcat(line, "\n");
+        fd.Write(line, sizeof(line));
+    }
 }
 
 };

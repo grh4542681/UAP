@@ -8,6 +8,7 @@
 #include "mempool_log.h"
 #include "mempool_return.h"
 #include "mempool_itemori.h"
+#include "file.h"
 
 namespace mempool {
 
@@ -28,6 +29,8 @@ public:
     
     unsigned int Size();
     MemPoolRet Clear();
+
+    void Report(file::File& fd);
 
 private:
     std::map<void*, MemPoolBusyItem> busy_map_;

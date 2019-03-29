@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "mempool_threadcache.h"
 #include "mempool_osproxy.h"
 
@@ -81,9 +83,18 @@ void MemPoolThreadCache::Free(void* ptr)
     }
 }
 
-void MemPoolThreadCache::ReportThread(int fd)
+void MemPoolThreadCache::Report(int fd)
 {
+    //Report(file::File(fd));
+}
 
+void MemPoolThreadCache::Report(file::File& fd)
+{
+    char line[1024];
+    memset(line, 0x00, sizeof(line));
+    sprintf(line, "Thread: %lu\n", tid_);
+    fd.Write(line, sizeof(line));
+    busy_list_.Report(fd);
 }
 
 } //namespace end

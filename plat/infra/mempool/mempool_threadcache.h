@@ -6,6 +6,7 @@
 #include "mempool_center.h"
 #include "mempool_freelist.h"
 #include "mempool_busylist.h"
+#include "file.h"
 
 namespace mempool {
 
@@ -19,7 +20,8 @@ public:
     void* Alloc(size_t size);
     void Free(void* ptr);
 
-    void ReportThread(int fd);
+    void Report(int fd);
+    void Report(file::File& fd);
 private:
     bool init_flag_;
     pthread_t tid_;

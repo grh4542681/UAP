@@ -8,6 +8,7 @@
 #include <new>
 
 #include "mempool_threadcache.h"
+#include "file.h"
 
 namespace mempool {
 
@@ -66,6 +67,9 @@ public:
     }
 
     static MemPool* getInstance();
+
+    void ReportCenter(file::File& fd);
+    void ReportThread(file::File& fd);
 private:
     MemPool();
     ~MemPool();
