@@ -39,9 +39,11 @@ void* MemPoolThreadCache::Alloc(size_t size)
     if (init_flag_) {
         ptr = free_list_.Alloc(size);
         if (!ptr) {
+            MEMPOOL_ERROR("Alloc from free list error");
             return NULL;
         }
         if ((ret = busy_list_.Insert(ptr, MemPoolItemOri::POOL)) != MemPoolRet::SUCCESS) {
+            MEMPOOL_ERROR("Insert into bust list error");
             free_list_.Free(ptr);
             ptr = NULL;
             return NULL;
@@ -49,9 +51,11 @@ void* MemPoolThreadCache::Alloc(size_t size)
     } else {
         ptr = MemPoolOsProxy::Alloc(size);
         if (!ptr) {
+            MEMPOOL_ERROR("Alloc from os error");
             return NULL;
         }
         if ((ret = busy_list_.Insert(ptr, MemPoolItemOri::OS)) != MemPoolRet::SUCCESS) {
+            MEMPOOL_ERROR("Insert into bust list error");
             MemPoolOsProxy::Free(ptr);
             ptr = NULL;
             return NULL;
@@ -79,6 +83,7 @@ void MemPoolThreadCache::Free(void* ptr)
             MEMPOOL_ERROR("Free address %p is untrack address.", ptr);
             return;
         default:
+            MEMPOOL_ERROR("Unknow memory origon");
             return;
     }
 }

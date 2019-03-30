@@ -17,14 +17,14 @@ FileC::FileC(int fd)
 {
     int flag = fcntl(fd, F_GETFL);
     if (flag < 0) {
-        file_name_ = "";
+        file_name_.erase();
         fd_ = -1;
         ffd_ = NULL;
         state_ = FileState::INVALID;
         FILE_ERROR("File descriptor invalid.");
     } else {
         if (GetFileName(fd, file_name_) != FileRet::SUCCESS) {
-            file_name_ = "";
+            file_name_.erase();
             fd_ = -1;
             ffd_ = NULL;
             state_ = FileState::INVALID;
@@ -45,7 +45,7 @@ FileC::FileC(int fd)
 FileC::FileC(FILE* ffd)
 {
     if (!ffd || fileno(ffd) < 0) {
-        file_name_ = "";
+        file_name_.erase();
         fd_ = -1;
         ffd_ = NULL;
         state_ = FileState::INVALID;
@@ -53,7 +53,7 @@ FileC::FileC(FILE* ffd)
     } else {
         fd_ = fileno(ffd);
         if (GetFileName(fd_, file_name_) != FileRet::SUCCESS) {
-            file_name_ = "";
+            file_name_.erase();
             fd_ = -1;
             ffd_ = NULL;
             state_ = FileState::INVALID;
@@ -132,6 +132,7 @@ FileRet FileC::GetFileName(int fd, std::string& ofilename)
     sprintf(buf, "/proc/self/fd/%d", fd);
     if (readlink(buf, filename, sizeof(filename)-1) < 0) {
         int tmperrno = errno;
+        FILE_ERROR("Get file name from file descriptor error");
         return _error2ret(tmperrno);
     }
     ofilename = std::string(filename);
