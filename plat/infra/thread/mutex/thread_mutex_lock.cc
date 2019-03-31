@@ -10,7 +10,7 @@
  * ******************************************************/
 #include <pthread.h>
 #include <errno.h>
-#include "../thread_log.h"
+#include "thread_log.h"
 #include "thread_mutex_lock.h"
 
 namespace thread::mutex {

@@ -12,7 +12,7 @@
 #define __THREAD_MUTEX_LOCK_H__
 
 #include <pthread.h>
-#include "../thread_return.h"
+#include "thread_return.h"
 
 namespace thread::mutex {
 

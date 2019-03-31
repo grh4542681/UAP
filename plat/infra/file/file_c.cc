@@ -89,7 +89,7 @@ FileRet FileC::Open(unsigned int mode)
     } else if (state_ == FileState::EXTEROPENED) {
         return FileRet::SUCCESS;
     } else if (state_ == FileState::INTERCLOSEED) {
-        
+        return FileRet::SUCCESS;        
     } else {
         return FileRet::ESTATE;
     }
@@ -110,7 +110,7 @@ FileRet FileC::Close()
 
 int FileC::Read(void* data, unsigned int datalen)
 {
-
+    return 0;
 }
 
 int FileC::Write(const void* data, unsigned int datalen)

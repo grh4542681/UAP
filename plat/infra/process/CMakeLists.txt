@@ -1,10 +1,7 @@
-#ADD_SUBDIRECTORY(test)
-
-SET(LIBGPROCESS_SRC mempool_osproxy.cc mempool_busylist.cc mempool_freelist.cc mempool_center.cc mempool_threadcache.cc mempool_sizemap.cc mempool.cc)
+SET(LIBGPROCESS_SRC process_info.cc)
 ADD_LIBRARY(GRHprocess_SO SHARED ${LIBGPROCESS_SRC})
 ADD_LIBRARY(GRHprocess_A STATIC ${LIBGPROCESS_SRC})
-INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/plat/infra/process")
-TARGET_LINK_LIBRARIES(GRHprocess_SO pthread)
-TARGET_LINK_LIBRARIES(GRHprocess_A pthread)
+TARGET_LINK_LIBRARIES(GRHprocess_SO pthread libgthread.so)
+TARGET_LINK_LIBRARIES(GRHprocess_A pthread libgthread.so)
 SET_TARGET_PROPERTIES(GRHprocess_SO PROPERTIES OUTPUT_NAME "gprocess" CLEAN_DIRECT_OUTPUT 1)
 SET_TARGET_PROPERTIES(GRHprocess_A PROPERTIES OUTPUT_NAME "gprocess" CLEAN_DIRECT_OUTPUT 1)

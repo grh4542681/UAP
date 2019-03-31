@@ -23,5 +23,14 @@ SET(CXX_COMPILE_FLAGS "-std=c++17 ${COMPILE_WARNINGS} ${COMPILE_OPTIMIZATION} ${
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_COMPILE_FLAGS}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_COMPILE_FLAGS}")
 
+INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
+                    "${FRAM_ROOT_PATH}/plat/infra/mempool"
+                    "${FRAM_ROOT_PATH}/plat/infra/thread"
+                    "${FRAM_ROOT_PATH}/plat/infra/process"
+                    "${FRAM_ROOT_PATH}/plat/infra/file"
+                    "${FRAM_ROOT_PATH}/plat/infra/socket"
+                    "${FRAM_ROOT_PATH}/plat/infra/report"
+                    "${FRAM_ROOT_PATH}/plat/infra/parser"
+                    )
 
 ADD_SUBDIRECTORY(plat)

@@ -5,12 +5,10 @@
 #include <errno.h>
 
 #include "ipc_return.h"
-#include "rm_return.h"
-#include "rm_controllable.h"
 
 namespace ipc {
 
-class SysVSem : public rm::RMControllable{
+class SysVSem {
 public:
     SysVSem(key_t key);
     SysVSem(key_t key, unsigned short semnum, mode_t mode, unsigned short semval);

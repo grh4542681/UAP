@@ -6,13 +6,16 @@
 #include <utility>
 #include <string.h>
 #include <new>
+#include <iostream>
+#include <sstream>
 
-#include "mempool_threadcache.h"
+#include "report.h"
 #include "file.h"
+#include "mempool_threadcache.h"
 
 namespace mempool {
 
-class MemPool{
+class MemPool : public report::VReport {
 public:
 
     void* Malloc(size_t size){
@@ -68,6 +71,8 @@ public:
 
     static MemPool* getInstance();
 
+    void Report(std::stringstream& ss);
+    void Report(file::File& fd);
     void ReportCenter(file::File& fd);
     void ReportThread(file::File& fd);
 private:

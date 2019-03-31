@@ -15,6 +15,16 @@ MemPool::~MemPool()
 
 }
 
+void MemPool::Report(std::stringstream& ss)
+{
+
+}
+
+void MemPool::Report(file::File& fd)
+{
+
+}
+
 void MemPool::ReportCenter(file::File& fd)
 {
 

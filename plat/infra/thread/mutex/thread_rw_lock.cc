@@ -11,7 +11,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "../thread_log.h"
+#include "thread_log.h"
 #include "thread_rw_lock.h"
 
 namespace thread::mutex {

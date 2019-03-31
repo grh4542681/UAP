@@ -5,16 +5,27 @@
 #include <unistd.h>
 #include <string>
 #include <errno.h>
+#include <map>
+#include <pthread.h>
 
 #include "process_log.h"
 #include "process_return.h"
+
+#include "thread_info.h"
 
 namespace process {
 
 class ProcessInfo {
 public:
+    pid_t GetPid();
+    pid_t GetPPid();
+    std::string& GetName();
+    std::string& GetProcessName();
+
+    ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
+    ProcessRet DelThreadInfo(pthread_t tid);
+
     static ProcessInfo* getInstance();
-    
     static ProcessRet GetCurrProcessName(std::string& name);
 
 private:
@@ -26,6 +37,8 @@ private:
     pid_t ppid_;
     std::string process_name_;
     std::string name_;
+
+    std::map<pthread_t, thread::ThreadInfo*> thread_info_map_;
 
     static ProcessInfo* pInstance;
 

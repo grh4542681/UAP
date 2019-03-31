@@ -17,7 +17,7 @@
 
 #include "parser_return.h"
 #include "mempool.h"
-#include "thread_rw_lock.h"
+#include "mutex/thread_rw_lock.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 

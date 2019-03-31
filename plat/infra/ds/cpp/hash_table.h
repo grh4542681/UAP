@@ -12,7 +12,7 @@
 #define __HASH_TABLE_H__
 
 #include "mempool.h"
-#include "thread_rw_lock.h"
+#include "mutex/thread_rw_lock.h"
 
 namespace ds {
 

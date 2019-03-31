@@ -1,0 +1,6 @@
+#include "thread_info.h"
+
+int main()
+{
+    return 0;
+}
