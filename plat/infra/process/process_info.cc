@@ -66,6 +66,16 @@ ProcessRet ProcessInfo::DelThreadInfo(pthread_t tid)
     return ProcessRet::SUCCESS;
 }
 
+void ProcessInfo::Report(file::File& fd, report::ReportMode mode)
+{
+    fd.WriteFmt("pid:%u threadnum:%d\n", pid_, thread_info_map_.size());
+}
+
+void ProcessInfo::Report(std::stringstream& ss, report::ReportMode mode)
+{
+
+}
+
 //static
 ProcessInfo* ProcessInfo::getInstance()
 {

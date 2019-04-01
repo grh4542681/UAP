@@ -1,7 +1,7 @@
 #ifndef _THREAD_SINGLE_H__
 #define _THREAD_SINGLE_H__
 
-#include "thread_single_info.h"
+#include "thread.h"
 
 namespace thread::single {
 
@@ -10,7 +10,7 @@ public:
     ThreadSingle();
     ~ThreadSingle();
 
-    ThreadSingleInfo& getThreadInfo();
+    ThreadInfo* GetThreadInfo();
 
     template < typename F, typename ... Args>
     ThreadRet Run(F const& func, Args&& ... args) {
@@ -18,8 +18,7 @@ public:
     }
 
 private:
-    thread_local ThreadSingleInfo _info;
-
+    ThreadInfo* thread_info_;
 private:
     void* _thread_single_main(void);
     template < typename F, typename ... Args>

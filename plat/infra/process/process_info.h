@@ -8,6 +8,8 @@
 #include <map>
 #include <pthread.h>
 
+#include "file.h"
+#include "report.h"
 #include "process_log.h"
 #include "process_return.h"
 
@@ -15,7 +17,7 @@
 
 namespace process {
 
-class ProcessInfo {
+class ProcessInfo : public report::VReport {
 public:
     pid_t GetPid();
     pid_t GetPPid();
@@ -24,6 +26,9 @@ public:
 
     ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
     ProcessRet DelThreadInfo(pthread_t tid);
+
+    void Report(file::File& fd, report::ReportMode mode);
+    void Report(std::stringstream& ss, report::ReportMode mode);
 
     static ProcessInfo* getInstance();
     static ProcessRet GetCurrProcessName(std::string& name);

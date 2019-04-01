@@ -4,12 +4,13 @@
 #include <pthread.h>
 #include <string>
 
+#include "thread_return.h"
+
 namespace thread {
 
 class ThreadInfo {
 public:
     static ThreadInfo* getInstance();
-    static ThreadInfo* getInstance(const char* cname);
 
     pthread_t GetTid();
     std::string& GetThreadName();
@@ -17,7 +18,6 @@ public:
 
 private:
     ThreadInfo();
-    ThreadInfo(const char* name);
     ~ThreadInfo();
 
     pthread_t tid_;
@@ -25,6 +25,7 @@ private:
 
     thread_local static ThreadInfo* pInstance;
 };
+
 
 };
 

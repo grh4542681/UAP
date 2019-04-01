@@ -25,6 +25,9 @@ enum class ThreadRet: int {
     ETIMEOUT,       ///< time out.
     EUNKOWNERRNO,   ///< unknow error.
 
+//thread info
+    THREAD_EREGISTER,
+    THREAD_EUNREGISTER,
 };
 
 } // namespace THREAD

@@ -65,12 +65,15 @@ private:
     }
 
     int AlignmentForSize(size_t s) {
+    /*
         int alignment = g_alignment;
         if (s > g_sobj_max_size) {
             alignment = g_page_size;
         } else if (s >= 128) {
             
         }
+    */
+        return 0;
     }
 };
 
