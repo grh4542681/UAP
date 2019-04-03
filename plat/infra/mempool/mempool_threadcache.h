@@ -1,7 +1,7 @@
 #ifndef __MEMPOOL_THREAD_CACHE_H__
 #define __MEMPOOL_THREAD_CACHE_H__
 
-#include <pthread.h>
+#include <sys/types.h>
 
 #include "mempool_center.h"
 #include "mempool_freelist.h"
@@ -24,7 +24,7 @@ public:
     void Report(file::File& fd);
 private:
     bool init_flag_;
-    pthread_t tid_;
+    pid_t tid_;
     MemPoolCenter* center_;
     MemPoolFreeList free_list_;
     MemPoolBusyList busy_list_;

@@ -1,4 +1,6 @@
 #include <string.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 
 #include "mempool_threadcache.h"
 #include "mempool_osproxy.h"
@@ -8,7 +10,7 @@ namespace mempool {
 MemPoolThreadCache::MemPoolThreadCache()
 {
     init_flag_ = false;
-    tid_ = pthread_self();
+    tid_ = (pid_t)syscall(__NR_gettid);
     center_ = NULL;
     if (busy_list_.Clear() != MemPoolRet::SUCCESS) {
         MEMPOOL_ERROR("busy list clear error");
@@ -97,7 +99,7 @@ void MemPoolThreadCache::Report(file::File& fd)
 {
     char line[1024];
     memset(line, 0x00, sizeof(line));
-    sprintf(line, "Thread: %lu\n", tid_);
+    sprintf(line, "Thread: %d\n", tid_);
     fd.Write(line, sizeof(line));
     busy_list_.Report(fd);
 }

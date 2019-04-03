@@ -53,15 +53,15 @@ ProcessRet ProcessInfo::AddThreadInfo(thread::ThreadInfo* thread_info)
     if (it != thread_info_map_.end()) {
         return ProcessRet::PROCESS_ETHREADDUP;
     }
-    std::pair<std::map<pthread_t, thread::ThreadInfo*>::iterator, bool> ret;
-    ret = thread_info_map_.insert(std::pair<pthread_t, thread::ThreadInfo*>(thread_info->GetTid(), thread_info));
+    std::pair<std::map<pid_t, thread::ThreadInfo*>::iterator, bool> ret;
+    ret = thread_info_map_.insert(std::pair<pid_t, thread::ThreadInfo*>(thread_info->GetTid(), thread_info));
     if (ret.second==false) {
         return ProcessRet::PROCESS_ETHREADADD;
     }
     return ProcessRet::SUCCESS;
 }
 
-ProcessRet ProcessInfo::DelThreadInfo(pthread_t tid)
+ProcessRet ProcessInfo::DelThreadInfo(pid_t tid)
 {
     return ProcessRet::SUCCESS;
 }

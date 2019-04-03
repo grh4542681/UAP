@@ -1,7 +1,7 @@
 #ifndef _THREAD_INFO_H__
 #define _THREAD_INFO_H__
 
-#include <pthread.h>
+#include <sys/types.h>
 #include <string>
 
 #include "thread_return.h"
@@ -12,15 +12,18 @@ class ThreadInfo {
 public:
     static ThreadInfo* getInstance();
 
-    pthread_t GetTid();
+    pid_t GetTid();
     std::string& GetThreadName();
     void SetThreadName(const char* name);
+
+    ThreadRet Register2Process();
+    ThreadRet Unregister2Process();
 
 private:
     ThreadInfo();
     ~ThreadInfo();
 
-    pthread_t tid_;
+    pid_t tid_;
     std::string thread_name_;
 
     thread_local static ThreadInfo* pInstance;

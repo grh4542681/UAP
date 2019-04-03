@@ -28,6 +28,9 @@ enum class ThreadRet: int {
 //thread info
     THREAD_EREGISTER,
     THREAD_EUNREGISTER,
+
+//thread single
+    THREAD_ERUNNING,
 };
 
 } // namespace THREAD

@@ -6,7 +6,6 @@
 #include <string>
 #include <errno.h>
 #include <map>
-#include <pthread.h>
 
 #include "file.h"
 #include "report.h"
@@ -25,7 +24,7 @@ public:
     std::string& GetProcessName();
 
     ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
-    ProcessRet DelThreadInfo(pthread_t tid);
+    ProcessRet DelThreadInfo(pid_t tid);
 
     void Report(file::File& fd, report::ReportMode mode);
     void Report(std::stringstream& ss, report::ReportMode mode);
@@ -43,7 +42,7 @@ private:
     std::string process_name_;
     std::string name_;
 
-    std::map<pthread_t, thread::ThreadInfo*> thread_info_map_;
+    std::map<pid_t, thread::ThreadInfo*> thread_info_map_;
 
     static ProcessInfo* pInstance;
 

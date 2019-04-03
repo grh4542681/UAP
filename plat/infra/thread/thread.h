@@ -11,32 +11,20 @@ namespace thread {
 ThreadRet RegisterThread()
 {
     ThreadInfo* thread_info = ThreadInfo::getInstance();
-    process::ProcessInfo* process_info = process::ProcessInfo::getInstance();
-    if (process_info->AddThreadInfo(thread_info) != process::ProcessRet::SUCCESS ) {
-        return ThreadRet::THREAD_EREGISTER;
-    }
-    return ThreadRet::SUCCESS;
+    return thread_info->Register2Process();
 }
 
 ThreadRet RegisterThread(const char* name)
 {
     ThreadInfo* thread_info = ThreadInfo::getInstance();
     thread_info->SetThreadName(name);
-    process::ProcessInfo* process_info = process::ProcessInfo::getInstance();
-    if (process_info->AddThreadInfo(thread_info) != process::ProcessRet::SUCCESS ) {
-        return ThreadRet::THREAD_EREGISTER;
-    }
-    return ThreadRet::SUCCESS;
+    return thread_info->Register2Process();
 }
 
 ThreadRet UnregisterThread() 
 {
     ThreadInfo* thread_info = ThreadInfo::getInstance();
-    process::ProcessInfo* process_info = process::ProcessInfo::getInstance();
-    if (process_info->DelThreadInfo(thread_info->GetTid()) != process::ProcessRet::SUCCESS ) {
-        return ThreadRet::THREAD_EUNREGISTER;
-    }
-    return ThreadRet::SUCCESS;
+    return thread_info->Unregister2Process();
 }
 
 void SetThreadName(const char* name)
