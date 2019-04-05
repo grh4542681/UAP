@@ -70,6 +70,7 @@ public:
     }
 
     static MemPool* getInstance();
+    static void freeInstance();
 
     void Report(std::stringstream& ss);
     void Report(file::File& fd);

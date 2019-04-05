@@ -12,6 +12,7 @@
 #include "process_log.h"
 #include "process_return.h"
 
+#include "mutex/thread_rw_lock.h"
 #include "thread_info.h"
 
 namespace process {
@@ -42,6 +43,7 @@ private:
     std::string process_name_;
     std::string name_;
 
+    thread::mutex::ThreadRWLock thread_info_rw_lock_;
     std::map<pid_t, thread::ThreadInfo*> thread_info_map_;
 
     static ProcessInfo* pInstance;

@@ -11,6 +11,7 @@ namespace thread {
 class ThreadInfo {
 public:
     static ThreadInfo* getInstance();
+    static void freeInstance();
 
     pid_t GetTid();
     std::string& GetThreadName();

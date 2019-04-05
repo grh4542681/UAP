@@ -11,6 +11,8 @@ namespace report {
 
 class VReport {
 public:
+    VReport() { }
+    virtual ~VReport() { }
     virtual void Report(file::File&& fd, ReportMode mode) { };
     virtual void Report(std::stringstream& ss, ReportMode mode) { };
 };

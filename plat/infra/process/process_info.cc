@@ -49,26 +49,38 @@ std::string& ProcessInfo::GetProcessName()
 
 ProcessRet ProcessInfo::AddThreadInfo(thread::ThreadInfo* thread_info)
 {
+    thread_info_rw_lock_.WLock(NULL);
     auto it = thread_info_map_.find(thread_info->GetTid());
     if (it != thread_info_map_.end()) {
+        thread_info_rw_lock_.UnLock();
         return ProcessRet::PROCESS_ETHREADDUP;
     }
     std::pair<std::map<pid_t, thread::ThreadInfo*>::iterator, bool> ret;
     ret = thread_info_map_.insert(std::pair<pid_t, thread::ThreadInfo*>(thread_info->GetTid(), thread_info));
     if (ret.second==false) {
+        thread_info_rw_lock_.UnLock();
         return ProcessRet::PROCESS_ETHREADADD;
     }
+    thread_info_rw_lock_.UnLock();
     return ProcessRet::SUCCESS;
 }
 
 ProcessRet ProcessInfo::DelThreadInfo(pid_t tid)
 {
+    thread_info_rw_lock_.WLock(NULL);
+    thread_info_map_.erase(tid);
+    thread_info_rw_lock_.UnLock();
     return ProcessRet::SUCCESS;
 }
 
 void ProcessInfo::Report(file::File& fd, report::ReportMode mode)
 {
+    thread_info_rw_lock_.RLock(NULL);
     fd.WriteFmt("pid:%u threadnum:%d\n", pid_, thread_info_map_.size());
+    for (auto it : thread_info_map_) {
+        fd.WriteFmt("\ttid:%d\n", it.first);
+    }
+    thread_info_rw_lock_.UnLock();
 }
 
 void ProcessInfo::Report(std::stringstream& ss, report::ReportMode mode)

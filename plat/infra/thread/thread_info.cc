@@ -34,6 +34,14 @@ ThreadInfo* ThreadInfo::getInstance()
     return pInstance;
 }
 
+void ThreadInfo::freeInstance()
+{
+    if (pInstance) {
+        delete pInstance;
+        pInstance = NULL;
+    }
+}
+
 pid_t ThreadInfo::GetTid()
 {
     return tid_;

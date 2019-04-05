@@ -54,4 +54,12 @@ MemPool* MemPool::getInstance()
     return pInstance;
 }
 
+void MemPool::freeInstance()
+{
+    if (pInstance) {
+        delete pInstance;
+        pInstance = NULL;
+    }
+}
+
 }// namespace pub end

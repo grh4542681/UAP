@@ -8,28 +8,48 @@
 #include "file_c.h"
 #include "report_mode.h"
 
-void test_thread(int i)
+int test_thread(int i, int b)
 {
-    printf("%d\n",i);
+    printf("%d\n",i+b);
     sleep(10);
+    return (i+b);
 }
 
 int main()
 {
-
     auto thread_type = test_thread;
 
-    thread::single::ThreadSingle<decltype(thread_type)> thread1;
-    thread::single::ThreadSingle<decltype(thread_type)> thread2;
-    thread::single::ThreadSingle<decltype(thread_type)> thread3;
-
-    thread1.Run(100);
-    thread2.Run(111);
-    thread3.Run(122);
+    thread::single::ThreadSingle thread1(test_thread);
+    thread::single::ThreadSingle<decltype(thread_type), int> thread2(test_thread);
+    thread::single::ThreadSingle<decltype(thread_type), int> thread3(test_thread);
 
     process::ProcessInfo* p = process::ProcessInfo::getInstance();
     file::FileC fd(stdout);
+
+    thread1.Run(100,1);
+    sleep(1);
     p->Report(fd,report::ReportMode::DETAIL);
-    sleep(15);
+    sleep(1);
+    thread2.Run(111,2);
+    sleep(1);
+    p->Report(fd,report::ReportMode::DETAIL);
+    sleep(1);
+    thread3.Run(122,3);
+    sleep(1);
+    p->Report(fd,report::ReportMode::DETAIL);
+
+    thread1.Join();
+    sleep(1);
+    p->Report(fd,report::ReportMode::DETAIL);
+    sleep(1);
+    thread2.Join();
+    sleep(1);
+    p->Report(fd,report::ReportMode::DETAIL);
+    sleep(1);
+    thread3.Join();
+    sleep(1);
+    p->Report(fd,report::ReportMode::DETAIL);
+    printf("return : %d\n",thread2.Return());
+    printf("return : %d\n",thread3.Return());
     return 0;
 }
