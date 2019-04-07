@@ -29,6 +29,10 @@ enum class ProcessRet: int {
     PROCESS_ETHREADDUP,
     PROCESS_ETHREADADD,
     PROCESS_ETHREADNOTFPUND,
+
+//process single
+    PROCESS_ECALLABLE,
+    PROCESS_EFORK,
 };
 
 }
