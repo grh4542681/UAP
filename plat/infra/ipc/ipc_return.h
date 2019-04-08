@@ -13,6 +13,9 @@ typedef enum class _IpcRet: int {
 
     EUNKOWNERRNO,
 
+// fifo return val
+    FIFO_ESOCKPAIR,
+
 //sem system return val
     SEM_EEXIST,
     SEM_EACCES,

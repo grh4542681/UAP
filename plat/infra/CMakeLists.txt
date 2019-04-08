@@ -15,7 +15,6 @@ ADD_SUBDIRECTORY(mempool/test)
 ADD_SUBDIRECTORY(ds/cpp/test)
 ADD_SUBDIRECTORY(parser/test)
 ADD_SUBDIRECTORY(socket/test)
-ADD_SUBDIRECTORY(ipc/test)
 ADD_SUBDIRECTORY(thread/test)
 ADD_SUBDIRECTORY(process/test)
 

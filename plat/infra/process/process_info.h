@@ -11,6 +11,7 @@
 #include "report.h"
 #include "process_log.h"
 #include "process_return.h"
+#include "fifo/fifo_pair.h"
 
 #include "mutex/thread_rw_lock.h"
 #include "thread_info.h"
@@ -42,9 +43,12 @@ private:
     pid_t ppid_;
     std::string process_name_;
     std::string name_;
+    ipc::fifo::FifoPair fifo_;
 
     thread::mutex::ThreadRWLock thread_info_rw_lock_;
     std::map<pid_t, thread::ThreadInfo*> thread_info_map_;
+
+    std::map<pid_t, ProcessInfo*> process_info_map_;
 
     static ProcessInfo* pInstance;
 

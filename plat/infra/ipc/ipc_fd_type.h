@@ -4,6 +4,7 @@
 namespace ipc {
 
 enum class IpcFDType {
+    NONE,
     FIFO,
     SYSV_MSG,
     SYSV_SEM,

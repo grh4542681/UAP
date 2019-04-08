@@ -33,6 +33,7 @@ enum class ProcessRet: int {
 //process single
     PROCESS_ECALLABLE,
     PROCESS_EFORK,
+    PROCESS_EFIFOPAIR,
 };
 
 }

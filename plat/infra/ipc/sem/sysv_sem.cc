@@ -106,7 +106,7 @@ IpcRet SysVSem::Create()
 
     if ((ret = semget(this->key_, this->semnum_, (this->mode_)|IPC_CREAT)) == -1) {
         tmp_errno = errno;
-        SEM_ERROR("%s", strerror(tmp_errno));
+        IPC_ERROR("%s", strerror(tmp_errno));
         return IpcRet::ERROR;
     }
     this->semid_ = ret;
@@ -127,7 +127,7 @@ IpcRet SysVSem::Create()
         return IpcRet::ERROR;
     }
     free(ptr);
-    SEM_DEBUG("Create semaphore,semid [%d]", this->semid_);
+    IPC_DEBUG("Create semaphore,semid [%d]", this->semid_);
     this->init_flag_ = 1;
 
     return IpcRet::SUCCESS;
@@ -143,10 +143,10 @@ IpcRet SysVSem::Destory()
     if (this->init_flag_) {
         if ((ret = semctl(this->semid_, 0, IPC_RMID)) == -1) {
             tmp_errno = errno;
-            SEM_ERROR("%s", strerror(tmp_errno));
+            IPC_ERROR("%s", strerror(tmp_errno));
             return IpcRet::ERROR;
         }
-        SEM_DEBUG("Destroy semaphore,semid [%d]", this->semid_);
+        IPC_DEBUG("Destroy semaphore,semid [%d]", this->semid_);
     }
     return IpcRet::SUCCESS;
 }
