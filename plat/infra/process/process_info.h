@@ -28,6 +28,9 @@ public:
     ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
     ProcessRet DelThreadInfo(pid_t tid);
 
+    ProcessRet AddChildProcessInfo(ProcessInfo* process_info);
+    ProcessRet DelChildProcessInfo(pid_t pid);
+
     void Report(file::File& fd, report::ReportMode mode);
     void Report(std::stringstream& ss, report::ReportMode mode);
 
@@ -51,7 +54,6 @@ private:
     std::map<pid_t, ProcessInfo*> process_info_map_;
 
     static ProcessInfo* pInstance;
-
 public:
     static ProcessRet _error2ret(int ierrno) {
         switch (ierrno) {

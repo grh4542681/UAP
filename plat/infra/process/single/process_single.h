@@ -36,6 +36,7 @@ public:
             process_info.fifo_ = fifo_;
             return _run_main(std::forward<Args>(args)...);
         } else {
+            ProcessInfo* child_process_info = mempool_->Malloc<ProcessInfo>();
             run_flag_ = true;
         }
         return Process:SUCCESS;
