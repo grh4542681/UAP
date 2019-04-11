@@ -3,8 +3,13 @@
 
 #include <unistd.h>
 #include <type_traits>
+#include <typeinfo>
+#include <iostream>
+#include <string>
+#include <functional>
 
 #include "mempool.h"
+
 #include "process_info.h"
 
 namespace process::single {
@@ -17,29 +22,40 @@ public:
         mempool_ = mempool::MemPool::getInstance();
         child_ = child;
     }
-    ~ProcessSingle();
+
+    ~ProcessSingle() {
+
+    }
 
     template <typename ... Args>
     ProcessRet Run(Args&& ... args) {
-        if (!std::is_function(F)) {
-            return ProcessRet::PROCESS_ECALLABLE;
+
+        ipc::sock::SockPair pair;
+        if (pair.Open() != ipc::IpcRet::SUCCESS) {
+            return ProcessRet::PROCESS_EFIFOPAIR;
         }
-        if (fifo_.Open() != IpcRet::SUCCESS) {
-            return ProcessRet::PROCESS::EFIFOPAIR;
-        }
-        pid_t pid = fork()
+        pid_t pid = fork();
         if (pid < 0) {
-            fifo_.Close();
+            pair.Close();
             return ProcessRet::PROCESS_EFORK;
-        } else if (pid = 0) {
+        } else if (pid == 0) {
             ProcessInfo* process_info = ProcessInfo::getInstance();
-            process_info.fifo_ = fifo_;
-            return _run_main(std::forward<Args>(args)...);
+            process_info->pair_ = pair;
+            process_info->pair_.SetAutoClose(true);
+            _run_main(std::forward<Args>(args)...);
+            exit(0);
         } else {
-            ProcessInfo* child_process_info = mempool_->Malloc<ProcessInfo>();
+            ProcessInfo* parent = ProcessInfo::getInstance();
+            ProcessInfo child_process_info;
+            child_process_info.pid_ = pid;
+            child_process_info.ppid_ = parent->pid_;
+            child_process_info.pair_ = pair;
+            child_process_info.pair_.SetAutoClose(true);
             run_flag_ = true;
+
+            return parent->AddChildProcessInfo(child_process_info);
         }
-        return Process:SUCCESS;
+        return ProcessRet::SUCCESS;
     }
 
 private:
@@ -51,8 +67,56 @@ private:
     template <typename ... Args>
     ProcessRet _run_main(Args&& ... args) {
 
-        return child_(std::forward<Args>(args)...);
+        child_(std::forward<Args>(args)...);
+
+        return ProcessRet::SUCCESS;
     }
+};
+
+template < >
+class ProcessSingle<std::string> {
+public:
+    ProcessSingle(std::string child) {
+        run_flag_ = false;
+        mempool_ = mempool::MemPool::getInstance();
+        child_ = child;
+    }
+
+    ~ProcessSingle() {
+
+    }
+
+    template <typename ... Args>
+    ProcessRet Run(Args&& ... args) {
+        ipc::sock::SockPair pair;
+        if (pair.Open() != ipc::IpcRet::SUCCESS) {
+            return ProcessRet::PROCESS_EFIFOPAIR;
+        }
+        pid_t pid = fork();
+        if (pid < 0) {
+            pair.Close();
+            return ProcessRet::PROCESS_EFORK;
+        } else if (pid == 0) {
+
+        } else {
+            ProcessInfo* parent = ProcessInfo::getInstance();
+            ProcessInfo child_process_info;
+            child_process_info.pid_ = pid;
+            child_process_info.ppid_ = parent->pid_;
+            child_process_info.pair_ = pair;
+            child_process_info.pair_.SetAutoClose(true);
+            run_flag_ = true;
+
+            return parent->AddChildProcessInfo(child_process_info);
+        }
+        return ProcessRet::SUCCESS;
+    }
+
+private:
+    mempool::MemPool* mempool_;
+    bool run_flag_;
+    ProcessInfo* process_info_;
+    std::string child_;
 };
 
 };

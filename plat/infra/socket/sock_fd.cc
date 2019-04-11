@@ -29,8 +29,9 @@ SockFD::SockFD(){
 * @brief SockFD - Constructor
 *
 * @param [fd] - File descriptor
+* @param [auto_close] - Automatically close when destructuring
 */
-SockFD::SockFD(unsigned int fd){
+SockFD::SockFD(unsigned int fd, bool auto_close) : auto_close_(auto_close){
     int temp_errno = 0;
     struct stat fd_stat;
     if (fstat(fd, &fd_stat)) {
@@ -52,7 +53,7 @@ SockFD::SockFD(unsigned int fd){
 * @brief ~SockFD - Destructor.
 */
 SockFD::~SockFD(){
-    if (this->init_flag_) {
+    if (this->init_flag_ && this->auto_close_) {
         _close();
     }
 }
@@ -61,12 +62,13 @@ SockFD::~SockFD(){
 * @brief setFD - Set or reset file descriptors.
 *
 * @param [fd] - File descriptor
+* @param [auto_close] - Automatically close when destructuring
 *
 * @returns  SockRet
 */
-SockRet SockFD::setFD(unsigned int fd)
+SockRet SockFD::setFD(unsigned int fd, bool auto_close)
 {
-    if (this->fd_ > 0) {
+    if (this->fd_ > 0 && this->init_flag_ && this->auto_close_) {
         _close();
         this->fd_ = 0;
     }
@@ -83,6 +85,7 @@ SockRet SockFD::setFD(unsigned int fd)
     }
     this->fd_ = fd;
     this->init_flag_ = true;
+    this->auto_close_ = auto_close;
     return SockRet::SUCCESS;
 }
 

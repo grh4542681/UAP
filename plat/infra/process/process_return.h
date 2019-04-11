@@ -16,6 +16,9 @@ enum class ProcessRet: int {
     EBADARGS,
     EUNKOWNERRNO,
 
+//process common
+    PROCESS_EMEMORY,
+
 // process info
     PROCESS_EACCES,
     PROCESS_EFAULT,
@@ -28,7 +31,13 @@ enum class ProcessRet: int {
     PROCESS_ENOTDIR,
     PROCESS_ETHREADDUP,
     PROCESS_ETHREADADD,
-    PROCESS_ETHREADNOTFPUND,
+    PROCESS_ETHREADNOTFOUND,
+    PROCESS_EPROCDUP,
+    PROCESS_EPROCADD,
+    PROCESS_EPROCNOTFOUND,
+
+//process signal
+    PROCESS_ESIGINVAL,
 
 //process single
     PROCESS_ECALLABLE,

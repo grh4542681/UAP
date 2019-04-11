@@ -1,5 +1,6 @@
 SET(LIBGRHIPC_SRC fifo/fifo_fd.cc
                   fifo/fifo_pair.cc
+                  socket/sock_pair.cc
                   )
 
 ADD_LIBRARY(GRHipc_SO SHARED ${LIBGRHIPC_SRC})

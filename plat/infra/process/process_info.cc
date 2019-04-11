@@ -10,6 +10,7 @@ ProcessInfo* ProcessInfo::pInstance = NULL;
 
 ProcessInfo::ProcessInfo()
 {
+    mempool_ = mempool::MemPool::getInstance();
     pid_ = getpid();
     ppid_ = getppid();
     if (GetCurrProcessName(process_name_) != ProcessRet::SUCCESS) {
@@ -20,6 +21,16 @@ ProcessInfo::ProcessInfo()
     memset(name, 0x00, sizeof(name));
     sprintf(name, "%s_%d", strrchr(process_name_.c_str(), '/') ? strrchr(process_name_.c_str(), '/') + 1 : "", pid_);
     name_.assign(name);
+}
+
+ProcessInfo::ProcessInfo(ProcessInfo& other)
+{
+    mempool_ = other.mempool_;
+    pid_ = other.pid_;
+    ppid_ = other.ppid_;
+    process_name_ = other.process_name_;
+    name_ = other.name_;
+    pair_ = other.pair_;
 }
 
 ProcessInfo::~ProcessInfo()
@@ -73,10 +84,58 @@ ProcessRet ProcessInfo::DelThreadInfo(pid_t tid)
     return ProcessRet::SUCCESS;
 }
 
+ProcessRet ProcessInfo::AddChildProcessInfo(ProcessInfo& process_info)
+{
+    auto it = process_info_map_.find(process_info.GetPid());
+    if (it != process_info_map_.end()) {
+        return ProcessRet::PROCESS_EPROCDUP;
+    }
+    ProcessInfo* p = mempool_->Malloc<ProcessInfo>(process_info);
+    if (!p) {
+        return ProcessRet::PROCESS_EMEMORY;
+    }
+    std::pair<std::map<pid_t, ProcessInfo*>::iterator, bool> ret;
+    ret = process_info_map_.insert(std::pair<pid_t, ProcessInfo*>(process_info.GetPid(), p));
+    if (ret.second == false) {
+        return ProcessRet::PROCESS_EPROCADD;
+    }
+    p->pair_.SetAutoClose(true);
+    return ProcessRet::SUCCESS;
+}
+
+ProcessRet ProcessInfo::DelChildProcessInfo(pid_t pid)
+{
+    auto it = process_info_map_.find(pid);
+    if (it == process_info_map_.end()) {
+        return ProcessRet::PROCESS_EPROCNOTFOUND;
+    }
+
+    process_info_map_.erase(it);
+    return ProcessRet::SUCCESS;
+}
+
+ProcessRet ProcessInfo::DelChildProcessInfo(ProcessInfo* process_info)
+{
+    if (!process_info) {
+        return ProcessRet::EBADARGS;
+    }
+    mempool_->Free<ProcessInfo>(process_info);
+    return ProcessRet::SUCCESS;
+}
+
+ProcessInfo* ProcessInfo::FindChildProcessInfo(pid_t pid)
+{
+    auto it = process_info_map_.find(pid);
+    if (it == process_info_map_.end()) {
+        return NULL;
+    }
+    return it->second;
+}
+
 void ProcessInfo::Report(file::File& fd, report::ReportMode mode)
 {
     thread_info_rw_lock_.RLock(NULL);
-    fd.WriteFmt("pid:%u threadnum:%d\n", pid_, thread_info_map_.size());
+    fd.WriteFmt("pid:%u threadnum:%d processnum:%d\n", pid_, thread_info_map_.size(), process_info_map_.size());
     for (auto it : thread_info_map_) {
         fd.WriteFmt("\ttid:%d\n", it.first);
     }

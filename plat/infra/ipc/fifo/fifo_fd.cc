@@ -27,7 +27,7 @@ FifoFD::FifoFD(int fd)
         init_flag_ = false;
         return;
     }
-    if (!S_ISFIFO(fd_stat.st_mode)) {
+    if (!S_ISSOCK(fd_stat.st_mode)) {
         IPC_ERROR("fd[%d] not a fifo fd", fd);
         init_flag_ = false;
         return;

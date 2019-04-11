@@ -1,4 +1,9 @@
-SET(LIBGPROCESS_SRC process_info.cc)
+SET(LIBGPROCESS_SRC process_info.cc
+                    signal/process_signal.cc
+                    signal/process_signal_ctrl.cc
+                    signal/process_signal_set.cc
+                    signal/process_signal_action.cc
+                    )
 ADD_LIBRARY(GRHprocess_SO SHARED ${LIBGPROCESS_SRC})
 ADD_LIBRARY(GRHprocess_A STATIC ${LIBGPROCESS_SRC})
 TARGET_LINK_LIBRARIES(GRHprocess_SO pthread libgthread.so)

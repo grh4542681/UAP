@@ -3,7 +3,7 @@
 
 namespace ipc{
 
-typedef enum class _IpcRet: int {
+enum class IpcRet: int {
 //common return val
     SUCCESS = 0x00,
     ERROR,
@@ -23,7 +23,7 @@ typedef enum class _IpcRet: int {
     SEM_ENOENT,
     SEM_ENOMEM,
     SEM_ENOSPC,
-} IpcRet;
+};
 
 } // namespace ipc
 

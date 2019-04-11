@@ -19,11 +19,11 @@ public:
     friend class SockClient;
 
     SockFD();
-    SockFD(unsigned int fd);
+    SockFD(unsigned int fd, bool auto_close = true);
     ~SockFD();
 
     unsigned int getFD();
-    SockRet setFD(unsigned int fd);
+    SockRet setFD(unsigned int fd, bool auto_close = true);
 
     //for multicast attrubit
     SockRet setMcastJoin(const char* mcast_addr);
@@ -53,6 +53,7 @@ public:
 private:
 
     bool init_flag_;            ///< init flag.
+    bool auto_close_;           ///< auto close fd flag.
     unsigned int fd_;           ///< socket file descriptor.
     mempool::MemPool* mempool_; ///< memory pool interface.
     SockAddress orig;           ///< source address.

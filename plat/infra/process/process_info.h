@@ -9,16 +9,26 @@
 
 #include "file.h"
 #include "report.h"
+#include "mempool.h"
+#include "thread_info.h"
+#include "mutex/thread_rw_lock.h"
+#include "socket/sock_pair.h"
+
 #include "process_log.h"
 #include "process_return.h"
-#include "fifo/fifo_pair.h"
 
-#include "mutex/thread_rw_lock.h"
-#include "thread_info.h"
+namespace process::single {
+
+template < typename F > class ProcessSingle;
+
+}
 
 namespace process {
 
 class ProcessInfo : public report::VReport {
+public:
+    friend class mempool::MemPool;
+    template <typename F> friend class single::ProcessSingle;
 public:
     pid_t GetPid();
     pid_t GetPPid();
@@ -28,8 +38,10 @@ public:
     ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
     ProcessRet DelThreadInfo(pid_t tid);
 
-    ProcessRet AddChildProcessInfo(ProcessInfo* process_info);
+    ProcessRet AddChildProcessInfo(ProcessInfo& process_info);
     ProcessRet DelChildProcessInfo(pid_t pid);
+    ProcessRet DelChildProcessInfo(ProcessInfo* process_info);
+    ProcessInfo* FindChildProcessInfo(pid_t pid);
 
     void Report(file::File& fd, report::ReportMode mode);
     void Report(std::stringstream& ss, report::ReportMode mode);
@@ -39,14 +51,18 @@ public:
 
 private:
     ProcessInfo();
+    ProcessInfo(ProcessInfo& other);
     ~ProcessInfo();
 
 private:
+
+    mempool::MemPool* mempool_;
+
     pid_t pid_;
     pid_t ppid_;
     std::string process_name_;
     std::string name_;
-    ipc::fifo::FifoPair fifo_;
+    ipc::sock::SockPair pair_;
 
     thread::mutex::ThreadRWLock thread_info_rw_lock_;
     std::map<pid_t, thread::ThreadInfo*> thread_info_map_;
