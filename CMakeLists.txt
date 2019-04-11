@@ -32,6 +32,7 @@ INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     "${FRAM_ROOT_PATH}/plat/infra/report"
                     "${FRAM_ROOT_PATH}/plat/infra/parser"
                     "${FRAM_ROOT_PATH}/plat/infra/ipc"
+                    "${FRAM_ROOT_PATH}/plat/infra/util"
                     )
 
 ADD_SUBDIRECTORY(plat)

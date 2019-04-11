@@ -18,4 +18,5 @@ ADD_SUBDIRECTORY(parser/test)
 ADD_SUBDIRECTORY(socket/test)
 ADD_SUBDIRECTORY(thread/test)
 ADD_SUBDIRECTORY(process/test)
+ADD_SUBDIRECTORY(util/time/test)
 
