@@ -1,3 +1,4 @@
+#include "string.h"
 #include "stddef.h"
 
 #include "process_signal_action.h"
@@ -6,11 +7,13 @@ namespace process::signal {
 
 ProcessSignalAction::ProcessSignalAction()
 {
-
+    memset(&action_, 0, sizeof(struct sigaction));
+     action_.sa_handler = SIG_DFL;
 }
 
 ProcessSignalAction::ProcessSignalAction(struct sigaction* action)
 {
+    memset(&action_, 0, sizeof(struct sigaction));
     action_.sa_handler = action->sa_handler;
     action_.sa_sigaction = action->sa_sigaction;
     action_.sa_mask = action->sa_mask;
@@ -19,6 +22,7 @@ ProcessSignalAction::ProcessSignalAction(struct sigaction* action)
 
 ProcessSignalAction::ProcessSignalAction(const ProcessSignalAction& other)
 {
+    memset(&action_, 0, sizeof(struct sigaction));
     action_.sa_handler = other.action_.sa_handler;
     action_.sa_sigaction = other.action_.sa_sigaction;
     action_.sa_mask = other.action_.sa_mask;

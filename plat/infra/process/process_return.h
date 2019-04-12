@@ -38,6 +38,8 @@ enum class ProcessRet: int {
 
 //process signal
     PROCESS_ESIGINVAL,
+    PROCESS_EADDSIGNAL,
+    PROCESS_ESIGNALNOTFOUND,
 
 //process single
     PROCESS_ECALLABLE,

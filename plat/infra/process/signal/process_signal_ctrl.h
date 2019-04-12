@@ -9,6 +9,7 @@
 #include "process_signal.h"
 #include "process_signal_set.h"
 #include "process_signal_action.h"
+#include "process_signal_mask_type.h"
 
 namespace process::signal {
 
@@ -25,6 +26,12 @@ public:
     ProcessRet Mask();
     ProcessRet Mask(ProcessSignalSet& set);
     ProcessRet Mask(ProcessSignalSet& new_set, ProcessSignalSet& old_set);
+    ProcessRet MaskReplace();
+    ProcessRet MaskReplace(ProcessSignalSet& set);
+    ProcessRet MaskReplace(ProcessSignalSet& new_set, ProcessSignalSet& old_set);
+    ProcessRet UnMask();
+    ProcessRet UnMask(ProcessSignalSet& set);
+    ProcessRet UnMask(ProcessSignalSet& new_set, ProcessSignalSet& old_set);
     ProcessRet MaskRevert();
 
     static ProcessSignalCtrl* getInstance();
@@ -33,12 +40,16 @@ private:
     ~ProcessSignalCtrl();
 
     mempool::MemPool* mempool_;
-    std::map<ProcessSignal*, ProcessSignalAction*> register_map_;
-    std::map<ProcessSignal*, ProcessSignalAction*> last_register_map_;
+    std::map<ProcessSignal, ProcessSignalAction> register_map_;
+    std::map<ProcessSignal, ProcessSignalAction> last_register_map_;
+
+    ProcessSignalSet mask_set_;
+    ProcessSignalSet last_mask_set_;
 
     static ProcessSignalCtrl* pInstance;
 
-    ProcessRet _register_signal(int sig, struct sigaction* new_action, struct sigaction* old_action);
+    ProcessRet _register_signal(ProcessSignal& sig, ProcessSignalAction& new_action, ProcessSignalAction& old_action);
+    ProcessRet _mask_signal(SignalMaskType how, ProcessSignalSet& new_set, ProcessSignalSet& old_set);
 };
 
 }

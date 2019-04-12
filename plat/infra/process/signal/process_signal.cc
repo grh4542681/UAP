@@ -28,4 +28,9 @@ ProcessSignal& ProcessSignal::operator=(const ProcessSignal& other)
     return *this;
 }
 
+bool ProcessSignal::operator<(const ProcessSignal& other) const
+{
+    return (sig_ < other.sig_);
+}
+
 }

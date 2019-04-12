@@ -9,7 +9,7 @@ class ProcessSignalCtrl;
 
 class ProcessSignalAction {
 public:
-    friend class ProcessSignal;
+    friend class ProcessSignalCtrl;
     typedef void (*SignalCallback)(int);
     typedef void (*SignalCallback2)(int, siginfo_t*, void*);
 public:

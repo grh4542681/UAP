@@ -16,6 +16,7 @@ public:
     ~ProcessSignal();
 
     ProcessSignal& operator= (const ProcessSignal& other);
+    bool operator< (const ProcessSignal& other) const;
 private:
     int sig_;
     std::string sig_name_;
