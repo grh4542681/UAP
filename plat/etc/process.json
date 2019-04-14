@@ -1,0 +1,46 @@
+{
+    "define" : [
+        {
+            "name" : "rm",
+            "describe" : "Resource manager",
+            "path" : "/bin/ns",
+            "depend" : [
+            ],
+            "essential" : true,
+            "size" : 1,
+            "enable" : true
+        },
+        {
+            "name" : "logd",
+            "describe" : "Log deamon",
+            "path" : "/bin/ns",
+            "depend" : [
+                "cm"
+            ],
+            "essential" : true,
+            "size" : 1,
+            "enable" : false
+        },
+        {
+            "name" : "ns",
+            "describe" : "Nameserver",
+            "path" : "/bin/ns",
+            "depend" : [
+                "cm"
+            ],
+            "essential" : true,
+            "size" : 1,
+            "enable" : false
+        },
+        {
+            "name" : "cm",
+            "describe" : "Config manager",
+            "path" : "/bin/ns",
+            "depend" : [
+            ],
+            "essential" : true,
+            "size" : 1,
+            "enable" : false
+        }
+    ]
+}

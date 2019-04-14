@@ -1,0 +1,31 @@
+{
+    "format" : {
+        "default" : "%d(%F %T.%l) %-6V (%c:%F:%L) - %m%n"
+    },
+    "target" : {
+        "stdout" : {
+            "line_size" : 1024
+        },
+        "default" : {
+            "path" : "/log/default.log",
+            "file_size" : "10MB",
+            "line_size" : 1024
+        }
+    },
+    "rule" : {
+        "default" : {
+            "format" : "default",
+            "target" : [
+                "stdout",
+                "/log/default.log"
+            ]
+        },
+        "platform" : {
+            "format" : "default",
+            "target" : [
+                "stdout",
+                "/log/platform.log"
+            ]
+        }
+    }
+}
