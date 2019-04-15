@@ -6,7 +6,7 @@
 namespace process::signal {
 
 enum class SignalMaskType {
-    GETMASK,
+    GETMASK = SIG_BLOCK - 1,
     APPEND = SIG_BLOCK,
     SUBTRACT = SIG_UNBLOCK,
     REPLACE = SIG_SETMASK,

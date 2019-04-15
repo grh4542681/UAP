@@ -1,4 +1,6 @@
-#include "stddef.h"
+#include <stddef.h>
+
+#include "process_log.h"
 #include "process_signal_ctrl.h"
 
 namespace process::signal {
@@ -21,6 +23,21 @@ ProcessSignalCtrl* ProcessSignalCtrl::getInstance()
         pInstance = new ProcessSignalCtrl();
     }
     return pInstance;
+}
+
+ProcessSignalAction ProcessSignalCtrl::GetSignalAction(ProcessSignal& sig)
+{
+    ProcessSignalAction action;
+    auto it = register_map_.find(sig);
+    if (it != register_map_.end()) {
+        action = it->second;
+    }
+    return action;
+}
+
+ProcessSignalSet ProcessSignalCtrl::GetSignalMask()
+{
+    return mask_set_;
 }
 
 ProcessRet ProcessSignalCtrl::Register(ProcessSignal& sig, ProcessSignalAction& action)
@@ -176,12 +193,33 @@ ProcessRet ProcessSignalCtrl::MaskRevert()
 
 ProcessRet ProcessSignalCtrl::_register_signal(ProcessSignal& sig, ProcessSignalAction& new_action, ProcessSignalAction& old_action)
 {
-
+    if (sigaction(sig.sig_, &new_action.action_, &old_action.action_) < 0) {
+        return ProcessRet::PROCESS_ESIGNALREG;
+    }
+    return ProcessRet::SUCCESS;
 }
 
 ProcessRet ProcessSignalCtrl::_mask_signal(SignalMaskType how, ProcessSignalSet& new_set, ProcessSignalSet& old_set)
 {
-
+    switch (how) {
+        case SignalMaskType::GETMASK:
+            if (sigprocmask(SIG_BLOCK, NULL, &old_set.set_) < 0) {
+                PROCESS_ERROR("Get process mask signal set error.");
+                return ProcessRet::PROCESS_ESIGNALMASK;
+            }
+            break;
+        case SignalMaskType::APPEND:
+        case SignalMaskType::SUBTRACT:
+        case SignalMaskType::REPLACE:
+            if (sigprocmask(SIG_BLOCK, &new_set.set_, &old_set.set_) < 0) {
+                PROCESS_ERROR("Set process mask signal set error.");
+                return ProcessRet::PROCESS_ESIGNALMASK;
+            }
+            break;
+        default:
+            return ProcessRet::PROCESS_ESIGNALMASKTYPE;
+    }
+    return ProcessRet::SUCCESS;
 }
 
 }

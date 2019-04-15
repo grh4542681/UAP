@@ -16,19 +16,21 @@ int main()
 {
     process::ProcessInfo* p = process::ProcessInfo::getInstance();
 
-    std::string i = "test";
-    process::single::ProcessSingle<std::string> p2(i);
-    p2.Run();
-
 /*
-    auto process_type = test_process;
-    process::single::ProcessSingle<decltype(process_type)> p1(test_process);
-    p1.Run();
+    std::string i = "/home/ezgaoro/workspace/cppfram/bin/test/time_c_test";
+    process::single::ProcessSingle<std::string> p2(i);
+    p2.Run(NULL);
 */
+
+    auto process_type = test_process;
+    process::single::ProcessSingle<decltype(process_type)> p1("test_grh", test_process);
+    p1.Run();
+
     sleep(5);
     file::FileC fd(stdout);
     p->Report(fd,report::ReportMode::DETAIL);
 
     sleep(25);
+    p->Report(fd,report::ReportMode::DETAIL);
     return 0;
 }

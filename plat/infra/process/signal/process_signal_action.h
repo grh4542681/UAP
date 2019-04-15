@@ -19,6 +19,7 @@ public:
 
     ProcessSignalAction& operator=(const ProcessSignalAction& other);
 
+    bool IsDefault();
     void SetCallback(SignalCallback callback);
     void SetCallback(SignalCallback2 callback);
     void SetMaskset(ProcessSignalSet& set);

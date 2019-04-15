@@ -43,6 +43,11 @@ ProcessSignalAction& ProcessSignalAction::operator=(const ProcessSignalAction& o
     return *this;
 }
 
+bool ProcessSignalAction::IsDefault()
+{
+    return (action_.sa_handler == SIG_DFL);
+}
+
 void ProcessSignalAction::SetCallback(SignalCallback callback)
 {
     action_.sa_handler = callback;

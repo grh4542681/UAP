@@ -15,6 +15,9 @@ namespace process::signal {
 
 class ProcessSignalCtrl {
 public:
+    ProcessSignalAction GetSignalAction(ProcessSignal& sig);
+    ProcessSignalSet GetSignalMask();
+
     ProcessRet Register(ProcessSignal& sig, ProcessSignalAction& action);
     ProcessRet Register(ProcessSignal& sig, ProcessSignalAction& new_action, ProcessSignalAction& old_action);
     ProcessRet UnRegister();
