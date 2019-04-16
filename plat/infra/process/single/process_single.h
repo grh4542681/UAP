@@ -86,9 +86,7 @@ private:
 
     template <typename ... Args>
     ProcessRet _run_main(Args&& ... args) {
-
         child_(std::forward<Args>(args)...);
-
         return ProcessRet::SUCCESS;
     }
 };

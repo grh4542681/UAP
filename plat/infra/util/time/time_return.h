@@ -13,6 +13,9 @@ enum class TimeRet: int {
     EBADARGS,
     EUNKOWNERRNO,
 
+//time
+    ETIMEGET,
+
 };
 
 }

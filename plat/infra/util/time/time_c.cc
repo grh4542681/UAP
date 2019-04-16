@@ -8,28 +8,14 @@ namespace util::time {
 
 TimeC::TimeC()
 {
-
+    memset(&tp_, 0, sizeof(struct timespec));
 }
 
-TimeC::TimeC(struct timeval* tv, struct timezone* tz)
+TimeC::TimeC(const TimeC& other) : Time(other)
 {
-    if (tv) {
-        tv_.tv_sec = tv->tv_sec;
-        tv_.tv_usec = tv->tv_usec;
-    }
-    if (tz) {
-        tz_.tz_minuteswest = tz->tz_minuteswest;
-        tz_.tz_dsttime = tz->tz_dsttime;
-    }
-}
-
-TimeC::TimeC(const TimeC& other)
-{
-    tv_.tv_sec = other.tv_.tv_sec;
-    tv_.tv_usec = other.tv_.tv_usec;
-
-    tz_.tz_minuteswest = other.tz_.tz_minuteswest;
-    tz_.tz_dsttime = other.tz_.tz_dsttime;
+    memset(&tp_, 0, sizeof(struct timespec));
+    tp_.tv_sec = other.tp_.tv_sec;
+    tp_.tv_nsec = other.tp_.tv_nsec;
 }
 
 TimeC::~TimeC()
@@ -39,28 +25,33 @@ TimeC::~TimeC()
 
 TimeC& TimeC::operator=(const TimeC& other)
 {
-    tv_.tv_sec = other.tv_.tv_sec;
-    tv_.tv_usec = other.tv_.tv_usec;
-
-    tz_.tz_minuteswest = other.tz_.tz_minuteswest;
-    tz_.tz_dsttime = other.tz_.tz_dsttime;
+    Time::operator=(other);
+    memset(&tp_, 0, sizeof(struct timespec));
+    tp_.tv_sec = other.tp_.tv_sec;
+    tp_.tv_nsec = other.tp_.tv_nsec;
     return *this;
 }
 
-TimeC TimeC::GetCurrTime()
+TimeRet TimeC::GetCurrTime()
 {
-    struct timeval tv;
-    memset(&tv, 0, sizeof(struct timeval));
-    if (gettimeofday(&tv, NULL)) {
-        return TimeC(&tv, NULL);
+    if (clock_gettime(CLOCK_REALTIME, &tp_) < 0) {
+        return TimeRet::ETIMEGET;
     }
-    return TimeC(&tv, NULL);
+    second_ = tp_.tv_sec;
+    nanosecond_ = tp_.tv_nsec;
+    return TimeRet::SUCCESS;
 }
 
-void TimeC::print()
-{
-    struct tm* ptm = localtime(&tv_.tv_sec);
-    printf("%d-%d-%d %d:%d:%d.%ld\n",ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday,ptm->tm_hour,ptm->tm_min,ptm->tm_sec,tv_.tv_usec);
+std::string TimeC::Format(std::string format) {
+    std::string str;
+    char buff[1024];
+    memset(buff, 0, sizeof(buff));
+
+    if (!strftime(buff, sizeof(buff), format.c_str(), localtime(&second_))) {
+        memset(buff, 0, sizeof(buff));
+    }
+    str.assign(buff);
+    return str;
 }
 
 }

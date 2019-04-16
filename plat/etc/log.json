@@ -1,4 +1,12 @@
 {
+    "server" : {
+        "default" : {
+        },
+        "SERVER1" : {
+            "ip" : "",
+            "port" : ""
+        }
+    },
     "format" : {
         "default" : "%d(%F %T.%l) %-6V (%c:%F:%L) - %m%n"
     },
@@ -18,7 +26,8 @@
             "target" : [
                 "stdout",
                 "/log/default.log"
-            ]
+            ],
+            "server" : "default"
         },
         "platform" : {
             "format" : "default",

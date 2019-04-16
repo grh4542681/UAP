@@ -8,6 +8,9 @@
             ],
             "essential" : true,
             "size" : 1,
+            "timeout" : 30,
+            "retry" : 5,
+            "hblimit" : 10,
             "enable" : true
         },
         {

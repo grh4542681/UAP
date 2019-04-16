@@ -4,27 +4,34 @@
 #include <sys/time.h>
 
 #include "time_return.h"
+#include "vtime.h"
 
 namespace util::time {
-
-class TimeC {
+class TimeC : public Time {
 public:
     TimeC();
     ~TimeC();
     TimeC(const TimeC& other);
 
     TimeC& operator= (const TimeC& other);
-    void print();
 
-    static TimeC GetCurrTime();
+    std::string Format(std::string format);
+    TimeRet GetCurrTime();
 
 private:
-    TimeC(struct timeval* tv, struct timezone* tz);
-
-    struct timeval tv_;
-    struct timezone tz_;
-
+    struct timespec tp_;
 };
+
+/**
+ * @brief Now - Get current system time
+ *
+ * @returns  Time class instance.
+ */
+TimeC NowC() {
+    TimeC tm; 
+    tm.GetCurrTime();
+    return tm; 
+}
 
 }
 
