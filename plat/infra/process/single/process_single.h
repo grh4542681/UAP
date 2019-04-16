@@ -2,7 +2,6 @@
 #define _PROCESS_SINGLE_H__
 
 #include <unistd.h>
-#include <sys/prctl.h>
 #include <type_traits>
 #include <typeinfo>
 #include <iostream>
@@ -11,6 +10,7 @@
 
 #include "mempool.h"
 
+#include "process.h"
 #include "process_info.h"
 #include "signal/process_signal_ctrl.h"
 
@@ -35,6 +35,10 @@ public:
 
     }
 
+    void SetSigChldCallback(void (*sigchld_callback)(int*)) {
+        sigchld_callback_ = sigchld_callback;
+    }
+
     template <typename ... Args>
     ProcessRet Run(Args&& ... args) {
         ProcessRet ret;
@@ -51,28 +55,35 @@ public:
             return ret;
         }
 
+        ProcessInfo* parent = ProcessInfo::getInstance();
+
         pid_t pid = fork();
         if (pid < 0) {
             pair.Close();
             psignal->Revert();
             return ProcessRet::PROCESS_EFORK;
         } else if (pid == 0) {
-            if (!name_.empty()) {
-                prctl(PR_SET_NAME, name_.c_str());
-            }
             ProcessInfo* process_info = ProcessInfo::getInstance();
             process_info->pair_ = pair;
             process_info->pair_.SetAutoClose(true);
+            process_info->raw_cmdline_ = parent->raw_cmdline_;
+            process_info->raw_cmdline_size_ = parent->raw_cmdline_size_;
+            process_info->cmdline_ = parent->cmdline_;
+            process_info->environ_ = parent->environ_;
+            process_info->sigchld_callback_ = sigchld_callback_;
+            if (!name_.empty()) {
+                Process::SetProcName(name_);
+            }
             _run_main(std::forward<Args>(args)...);
             exit(0);
         } else {
             psignal->Revert();
-            ProcessInfo* parent = ProcessInfo::getInstance();
             ProcessInfo child_process_info;
             child_process_info.pid_ = pid;
             child_process_info.ppid_ = parent->pid_;
             child_process_info.pair_ = pair;
             child_process_info.pair_.SetAutoClose(true);
+            child_process_info.sigchld_callback_ = sigchld_callback_;
 
             return parent->AddChildProcessInfo(child_process_info);
         }
@@ -83,6 +94,7 @@ private:
     mempool::MemPool* mempool_;
     std::string name_;
     F child_;
+    void (*sigchld_callback_)(int*);
 
     template <typename ... Args>
     ProcessRet _run_main(Args&& ... args) {

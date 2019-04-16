@@ -13,12 +13,11 @@ namespace process {
 class Process {
 public:
     static ProcessRet SetProcName(std::string name);
-    static ProcessRet SetProcName(ProcessInfo* info, std::string name);
 
     static ProcessRet SendToParent(char* msg, unsigned int* msglen, util::time::Time* overtime);
-    static ProcessRet SendToParent(ProcessInfo* info, char* msg, unsigned int* msglen, util::time::Time* overtime);
     static ProcessRet RecvFromParent(char* msg, unsigned int* msglen, util::time::Time* overtime);
-    static ProcessRet RecvFromParent(ProcessInfo* info, char* msg, unsigned int* msglen, util::time::Time* overtime);
+
+    static ProcessRet RegisterCommonSigChld();
 private:
     Process();
     ~Process();

@@ -21,6 +21,9 @@ ProcessInfo::ProcessInfo()
     memset(name, 0x00, sizeof(name));
     sprintf(name, "%s_%d", strrchr(process_name_.c_str(), '/') ? strrchr(process_name_.c_str(), '/') + 1 : "", pid_);
     name_.assign(name);
+    raw_cmdline_ = NULL;
+    raw_cmdline_size_ = 0;
+    sigchld_callback_ = NULL;
 }
 
 ProcessInfo::ProcessInfo(ProcessInfo& other)
@@ -31,6 +34,9 @@ ProcessInfo::ProcessInfo(ProcessInfo& other)
     process_name_ = other.process_name_;
     name_ = other.name_;
     pair_ = other.pair_;
+
+    raw_cmdline_ = other.raw_cmdline_;
+    raw_cmdline_size_ = other.raw_cmdline_size_;
 }
 
 ProcessInfo::~ProcessInfo()
@@ -56,6 +62,46 @@ std::string& ProcessInfo::GetName()
 std::string& ProcessInfo::GetProcessName()
 {
     return process_name_;
+}
+
+ProcessInfo& ProcessInfo::SetName(std::string name)
+{
+    name_ = name;
+    return *this;
+}
+
+ProcessInfo& ProcessInfo::SetCmdLine(int argc, char** argv, char** env)
+{
+    int loop = 0;
+    char* tmp = NULL;
+
+    // back up command line argv
+    if (argv) {
+        for (loop = 0; loop < argc; loop++) {
+            if (strlen(argv[loop]) >= 0) {
+                tmp = (char*)(mempool_->Malloc(strlen(argv[loop]) + 1));
+                memset(tmp, 0, strlen(argv[loop]));
+                memcpy(tmp, argv[loop], strlen(argv[loop]));
+                cmdline_.push_back(tmp);
+                raw_cmdline_size_ += strlen(argv[loop]) + 1;
+            }
+        }
+        raw_cmdline_ = argv;
+    }
+
+    // back up environ args
+    if (env) {
+        for (loop = 0; env[loop] != NULL; loop++) {
+            if (strlen(env[loop]) >= 0) {
+                tmp = (char*)(mempool_->Malloc(strlen(env[loop]) + 1));
+                memset(tmp, 0, strlen(env[loop]));
+                memcpy(tmp, env[loop], strlen(env[loop]));
+                cmdline_.push_back(tmp);
+                raw_cmdline_size_ += strlen(env[loop]) + 1;
+            }
+        }
+    }
+    return *this;
 }
 
 ProcessRet ProcessInfo::AddThreadInfo(thread::ThreadInfo* thread_info)

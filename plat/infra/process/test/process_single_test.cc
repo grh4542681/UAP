@@ -6,15 +6,23 @@
 #include "thread.h"
 #include "report_mode.h"
 
+extern char ** environ;
+
 void test_process()
 {
     printf("child [%d]\n",getpid());
     sleep(20);
 }
 
-int main()
+void dead(int *status)
+{
+    printf("child [%d] dead\n",getpid());
+}
+
+int main(int argc, char** argv)
 {
     process::ProcessInfo* p = process::ProcessInfo::getInstance();
+    p->SetCmdLine(argc, argv, environ);
 
 /*
     std::string i = "/home/ezgaoro/workspace/cppfram/bin/test/time_c_test";
@@ -23,7 +31,8 @@ int main()
 */
 
     auto process_type = test_process;
-    process::single::ProcessSingle<decltype(process_type)> p1("test_grh", test_process);
+    process::single::ProcessSingle<decltype(process_type)> p1("process_test_single:child1", test_process);
+    p1.SetSigChldCallback(dead);
     p1.Run();
 
     sleep(5);

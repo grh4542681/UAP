@@ -6,6 +6,7 @@
 #include <string>
 #include <errno.h>
 #include <map>
+#include <vector>
 
 #include "file.h"
 #include "report.h"
@@ -24,16 +25,19 @@ template < typename F > class ProcessSingle;
 }
 
 namespace process {
-
+class Process;
 class ProcessInfo : public report::VReport {
 public:
     friend class mempool::MemPool;
+    friend class Process;
     template <typename F> friend class single::ProcessSingle;
 public:
     pid_t GetPid();
     pid_t GetPPid();
     std::string& GetName();
     std::string& GetProcessName();
+    ProcessInfo& SetName(std::string name);
+    ProcessInfo& SetCmdLine(int argc, char** argv, char** env);
 
     ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
     ProcessRet DelThreadInfo(pid_t tid);
@@ -58,16 +62,24 @@ private:
 
     mempool::MemPool* mempool_;
 
-    pid_t pid_;
-    pid_t ppid_;
-    std::string process_name_;
-    std::string name_;
-    ipc::sock::SockPair pair_;
+    // base
+    pid_t pid_;                 ///< Process id.
+    pid_t ppid_;                ///< Parent process id.
+    std::string process_name_;  ///< Real process name.
+    std::string name_;          ///< User defined process name.
+    ipc::sock::SockPair pair_;  ///< Communication channel between father and child processes.
+    void (*sigchld_callback_)(int*);    ///< if process dead, parent will use this func deal with SIGCHLD signal.
 
-    thread::mutex::ThreadRWLock thread_info_rw_lock_;
-    std::map<pid_t, thread::ThreadInfo*> thread_info_map_;
+    // Command line argument
+    char** raw_cmdline_;                ///< Original command line parameter.
+    unsigned int raw_cmdline_size_;     ///< Size of original command line.
+    std::vector<char*> cmdline_;        ///< Command line arguments vector.
+    std::vector<char*> environ_;        ///< Environment arguments vector.
 
-    std::map<pid_t, ProcessInfo*> process_info_map_;
+    thread::mutex::ThreadRWLock thread_info_rw_lock_;       ///< Mutex lock of thread map.
+    std::map<pid_t, thread::ThreadInfo*> thread_info_map_;  ///< Map of all thread in this process.
+
+    std::map<pid_t, ProcessInfo*> process_info_map_;    ///< Map of all child process in this process.
 
     static ProcessInfo* pInstance;
 public:

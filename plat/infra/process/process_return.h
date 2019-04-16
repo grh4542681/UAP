@@ -35,6 +35,7 @@ enum class ProcessRet: int {
     PROCESS_EPROCDUP,
     PROCESS_EPROCADD,
     PROCESS_EPROCNOTFOUND,
+    PROCESS_ECMDLINE,
 
 //process signal
     PROCESS_ESIGINVAL,
