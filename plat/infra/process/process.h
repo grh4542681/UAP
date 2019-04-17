@@ -8,11 +8,15 @@
 #include "process_return.h"
 #include "process_info.h"
 
+#define  MAX_PROCCESS_NAME_LEN (1024)
+
 namespace process {
 
 class Process {
 public:
     static ProcessRet SetProcName(std::string name);
+    static ProcessRet GetProcPath(std::string& path);
+    static ProcessRet GetProcName(std::string& name);
 
     static ProcessRet SendToParent(char* msg, unsigned int* msglen, util::time::Time* overtime);
     static ProcessRet RecvFromParent(char* msg, unsigned int* msglen, util::time::Time* overtime);

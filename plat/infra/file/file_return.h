@@ -26,6 +26,7 @@ enum class FileRet: int {
     FILE_ENOENT,
     FILE_ENOMEM,
     FILE_ENOTDIR,
+    FILE_EMODE,
 
 };
 

@@ -1,8 +1,7 @@
 #include <string.h>
 
+#include "process.h"
 #include "process_info.h"
-
-#define MAX_PROCCESS_NAME_LEN (1024)
 
 namespace process {
 
@@ -13,7 +12,11 @@ ProcessInfo::ProcessInfo()
     mempool_ = mempool::MemPool::getInstance();
     pid_ = getpid();
     ppid_ = getppid();
-    if (GetCurrProcessName(process_name_) != ProcessRet::SUCCESS) {
+    if (Process::GetProcPath(process_path_) != ProcessRet::SUCCESS) {
+        PROCESS_ERROR("Get process path error");
+        process_path_.erase();
+    }
+    if (Process::GetProcName(process_name_) != ProcessRet::SUCCESS) {
         PROCESS_ERROR("Get process name error");
         process_name_.erase();
     }
@@ -34,6 +37,7 @@ ProcessInfo::ProcessInfo(ProcessInfo& other)
     process_name_ = other.process_name_;
     name_ = other.name_;
     pair_ = other.pair_;
+    sigchld_callback_ = other.sigchld_callback_;
 
     raw_cmdline_ = other.raw_cmdline_;
     raw_cmdline_size_ = other.raw_cmdline_size_;
@@ -64,9 +68,56 @@ std::string& ProcessInfo::GetProcessName()
     return process_name_;
 }
 
+std::string& ProcessInfo::GetProcessPath()
+{
+    return process_path_;
+}
+
+const char* ProcessInfo::GetCmdLine(unsigned int index)
+{
+    if (index < 0 || index > cmdline_.size())
+        return NULL;
+    return cmdline_[index];
+}
+
+void (*ProcessInfo::GetSigChldCallback())(int*)
+{
+    return sigchld_callback_;
+}
+
+ProcessInfo& ProcessInfo::SetPid()
+{
+    pid_ = getpid();
+    return *this;
+}
+
+ProcessInfo& ProcessInfo::SetPPid()
+{
+    ppid_ = getppid();
+    return *this;
+}
+
 ProcessInfo& ProcessInfo::SetName(std::string name)
 {
     name_ = name;
+    return *this;
+}
+
+ProcessInfo& ProcessInfo::SetProcessName()
+{
+    if (Process::GetProcName(process_name_) != ProcessRet::SUCCESS) {
+        PROCESS_ERROR("Get process name error");
+        process_name_.erase();
+    }
+    return *this;
+}
+
+ProcessInfo& ProcessInfo::SetProcessPath()
+{
+    if (Process::GetProcPath(process_path_) != ProcessRet::SUCCESS) {
+        PROCESS_ERROR("Get process path error");
+        process_path_.erase();
+    }
     return *this;
 }
 
@@ -101,6 +152,12 @@ ProcessInfo& ProcessInfo::SetCmdLine(int argc, char** argv, char** env)
             }
         }
     }
+    return *this;
+}
+
+ProcessInfo& ProcessInfo::SetSigChldCallback(void (*sigchld_callback)(int*))
+{
+    sigchld_callback_ = sigchld_callback;
     return *this;
 }
 
@@ -155,7 +212,7 @@ ProcessRet ProcessInfo::DelChildProcessInfo(pid_t pid)
     if (it == process_info_map_.end()) {
         return ProcessRet::PROCESS_EPROCNOTFOUND;
     }
-
+    mempool_->Free<ProcessInfo>(it->second);
     process_info_map_.erase(it);
     return ProcessRet::SUCCESS;
 }
@@ -197,22 +254,10 @@ void ProcessInfo::Report(std::stringstream& ss, report::ReportMode mode)
 ProcessInfo* ProcessInfo::getInstance()
 {
     if (!pInstance) {
-        pInstance = new ProcessInfo();
+        mempool::MemPool* mp = mempool::MemPool::getInstance();
+        pInstance = mp->Malloc<ProcessInfo>();
     }
     return pInstance;
-}
-
-ProcessRet ProcessInfo::GetCurrProcessName(std::string& name)
-{
-    char process_path[MAX_PROCCESS_NAME_LEN];
-    memset(process_path, 0x00, sizeof(process_path));
-    if (readlink("/proc/self/exe", process_path, sizeof(process_path)-1) < 0) {
-        int tmperrno = errno;
-        PROCESS_ERROR("Get process name error[%s]", strerror(tmperrno));
-        return _error2ret(tmperrno);
-    }
-    name.assign(process_path);
-    return ProcessRet::SUCCESS;
 }
 
 }

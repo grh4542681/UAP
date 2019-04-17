@@ -20,9 +20,9 @@ public:
     ProcessSignalAction& operator=(const ProcessSignalAction& other);
 
     bool IsDefault();
-    void SetCallback(SignalCallback callback);
-    void SetCallback(SignalCallback2 callback);
-    void SetMaskset(ProcessSignalSet& set);
+    ProcessSignalAction& SetCallback(SignalCallback callback);
+    ProcessSignalAction& SetCallback(SignalCallback2 callback);
+    ProcessSignalAction& SetMaskset(ProcessSignalSet& set);
 private:
     ProcessSignalAction(struct sigaction* action);
     struct sigaction action_;

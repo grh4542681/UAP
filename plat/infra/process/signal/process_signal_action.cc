@@ -48,23 +48,24 @@ bool ProcessSignalAction::IsDefault()
     return (action_.sa_handler == SIG_DFL);
 }
 
-void ProcessSignalAction::SetCallback(SignalCallback callback)
+ProcessSignalAction& ProcessSignalAction::SetCallback(SignalCallback callback)
 {
     action_.sa_handler = callback;
-    action_.sa_sigaction = NULL;
     action_.sa_flags &= ~SA_SIGINFO;
+    return *this;
 }
 
-void ProcessSignalAction::SetCallback(SignalCallback2 callback)
+ProcessSignalAction& ProcessSignalAction::SetCallback(SignalCallback2 callback)
 {
-    action_.sa_handler = NULL;
     action_.sa_sigaction = callback;
     action_.sa_flags |= SA_SIGINFO;
+    return *this;
 }
 
-void ProcessSignalAction::SetMaskset(ProcessSignalSet& set)
+ProcessSignalAction& ProcessSignalAction::SetMaskset(ProcessSignalSet& set)
 {
     action_.sa_mask = set.set_;
+    return *this;
 }
 
 }

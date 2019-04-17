@@ -18,13 +18,13 @@ public:
     ProcessSignalAction GetSignalAction(ProcessSignal& sig);
     ProcessSignalSet GetSignalMask();
 
-    ProcessRet Register(ProcessSignal& sig, ProcessSignalAction& action);
-    ProcessRet Register(ProcessSignal& sig, ProcessSignalAction& new_action, ProcessSignalAction& old_action);
+    ProcessRet Register(ProcessSignal&& sig, ProcessSignalAction&& action);
+    ProcessRet Register(ProcessSignal&& sig, ProcessSignalAction&& new_action, ProcessSignalAction&& old_action);
     ProcessRet UnRegister();
-    ProcessRet UnRegister(ProcessSignal& sig);
-    ProcessRet UnRegister(ProcessSignal& sig, ProcessSignalAction& old_action);
+    ProcessRet UnRegister(ProcessSignal&& sig);
+    ProcessRet UnRegister(ProcessSignal&& sig, ProcessSignalAction&& old_action);
     ProcessRet Revert();
-    ProcessRet Revert(ProcessSignal& sig);
+    ProcessRet Revert(ProcessSignal&& sig);
     
     ProcessRet Mask();
     ProcessRet Mask(ProcessSignalSet& set);
@@ -51,7 +51,7 @@ private:
 
     static ProcessSignalCtrl* pInstance;
 
-    ProcessRet _register_signal(ProcessSignal& sig, ProcessSignalAction& new_action, ProcessSignalAction& old_action);
+    ProcessRet _register_signal(ProcessSignal&& sig, ProcessSignalAction&& new_action, ProcessSignalAction&& old_action);
     ProcessRet _mask_signal(SignalMaskType how, ProcessSignalSet& new_set, ProcessSignalSet& old_set);
 };
 

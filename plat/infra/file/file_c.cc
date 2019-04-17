@@ -89,6 +89,14 @@ FileRet FileC::Open(unsigned int mode)
     } else if (state_ == FileState::EXTEROPENED) {
         return FileRet::SUCCESS;
     } else if (state_ == FileState::INTERCLOSEED) {
+        std::string smode;
+        FileModeOp::FileModeConvert(mode, smode);
+        ffd_ = fopen(file_name_.c_str(), smode.c_str());
+        if (!ffd_) {
+            return FileRet::ERROR;
+        }
+        fd_ = fileno(ffd_);
+        state_ = FileState::INTEROPENED;
         return FileRet::SUCCESS;        
     } else {
         return FileRet::ESTATE;
@@ -110,12 +118,16 @@ FileRet FileC::Close()
 
 int FileC::Read(void* data, unsigned int datalen)
 {
-    return 0;
+    if (state_ == FileState::EXTEROPENED || state_ == FileState::INTEROPENED) {
+        return fread(data, datalen, 1, ffd_);
+    } else {
+        return 0;
+    }
 }
 
 int FileC::Write(const void* data, unsigned int datalen)
 {
-    if (state_ == FileState::EXTEROPENED || state_ == FileState::INTERCLOSEED) {
+    if (state_ == FileState::EXTEROPENED || state_ == FileState::INTEROPENED) {
         return fwrite(data, datalen, 1, ffd_);
     } else {
         return 0;

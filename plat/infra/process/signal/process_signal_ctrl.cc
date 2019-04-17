@@ -40,16 +40,16 @@ ProcessSignalSet ProcessSignalCtrl::GetSignalMask()
     return mask_set_;
 }
 
-ProcessRet ProcessSignalCtrl::Register(ProcessSignal& sig, ProcessSignalAction& action)
+ProcessRet ProcessSignalCtrl::Register(ProcessSignal&& sig, ProcessSignalAction&& action)
 {
     ProcessSignalAction old_action;
-    return Register(sig, action, old_action);
+    return Register(std::move(sig), std::move(action), std::move(old_action));
 }
 
-ProcessRet ProcessSignalCtrl::Register(ProcessSignal& sig, ProcessSignalAction& new_action, ProcessSignalAction& old_action)
+ProcessRet ProcessSignalCtrl::Register(ProcessSignal&& sig, ProcessSignalAction&& new_action, ProcessSignalAction&& old_action)
 {
     ProcessRet ret = ProcessRet::SUCCESS;
-    if ((ret = _register_signal(sig, new_action, old_action)) != ProcessRet::SUCCESS) {
+    if ((ret = _register_signal(std::move(sig), std::move(new_action), std::move(old_action))) != ProcessRet::SUCCESS) {
         return ret;
     }
     //std::pair<std::map<ProcessSignal, ProcessSignalAction>::iterator, bool> ret;
@@ -65,7 +65,7 @@ ProcessRet ProcessSignalCtrl::UnRegister()
     std::map<ProcessSignal, ProcessSignalAction> register_map = register_map_;
     for (const auto& it : register_map) {
         sig = it.first;
-        ret = UnRegister(sig);
+        ret = UnRegister(std::move(sig));
         if ( ret != ProcessRet::SUCCESS) {
             return ret;
         }
@@ -73,16 +73,16 @@ ProcessRet ProcessSignalCtrl::UnRegister()
     return ProcessRet::SUCCESS;
 }
 
-ProcessRet ProcessSignalCtrl::UnRegister(ProcessSignal& sig)
+ProcessRet ProcessSignalCtrl::UnRegister(ProcessSignal&& sig)
 {
     ProcessSignalAction old_action;
-    return UnRegister(sig, old_action);
+    return UnRegister(std::move(sig), std::move(old_action));
 }
 
-ProcessRet ProcessSignalCtrl::UnRegister(ProcessSignal& sig, ProcessSignalAction& old_action)
+ProcessRet ProcessSignalCtrl::UnRegister(ProcessSignal&& sig, ProcessSignalAction&& old_action)
 {
     ProcessSignalAction default_action;
-    return Register(sig, default_action, old_action);
+    return Register(std::move(sig), std::move(default_action), std::move(old_action));
 }
 
 ProcessRet ProcessSignalCtrl::Revert()
@@ -94,7 +94,7 @@ ProcessRet ProcessSignalCtrl::Revert()
     for (const auto& it : register_map) {
         sig = it.first;
         action = it.second;
-        ret = Register(sig, action);
+        ret = Register(std::move(sig), std::move(action));
         if ( ret != ProcessRet::SUCCESS) {
             return ret;
         }
@@ -102,14 +102,14 @@ ProcessRet ProcessSignalCtrl::Revert()
     return ProcessRet::SUCCESS;
 }
 
-ProcessRet ProcessSignalCtrl::Revert(ProcessSignal& sig)
+ProcessRet ProcessSignalCtrl::Revert(ProcessSignal&& sig)
 {
     auto it = last_register_map_.find(sig);
     if (it == last_register_map_.end()) {
         return ProcessRet::PROCESS_ESIGNALNOTFOUND;
     }
     ProcessSignalAction action = it->second;
-    return Register(sig, action);
+    return Register(std::move(sig), std::move(action));
 }
 
 ProcessRet ProcessSignalCtrl::Mask()
@@ -191,7 +191,7 @@ ProcessRet ProcessSignalCtrl::MaskRevert()
     return Mask(set);
 }
 
-ProcessRet ProcessSignalCtrl::_register_signal(ProcessSignal& sig, ProcessSignalAction& new_action, ProcessSignalAction& old_action)
+ProcessRet ProcessSignalCtrl::_register_signal(ProcessSignal&& sig, ProcessSignalAction&& new_action, ProcessSignalAction&& old_action)
 {
     if (sigaction(sig.sig_, &new_action.action_, &old_action.action_) < 0) {
         return ProcessRet::PROCESS_ESIGNALREG;

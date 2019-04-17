@@ -1,6 +1,8 @@
-#include <sys/prctl.h>
-
+#include "process_log.h"
 #include "process.h"
+
+#include "file_c.h"
+#include "file_mode.h"
 
 namespace process {
 
@@ -16,7 +18,33 @@ ProcessRet Process::SetProcName(std::string name)
     }
     memcpy(info->raw_cmdline_[0], name.c_str(), name.size());
     memset(info->raw_cmdline_[0] + name.size(), 0, strlen(info->raw_cmdline_[0]) - name.size());
-    prctl(PR_SET_NAME, name.c_str());
+    return ProcessRet::SUCCESS;
+}
+
+ProcessRet Process::GetProcPath(std::string& path)
+{
+    char process_path[MAX_PROCCESS_NAME_LEN];
+    memset(process_path, 0x00, sizeof(process_path));
+    if (readlink("/proc/self/exe", process_path, sizeof(process_path)-1) < 0) {
+        int tmperrno = errno;
+        PROCESS_ERROR("Get process path error[%s]", strerror(tmperrno));
+        return ProcessRet::ERROR;
+    }   
+    path.assign(process_path);
+    return ProcessRet::SUCCESS;
+}
+
+ProcessRet Process::GetProcName(std::string& name)
+{
+    char process_name[MAX_PROCCESS_NAME_LEN];
+    memset(process_name, 0x00, sizeof(process_name));
+    file::FileC cmdline("/proc/self/cmdline");
+    if (cmdline.Open(file::FileMode::READ_ONLY) != file::FileRet::SUCCESS) {
+        return ProcessRet::ERROR;
+    }
+    cmdline.Read(process_name, sizeof(process_name));
+    cmdline.Close();
+    name.assign(process_name);
     return ProcessRet::SUCCESS;
 }
 

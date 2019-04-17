@@ -36,8 +36,17 @@ public:
     pid_t GetPPid();
     std::string& GetName();
     std::string& GetProcessName();
+    std::string& GetProcessPath();
+    const char* GetCmdLine(unsigned int index);
+    void (*GetSigChldCallback())(int*);
+
+    ProcessInfo& SetPid();
+    ProcessInfo& SetPPid();
     ProcessInfo& SetName(std::string name);
+    ProcessInfo& SetProcessName();
+    ProcessInfo& SetProcessPath();
     ProcessInfo& SetCmdLine(int argc, char** argv, char** env);
+    ProcessInfo& SetSigChldCallback(void (*sigchld_callback)(int*));
 
     ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
     ProcessRet DelThreadInfo(pid_t tid);
@@ -51,7 +60,6 @@ public:
     void Report(std::stringstream& ss, report::ReportMode mode);
 
     static ProcessInfo* getInstance();
-    static ProcessRet GetCurrProcessName(std::string& name);
 
 private:
     ProcessInfo();
@@ -65,6 +73,7 @@ private:
     // base
     pid_t pid_;                 ///< Process id.
     pid_t ppid_;                ///< Parent process id.
+    std::string process_path_;  ///< Process exec path.
     std::string process_name_;  ///< Real process name.
     std::string name_;          ///< User defined process name.
     ipc::sock::SockPair pair_;  ///< Communication channel between father and child processes.
