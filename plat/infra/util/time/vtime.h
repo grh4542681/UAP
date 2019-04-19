@@ -17,9 +17,6 @@
 
 #include "time_return.h"
 
-/**
-* @brief - main namespace of time util
-*/
 namespace util::time {
 
 /**

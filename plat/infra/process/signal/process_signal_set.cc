@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-04-18 04:14
+ * @file     : process_signal_set.cc
+ * @brief    : ProcessSignal set.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #include "process_signal_set.h"
 
 namespace process::signal {
@@ -25,6 +35,10 @@ ProcessSignalSet& ProcessSignalSet::operator=(const ProcessSignalSet& other)
 
 ProcessRet ProcessSignalSet::AddSig(ProcessSignal& sig)
 {
+    return AddSig(std::move(sig));
+}
+ProcessRet ProcessSignalSet::AddSig(ProcessSignal&& sig)
+{
     if (!sigaddset(&set_, sig.sig_)) {
         return ProcessRet::PROCESS_ESIGINVAL;
     }
@@ -40,6 +54,10 @@ ProcessRet ProcessSignalSet::AddAll()
 }
 
 ProcessRet ProcessSignalSet::DelSig(ProcessSignal& sig)
+{
+    return DelSig(std::move(sig));
+}
+ProcessRet ProcessSignalSet::DelSig(ProcessSignal&& sig)
 {
     if (!sigdelset(&set_, sig.sig_)) {
         return ProcessRet::PROCESS_ESIGINVAL;

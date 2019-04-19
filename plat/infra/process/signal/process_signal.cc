@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-04-18 04:15
+ * @file     : process_signal.cc
+ * @brief    : Linux signal Encapsulation.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #include "process_signal.h"
 
 namespace process::signal {

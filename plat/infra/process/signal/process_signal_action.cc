@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-04-18 04:06
+ * @file     : process_signal_action.cc
+ * @brief    : Signal callback action.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #include "string.h"
 #include "stddef.h"
 
@@ -63,6 +73,10 @@ ProcessSignalAction& ProcessSignalAction::SetCallback(SignalCallback2 callback)
 }
 
 ProcessSignalAction& ProcessSignalAction::SetMaskset(ProcessSignalSet& set)
+{
+    return SetMaskset(std::move(set));
+}
+ProcessSignalAction& ProcessSignalAction::SetMaskset(ProcessSignalSet&& set)
 {
     action_.sa_mask = set.set_;
     return *this;

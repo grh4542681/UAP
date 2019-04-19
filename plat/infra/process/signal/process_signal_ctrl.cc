@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-04-18 10:57
+ * @file     : process_signal_ctrl.cc
+ * @brief    : Process signal ctrl.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #include <stddef.h>
 
 #include "process_log.h"
@@ -27,6 +37,11 @@ ProcessSignalCtrl* ProcessSignalCtrl::getInstance()
 
 ProcessSignalAction ProcessSignalCtrl::GetSignalAction(ProcessSignal& sig)
 {
+    return GetSignalAction(std::move(sig));
+}
+
+ProcessSignalAction ProcessSignalCtrl::GetSignalAction(ProcessSignal&& sig)
+{
     ProcessSignalAction action;
     auto it = register_map_.find(sig);
     if (it != register_map_.end()) {
@@ -40,10 +55,20 @@ ProcessSignalSet ProcessSignalCtrl::GetSignalMask()
     return mask_set_;
 }
 
+ProcessRet ProcessSignalCtrl::Register(ProcessSignal& sig, ProcessSignalAction& action)
+{
+    return Register(std::move(sig), std::move(action));
+}
+
 ProcessRet ProcessSignalCtrl::Register(ProcessSignal&& sig, ProcessSignalAction&& action)
 {
     ProcessSignalAction old_action;
     return Register(std::move(sig), std::move(action), std::move(old_action));
+}
+
+ProcessRet ProcessSignalCtrl::Register(ProcessSignal& sig, ProcessSignalAction& new_action, ProcessSignalAction& old_action)
+{
+    return Register(std::move(sig), std::move(new_action), std::move(old_action));
 }
 
 ProcessRet ProcessSignalCtrl::Register(ProcessSignal&& sig, ProcessSignalAction&& new_action, ProcessSignalAction&& old_action)
@@ -73,9 +98,19 @@ ProcessRet ProcessSignalCtrl::UnRegister()
     return ProcessRet::SUCCESS;
 }
 
+ProcessRet ProcessSignalCtrl::UnRegister(ProcessSignal& sig)
+{
+    return UnRegister(std::move(sig));
+}
+
 ProcessRet ProcessSignalCtrl::UnRegister(ProcessSignal&& sig)
 {
     ProcessSignalAction old_action;
+    return UnRegister(std::move(sig), std::move(old_action));
+}
+
+ProcessRet ProcessSignalCtrl::UnRegister(ProcessSignal& sig, ProcessSignalAction& old_action)
+{
     return UnRegister(std::move(sig), std::move(old_action));
 }
 
@@ -102,6 +137,11 @@ ProcessRet ProcessSignalCtrl::Revert()
     return ProcessRet::SUCCESS;
 }
 
+ProcessRet ProcessSignalCtrl::Revert(ProcessSignal& sig)
+{
+    return Revert(std::move(sig));
+}
+
 ProcessRet ProcessSignalCtrl::Revert(ProcessSignal&& sig)
 {
     auto it = last_register_map_.find(sig);
@@ -122,18 +162,28 @@ ProcessRet ProcessSignalCtrl::Mask()
 
 ProcessRet ProcessSignalCtrl::Mask(ProcessSignalSet& set)
 {
+    return Mask(std::move(set));
+}
+
+ProcessRet ProcessSignalCtrl::Mask(ProcessSignalSet&& set)
+{
     ProcessSignalSet old_set;
     return Mask(set, old_set);
 }
 
 ProcessRet ProcessSignalCtrl::Mask(ProcessSignalSet& new_set, ProcessSignalSet& old_set)
 {
-    ProcessRet ret = _mask_signal(SignalMaskType::APPEND, new_set, old_set);
+    return Mask(std::move(new_set), std::move(old_set));
+}
+
+ProcessRet ProcessSignalCtrl::Mask(ProcessSignalSet&& new_set, ProcessSignalSet&& old_set)
+{
+    ProcessRet ret = _mask_signal(SignalMaskType::APPEND, std::move(new_set), std::move(old_set));
     if (ret != ProcessRet::SUCCESS) {
         return ret;
     }
     last_mask_set_ = old_set;
-    ret = _mask_signal(SignalMaskType::GETMASK, mask_set_, mask_set_);
+    ret = _mask_signal(SignalMaskType::GETMASK, std::move(mask_set_), std::move(mask_set_));
     if (ret != ProcessRet::SUCCESS) {
         return ret;
     }
@@ -142,13 +192,23 @@ ProcessRet ProcessSignalCtrl::Mask(ProcessSignalSet& new_set, ProcessSignalSet& 
 
 ProcessRet ProcessSignalCtrl::MaskReplace(ProcessSignalSet& set)
 {
+    return MaskReplace(std::move(set));
+}
+
+ProcessRet ProcessSignalCtrl::MaskReplace(ProcessSignalSet&& set)
+{
     ProcessSignalSet old_set;
     return MaskReplace(set, old_set);
 }
 
 ProcessRet ProcessSignalCtrl::MaskReplace(ProcessSignalSet& new_set, ProcessSignalSet& old_set)
 {
-    ProcessRet ret = _mask_signal(SignalMaskType::REPLACE, new_set, old_set);
+    return MaskReplace(std::move(new_set), std::move(old_set));
+}
+
+ProcessRet ProcessSignalCtrl::MaskReplace(ProcessSignalSet&& new_set, ProcessSignalSet&& old_set)
+{
+    ProcessRet ret = _mask_signal(SignalMaskType::REPLACE, std::move(new_set), std::move(old_set));
     if (ret != ProcessRet::SUCCESS) {
         return ret;
     }
@@ -167,18 +227,28 @@ ProcessRet ProcessSignalCtrl::UnMask()
 
 ProcessRet ProcessSignalCtrl::UnMask(ProcessSignalSet& set)
 {
+    return UnMask(std::move(set));
+}
+
+ProcessRet ProcessSignalCtrl::UnMask(ProcessSignalSet&& set)
+{
     ProcessSignalSet old_set;
     return UnMask(set, old_set);
 }
 
 ProcessRet ProcessSignalCtrl::UnMask(ProcessSignalSet& new_set, ProcessSignalSet& old_set)
 {
-    ProcessRet ret = _mask_signal(SignalMaskType::SUBTRACT, new_set, old_set);
+    return UnMask(std::move(new_set), std::move(old_set));
+}
+
+ProcessRet ProcessSignalCtrl::UnMask(ProcessSignalSet&& new_set, ProcessSignalSet&& old_set)
+{
+    ProcessRet ret = _mask_signal(SignalMaskType::SUBTRACT, std::move(new_set), std::move(old_set));
     if (ret != ProcessRet::SUCCESS) {
         return ret;
     }
     last_mask_set_ = old_set;
-    ret = _mask_signal(SignalMaskType::GETMASK, mask_set_, mask_set_);
+    ret = _mask_signal(SignalMaskType::GETMASK, std::move(mask_set_), std::move(mask_set_));
     if (ret != ProcessRet::SUCCESS) {
         return ret;
     }
@@ -199,7 +269,7 @@ ProcessRet ProcessSignalCtrl::_register_signal(ProcessSignal&& sig, ProcessSigna
     return ProcessRet::SUCCESS;
 }
 
-ProcessRet ProcessSignalCtrl::_mask_signal(SignalMaskType how, ProcessSignalSet& new_set, ProcessSignalSet& old_set)
+ProcessRet ProcessSignalCtrl::_mask_signal(SignalMaskType how, ProcessSignalSet&& new_set, ProcessSignalSet&& old_set)
 {
     switch (how) {
         case SignalMaskType::GETMASK:

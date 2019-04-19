@@ -43,6 +43,7 @@ public:
     * @returns  ProcessRet.
     */
     ProcessRet AddSig(ProcessSignal& sig);
+    ProcessRet AddSig(ProcessSignal&& sig);
     /**
     * @brief AddAll - Add all signal.
     *
@@ -57,6 +58,7 @@ public:
     * @returns  ProcessRet.
     */
     ProcessRet DelSig(ProcessSignal& sig);
+    ProcessRet DelSig(ProcessSignal&& sig);
     /**
     * @brief DelAll - Clean set.
     *
@@ -71,6 +73,7 @@ public:
     * @returns  bool.
     */
     bool HasSig(ProcessSignal& sig);
+    bool HasSig(ProcessSignal&& sig);
 
 private:
     sigset_t set_;  ///< Linux signal set.
