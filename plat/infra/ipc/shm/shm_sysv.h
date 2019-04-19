@@ -1,5 +1,5 @@
-#ifndef __SYSV_SHM_H__
-#define __SYSV_SHM_H__
+#ifndef __SHM_SYSV_H__
+#define __SHM_SYSV_H__
 
 #include <sys/types.h>
 #include <sys/shm.h>
@@ -11,11 +11,11 @@
 
 namespace ipc {
 
-class SysVShm {
+class ShmSysV {
 public:
-    SysVShm(key_t key, size_t size);
-    SysVShm(key_t key, size_t size, mode_t mode);
-    ~SysVShm();
+    ShmSysV(key_t key, size_t size);
+    ShmSysV(key_t key, size_t size, mode_t mode);
+    ~ShmSysV();
     
     static key_t GenKey(const char *pathname, int proj_id);
     IpcRet At();
