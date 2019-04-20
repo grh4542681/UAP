@@ -41,7 +41,8 @@ int main(int argc, char** argv)
     auto process_type = test_process;
     process::single::ProcessSingle<decltype(process_type)> p1("process_test_single:child1", test_process);
     p1.SetSigChldCallback(dead);
-    p1.Run();
+//    p1.Run();
+    p1.RunDaemon();
 
     sleep(5);
     file::FileC fd(stdout);

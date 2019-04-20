@@ -14,7 +14,7 @@
 #include <map>
 
 #include "mempool.h"
-
+#include "mutex/thread_rw_lock.h"
 #include "process_return.h"
 #include "process_signal.h"
 #include "process_signal_set.h"
@@ -27,6 +27,8 @@ namespace process::signal {
 * @brief - Process level signal ctrl.
 */
 class ProcessSignalCtrl {
+public:
+    thread::mutex::ThreadRWLock op_lock;                               ///< Muti thread lock
 public:
     /**
     * @brief GetSignalAction - Get the action of the current corresponding signal.

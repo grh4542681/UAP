@@ -6,8 +6,6 @@
 
 #include "ipc_log.h"
 #include "ipc_return.h"
-#include "rm_return.h"
-#include "rm_controllable.h"
 
 namespace ipc {
 
@@ -17,7 +15,6 @@ public:
     ShmSysV(key_t key, size_t size, mode_t mode);
     ~ShmSysV();
     
-    static key_t GenKey(const char *pathname, int proj_id);
     IpcRet At();
     IpcRet Dt();
 
@@ -30,7 +27,6 @@ public:
     IpcRet Destory();
 
 private:
-    RMControllable rm_ctrl_;
     int shmid_;
     key_t key_;
     size_t size;
@@ -42,18 +38,6 @@ private:
         switch (ierrno) {
             case 0:
                 return IpcRet::SUCCESS;
-            case EEXIST:
-                return IpcRet::SEM_EEXIST;
-            case EACCES:
-                return IpcRet::SEM_EACCES;
-            case EINVAL:
-                return IpcRet::SEM_EINVAL;
-            case ENOENT:
-                return IpcRet::SEM_ENOENT;
-            case ENOMEM:
-                return IpcRet::SEM_ENOMEM;
-            case ENOSPC:
-                return IpcRet::SEM_ENOSPC;
             default:
                 return IpcRet::EUNKOWNERRNO;
         }   
@@ -63,19 +47,6 @@ private:
     {   
         switch (ret) {
             case IpcRet::SUCCESS:
-                return 0;
-            case IpcRet::SEM_EEXIST:
-                return EEXIST;
-            case IpcRet::SEM_EACCES:
-                return EACCES;
-            case IpcRet::SEM_EINVAL:
-                return EINVAL;
-            case IpcRet::SEM_ENOENT:
-                return ENOENT;
-            case IpcRet::SEM_ENOMEM:
-                return ENOMEM;
-            case IpcRet::SEM_ENOSPC:
-                return ENOSPC;
             default:
                 return (-1);
         }   

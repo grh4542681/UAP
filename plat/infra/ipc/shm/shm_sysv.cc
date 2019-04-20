@@ -17,11 +17,6 @@ ShmSysV::~ShmSysV()
 
 }
 
-static key_t ShmSysV::GenKey(const char *pathname, int proj_id)
-{
-    return ftok(pathname, proj_id);
-}
-
 IpcRet ShmSysV::At()
 {
 
