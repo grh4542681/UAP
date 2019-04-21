@@ -2,6 +2,7 @@
 #define __FILE_MODE_H__
 
 #include <string>
+#include <string.h>
 
 #include "file_return.h"
 
@@ -17,21 +18,11 @@ enum class FileMode : int {
     APPEND = 0x40,   
 };
 
-int operator|(FileMode a, FileMode b) {
-    return ((int)a | (int)b);
-}
-int operator|(int a, FileMode b) {
-    return (a | (int)b);
-}
-int operator|(FileMode a, int b) {
-    return ((int)a | b);
-}
-bool operator==(int a, FileMode b) {
-    return (a == (int)b);
-}
-bool operator==(FileMode a, int b) {
-    return ((int)a == b);
-}
+int operator|(FileMode a, FileMode b);
+int operator|(int a, FileMode b);
+int operator|(FileMode a, int b);
+bool operator==(int a, FileMode b);
+bool operator==(FileMode a, int b);
 
 class FileModeOp {
 public:

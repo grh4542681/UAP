@@ -1,4 +1,6 @@
-SET(LIBGRHFILEOP_SRC file_c.cc)
+SET(LIBGRHFILEOP_SRC file_c.cc
+                     file_mode.cc
+                     )
 ADD_LIBRARY(GRHfileop_SO SHARED ${LIBGRHFILEOP_SRC})
 ADD_LIBRARY(GRHfileop_A STATIC ${LIBGRHFILEOP_SRC})
 TARGET_LINK_LIBRARIES(GRHfileop_SO pthread)

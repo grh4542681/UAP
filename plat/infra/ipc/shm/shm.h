@@ -5,6 +5,7 @@
 #include <sys/types.h>
 
 #include "ipc_return.h"
+#include "shm_mode.h"
 
 namespace ipc::shm {
 
@@ -20,25 +21,27 @@ public:
         head_ = NULL;
         size_ = 0;
     }
-    Shm(const Shm& other) {
-        path_ = other.path_;
-        head_ = NULL;
-        size_ = other.size_;
-    }
     virtual ~Shm() { }
 
-    virtual IpcRet Create(size_t size);
-    virtual IpcRet Destroy();
-    virtual IpcRet Open(ShmMode mode);
-    virtual IpcRet Close();
+    virtual IpcRet Create(mode_t mode, size_t size) { return IpcRet::SUCCESS; }
+    virtual IpcRet Destroy() { return IpcRet::SUCCESS; }
+    virtual IpcRet Open(ShmMode mode) { return IpcRet::SUCCESS; }
+    virtual IpcRet Close() { return IpcRet::SUCCESS; }
+    virtual IpcRet Sync() { return IpcRet::SUCCESS; }
 
     void* GetHeadPtr() {
         return head_;
     }
-private:
+protected:
     std::string path_;
     size_t size_;
     void* head_;
+
+    Shm(const Shm& other) {
+        path_ = other.path_;
+        head_ = head_;
+        size_ = other.size_;
+    }
 };
 
 }

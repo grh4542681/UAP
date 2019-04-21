@@ -6,7 +6,7 @@
 
 namespace util::time {
 
-TimeC::TimeC()
+TimeC::TimeC() : Time()
 {
     memset(&tp_, 0, sizeof(struct timespec));
 }

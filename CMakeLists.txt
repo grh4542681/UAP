@@ -23,7 +23,7 @@ SET(CXX_COMPILE_FLAGS "-std=c++17 ${COMPILE_WARNINGS} ${COMPILE_OPTIMIZATION} ${
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_COMPILE_FLAGS}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_COMPILE_FLAGS}")
 
-INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
+SET (PLAT_INFRA_HRD "${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     "${FRAM_ROOT_PATH}/plat/infra/mempool"
                     "${FRAM_ROOT_PATH}/plat/infra/thread"
                     "${FRAM_ROOT_PATH}/plat/infra/process"
@@ -34,5 +34,25 @@ INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     "${FRAM_ROOT_PATH}/plat/infra/ipc"
                     "${FRAM_ROOT_PATH}/plat/infra/util"
                     )
+
+SET (COMMON_OS_LIB rt
+                   pthread
+                   m
+                   )
+
+SET (PLAT_INFRA_LIB libgfile.so
+                    libgipc.so
+                    libgmp.so
+                    libgns.so
+                    libgparser.so
+                    libgprocess.so
+                    libgrm.so
+                    libgrmipc.so
+                    libgsocket.so
+                    libgthread.so
+                    libgtime.so
+                    )
+
+INCLUDE_DIRECTORIES(${PLAT_INFRA_HRD})
 
 ADD_SUBDIRECTORY(plat)

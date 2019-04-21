@@ -3,23 +3,25 @@
 #include "ipc_log.h"
 #include "ipc_return.h"
 #include "shm.h"
-#include "shm_mode.h"
 
-namespace ipc {
+namespace ipc::shm {
 
-class ShmPosix : public Shm{
+class ShmPosix : public Shm {
 public:
     ShmPosix(std::string path);
     ShmPosix();
     ~ShmPosix();
 
-    IpcRet Create(size_t size);
+    IpcRet Create(mode_t mode, size_t size);
     IpcRet Destroy();
     IpcRet Open(ShmMode mode);
     IpcRet Close();
+    IpcRet Sync();
 
 private:
-    int shmid_;
+    int fd_;
+
+    ShmPosix(const ShmPosix& other);
 
     static IpcRet _errno2ret(int ierrno)
     {   

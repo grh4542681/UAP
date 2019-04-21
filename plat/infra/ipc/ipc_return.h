@@ -16,7 +16,19 @@ enum class IpcRet: int {
 // fifo return val
     FIFO_ESOCKPAIR,
 
-//sem system return val
+// shm return val
+    SHM_EMODE,
+
+    SHM_EACCES,
+    SHM_EEXIST,
+    SHM_EINVAL,
+    SHM_ENFILE,
+    SHM_ENOENT,
+    SHM_ENOMEM,
+    SHM_ENOSPC,
+    SHM_EPERM,
+
+// sem return val
     SEM_EEXIST,
     SEM_EACCES,
     SEM_EINVAL,
