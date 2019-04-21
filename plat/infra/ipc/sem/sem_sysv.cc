@@ -8,18 +8,18 @@
 
 #include "ipc_return.h"
 #include "ipc_log.h"
-#include "sysv_sem.h"
+#include "sem_sysv.h"
 
 
 namespace ipc {
 //public
 //
 /**
-* @brief SysVSem - This function is constructor.
+* @brief SemSysV - This function is constructor.
 *
 * @param [key] - The key of semaphore set.
 */
-SysVSem::SysVSem(key_t key) : key_(key){
+SemSysV::SemSysV(key_t key) : key_(key){
     this->semnum_ = 1;
     this->mode_ = 0666;
     this->semval_ = 1;
@@ -27,64 +27,64 @@ SysVSem::SysVSem(key_t key) : key_(key){
 }
 
 /**
-* @brief SysVSem - This function is constructor.
+* @brief SemSysV - This function is constructor.
 *
 * @param [key] - The key of semaphore set.
 * @param [semnum] - How many semaphore you want created in semaphore set,default is 1.
 * @param [mode] - Access permission of semaphore set,default is 0666.
 * @param [semval] - semaphore init value,default is 0.
 */
-SysVSem::SysVSem(key_t key, unsigned short semnum, mode_t mode, unsigned short semval)
+SemSysV::SemSysV(key_t key, unsigned short semnum, mode_t mode, unsigned short semval)
                     : key_(key), semnum_(semnum), mode_(mode), semval_(semval){
     this->init_flag_ = 0;
 }
 
 /**
-* @brief ~SysVSem - This function is destructor.
+* @brief ~SemSysV - This function is destructor.
 */
-SysVSem::~SysVSem(){
+SemSysV::~SemSysV(){
 }
 
-key_t SysVSem::GenKey(const char *pathname, int proj_id){
+key_t SemSysV::GenKey(const char *pathname, int proj_id){
     return ftok(pathname, proj_id);
 }
 
-IpcRet SysVSem::P()
+IpcRet SemSysV::P()
 {
     return _p(0, 1, NULL);
 }
 
-IpcRet SysVSem::P(struct timespec* over_time)
+IpcRet SemSysV::P(struct timespec* over_time)
 {
     return _p(0, 1, over_time);
 }
 
-IpcRet SysVSem::P(unsigned short op_num)
+IpcRet SemSysV::P(unsigned short op_num)
 {
     return _p(0, op_num, NULL);
 }
 
-IpcRet SysVSem::P(unsigned short op_num, struct timespec* over_time)
+IpcRet SemSysV::P(unsigned short op_num, struct timespec* over_time)
 {
     return _p(0, op_num, over_time);
 }
 
-IpcRet SysVSem::P(unsigned short sem_index, unsigned short op_num, struct timespec* over_time)
+IpcRet SemSysV::P(unsigned short sem_index, unsigned short op_num, struct timespec* over_time)
 {
     return _p(sem_index, op_num, over_time);
 }
 
-IpcRet SysVSem::V()
+IpcRet SemSysV::V()
 {
     return _v(0, 1);
 }
 
-IpcRet SysVSem::V(unsigned short op_num)
+IpcRet SemSysV::V(unsigned short op_num)
 {
     return _v(0, op_num);
 }
 
-IpcRet SysVSem::V(unsigned short sem_index, unsigned short op_num)
+IpcRet SemSysV::V(unsigned short sem_index, unsigned short op_num)
 {
     return _v(sem_index, op_num);
 }
@@ -96,7 +96,7 @@ IpcRet SysVSem::V(unsigned short sem_index, unsigned short op_num)
 *
 * @returns  IpcRet
 */
-IpcRet SysVSem::Create()
+IpcRet SemSysV::Create()
 {
     int ret;
     int loop;
@@ -136,7 +136,7 @@ IpcRet SysVSem::Create()
 /*
  * This function is destroy the semaphore set
  */
-IpcRet SysVSem::Destory()
+IpcRet SemSysV::Destory()
 {
     int ret;
     int tmp_errno;
@@ -163,7 +163,7 @@ IpcRet SysVSem::Destory()
 *
 * @returns  IpcRet
 */
-IpcRet SysVSem::_p(unsigned short sem_index, unsigned short op_num, struct timespec* over_time)
+IpcRet SemSysV::_p(unsigned short sem_index, unsigned short op_num, struct timespec* over_time)
 {
     int tmp_errno = 0;
     struct sembuf ops;
@@ -219,7 +219,7 @@ IpcRet SysVSem::_p(unsigned short sem_index, unsigned short op_num, struct times
 *
 * @returns  IpcRet
 */
-IpcRet SysVSem::_v(unsigned short sem_index, unsigned short op_num)
+IpcRet SemSysV::_v(unsigned short sem_index, unsigned short op_num)
 {
     int tmp_errno = 0;
     struct sembuf ops;

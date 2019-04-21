@@ -1,5 +1,5 @@
-#ifndef __POSIX_SEM__
-#define __POSIX_SEM__
+#ifndef __SEM_SYSV_H___
+#define __SEM_SYSV_H___
 
 #include <sys/types.h>
 #include <errno.h>
@@ -8,11 +8,11 @@
 
 namespace ipc {
 
-class SysVSem {
+class SemSysV {
 public:
-    SysVSem(key_t key);
-    SysVSem(key_t key, unsigned short semnum, mode_t mode, unsigned short semval);
-    ~SysVSem();
+    SemSysV(key_t key);
+    SemSysV(key_t key, unsigned short semnum, mode_t mode, unsigned short semval);
+    ~SemSysV();
 
     static key_t GenKey(const char *pathname, int proj_id);
 

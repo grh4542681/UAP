@@ -2,12 +2,12 @@
 
 namespace ipc {
 
-ShmSysV::ShmSysV(key_t key, size_t size)
+ShmSysV::ShmSysV(std::string path)
 {
 
 }
 
-ShmSysV::ShmSysV(key_t key, size_t size, mode_t mode)
+ShmSysV::ShmSysV()
 {
 
 }
@@ -17,37 +17,7 @@ ShmSysV::~ShmSysV()
 
 }
 
-IpcRet ShmSysV::At()
-{
-
-}
-
-IpcRet ShmSysV::Dt()
-{
-
-}
-
-IpcRet ShmSysV::Write(void* data, void* datalen)
-{
-
-}
-
-IpcRet ShmSysV::Write(void* pstart, void* data, void* datalen)
-{
-
-}
-
-IpcRet ShmSysV::Read(void* data, void* datalen)
-{
-
-}
-
-IpcRet ShmSysV::Read(void* pstart, void* data, void* datalen)
-{
-
-}
-
-IpcRet ShmSysV::Create()
+IpcRet ShmSysV::Create(size_t size)
 {
 
 }
@@ -57,15 +27,14 @@ IpcRet ShmSysV::Destory()
 
 }
 
-//private
-IpcRet ShmSysV::_write(void* pstart, void* data, unsigned int datalen)
+IpcRet Open(ShmMode mode)
 {
 
 }
 
-IpcRet ShmSysV::_read(void* pstart, void* data, unsigned int datalen)
+IpcRet Close()
 {
-
+    
 }
 
 } //namespace end

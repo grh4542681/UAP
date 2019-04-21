@@ -6,32 +6,24 @@
 
 #include "ipc_log.h"
 #include "ipc_return.h"
+#include "shm.h"
+#include "shm_mode.h"
 
 namespace ipc {
 
-class ShmSysV {
+class ShmSysV : public Shm{
 public:
-    ShmSysV(key_t key, size_t size);
-    ShmSysV(key_t key, size_t size, mode_t mode);
+    ShmSysV(std::string path);
+    ShmSysV();
     ~ShmSysV();
-    
-    IpcRet At();
-    IpcRet Dt();
 
-    IpcRet Write(void* data, void* datalen);
-    IpcRet Write(void* pstart, void* data, void* datalen);
-    IpcRet Read(void* data, void* datalen);
-    IpcRet Read(void* pstart, void* data, void* datalen);
-
-    IpcRet Create();
-    IpcRet Destory();
+    IpcRet Create(size_t size);
+    IpcRet Destroy();
+    IpcRet Open(ShmMode mode);
+    IpcRet Close();
 
 private:
     int shmid_;
-    key_t key_;
-    size_t size;
-    mode_t mode_;
-    int init_flag_;
 
     static IpcRet _errno2ret(int ierrno)
     {   
@@ -52,8 +44,6 @@ private:
         }   
     }
     
-    IpcRet _write(void* pstart, void* data, unsigned int datalen);
-    IpcRet _read(void* pstart, void* data, unsigned int datalen);
 };
 
 }//namespace ipc end
