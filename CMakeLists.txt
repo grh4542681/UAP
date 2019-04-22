@@ -43,11 +43,9 @@ SET (COMMON_OS_LIB rt
 SET (PLAT_INFRA_LIB libgfile.so
                     libgipc.so
                     libgmp.so
-                    libgns.so
                     libgparser.so
                     libgprocess.so
                     libgrm.so
-                    libgrmipc.so
                     libgsocket.so
                     libgthread.so
                     libgtime.so

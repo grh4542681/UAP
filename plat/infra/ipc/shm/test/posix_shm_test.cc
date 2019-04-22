@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include "string.h"
 #include "shm/shm_posix.h"
-#include "shm/shm_mode.h"
+#include "ipc_mode.h"
 
 int main()
 {
@@ -11,7 +11,7 @@ int main()
         return 0;
     }
     sleep(10);
-    shm.Open(ipc::shm::ShmMode::READ_WRITE);
+    shm.Open(ipc::IpcMode::READ_WRITE);
     void* p = shm.GetHeadPtr();
     printf("%p\n", p);
 //    memcpy((char*)p, "hello", 5);

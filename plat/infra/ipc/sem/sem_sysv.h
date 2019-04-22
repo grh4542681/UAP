@@ -5,44 +5,35 @@
 #include <errno.h>
 
 #include "ipc_return.h"
+#include "sem.h"
 
-namespace ipc {
+namespace ipc::sem {
 
-class SemSysV {
+class SemSysV : public Sem {
 public:
-    SemSysV(key_t key);
-    SemSysV(key_t key, unsigned short semnum, mode_t mode, unsigned short semval);
+    SemSysV();
+    SemSysV(std::string path);
     ~SemSysV();
 
-    static key_t GenKey(const char *pathname, int proj_id);
-
-    IpcRet P();
-    IpcRet P(struct timespec* over_time);
-    IpcRet P(unsigned short op_num);
-    IpcRet P(unsigned short op_num, struct timespec* over_time);
-    IpcRet P(unsigned short sem_index, unsigned short op_num, struct timespec* over_time);
-
-    IpcRet V();
-    IpcRet V(unsigned short op_num);
-    IpcRet V(unsigned short sem_index, unsigned short op_num);
-
-    IpcRet Create();
+    IpcRet Create(mode_t mode);
     IpcRet Destory();
+    IpcRet Open(IpcMode mode);
+    IpcRet Close();
+
+    IpcRet V(unsigned int num, util::time::Time* overtime);
+    IpcRet P(unsigned int num);
 
 private:
-    typedef union _semun {
-        int              val_;    // Value for SETVAL
-        struct semid_ds *ds_buf_;    // Buffer for IPC_STAT, IPC_SET
-        unsigned short  *array_;  // Array for GETALL, SETALL
-        struct seminfo  *info_buf_;    // Buffer for IPC_INFO(Linux-specific)
-    }SemUn;
+    union semun {
+        int              val;    /* Value for SETVAL */
+        struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+        unsigned short  *array;  /* Array for GETALL, SETALL */
+        struct seminfo  *__buf;  /* Buffer for IPC_INFO
+                                       (Linux-specific) */
+    };
 
-    int init_flag_;
     int semid_;
     key_t key_;
-    unsigned short semnum_;
-    mode_t mode_;
-    unsigned short semval_;
 
     static IpcRet _errno2ret(int ierrno)
     {
@@ -88,8 +79,8 @@ private:
         }
     }
 
-    IpcRet _p(unsigned short sem_index, unsigned short op_num, struct timespec* over_time);
-    IpcRet _v(unsigned short sem_index, unsigned short op_num);
+//    IpcRet _p(unsigned short sem_index, unsigned short op_num, struct timespec* over_time);
+//    IpcRet _v(unsigned short sem_index, unsigned short op_num);
 };
 
 } // namespace ipc

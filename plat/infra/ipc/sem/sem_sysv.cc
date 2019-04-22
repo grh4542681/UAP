@@ -11,125 +11,47 @@
 #include "sem_sysv.h"
 
 
-namespace ipc {
-//public
-//
-/**
-* @brief SemSysV - This function is constructor.
-*
-* @param [key] - The key of semaphore set.
-*/
-SemSysV::SemSysV(key_t key) : key_(key){
-    this->semnum_ = 1;
-    this->mode_ = 0666;
-    this->semval_ = 1;
-    this->init_flag_ = 0;
+namespace ipc::sem {
+
+SemSysV::SemSysV() : Sem()
+{
+    key_ = 0;
+    semid_ = -1;
 }
 
-/**
-* @brief SemSysV - This function is constructor.
-*
-* @param [key] - The key of semaphore set.
-* @param [semnum] - How many semaphore you want created in semaphore set,default is 1.
-* @param [mode] - Access permission of semaphore set,default is 0666.
-* @param [semval] - semaphore init value,default is 0.
-*/
-SemSysV::SemSysV(key_t key, unsigned short semnum, mode_t mode, unsigned short semval)
-                    : key_(key), semnum_(semnum), mode_(mode), semval_(semval){
-    this->init_flag_ = 0;
+SemSysV::SemSysV(std::string path) : Sem(path)
+{
+    key_ = ftok(path.c_str(), 100);
+    semid_ = -1;
 }
 
 /**
 * @brief ~SemSysV - This function is destructor.
 */
 SemSysV::~SemSysV(){
+    if (init_flag_) {
+        Close();
+    }
 }
 
-key_t SemSysV::GenKey(const char *pathname, int proj_id){
-    return ftok(pathname, proj_id);
-}
-
-IpcRet SemSysV::P()
+IpcRet SemSysV::Create(mode_t mode)
 {
-    return _p(0, 1, NULL);
-}
-
-IpcRet SemSysV::P(struct timespec* over_time)
-{
-    return _p(0, 1, over_time);
-}
-
-IpcRet SemSysV::P(unsigned short op_num)
-{
-    return _p(0, op_num, NULL);
-}
-
-IpcRet SemSysV::P(unsigned short op_num, struct timespec* over_time)
-{
-    return _p(0, op_num, over_time);
-}
-
-IpcRet SemSysV::P(unsigned short sem_index, unsigned short op_num, struct timespec* over_time)
-{
-    return _p(sem_index, op_num, over_time);
-}
-
-IpcRet SemSysV::V()
-{
-    return _v(0, 1);
-}
-
-IpcRet SemSysV::V(unsigned short op_num)
-{
-    return _v(0, op_num);
-}
-
-IpcRet SemSysV::V(unsigned short sem_index, unsigned short op_num)
-{
-    return _v(sem_index, op_num);
-}
-
-/**
-* @brief _create - Its function is create a semaphore set.If the 
-*                  semaphore set abort the key was already exists,
-*                  it will be return error
-*
-* @returns  IpcRet
-*/
-IpcRet SemSysV::Create()
-{
-    int ret;
-    int loop;
     int tmp_errno;
-    unsigned short* ptr;
-    SemUn args;
+    union semun args;
 
-    if ((ret = semget(this->key_, this->semnum_, (this->mode_)|IPC_CREAT)) == -1) {
+    semid_ = semget(key_, 1, mode|IPC_CREAT|IPC_EXCL);
+    if (semid_ < 0) {
         tmp_errno = errno;
         IPC_ERROR("%s", strerror(tmp_errno));
-        return IpcRet::ERROR;
+        return _errno2ret(tmp_errno);
     }
-    this->semid_ = ret;
+    args.val = 0;
 
-    ptr = (short unsigned int*)malloc(this->semnum_ * sizeof(unsigned short));
-    if (!ptr) {
-        return IpcRet::ERROR;
-    }
-
-    for (loop = 0; loop < this->semnum_; loop++) {
-        ptr[loop] = this->semval_;
-    }
-    args.array_ = ptr;
-
-    if ((ret = semctl(this->semid_, 0, SETALL, args)) == -1) {
+    if (semctl(semid_, 0, SETVAL, args) < 0) {
         tmp_errno = errno;
-        free(ptr);
-        return IpcRet::ERROR;
+        return _errno2ret(tmp_errno);
     }
-    free(ptr);
-    IPC_DEBUG("Create semaphore,semid [%d]", this->semid_);
-    this->init_flag_ = 1;
-
+    init_flag_ = true;
     return IpcRet::SUCCESS;
 }
 
@@ -138,19 +60,70 @@ IpcRet SemSysV::Create()
  */
 IpcRet SemSysV::Destory()
 {
-    int ret;
     int tmp_errno;
-    if (this->init_flag_) {
-        if ((ret = semctl(this->semid_, 0, IPC_RMID)) == -1) {
+    if (semid_ < 0) {
+        semid_ = semget(key_, 0, 0);
+        if (semid_ < 0) {
             tmp_errno = errno;
             IPC_ERROR("%s", strerror(tmp_errno));
-            return IpcRet::ERROR;
+            return _errno2ret(tmp_errno);
         }
-        IPC_DEBUG("Destroy semaphore,semid [%d]", this->semid_);
     }
+    if (semctl(this->semid_, 0, IPC_RMID) < 0) {
+        tmp_errno = errno;
+        IPC_ERROR("%s", strerror(tmp_errno));
+        return _errno2ret(tmp_errno);
+    }
+    semid_ = -1;
+    init_flag_ = false;
     return IpcRet::SUCCESS;
 }
 
+IpcRet SemSysV::Open(IpcMode mode)
+{
+    if (semid_ > 0) {
+        return IpcRet::SUCCESS;
+    }
+    mode_t smode = 0;
+    if (mode | IpcMode::READ_ONLY) {
+        smode |= 0x04;
+    } else if (mode | IpcMode::WRITE_ONLY) {
+        smode |= 0x02;
+    } else if (mode | IpcMode::READ_WRITE) {
+        smode |= 0x06;
+    } else {
+        return IpcRet::SHM_EMODE;
+    }
+
+    semid_ = semget(key_, 0, smode);
+    if (semid_ < 0) {
+        int tmp_errno = errno;
+        IPC_ERROR("%s", strerror(tmp_errno));
+        return _errno2ret(tmp_errno);
+    }
+    init_flag_ = true;
+    return IpcRet::SUCCESS;
+}
+
+IpcRet SemSysV::Close()
+{
+    if (semid_ > 0 || init_flag_) {
+        semid_ = -1;
+        init_flag_ = false;
+    }
+}
+
+IpcRet SemSysV::V(unsigned int num, util::time::Time* overtime)
+{
+
+}
+
+IpcRet SemSysV::P(unsigned int num)
+{
+
+}
+
+#if 0
 //private
 //
 /**
@@ -234,5 +207,6 @@ IpcRet SemSysV::_v(unsigned short sem_index, unsigned short op_num)
     tmp_errno = errno;
     return _errno2ret(tmp_errno);
 }
+#endif
 
 } //namespace ipc

@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-04-22 13:48
+ * @file     : shm_sysv.cc
+ * @brief    : SystemV share memory.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #include <string.h>
 
 #include "ipc_log.h"
@@ -70,7 +80,7 @@ IpcRet ShmSysV::Destroy()
     return IpcRet::SUCCESS;
 }
 
-IpcRet ShmSysV::Open(ShmMode mode)
+IpcRet ShmSysV::Open(IpcMode mode)
 {
     if (path_.empty()) {
         return IpcRet::EINIT;
@@ -89,14 +99,14 @@ IpcRet ShmSysV::Open(ShmMode mode)
         return _errno2ret(tmp_errno);
     }
     size_ = shm_info.shm_segsz;
-    if (mode | ShmMode::READ_ONLY) {
+    if (mode | IpcMode::READ_ONLY) {
         head_ = shmat(shmid_, NULL, SHM_RDONLY);
         if ((long)head_ < 0) {
             int tmp_errno = errno;
             head_ = NULL;
             return _errno2ret(tmp_errno);
         }
-    } else if ((mode | ShmMode::WRITE_ONLY) || (mode | ShmMode::READ_WRITE)) {
+    } else if ((mode | IpcMode::WRITE_ONLY) || (mode | IpcMode::READ_WRITE)) {
         head_ = shmat(shmid_, NULL, 0);
         if ((long)head_ < 0) {
             int tmp_errno = errno;

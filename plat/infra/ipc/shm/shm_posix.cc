@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-04-22 13:57
+ * @file     : shm_posix.cc
+ * @brief    : Posix share memory.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -77,7 +87,7 @@ IpcRet ShmPosix::Destroy()
     return IpcRet::SUCCESS;
 }
 
-IpcRet ShmPosix::Open(ShmMode mode)
+IpcRet ShmPosix::Open(IpcMode mode)
 {
     if (path_.empty() || size_ <= 0) {
         return IpcRet::EINIT;
@@ -102,9 +112,9 @@ IpcRet ShmPosix::Open(ShmMode mode)
     size_ = mstat.st_size;
 
     int flags = 0;
-    if ((mode | ShmMode::READ_ONLY) || (mode | ShmMode::READ_WRITE)) {
+    if ((mode | IpcMode::READ_ONLY) || (mode | IpcMode::READ_WRITE)) {
         flags |= PROT_READ;
-    } else if ((mode | ShmMode::WRITE_ONLY) || (mode | ShmMode::READ_WRITE)) {
+    } else if ((mode | IpcMode::WRITE_ONLY) || (mode | IpcMode::READ_WRITE)) {
         flags |= PROT_WRITE;   
     } else {
         close(fd_);

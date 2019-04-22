@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-04-22 13:43
+ * @file     : shm_sysv.h
+ * @brief    : SystemV share memory.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #ifndef __SHM_SYSV_H__
 #define __SHM_SYSV_H__
 
@@ -10,21 +20,71 @@
 
 namespace ipc::shm {
 
+/**
+* @brief - SystemV share memory.
+*/
 class ShmSysV : public Shm {
 public:
+    /**
+    * @brief ShmSysV - Constructor.
+    *
+    * @param [path] - Share memory key.
+    */
     ShmSysV(std::string path);
+
+    /**
+    * @brief ShmSysV - Constructor
+    */
     ShmSysV();
+
+    /**
+    * @brief ~ShmSysV - Destructor.
+    */
     ~ShmSysV();
 
+    /**
+    * @brief Create - Create share memory.
+    *
+    * @param [mode] - Share memory access mode.
+    * @param [size] - Share memory size.
+    *
+    * @returns  IpcRet.
+    */
     IpcRet Create(mode_t mode, size_t size);
+
+    /**
+    * @brief Destroy - Destroy share memory.
+    *
+    * @returns  IpcRet.
+    */
     IpcRet Destroy();
-    IpcRet Open(ShmMode mode);
+
+    /**
+    * @brief Open - Open share memory.
+    *
+    * @param [mode] - Share memory read-write mode.
+    *
+    * @returns  IpcRet.
+    */
+    IpcRet Open(IpcMode mode);
+
+    /**
+    * @brief Close - Close share memory.
+    *
+    * @returns  IpcRet.
+    */
     IpcRet Close();
+
+    /**
+    * @brief Sync - Sync cache to share memory.(system v no use).
+    *
+    * @returns  IpcRet.
+    */
     IpcRet Sync();
 
 private:
-    key_t key_;
-    int shmid_;
+    key_t key_; ///< SystemV ipc key.
+    int shmid_; ///< SystemV shm id.
 
     ShmSysV(const ShmSysV& other);
 

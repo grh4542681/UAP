@@ -1,6 +1,7 @@
-SET(LIBGRHIPC_SRC shm/shm_mode.cc
+SET(LIBGRHIPC_SRC ipc_mode.cc
                   shm/shm_sysv.cc
                   shm/shm_posix.cc
+                  sem/sem_sysv.cc
                   socket/sock_pair.cc
                   )
 
