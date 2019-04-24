@@ -61,6 +61,7 @@ IpcRet ShmSysV::Create(mode_t mode, size_t size)
         return _errno2ret(tmp_errno);
     }
     size_ = shm_info.shm_segsz;
+    status_ = ShmStatus::OPEN;
     return IpcRet::SUCCESS;
 }
 
@@ -77,6 +78,7 @@ IpcRet ShmSysV::Destroy()
         int tmp_errno = errno;
         return _errno2ret(tmp_errno);
     }
+    status_ = ShmStatus::DESTROY;
     return IpcRet::SUCCESS;
 }
 
@@ -116,6 +118,7 @@ IpcRet ShmSysV::Open(IpcMode mode)
     } else {
         return IpcRet::SHM_EMODE;
     }
+    status_ = ShmStatus::OPEN;
     return IpcRet::SUCCESS;
 }
 
@@ -129,6 +132,7 @@ IpcRet ShmSysV::Close()
         return _errno2ret(tmp_errno);
     }
     head_ = NULL;
+    status_ = ShmStatus::CLOSE;
     return IpcRet::SUCCESS;
 }
 

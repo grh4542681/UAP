@@ -74,7 +74,7 @@ IpcRet ShmPosix::Create(mode_t mode, size_t size)
 
     close(fd_);
     fd_ = -1;
-
+    status_ = ShmStatus::CREATE;
     return IpcRet::SUCCESS;
 }
 
@@ -84,6 +84,7 @@ IpcRet ShmPosix::Destroy()
         int tmp_errno = errno;
         return _errno2ret(tmp_errno);
     }
+    status_ = ShmStatus::DESTROY;
     return IpcRet::SUCCESS;
 }
 
@@ -134,7 +135,7 @@ IpcRet ShmPosix::Open(IpcMode mode)
 
     close(fd_);
     fd_ = -1;
-
+    status_ = ShmStatus::OPEN;
     return IpcRet::SUCCESS;
 }
 
@@ -148,6 +149,7 @@ IpcRet ShmPosix::Close()
         return _errno2ret(tmp_errno);
     }
     head_ = NULL;
+    status_ = ShmStatus::CLOSE;
     return IpcRet::SUCCESS;
 }
 

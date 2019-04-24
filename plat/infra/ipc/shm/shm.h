@@ -16,6 +16,7 @@
 
 #include "ipc_return.h"
 #include "ipc_mode.h"
+#include "shm_status.h"
 
 namespace ipc::shm {
 
@@ -31,6 +32,7 @@ public:
         path_.clear();
         head_ = NULL;
         size_ = 0;
+        status_ = ShmStatus::UNKNOW;
     }
 
     /**
@@ -101,6 +103,7 @@ protected:
     std::string path_;  ///< Share memory key(path).
     size_t size_;       ///< Share memory size.
     void* head_;        ///< Share memory pointer.
+    ShmStatus status_;  ///< Share memory status.
 
     Shm(const Shm& other) {
         path_ = other.path_;
