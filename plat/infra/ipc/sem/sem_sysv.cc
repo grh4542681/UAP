@@ -55,9 +55,6 @@ IpcRet SemSysV::Create(mode_t mode)
     return IpcRet::SUCCESS;
 }
 
-/*
- * This function is destroy the semaphore set
- */
 IpcRet SemSysV::Destory()
 {
     int tmp_errno;
@@ -113,12 +110,22 @@ IpcRet SemSysV::Close()
     }
 }
 
-IpcRet SemSysV::V(unsigned int num, util::time::Time* overtime)
+IpcRet SemSysV::P(unsigned int num, util::time::Time* overtime)
 {
+    struct sembuf ops;
+    memset(&ops, 0, sizeof(struct sembuf));
+
+    ops.sem_num = 0;
+    ops.sem_op = (0 - num);
+    if (nonblock_flag_) {
+        ops.sem_flg |= IPC_NOWAIT;
+    } else {
+        ops.sem_flag &= ~IPC_NOWAIT;
+    }
 
 }
 
-IpcRet SemSysV::P(unsigned int num)
+IpcRet SemSysV::V(unsigned int num)
 {
 
 }
