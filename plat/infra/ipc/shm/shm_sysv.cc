@@ -45,9 +45,10 @@ IpcRet ShmSysV::Create(mode_t mode, size_t size)
     if (shmid_ > 0) {
         return IpcRet::SUCCESS;
     }
-    if (path_.empty() || size_ <= 0) {
+    if (path_.empty() || size <= 0) {
         return IpcRet::EINIT;
     }
+    printf("-------\n");
     shmid_ = shmget(key_, size, mode|IPC_CREAT|IPC_EXCL);
     if (shmid_ < 0) {
         int tmp_errno = errno;

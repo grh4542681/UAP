@@ -20,8 +20,8 @@ public:
     IpcRet Open(IpcMode mode);
     IpcRet Close();
 
-    IpcRet V(unsigned int num, util::time::Time* overtime);
-    IpcRet P(unsigned int num);
+    IpcRet P(unsigned int num, util::time::Time* overtime);
+    IpcRet V(unsigned int num);
 
 private:
     union semun {

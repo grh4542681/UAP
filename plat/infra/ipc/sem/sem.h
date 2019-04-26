@@ -23,18 +23,18 @@ public:
     }
     virtual ~Sem() { }
 
-    virtual IpcRet Create(mode_t mode) { return IpcRet::SUCCESS; }
+    virtual IpcRet Create(size_t semnum, mode_t mode) { return IpcRet::SUCCESS; }
     virtual IpcRet Destroy() { return IpcRet::SUCCESS; }
     virtual IpcRet Open(IpcMode mode) { return IpcRet::SUCCESS; }
     virtual IpcRet Close() { return IpcRet::SUCCESS; }
 
-    virtual IpcRet P(unsigned int num, util::time::Time* overtime) { return IpcRet::SUCCESS; }
-    virtual IpcRet V(unsigned int num) { return IpcRet::SUCCESS; }
+    virtual IpcRet P(size_t sem_index, unsigned int num, util::time::Time* overtime) { return IpcRet::SUCCESS; }
+    virtual IpcRet V(size_t sem_index, unsigned int num) { return IpcRet::SUCCESS; }
     IpcRet P(util::time::Time* overtime) {
-        return P(1, overtime);
+        return P(1, 1, overtime);
     }
     IpcRet V() {
-        return V(1);
+        return V(1, 1);
     }
 
     bool SetNonBlock(bool flag) {

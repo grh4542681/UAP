@@ -120,7 +120,7 @@ IpcRet SemSysV::P(unsigned int num, util::time::Time* overtime)
     if (nonblock_flag_) {
         ops.sem_flg |= IPC_NOWAIT;
     } else {
-        ops.sem_flag &= ~IPC_NOWAIT;
+        ops.sem_flg &= ~IPC_NOWAIT;
     }
 
 }
