@@ -6,6 +6,8 @@
 #include <sys/sem.h>
 #include <time.h>
 
+#include "mempool.h"
+
 #include "ipc_return.h"
 #include "ipc_log.h"
 #include "sem_sysv.h"
@@ -34,23 +36,31 @@ SemSysV::~SemSysV(){
     }
 }
 
-IpcRet SemSysV::Create(mode_t mode)
+IpcRet SemSysV::Create(size_t semnum, mode_t mode)
 {
     int tmp_errno;
     union semun args;
 
-    semid_ = semget(key_, 1, mode|IPC_CREAT|IPC_EXCL);
+    semid_ = semget(key_, semnum, mode|IPC_CREAT|IPC_EXCL);
     if (semid_ < 0) {
         tmp_errno = errno;
         IPC_ERROR("%s", strerror(tmp_errno));
         return _errno2ret(tmp_errno);
     }
-    args.val = 0;
 
-    if (semctl(semid_, 0, SETVAL, args) < 0) {
+    semnum_ = semnum;
+
+    unsigned short* sem_val = (unsigned short*)(mempool::MemPool::getInstance()->Malloc(semnum * (sizeof(unsigned short))));
+    memset(sem_val, 0, semnum* (sizeof(unsigned short)));
+
+    args.array = sem_val;
+
+    if (semctl(semid_, 0, SETALL, args) < 0) {
         tmp_errno = errno;
+        mempool::MemPool::getInstance()->Free(sem_val);
         return _errno2ret(tmp_errno);
     }
+    mempool::MemPool::getInstance()->Free(sem_val);
     init_flag_ = true;
     return IpcRet::SUCCESS;
 }
@@ -108,9 +118,10 @@ IpcRet SemSysV::Close()
         semid_ = -1;
         init_flag_ = false;
     }
+    return IpcRet::SUCCESS;
 }
 
-IpcRet SemSysV::P(unsigned int num, util::time::Time* overtime)
+IpcRet SemSysV::_p(size_t sem_index, unsigned int num, util::time::Time* overtime)
 {
     struct sembuf ops;
     memset(&ops, 0, sizeof(struct sembuf));
@@ -122,12 +133,12 @@ IpcRet SemSysV::P(unsigned int num, util::time::Time* overtime)
     } else {
         ops.sem_flg &= ~IPC_NOWAIT;
     }
-
+    return IpcRet::SUCCESS;
 }
 
-IpcRet SemSysV::V(unsigned int num)
+IpcRet SemSysV::_v(size_t sem_index, unsigned int num)
 {
-
+    return IpcRet::SUCCESS;
 }
 
 #if 0

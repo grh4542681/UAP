@@ -19,5 +19,6 @@ ADD_SUBDIRECTORY(socket/test)
 ADD_SUBDIRECTORY(thread/test)
 ADD_SUBDIRECTORY(process/test)
 ADD_SUBDIRECTORY(ipc/shm/test)
+ADD_SUBDIRECTORY(ipc/sem/test)
 ADD_SUBDIRECTORY(util/time/test)
 

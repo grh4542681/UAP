@@ -45,12 +45,12 @@ public:
     /**
     * @brief Create - Create share memory.
     *
-    * @param [mode] - Share memory access mode.
     * @param [size] - Share memory size.
+    * @param [mode] - Share memory access mode.
     *
     * @returns  IpcRet.
     */
-    IpcRet Create(mode_t mode, size_t size);
+    IpcRet Create(size_t size, mode_t mode);
 
     /**
     * @brief Destroy - Destroy share memory.

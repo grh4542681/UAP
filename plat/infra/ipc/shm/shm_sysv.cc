@@ -40,7 +40,7 @@ ShmSysV::~ShmSysV()
     }
 }
 
-IpcRet ShmSysV::Create(mode_t mode, size_t size)
+IpcRet ShmSysV::Create(size_t size, mode_t mode)
 {
     if (shmid_ > 0) {
         return IpcRet::SUCCESS;

@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-04-27 05:11
+ * @file     : sem.h
+ * @brief    : Base sem virtual class.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #ifndef __SEM_H__
 #define __SEM_H__
 
@@ -10,31 +20,85 @@
 
 namespace ipc::sem {
 
+/**
+* @brief - Top semphores virtual class.
+*/
 class Sem {
 public:
+    /**
+    * @brief Sem - Constructor.
+    *
+    * @param [path] - Sem key(path).
+    */
     Sem(std::string path) {
         path_ = path;
         nonblock_flag_ = false;
         init_flag_ = false;
     }
+    /**
+    * @brief Sem - Constructor.
+    */
     Sem() {
         nonblock_flag_ = false;
         init_flag_ = false;
     }
+    /**
+    * @brief ~Sem - Deconstructor.
+    */
     virtual ~Sem() { }
 
-    virtual IpcRet Create(size_t semnum, mode_t mode) { return IpcRet::SUCCESS; }
-    virtual IpcRet Destroy() { return IpcRet::SUCCESS; }
-    virtual IpcRet Open(IpcMode mode) { return IpcRet::SUCCESS; }
-    virtual IpcRet Close() { return IpcRet::SUCCESS; }
+    /**
+    * @brief Create - Create semaphore set.
+    *
+    * @param [semnum] - Semaphore number in set.
+    * @param [mode] - Semaphore set access mode.
+    *
+    * @returns  IpcRet.
+    */
+    virtual IpcRet Create(size_t semnum, mode_t mode) { return IpcRet::ESUBCLASS; }
+    /**
+    * @brief Destroy - Destroy semaphore set.
+    *
+    * @returns  IpcRet.
+    */
+    virtual IpcRet Destroy() { return IpcRet::ESUBCLASS; }
+    /**
+    * @brief Open - Open semaphore set.
+    *
+    * @param [mode] - Semaphore set read write mode
+    *
+    * @returns  IpcRet.
+    */
+    virtual IpcRet Open(IpcMode mode) { return IpcRet::ESUBCLASS; }
+    /**
+    * @brief Close - Close semaphore set.
+    *
+    * @returns  IpcRet.
+    */
+    virtual IpcRet Close() { return IpcRet::ESUBCLASS; }
 
-    virtual IpcRet P(size_t sem_index, unsigned int num, util::time::Time* overtime) { return IpcRet::SUCCESS; }
-    virtual IpcRet V(size_t sem_index, unsigned int num) { return IpcRet::SUCCESS; }
-    IpcRet P(util::time::Time* overtime) {
-        return P(1, 1, overtime);
+    /**
+    * @brief P - Grab semaphore(-n).
+    *
+    * @param [sem_index] - Semaphore index in set.
+    * @param [num] - Grab semaphore value.
+    * @param [overtime] - Overtime time.
+    *
+    * @returns  IpcRet.
+    */
+    IpcRet P(size_t sem_index, unsigned int num, util::time::Time* overtime) {
+        return _p(sem_index, num, overtime);
     }
-    IpcRet V() {
-        return V(1, 1);
+    /**
+    * @brief V - Release semaphore(+n).
+    *
+    * @param [sem_index] - Semaphore index in set.
+    * @param [num] - Release semaphore value.
+    *
+    * @returns  IpcRet.
+    */
+    IpcRet V(size_t sem_index, unsigned int num) {
+        return _v(sem_index, num);
     }
 
     bool SetNonBlock(bool flag) {
@@ -44,6 +108,7 @@ public:
 
 protected:
     std::string path_;
+    size_t semnum_;
     bool nonblock_flag_;
     bool init_flag_;
 
@@ -52,6 +117,9 @@ protected:
         nonblock_flag_ = other.nonblock_flag_;
         init_flag_ = false;
     }
+
+    virtual IpcRet _p(size_t sem_index, unsigned int num, util::time::Time* overtime) { return IpcRet::ESUBCLASS; }
+    virtual IpcRet _v(size_t sem_index, unsigned int num) { return IpcRet::ESUBCLASS; }
 };
 
 }

@@ -12,6 +12,7 @@ enum class TimeRet: int {
     ETIMEOUT,
     EBADARGS,
     EUNKOWNERRNO,
+    ESUBCLASS,
 
 //time
     ETIMEGET,

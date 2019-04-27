@@ -13,6 +13,7 @@ enum class FileRet: int {
     ETIMEOUT,           ///< time out.
     ENONSUPPORT,        ///< not support.
     EUNKOWNERRNO,       ///< unknow error.
+    ESUBCLASS,          ///< no sub class specified.
 
 //file return val
     ESTATE,

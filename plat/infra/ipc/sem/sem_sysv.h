@@ -15,13 +15,14 @@ public:
     SemSysV(std::string path);
     ~SemSysV();
 
-    IpcRet Create(mode_t mode);
+    IpcRet Create(size_t semnum, mode_t mode);
     IpcRet Destory();
     IpcRet Open(IpcMode mode);
     IpcRet Close();
 
-    IpcRet P(unsigned int num, util::time::Time* overtime);
-    IpcRet V(unsigned int num);
+protected:
+    IpcRet _p(size_t sem_index, unsigned int num, util::time::Time* overtime);
+    IpcRet _v(size_t sem_index, unsigned int num);
 
 private:
     union semun {

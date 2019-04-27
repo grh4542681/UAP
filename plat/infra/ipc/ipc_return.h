@@ -10,6 +10,7 @@ enum class IpcRet: int {
     EMALLOC,
     EINIT,
     ETIMEOUT,
+    ESUBCLASS,
 
     EUNKOWNERRNO,
 

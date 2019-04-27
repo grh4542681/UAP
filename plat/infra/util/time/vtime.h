@@ -133,7 +133,7 @@ public:
     /**
     * @brief GetCurrTime - Get current system time.
     */
-    virtual TimeRet GetCurrTime() { return TimeRet::SUCCESS; }
+    virtual TimeRet GetCurrTime() { return TimeRet::ESUBCLASS; }
 
 protected:
     long second_;        ///< seconds

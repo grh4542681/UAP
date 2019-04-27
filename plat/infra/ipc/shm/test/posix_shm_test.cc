@@ -6,7 +6,7 @@
 int main()
 {
     ipc::shm::ShmPosix shm("posix_shm_text");
-    if (shm.Create(0666, 1024) != ipc::IpcRet::SUCCESS) {
+    if (shm.Create(1024,0666) != ipc::IpcRet::SUCCESS) {
         printf("-----------\n");
         return 0;
     }

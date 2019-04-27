@@ -54,19 +54,19 @@ public:
     /**
     * @brief Create - Create share memory.
     *
-    * @param [mode] - Share memory access mode.
     * @param [size] - Share memory total size.
+    * @param [mode] - Share memory access mode.
     *
     * @returns  IpcRet.
     */
-    virtual IpcRet Create(mode_t mode, size_t size) { return IpcRet::SUCCESS; }
+    virtual IpcRet Create(size_t size, mode_t mode) { return IpcRet::ESUBCLASS; }
 
     /**
     * @brief Destroy - Destroy share memory.
     *
     * @returns  IpcRet.
     */
-    virtual IpcRet Destroy() { return IpcRet::SUCCESS; }
+    virtual IpcRet Destroy() { return IpcRet::ESUBCLASS; }
 
     /**
     * @brief Open - Open a share memory.
@@ -75,21 +75,21 @@ public:
     *
     * @returns  IpcRet.
     */
-    virtual IpcRet Open(IpcMode mode) { return IpcRet::SUCCESS; }
+    virtual IpcRet Open(IpcMode mode) { return IpcRet::ESUBCLASS; }
 
     /**
     * @brief Close - Close a share memory.
     *
-    * @returns  IpcMode.
+    * @returns  IpcRet.
     */
-    virtual IpcRet Close() { return IpcRet::SUCCESS; }
+    virtual IpcRet Close() { return IpcRet::ESUBCLASS; }
 
     /**
     * @brief Sync - Sync cache to share memory.
     *
     * @returns  
     */
-    virtual IpcRet Sync() { return IpcRet::SUCCESS; }
+    virtual IpcRet Sync() { return IpcRet::ESUBCLASS; }
 
     /**
     * @brief GetHeadPtr - Get share memory head pointer.

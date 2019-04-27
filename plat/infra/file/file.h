@@ -14,8 +14,8 @@ public:
     File() { };
     virtual ~File() { };
 
-    virtual FileRet Open(unsigned int mode) { return FileRet::SUCCESS; };
-    virtual FileRet Close() { return FileRet::SUCCESS; };
+    virtual FileRet Open(unsigned int mode) { return FileRet::ESUBCLASS; };
+    virtual FileRet Close() { return FileRet::ESUBCLASS; };
     virtual int Read(void* data, unsigned int datalen) { return 0; };
     virtual int Write(const void* data, unsigned int datalen) { return 0; };
 
