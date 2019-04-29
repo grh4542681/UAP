@@ -7,6 +7,7 @@
 #include <time.h>
 
 #include "mempool.h"
+#include "time/time_c.h"
 
 #include "ipc_return.h"
 #include "ipc_log.h"
@@ -123,21 +124,82 @@ IpcRet SemSysV::Close()
 
 IpcRet SemSysV::_p(size_t sem_index, unsigned int num, util::time::Time* overtime)
 {
+    if (semid_ <= 0 || sem_index > semnum_) {
+        return IpcRet::EINIT;
+    } 
+
+    int tmperrno = 0;
     struct sembuf ops;
     memset(&ops, 0, sizeof(struct sembuf));
 
-    ops.sem_num = 0;
+    ops.sem_num = sem_index;
     ops.sem_op = (0 - num);
     if (nonblock_flag_) {
         ops.sem_flg |= IPC_NOWAIT;
+        if (semop(semid_, &ops, 1) < 0) {
+            tmperrno = errno;
+            IPC_ERROR("Semaphore[%d] P operator failed, errno[%s]", semid_, strerror(tmperrno));
+            return _errno2ret(tmperrno);
+        }
     } else {
         ops.sem_flg &= ~IPC_NOWAIT;
+        if (!overtime) {
+            if (semop(semid_, &ops, 1) < 0) {
+                tmperrno = errno;
+                IPC_ERROR("Semaphore[%d] P operator failed, errno[%s]", semid_, strerror(tmperrno));
+                return _errno2ret(tmperrno);
+            }
+        } else {
+            if (!overtime->IsPositive()) {
+                IPC_ERROR("Overtime is not correct.");
+                return IpcRet::EBADARGS;
+            }
+            util::time::Time T_intervals = *overtime;
+
+            struct timespec intervals;
+            memset(&intervals, 0, sizeof(struct timespec));
+            T_intervals.To<struct timespec>(&intervals);
+
+            util::time::Time first_time = util::time::NowC();
+
+            do {
+                if (semtimedop(semid_, &ops, 1, &intervals) < 0) {
+                    tmperrno = errno;
+                    if (tmperrno == EAGAIN) {
+                        return IpcRet::ETIMEOUT;
+                    } else if (tmperrno == EINTR) {
+                        util::time::Time second_time = util::time::NowC();
+                        T_intervals = T_intervals - (second_time - first_time);
+                        IPC_LOG("Semaphore[%d] P operator Interrupted by signal", semid_);
+                    } else {
+                        IPC_ERROR("Semaphore[%d] P operator failed, errno[%s]", semid_, strerror(tmperrno));
+                        return _errno2ret(tmperrno);
+                    }
+                } else {
+                    return IpcRet::SUCCESS;
+                }
+            } while (T_intervals.IsPositive());
+        }
     }
     return IpcRet::SUCCESS;
 }
 
 IpcRet SemSysV::_v(size_t sem_index, unsigned int num)
 {
+    int tmperrno = 0;
+
+    struct sembuf ops;
+    memset(&ops, 0, sizeof(struct sembuf));
+
+    ops.sem_num = sem_index;
+    ops.sem_op = num;
+    ops.sem_flg = 0;
+
+    if (semop(semid_, &ops, 1) < 0) {
+        tmperrno = errno;
+        IPC_ERROR("Semaphore[%d] P operator failed, errno[%s]", semid_, strerror(tmperrno));
+        return _errno2ret(tmperrno);
+    }
     return IpcRet::SUCCESS;
 }
 

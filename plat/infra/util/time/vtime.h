@@ -64,14 +64,22 @@ public:
         return *this;
     }
 
-    Time& SetTime(long second) {
+    Time& SetSecond(long second) {
         second_ = second;
         return *this;
     }
 
-    Time& SetNanoTime(long nsecond) {
+    Time& SetNanoSecond(long nsecond) {
         nanosecond_ = nsecond;
         return *this;
+    }
+
+    long GetSecond() {
+        return second_;
+    }
+
+    long GetNanoSecond() {
+        return nanosecond_;
     }
 
     /**
@@ -134,6 +142,21 @@ public:
     * @brief GetCurrTime - Get current system time.
     */
     virtual TimeRet GetCurrTime() { return TimeRet::ESUBCLASS; }
+
+    /**
+    * @brief To - Convert to. Need to specialize in subclasses.
+    *
+    * @tparam [T] - Target type.
+    * @param [p] - Target type pointer.
+    *
+    * @returns  TimeRet.
+    */
+    template < typename T >
+    TimeRet To(T* p) { return TimeRet::ESUBCLASS; }
+
+    bool IsPositive() {
+        return !(second_ < 0 && nanosecond_ < 0);
+    }
 
 protected:
     long second_;        ///< seconds

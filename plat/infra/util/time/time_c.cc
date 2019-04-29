@@ -32,13 +32,11 @@ TimeC& TimeC::operator=(const TimeC& other)
     return *this;
 }
 
-TimeRet TimeC::GetCurrTime()
+template < >
+TimeRet Time::To<struct timespec>(struct timespec* p)
 {
-    if (clock_gettime(CLOCK_REALTIME, &tp_) < 0) {
-        return TimeRet::ETIMEGET;
-    }
-    second_ = tp_.tv_sec;
-    nanosecond_ = tp_.tv_nsec;
+    p->tv_sec = second_;
+    p->tv_nsec = nanosecond_;
     return TimeRet::SUCCESS;
 }
 
@@ -52,6 +50,16 @@ std::string TimeC::Format(std::string format) {
     }
     str.assign(buff);
     return str;
+}
+
+TimeRet TimeC::GetCurrTime()
+{
+    if (clock_gettime(CLOCK_REALTIME, &tp_) < 0) {
+        return TimeRet::ETIMEGET;
+    }
+    second_ = tp_.tv_sec;
+    nanosecond_ = tp_.tv_nsec;
+    return TimeRet::SUCCESS;
 }
 
 }

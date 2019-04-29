@@ -7,6 +7,7 @@ enum class IpcRet: int {
 //common return val
     SUCCESS = 0x00,
     ERROR,
+    EBADARGS,
     EMALLOC,
     EINIT,
     ETIMEOUT,
@@ -36,6 +37,7 @@ enum class IpcRet: int {
     SEM_ENOENT,
     SEM_ENOMEM,
     SEM_ENOSPC,
+    SEM_ETIMEOUT,
 };
 
 } // namespace ipc

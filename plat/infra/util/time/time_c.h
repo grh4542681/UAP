@@ -23,6 +23,15 @@ private:
 };
 
 /**
+* @brief To - Convert to struct timespec.
+*
+* @param [p] - Pointer of struct timespec.
+*
+* @returns  TimeRet.
+*/
+template < > TimeRet Time::To<struct timespec>(struct timespec* p);
+
+/**
  * @brief Now - Get current system time
  *
  * @returns  Time class instance.
