@@ -39,6 +39,10 @@ SemSysV::~SemSysV(){
 
 IpcRet SemSysV::Create(size_t semnum, mode_t mode)
 {
+    if (semid_ > 0 || init_flag_) {
+        return IpcRet::SUCCESS;
+    }
+
     int tmp_errno;
     union semun args;
 
@@ -66,7 +70,7 @@ IpcRet SemSysV::Create(size_t semnum, mode_t mode)
     return IpcRet::SUCCESS;
 }
 
-IpcRet SemSysV::Destory()
+IpcRet SemSysV::Destroy()
 {
     int tmp_errno;
     if (semid_ < 0) {
@@ -89,7 +93,7 @@ IpcRet SemSysV::Destory()
 
 IpcRet SemSysV::Open(IpcMode mode)
 {
-    if (semid_ > 0) {
+    if (semid_ > 0 || init_flag_) {
         return IpcRet::SUCCESS;
     }
     mode_t smode = 0;
@@ -202,91 +206,5 @@ IpcRet SemSysV::_v(size_t sem_index, unsigned int num)
     }
     return IpcRet::SUCCESS;
 }
-
-#if 0
-//private
-//
-/**
-* @brief _p - Preemptive semaphore resources.
-*
-* @param [sem_index] - Semaphore set index
-* @param [op_num] - Resource number
-* @param [over_time] - Overtime time.If NULL then function will block until get sem resource.
-*                      If not NULL but tv_sec and t_nsec is 0,function will non-block.
-*
-* @returns  IpcRet
-*/
-IpcRet SemSysV::_p(unsigned short sem_index, unsigned short op_num, struct timespec* over_time)
-{
-    int tmp_errno = 0;
-    struct sembuf ops;
-    struct timespec otime;
-    struct timespec* p_otime;
-    struct timespec first_time;
-    struct timespec second_time;
-
-    memset(&ops, 0x00, sizeof(struct sembuf));
-    memset(&otime, 0x00, sizeof(struct timespec));
-
-    ops.sem_num = sem_index;
-    ops.sem_op = -1;
-    if (over_time) {
-        memcpy(&otime, over_time, sizeof(struct timespec));
-        ops.sem_flg = ((!otime.tv_sec) && (!otime.tv_nsec)) ? IPC_NOWAIT : 0;
-        p_otime = &otime;
-    } else {
-        ops.sem_flg = 0;
-        p_otime = NULL;
-    }
-
-    clock_gettime(CLOCK_REALTIME, &first_time);
-    do {
-        if (semtimedop(this->semid_, &ops, op_num, p_otime)) {
-            tmp_errno = errno;
-            if (tmp_errno == EAGAIN && (!(ops.sem_flg & IPC_NOWAIT))) {
-                return IpcRet::ETIMEOUT;
-            } else if (tmp_errno == EINTR) {
-                if (p_otime) {
-                    clock_gettime(CLOCK_REALTIME, &second_time);
-                    p_otime->tv_sec -= (second_time.tv_sec - first_time.tv_sec);
-                    p_otime->tv_nsec -= (second_time.tv_nsec - first_time.tv_nsec);
-                    p_otime->tv_sec = p_otime->tv_sec < 0 ? 0 : p_otime->tv_sec;
-                    p_otime->tv_nsec = p_otime->tv_nsec < 0 ? 0 : p_otime->tv_nsec;
-                    memcpy(&first_time, &second_time, sizeof(struct timespec));
-                }
-            } else {
-                break;
-            }
-        } else {
-            return IpcRet::SUCCESS;
-        }
-    } while ((!p_otime) || ((p_otime->tv_sec) || (p_otime->tv_nsec)));
-    return _errno2ret(tmp_errno);
-}
-
-/**
-* @brief _v - Free semaphore resources.
-*
-* @param [sem_index] - Semaphore set index
-* @param [op_num] - Resource number
-*
-* @returns  IpcRet
-*/
-IpcRet SemSysV::_v(unsigned short sem_index, unsigned short op_num)
-{
-    int tmp_errno = 0;
-    struct sembuf ops;
-
-    memset(&ops, 0x00, sizeof(struct sembuf));
-
-    ops.sem_num = op_num;
-    ops.sem_op = 1;
-    ops.sem_flg = 0;
-
-    semop(this->semid_, &ops, op_num);
-    tmp_errno = errno;
-    return _errno2ret(tmp_errno);
-}
-#endif
 
 } //namespace ipc

@@ -9,6 +9,9 @@
 
 namespace ipc::sem {
 
+/**
+* @brief - System V semphore set.
+*/
 class SemSysV : public Sem {
 public:
     SemSysV();
@@ -16,7 +19,7 @@ public:
     ~SemSysV();
 
     IpcRet Create(size_t semnum, mode_t mode);
-    IpcRet Destory();
+    IpcRet Destroy();
     IpcRet Open(IpcMode mode);
     IpcRet Close();
 
@@ -33,8 +36,8 @@ private:
                                        (Linux-specific) */
     };
 
-    int semid_;
-    key_t key_;
+    int semid_; ///< Semaphore set id.
+    key_t key_; ///< Semaphore set key.
 
     static IpcRet _errno2ret(int ierrno)
     {
@@ -80,8 +83,6 @@ private:
         }
     }
 
-//    IpcRet _p(unsigned short sem_index, unsigned short op_num, struct timespec* over_time);
-//    IpcRet _v(unsigned short sem_index, unsigned short op_num);
 };
 
 } // namespace ipc

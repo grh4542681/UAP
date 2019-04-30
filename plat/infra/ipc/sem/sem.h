@@ -87,7 +87,7 @@ public:
     * @returns  IpcRet.
     */
     IpcRet P(size_t sem_index, unsigned int num, util::time::Time* overtime) {
-        return _p(sem_index, num, overtime);
+        return (init_flag_ ? _p(sem_index, num, overtime) : IpcRet::EINIT);
     }
     /**
     * @brief V - Release semaphore(+n).
@@ -98,19 +98,26 @@ public:
     * @returns  IpcRet.
     */
     IpcRet V(size_t sem_index, unsigned int num) {
-        return _v(sem_index, num);
+        return (init_flag_ ? _v(sem_index, num) : IpcRet::EINIT);
     }
 
+    /**
+    * @brief SetNonBlock - Set semphore op non-block.
+    *
+    * @param [flag] - True or false;
+    *
+    * @returns  Current non-block flag.
+    */
     bool SetNonBlock(bool flag) {
         nonblock_flag_ = flag;
         return this->nonblock_flag_;
     }
 
 protected:
-    std::string path_;
-    size_t semnum_;
-    bool nonblock_flag_;
-    bool init_flag_;
+    std::string path_;      ///< Semaphore key(path).
+    size_t semnum_;         ///< Semaphore numbers in set.
+    bool nonblock_flag_;    ///< Nonblock flag.
+    bool init_flag_;        ///< Initliazation flag.
 
     Sem(const Sem& other) {
         path_ = other.path_;
