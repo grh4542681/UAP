@@ -61,6 +61,12 @@ TimeRet TimeC::GetCurrTime()
     nanosecond_ = tp_.tv_nsec;
     return TimeRet::SUCCESS;
 }
+ 
+TimeC NowC() {
+    TimeC tm; 
+    tm.GetCurrTime();
+    return tm; 
+}
 
 }
 

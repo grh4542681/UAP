@@ -39,6 +39,10 @@ SemSysV::~SemSysV(){
 
 IpcRet SemSysV::Create(size_t semnum, mode_t mode)
 {
+    if (path_.empty() || semnum <= 0) {
+        return IpcRet::EINIT;
+    }
+
     if (semid_ > 0 || init_flag_) {
         return IpcRet::SUCCESS;
     }
@@ -93,9 +97,14 @@ IpcRet SemSysV::Destroy()
 
 IpcRet SemSysV::Open(IpcMode mode)
 {
+    if (path_.empty()) {
+        return IpcRet::EINIT;
+    }
+
     if (semid_ > 0 || init_flag_) {
         return IpcRet::SUCCESS;
     }
+
     mode_t smode = 0;
     if (mode | IpcMode::READ_ONLY) {
         smode |= 0x04;
@@ -126,7 +135,7 @@ IpcRet SemSysV::Close()
     return IpcRet::SUCCESS;
 }
 
-IpcRet SemSysV::_p(size_t sem_index, unsigned int num, util::time::Time* overtime)
+IpcRet SemSysV::_p(size_t sem_index, util::time::Time* overtime)
 {
     if (semid_ <= 0 || sem_index > semnum_) {
         return IpcRet::EINIT;
@@ -137,12 +146,12 @@ IpcRet SemSysV::_p(size_t sem_index, unsigned int num, util::time::Time* overtim
     memset(&ops, 0, sizeof(struct sembuf));
 
     ops.sem_num = sem_index;
-    ops.sem_op = (0 - num);
+    ops.sem_op = -1;
     if (nonblock_flag_) {
         ops.sem_flg |= IPC_NOWAIT;
         if (semop(semid_, &ops, 1) < 0) {
             tmperrno = errno;
-            IPC_ERROR("Semaphore[%d] P operator failed, errno[%s]", semid_, strerror(tmperrno));
+            IPC_ERROR("Semaphore set [%d] index [%ld] P operator failed, errno[%s]", semid_, sem_index, strerror(tmperrno));
             return _errno2ret(tmperrno);
         }
     } else {
@@ -150,7 +159,7 @@ IpcRet SemSysV::_p(size_t sem_index, unsigned int num, util::time::Time* overtim
         if (!overtime) {
             if (semop(semid_, &ops, 1) < 0) {
                 tmperrno = errno;
-                IPC_ERROR("Semaphore[%d] P operator failed, errno[%s]", semid_, strerror(tmperrno));
+                IPC_ERROR("Semaphore set [%d] index [%ld] P operator failed, errno[%s]", semid_, sem_index, strerror(tmperrno));
                 return _errno2ret(tmperrno);
             }
         } else {
@@ -174,9 +183,9 @@ IpcRet SemSysV::_p(size_t sem_index, unsigned int num, util::time::Time* overtim
                     } else if (tmperrno == EINTR) {
                         util::time::Time second_time = util::time::NowC();
                         T_intervals = T_intervals - (second_time - first_time);
-                        IPC_LOG("Semaphore[%d] P operator Interrupted by signal", semid_);
+                        IPC_LOG("Semaphore set [%d] index [%ld] P operator Interrupted by signal", semid_, sem_index);
                     } else {
-                        IPC_ERROR("Semaphore[%d] P operator failed, errno[%s]", semid_, strerror(tmperrno));
+                        IPC_ERROR("Semaphore set [%d] index [%ld] P operator failed, errno[%s]", semid_, sem_index, strerror(tmperrno));
                         return _errno2ret(tmperrno);
                     }
                 } else {
@@ -188,7 +197,7 @@ IpcRet SemSysV::_p(size_t sem_index, unsigned int num, util::time::Time* overtim
     return IpcRet::SUCCESS;
 }
 
-IpcRet SemSysV::_v(size_t sem_index, unsigned int num)
+IpcRet SemSysV::_v(size_t sem_index)
 {
     int tmperrno = 0;
 
@@ -196,12 +205,12 @@ IpcRet SemSysV::_v(size_t sem_index, unsigned int num)
     memset(&ops, 0, sizeof(struct sembuf));
 
     ops.sem_num = sem_index;
-    ops.sem_op = num;
+    ops.sem_op = 1;
     ops.sem_flg = 0;
 
     if (semop(semid_, &ops, 1) < 0) {
         tmperrno = errno;
-        IPC_ERROR("Semaphore[%d] P operator failed, errno[%s]", semid_, strerror(tmperrno));
+        IPC_ERROR("Semaphore set [%d] index [%ld] V operator failed, errno[%s]", semid_, sem_index, strerror(tmperrno));
         return _errno2ret(tmperrno);
     }
     return IpcRet::SUCCESS;

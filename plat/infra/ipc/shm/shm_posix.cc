@@ -46,7 +46,7 @@ IpcRet ShmPosix::Create(size_t size, mode_t mode)
     if (head_) {
         return IpcRet::SHM_EEXIST;
     }
-    if (path_.empty()) {
+    if (path_.empty() || size <= 0) {
         return IpcRet::EINIT;
     }
     fd_ = shm_open(path_.c_str(), O_RDWR|O_CREAT|O_EXCL, mode);
@@ -90,9 +90,19 @@ IpcRet ShmPosix::Destroy()
 
 IpcRet ShmPosix::Open(IpcMode mode)
 {
-    if (path_.empty() || size_ <= 0) {
+    if (path_.empty()) {
         return IpcRet::EINIT;
     }
+
+    int flags = 0;
+    if ((mode | IpcMode::READ_ONLY) || (mode | IpcMode::READ_WRITE)) {
+        flags |= PROT_READ;
+    } else if ((mode | IpcMode::WRITE_ONLY) || (mode | IpcMode::READ_WRITE)) {
+        flags |= PROT_WRITE;   
+    } else {
+        return IpcRet::SHM_EMODE;
+    }
+
     if (fd_ < 0) {
         fd_ = shm_open(path_.c_str(), O_RDWR, 0);
         if (fd_ < 0) {
@@ -111,17 +121,6 @@ IpcRet ShmPosix::Open(IpcMode mode)
         return _errno2ret(tmp_errno);
     }
     size_ = mstat.st_size;
-
-    int flags = 0;
-    if ((mode | IpcMode::READ_ONLY) || (mode | IpcMode::READ_WRITE)) {
-        flags |= PROT_READ;
-    } else if ((mode | IpcMode::WRITE_ONLY) || (mode | IpcMode::READ_WRITE)) {
-        flags |= PROT_WRITE;   
-    } else {
-        close(fd_);
-        fd_ = -1;
-        return IpcRet::SHM_EMODE;
-    }
 
     head_ = mmap(NULL, size_, flags, MAP_SHARED, fd_, 0);
     if (head_ == MAP_FAILED) {

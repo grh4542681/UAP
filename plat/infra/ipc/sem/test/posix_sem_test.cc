@@ -7,14 +7,16 @@ int main()
     printf("hello\n");
     ipc::sem::SemPosix sem("test");
     sem.Create(3,0666);
-/*
-    sem.V(1,1);
+
+    sem.P(1,&(util::time::Time().SetSecond(2)));
     printf("hello\n");
-    sem.P(1,1,&(util::time::Time().SetSecond(2)));
+    sem.V(1);
     printf("hello\n");
-    sem.P(1,1,&(util::time::Time().SetSecond(2)));
+    sem.P(1,&(util::time::Time().SetSecond(2)));
     printf("hello\n");
-*/
+    sem.P(1,&(util::time::Time().SetSecond(2)));
+    printf("hello\n");
+
     sleep(10);
     sem.Destroy();
     printf("hello\n");

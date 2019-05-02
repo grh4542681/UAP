@@ -31,6 +31,9 @@ enum class IpcRet: int {
     SHM_EPERM,
 
 // sem return val
+    SEM_EMODE,
+    SEM_ENOTFOUND,
+
     SEM_EEXIST,
     SEM_EACCES,
     SEM_EINVAL,

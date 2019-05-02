@@ -86,8 +86,8 @@ public:
     *
     * @returns  IpcRet.
     */
-    IpcRet P(size_t sem_index, unsigned int num, util::time::Time* overtime) {
-        return (init_flag_ ? _p(sem_index, num, overtime) : IpcRet::EINIT);
+    IpcRet P(size_t sem_index, util::time::Time* overtime) {
+        return (init_flag_ ? _p(sem_index, overtime) : IpcRet::EINIT);
     }
     /**
     * @brief V - Release semaphore(+n).
@@ -97,8 +97,8 @@ public:
     *
     * @returns  IpcRet.
     */
-    IpcRet V(size_t sem_index, unsigned int num) {
-        return (init_flag_ ? _v(sem_index, num) : IpcRet::EINIT);
+    IpcRet V(size_t sem_index) {
+        return (init_flag_ ? _v(sem_index) : IpcRet::EINIT);
     }
 
     /**
@@ -125,8 +125,8 @@ protected:
         init_flag_ = false;
     }
 
-    virtual IpcRet _p(size_t sem_index, unsigned int num, util::time::Time* overtime) { return IpcRet::ESUBCLASS; }
-    virtual IpcRet _v(size_t sem_index, unsigned int num) { return IpcRet::ESUBCLASS; }
+    virtual IpcRet _p(size_t sem_index, util::time::Time* overtime) { return IpcRet::ESUBCLASS; }
+    virtual IpcRet _v(size_t sem_index) { return IpcRet::ESUBCLASS; }
 };
 
 }

@@ -24,8 +24,8 @@ public:
     IpcRet Close();
 
 protected:
-    IpcRet _p(size_t sem_index, unsigned int num, util::time::Time* overtime);
-    IpcRet _v(size_t sem_index, unsigned int num);
+    IpcRet _p(size_t sem_index, util::time::Time* overtime);
+    IpcRet _v(size_t sem_index);
 
 private:
     std::map<std::string, sem_t*> semset_;

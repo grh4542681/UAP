@@ -8,11 +8,11 @@ int main()
     ipc::sem::SemSysV sem("test");
     sem.Create(3,0666);
 
-    sem.V(1,1);
+    sem.V(1);
     printf("hello\n");
-    sem.P(1,1,&(util::time::Time().SetSecond(2)));
+    sem.P(1,&(util::time::Time().SetSecond(2)));
     printf("hello\n");
-    sem.P(1,1,&(util::time::Time().SetSecond(2)));
+    sem.P(1,&(util::time::Time().SetSecond(2)));
     printf("hello\n");
     sem.Destroy();
     printf("hello\n");

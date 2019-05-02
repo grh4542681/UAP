@@ -13,7 +13,7 @@ public:
     ~TimeC();
     TimeC(const TimeC& other);
 
-    TimeC& operator= (const TimeC& other);
+    TimeC& operator=(const TimeC& other);
 
     std::string Format(std::string format);
     TimeRet GetCurrTime();
@@ -36,11 +36,7 @@ template < > TimeRet Time::To<struct timespec>(struct timespec* p);
  *
  * @returns  Time class instance.
  */
-TimeC NowC() {
-    TimeC tm; 
-    tm.GetCurrTime();
-    return tm; 
-}
+TimeC NowC();
 
 }
 

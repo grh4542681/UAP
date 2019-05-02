@@ -40,28 +40,41 @@ public:
         return *this;
     }
 
-    Time& operator+ (const Time& other) {
-        second_ += other.second_;
-        nanosecond_ += other.nanosecond_;
-        return *this;
+    Time operator+ (const Time& other) {
+        Time new_time;
+        new_time.second_ = second_ + other.second_;
+        new_time.nanosecond_ = nanosecond_ + other.nanosecond_;
+        return new_time;
     }
-    Time& operator+ (const long second) {
-        second_ += second_;
-        return *this;
+    Time operator+ (const long second) {
+        Time new_time;
+        new_time.second_ = second_ + second;
+        return new_time;
     }
 
-    Time& operator- (const Time& other) {
-        nanosecond_ -= other.nanosecond_;
-        if (nanosecond_ < 0) {
-            second_ -= 1;
-            nanosecond_ += 1000000000;
+    Time operator- (const Time& other) {
+        Time new_time;
+        new_time.nanosecond_ = nanosecond_ - other.nanosecond_;
+        new_time.second_ = second_ - other.second_;
+        if (new_time.nanosecond_ < 0) {
+            new_time.second_ -= 1;
+            new_time.nanosecond_ += 1000000000;
         }
-        second_ -= other.second_;
-        return *this;
+        return new_time;
     }
-    Time& operator- (const long second) {
-        second_ -= second_;
-        return *this;
+    Time operator- (const long second) {
+        Time new_time;
+        new_time.nanosecond_ = nanosecond_;
+        new_time.second_ = second_ - second;
+        return new_time;
+    }
+
+    bool operator< (const Time& other) {
+        if (second_ == other.second_) {
+            return (nanosecond_ < other.nanosecond_);
+        } else {
+            return (second_ < other.second_);
+        }
     }
 
     Time& SetSecond(long second) {
