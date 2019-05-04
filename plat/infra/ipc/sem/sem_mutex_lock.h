@@ -10,23 +10,112 @@
 
 namespace ipc::sem {
 
+template < typename T = SemSysV >
 class SemMutexLock {
 public:
-    SemMutexLock();
-    SemMutexLock(std::string path);
-    ~SemMutexLock();
+    SemMutexLock() {
+        path_.clear();
+        mp_ = mempool::MemPool::getInstance();
+        sem_ = NULL;
+        init_flag_ = false;
+    }
 
-    template < typename T = SemSysV > IpcRet Create();
-    template < typename T = SemSysV > IpcRet Create(mode_t mode);
-    IpcRet Destroy();
-    template < typename T = SemSysV > IpcRet Open();
-    template < typename T = SemSysV > IpcRet Open(IpcMode mode);
-    IpcRet Close();
+    SemMutexLock(std::string path) {
+        path_ = path;
+        mp_ = mempool::MemPool::getInstance();;
+        sem_ = NULL;
+        init_flag_ = false;
+    }
 
-    IpcRet Lock(util::time::Time* overtime);
-    IpcRet UnLock();
+    ~SemMutexLock() {
+        if (init_flag_) {
+            Close();
+        }
+        if (sem_) {
+            mp_->Free<T>(sem_);
+        }
+    }
+
+    IpcRet Create() {
+        return Create(0666);        
+    }
+    IpcRet Create(mode_t mode) {
+        if (path_.empty) {
+            return IpcRet::EINIT;
+        }
+        if (!sem_) {
+            sem_ = mp_->Malloc<T>(path_);
+        }
+        IpcRet ret = sem_->Create(1, mode);
+        if (ret == IpcRet::SUCCESS) {
+            init_flag_ = true;
+        } else {
+            return ret;
+        }
+    }
+
+    IpcRet Destroy() {
+        if (path_.empty) {
+            return IpcRet::EINIT;
+        }
+        if (!sem_) {
+            sem_ = mp_->Malloc<T>(path_);
+        }
+        return sem_->Destroy();
+    }
+
+    IpcRet Open() {
+        return Open(IpcMode::READ_WRITE);
+    }
+    IpcRet Open(IpcMode mode) {
+        if (path_.empty) {
+            return IpcRet::EINIT;
+        }
+        if (!sem_) {
+            sem_ = mp_->Malloc<T>(path_);
+        }
+        IpcRet ret = sem_->Open(mode);
+        if (ret == IpcRet::SUCCESS) {
+            init_flag_ = true;
+        } else {
+            return ret;
+        }
+    }
+
+    IpcRet Close() {
+        if (!init_flag_) {
+            return IpcRet::EINIT;
+        }
+        IpcRet ret = sem_->Close();
+        if (ret == IpcRet::SUCCESS) {
+            init_flag_ = false;
+        } else {
+            return ret;
+        }
+    }
+
+    bool SetNonBlock(bool flag) {
+        if (!init_flag_) {
+            return IpcRet::EINIT;
+        }
+        return sem_->SetNonBlock(flag);
+    }
+
+    IpcRet Lock(util::time::Time* overtime) {
+        if (!init_flag_) {
+            return IpcRet::EINIT;
+        }
+        return sem_->P(0, overtime);
+    }
+    IpcRet UnLock() {
+        if (!init_flag_) {
+            return IpcRet::EINIT;
+        }
+        return sem_->V(0);
+    }
 
 private:
+    std::string path_;
     Sem* sem_;
     mempool::MemPool* mp_;
     bool init_flag_;
