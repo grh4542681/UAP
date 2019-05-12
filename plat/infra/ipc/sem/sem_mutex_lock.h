@@ -95,9 +95,6 @@ public:
     }
 
     bool SetNonBlock(bool flag) {
-        if (!init_flag_) {
-            return IpcRet::EINIT;
-        }
         return sem_->SetNonBlock(flag);
     }
 

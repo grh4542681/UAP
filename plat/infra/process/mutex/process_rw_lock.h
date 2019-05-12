@@ -1,6 +1,9 @@
 #ifndef __PROCESS_RW_LOCK_H__
 #define __PROCESS_RW_LOCK_H__
 
+#include <pthread.h>
+
+#include "vtime.h"
 #include "process_return.h"
 
 namespace process::mutex {
@@ -8,11 +11,32 @@ namespace process::mutex {
 class ProcessRWLock{
 public:
     ProcessRWLock(){}
-    virtual ~ProcessRWLock();
-    virtual ProcessRet RLock();
-    virtual ProcessRet RUnLock();
-    virtual ProcessRet WLock();
-    virtual ProcessRet WUnLock();
+    ~ProcessRWLock();
+
+    void setNonBlock(bool);
+    bool getNonBlock();
+
+    ProcessRet RLock(util::time::Time* overtime);
+    ProcessRet WLock(util::time::Time* overtime);
+    ProcessRet UnLock();
+private:
+    bool init_flag_;
+    bool nonblock_flag_;
+    pthread_rwlock_t rwlock_;
+
+    static ProcessRet _errno2ret(int ierrno) {
+        switch (ierrno) {
+            case 0:
+                return ThreadRet::SUCCESS;
+            case EBUSY:
+            case EINVAL:
+            case EAGAIN:
+            case EDEADLK:
+            default:
+                return ThreadRet::ERROR;
+        }
+    }
+
 };
 
 }
