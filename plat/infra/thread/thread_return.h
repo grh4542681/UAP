@@ -31,6 +31,10 @@ enum class ThreadRet: int {
 
 //thread single
     THREAD_ERUNNING,
+
+//thread signal
+    THREAD_ESIGNALMASKTYPE,
+    THREAD_ESIGNALMASK,
 };
 
 } // namespace THREAD

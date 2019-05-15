@@ -279,9 +279,19 @@ ProcessRet ProcessSignalCtrl::_mask_signal(SignalMaskType how, ProcessSignalSet&
             }
             break;
         case SignalMaskType::APPEND:
-        case SignalMaskType::SUBTRACT:
-        case SignalMaskType::REPLACE:
             if (sigprocmask(SIG_BLOCK, &new_set.set_, &old_set.set_) < 0) {
+                PROCESS_ERROR("Set process mask signal set error.");
+                return ProcessRet::PROCESS_ESIGNALMASK;
+            }
+            break;
+        case SignalMaskType::SUBTRACT:
+            if (sigprocmask(SIG_UNBLOCK, &new_set.set_, &old_set.set_) < 0) {
+                PROCESS_ERROR("Set process mask signal set error.");
+                return ProcessRet::PROCESS_ESIGNALMASK;
+            }
+            break;
+        case SignalMaskType::REPLACE:
+            if (sigprocmask(SIG_SETMASK, &new_set.set_, &old_set.set_) < 0) {
                 PROCESS_ERROR("Set process mask signal set error.");
                 return ProcessRet::PROCESS_ESIGNALMASK;
             }

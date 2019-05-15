@@ -190,6 +190,8 @@ public:
     */
     ProcessRet MaskRevert();
 
+    static ProcessRet SendSignal(pid_t pid,ProcessSignal& sig);
+
     /**
     * @brief getInstance - Get Signal ctrl class instance.
     *

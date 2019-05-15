@@ -16,6 +16,10 @@
 #include "process_return.h"
 #include "process_signal.h"
 
+namespace thread::signal {
+class ThreadSignalCtrl;
+}
+
 namespace process::signal {
 
 class ProcessSignalCtrl;
@@ -28,6 +32,7 @@ class ProcessSignalSet {
 public:
     friend class ProcessSignalAction;
     friend class ProcessSignalCtrl;
+    friend class thread::signal::ThreadSignalCtrl;
 public:
     ProcessSignalSet();
     ProcessSignalSet(const ProcessSignalSet& other);

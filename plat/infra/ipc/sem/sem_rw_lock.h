@@ -11,6 +11,11 @@
 
 namespace ipc::sem {
 
+enum class SemRWLockMode {
+    PreferRead,
+    PreferWrite,
+};
+
 template < typename T = SemSysV >
 class SemRWLock {
 public:
@@ -18,11 +23,24 @@ public:
     SemRWLock(std::string path);
     ~SemRWLock();
 
+    IpcRet Create();
+    IpcRet Destroy();
+
+    IpcRet SetPerfer(SemRWLockMode mode);
+
+    IpcRet RLock(util::time::Time* overtime);
+    IpcRet RUnLock();
+    IpcRet WLock(util::time::Time* overtime);
+    IpcRet WUnLock();
 private:
     std::string path_;
-    Sem* sem_;
-    mempool::MemPool* mp_;
-    bool init_flag_;
+    bool create_flag_;
+
+    SemRWLockMode mode_;
+    unsigned int reader_num_;
+    unsigned int wait_reader_num_;
+    unsigned int writer_num_;
+    unsigned int wait_writer_num_;
 };
 
 }
