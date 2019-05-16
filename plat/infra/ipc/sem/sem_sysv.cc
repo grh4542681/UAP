@@ -37,6 +37,25 @@ SemSysV::~SemSysV(){
     }
 }
 
+bool SemSysV::IsExist()
+{
+    if (init_flag_) {
+        return true;
+    } else {
+        if (semget(key_, 0, 0444) < 0) {
+            int tmp_errno = errno;
+            if (tmp_errno == ENOENT) {
+                return false;
+            } else {
+                IPC_ERROR("%s", strerror(tmp_errno));
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+}
+
 IpcRet SemSysV::Create(size_t semnum, mode_t mode)
 {
     if (path_.empty() || semnum <= 0) {

@@ -47,6 +47,7 @@ public:
     */
     virtual ~Sem() { }
 
+    virtual bool IsExist() { return false; }
     /**
     * @brief Create - Create semaphore set.
     *

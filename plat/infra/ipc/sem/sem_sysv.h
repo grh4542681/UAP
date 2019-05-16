@@ -18,6 +18,7 @@ public:
     SemSysV(std::string path);
     ~SemSysV();
 
+    bool IsExist();
     IpcRet Create(size_t semnum, mode_t mode);
     IpcRet Destroy();
     IpcRet Open(IpcMode mode);

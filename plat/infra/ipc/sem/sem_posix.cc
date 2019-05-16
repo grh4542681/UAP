@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -22,6 +23,26 @@ SemPosix::~SemPosix()
 {
     if (init_flag_) {
         Close();
+    }
+}
+
+bool SemPosix::IsExist()
+{
+    if (init_flag_) {
+        return true;
+    } else {
+        std::string real_name  = path_ + "_1";
+        if (access(real_name.c_str(), F_OK) < 0) {
+            int tmp_errno = errno;
+            if (tmp_errno == ENOENT) {
+                return false;
+            } else {
+                IPC_ERROR("%s", strerror(tmp_errno));
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
 }
 
