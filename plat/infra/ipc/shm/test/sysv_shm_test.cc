@@ -9,6 +9,8 @@ int main()
     shm.Create(1024,0666);
     sleep(10);
     shm.Open(ipc::IpcMode::READ_WRITE);
+    int* p = (int*)shm.GetHeadPtr();
+    *p = 2;
     sleep(10);
     shm.Close();
     sleep(20);

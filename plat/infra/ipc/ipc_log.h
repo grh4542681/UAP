@@ -13,6 +13,11 @@
     printf(fmt, ##args); \
     printf("\n");
 
+#define IPC_WARN(fmt, args...) \
+    printf("%s[%d]: ", __func__, __LINE__); \
+    printf(fmt, ##args); \
+    printf("\n");
+
 #define IPC_ERROR(fmt, args...) \
     printf("%s[%d]: ", __func__, __LINE__); \
     printf(fmt, ##args); \

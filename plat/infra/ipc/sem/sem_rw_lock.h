@@ -4,7 +4,11 @@
 #include <string>
 
 #include "mempool.h"
+#include "time/vtime.h"
 
+#include "shm/shm.h"
+#include "shm/shm_sysv.h"
+#include "shm/shm_posix.h"
 #include "sem.h"
 #include "sem_sysv.h"
 #include "sem_posix.h"
@@ -20,20 +24,19 @@ enum class SemRWLockState {
     RLocked,
     WLocked,
     NLocked,
-}
+};
 
-template < typename SEMT = SemSysV, typename SHMT = ShmSysV>
+template < typename SEMT = SemSysV, typename SHMT = shm::ShmSysV>
 class SemRWLock {
 public:
     struct SemRWLockInfo {
-        bool internal_non_block_flag_;
         unsigned int user_num_;
         SemRWLockMode rwlock_mode_;
         unsigned int reader_num_;
         unsigned int wait_reader_num_;
         unsigned int writer_num_;
         unsigned int wait_writer_num_;
-    }
+    };
 
 public:
     SemRWLock(std::string path) {
@@ -42,7 +45,7 @@ public:
         shm_path_ = path_ + "shm";
         sem_ = NULL;
         shm_ = NULL;
-        rw_info_ = NULL;
+        rwlock_info_ = NULL;
         mempool_ = mempool::MemPool::getInstance();
         init_flag_ = false;
         rwlock_state_ = SemRWLockState::NLocked;
@@ -69,7 +72,7 @@ public:
         }
         ret = sem_->Create(3, mode);
         if (ret != IpcRet::SUCCESS) {
-            IPC_ERROR("Create sem[%s] failed in RWLock, ret[%d]", sem_path_.c_str(), ret);
+            IPC_ERROR("Create sem[%s] failed in RWLock, ret[%d]", sem_path_.c_str(), static_cast<int>(ret));
             return ret;
         }
 
@@ -78,20 +81,27 @@ public:
             IPC_ERROR("Alloc memory for shm[%s] failed in RWLock", shm_path_.c_str());
             return IpcRet::EMALLOC;
         }
-        ret = shm_->Create(sizeof(struct SemRWLockInfo), mode);
+        ret = shm_->Create(sizeof(struct SemRWLockInfo)+200, mode);
         if (ret != IpcRet::SUCCESS) {
-            IPC_ERROR("Create shm[%s] failed in RWLock, ret[%d]", shm_path_.c_str(), ret);
+            IPC_ERROR("Create shm[%s] failed in RWLock, ret[%d]", shm_path_.c_str(), static_cast<int>(ret));
             return ret;
         }
+        shm_->Open(IpcMode::READ_WRITE);
 
-        rwlock_info_ = shm_->GetHeadPtr();
-        rwlock_info_->non_block_flag_ = false;
+        rwlock_info_ = reinterpret_cast<struct SemRWLockInfo*>(shm_->GetHeadPtr());
+        printf("-%p-%d----\n", rwlock_info_, __LINE__);
         rwlock_info_->user_num_ = 0;
-        rwlock_info_->rwlock_mode_ = SemRWLockMode::PerferRead;
+        printf("---%d----\n", __LINE__);
+        rwlock_info_->rwlock_mode_ = SemRWLockMode::PreferRead;
         rwlock_info_->reader_num_ = 0;
         rwlock_info_->wait_reader_num_ = 0;
         rwlock_info_->writer_num_ = 0;
         rwlock_info_->wait_writer_num_ = 0;
+        printf("---%d----\n", __LINE__);
+
+        shm_->Close();
+        rwlock_info_ = NULL;
+        printf("---%d----\n", __LINE__);
 
         return ret;
     }
@@ -106,7 +116,7 @@ public:
             ret = sem.Destroy();
         }
         if (ret != IpcRet::SUCCESS) {
-            IPC_ERROR("Destroy sem[%s] failed in RWLock, ret[%d]", sem_path_.c_str(), ret_);
+            IPC_ERROR("Destroy sem[%s] failed in RWLock, ret[%d]", sem_path_.c_str(), static_cast<int>(ret));
             return ret;
         }
 
@@ -118,7 +128,7 @@ public:
             ret = shm.Destroy();
         }
         if (ret != IpcRet::SUCCESS) {
-            IPC_ERROR("Destroy shm[%s] failed in RWLock, ret[%d]", shm_path_.c_str(), ret_);
+            IPC_ERROR("Destroy shm[%s] failed in RWLock, ret[%d]", shm_path_.c_str(), static_cast<int>(ret));
             return ret;
         }
         return ret;
@@ -148,7 +158,7 @@ public:
         if (ret != IpcRet::SUCCESS) {
             return ret;
         }
-        rwlock_info_ = shm_->GetHeadPtr();
+        rwlock_info_ = reinterpret_cast<struct SemRWLockInfo*>(shm_->GetHeadPtr());
         init_flag_ = true;
         return ret;
     }
@@ -156,12 +166,12 @@ public:
     IpcRet Close() {
         IpcRet ret = IpcRet::SUCCESS;
         if (init_flag_) {
-            UnLock();
-            ret = sem_.Close();
+            UnLock(NULL);
+            ret = sem_->Close();
             if (ret != IpcRet::SUCCESS) {
                 return ret;
             }
-            ret = shm_.Close();
+            ret = shm_->Close();
             if (ret != IpcRet::SUCCESS) {
                 return ret;
             }
@@ -184,9 +194,245 @@ public:
         }
     }
 
-    IpcRet RLock(util::time::Time* overtime);
-    IpcRet WLock(util::time::Time* overtime);
-    IpcRet UnLock();
+    bool SetNonBlock(bool flag) {
+        if (sem_) {
+            return sem_->SetNonBlock(flag);
+        }
+        return false;
+    }
+
+    IpcRet RLock(util::time::Time* overtime) {
+        if (rwlock_state_ != SemRWLockState::NLocked) {
+            return IpcRet::SEM_ELOCKED;
+        }
+
+        IpcRet ret = IpcRet::SUCCESS;
+
+        if ((ret = _ctrl_mutex_lock(overtime)) != IpcRet::SUCCESS) {
+            if (ret == IpcRet::ETIMEOUT) {
+                IPC_WARN("RW lock[%s] ctrl mutex locked timeout.", path_.c_str());
+            } else {
+                IPC_ERROR("RW lock[%s] ctrl mutex locked failed.", path_.c_str());
+            }
+            return ret;
+        }
+        switch (rwlock_info_->rwlock_mode_) {
+            case SemRWLockMode::PreferRead:
+                if (rwlock_info_->writer_num_ == 0) {
+                    rwlock_info_->reader_num_++;
+                    _ctrl_mutex_unlock();
+                    ret = IpcRet::SUCCESS;
+                } else {
+                    rwlock_info_->wait_reader_num_++;
+                    _ctrl_mutex_unlock();
+                    ret = _read_mutex_lock(overtime);
+                }
+                break;
+            case SemRWLockMode::PreferWrite:
+                if (rwlock_info_->writer_num_ == 0 && rwlock_info_->wait_writer_num_ == 0) {
+                    rwlock_info_->reader_num_++;
+                    _ctrl_mutex_unlock();
+                    ret = IpcRet::SUCCESS;
+                } else {
+                    rwlock_info_->wait_reader_num_++;
+                    _ctrl_mutex_unlock();
+                    ret = _read_mutex_lock(overtime);
+                }
+                break;
+            default:
+                _ctrl_mutex_unlock();
+                IPC_ERROR("Unknow SemRWLockMode[%d]", static_cast<int>(rwlock_info_->rwlock_mode_));
+                break;
+        }
+
+        if (ret == IpcRet::SUCCESS) {
+            rwlock_state_ = SemRWLockState::RLocked;
+        }
+        return ret;
+    }
+
+    IpcRet WLock(util::time::Time* overtime) {
+        if (rwlock_state_ != SemRWLockState::NLocked) {
+            return IpcRet::SEM_ELOCKED;
+        }
+
+        IpcRet ret = IpcRet::SUCCESS;
+
+        if ((ret = _ctrl_mutex_lock(overtime)) != IpcRet::SUCCESS) {
+            if (ret == IpcRet::ETIMEOUT) {
+                IPC_WARN("RW lock[%s] ctrl mutex locked timeout.", path_.c_str());
+            } else {
+                IPC_ERROR("RW lock[%s] ctrl mutex locked failed.", path_.c_str());
+            }
+            return ret;
+        }
+        switch (rwlock_info_->rwlock_mode_) {
+            case SemRWLockMode::PreferRead:
+                if (rwlock_info_->writer_num == 0 && rwlock_info_->reader_num_ == 0 && rwlock_info_->wait_reader_num_ == 0) {
+                    rwlock_info_->writer_num_++;
+                    _ctrl_mutex_unlock();
+                    ret = IpcRet::SUCCESS;
+                } else {
+                    rwlock_info_->wait_writer_num_++;
+                    _ctrl_mutex_unlock();
+                    ret = _write_mutex_lock(overtime);
+                }
+                break;
+            case SemRWLockMode::PreferWrite:
+                if (rwlock_info_->writer_num == 0 && rwlock_info_->reader_num_ == 0) {
+                    rwlock_info_->writer_num_++;
+                    _ctrl_mutex_unlock();
+                    ret = IpcRet::SUCCESS;
+                } else {
+                    rwlock_info_->wait_writer_num_++;
+                    _ctrl_mutex_unlock();
+                    ret = _write_mutex_lock(overtime);
+                }
+                break;
+            default:
+                _ctrl_mutex_unlock();
+                ret = IpcRet::EBADARGS;
+                IPC_ERROR("Unknow SemRWLockMode[%d]", rwlock_info_->rwlock_mode_);
+                break;
+        }
+
+        if (ret == IpcRet::SUCCESS) {
+            rwlock_state_ = SemRWLockState::WLocked;
+        }
+        return ret;
+        
+    }
+
+    IpcRet UnLock(util::time::Time* overtime) {
+        IpcRet ret = IpcRet::SUCCESS;
+        switch (rwlock_state_) {
+            case SemRWLockState::NLocked:
+                ret = IpcRet::SUCCESS;
+                break;
+            case SemRWLockState::RLocked:
+                if ((ret = _ctrl_mutex_lock(overtime)) != IpcRet::SUCCESS) {
+                    if (ret == IpcRet::ETIMEOUT) {
+                        IPC_WARN("RW lock[%s] ctrl mutex locked timeout.", path_.c_str());
+                    } else {
+                        IPC_ERROR("RW lock[%s] ctrl mutex locked failed.", path_.c_str());
+                    }
+                    return ret;
+                }
+                switch (rwlock_info_->rwlock_mode_) {
+                    case SemRWLockMode::PreferRead:
+                        rwlock_info_->reader_num_--;
+                        if (rwlock_info_->wait_reader_num_ > 0) {
+                            auto loop = rwlock_info_->wait_reader_num_;
+                            for (; loop > 0; loop--) {
+                                _read_mutex_unlock();
+                                rwlock_info_->wait_reader_num_--;
+                                rwlock_info_->reader_num_++;
+                            }
+                        } else {
+                            if (rwlock_info_->reader_num_ == 0 && rwlock_info_->wait_writer_num_ > 0) {
+                                _write_mutex_unlock();
+                                rwlock_info_->wait_writer_num_--;
+                                rwlock_info_->writer_num_++;
+                            }
+                        }
+                        ret = IpcRet::SUCCESS;
+                        break;
+                    case SemRWLockMode::PreferWrite:
+                        rwlock_info_->reader_num_--;
+                        if (rwlock_info_->reader_num_ == 0) {
+                            if (rwlock_info_->wait_writer_num_ > 0) {
+                                _write_mutex_unlock();
+                                rwlock_info_->wait_writer_num_--;
+                                rwlock_info_->writer_num_++;
+                            } else {
+                                if (rwlock_info_->wait_reader_num_ > 0) {
+                                    auto loop = rwlock_info_->wait_reader_num_;
+                                    for (; loop > 0; loop--) {
+                                        _read_mutex_unlock();
+                                        rwlock_info_->wait_reader_num_--;
+                                        rwlock_info_->reader_num_++;
+                                    }
+                                }
+                            }
+                        }
+                        ret = IpcRet::SUCCESS;
+                        break;
+                    default:
+                        ret = IpcRet::EBADARGS;
+                        IPC_ERROR("Unknow SemRWLockMode[%d]", (int)(rwlock_info_->rwlock_mode_));
+                        break;
+                }
+                _ctrl_mutex_unlock();
+                break;
+            case SemRWLockState::WLocked:
+                if ((ret = _ctrl_mutex_lock(overtime)) != IpcRet::SUCCESS) {
+                    if (ret == IpcRet::ETIMEOUT) {
+                        IPC_WARN("RW lock[%s] ctrl mutex locked timeout.", path_.c_str());
+                    } else {
+                        IPC_ERROR("RW lock[%s] ctrl mutex locked failed.", path_.c_str());
+                    }
+                    return ret;
+                }
+                switch (rwlock_info_->rwlock_mode_) {
+                    case SemRWLockMode::PreferRead:
+                        rwlock_info_->writer_num_--;
+                        if (rwlock_info_->wait_reader_num_ > 0) {
+                            auto loop = rwlock_info_->wait_reader_num_;
+                            for (; loop > 0; loop--) {
+                                _read_mutex_unlock();
+                                rwlock_info_->wait_reader_num_--;
+                                rwlock_info_->reader_num_++;
+                            }
+                        } else {
+                            if (rwlock_info_->reader_num_ == 0 && rwlock_info_->wait_writer_num_ > 0) {
+                                _write_mutex_unlock();
+                                rwlock_info_->wait_writer_num_--;
+                                rwlock_info_->writer_num_++;
+                            }
+                        }
+                        ret = IpcRet::SUCCESS;
+                        break;
+                    case SemRWLockMode::PreferWrite:
+                        rwlock_info_->writer_num_--;
+                        if (rwlock_info_->writer_num_ == 0) {
+                            if (rwlock_info_->wait_writer_num_ > 0) {
+                                _write_mutex_unlock();
+                                rwlock_info_->wait_writer_num_--;
+                                rwlock_info_->writer_num_++;
+                            } else {
+                                if (rwlock_info_->wait_reader_num_ > 0) {
+                                    auto loop = rwlock_info_->wait_reader_num_;
+                                    for (; loop > 0; loop--) {
+                                        _read_mutex_unlock();
+                                        rwlock_info_->wait_reader_num_--;
+                                        rwlock_info_->reader_num_++;
+                                    }
+                                }
+                            }
+                        }
+                        ret = IpcRet::SUCCESS;
+                        break;
+                    default:
+                        ret = IpcRet::EBADARGS;
+                        IPC_ERROR("Unknow SemRWLockMode[%d]", (int)(rwlock_info_->rwlock_mode_));
+                        break;
+                }
+                _ctrl_mutex_unlock();
+                break;
+            default:
+                ret = IpcRet::EBADARGS;
+                IPC_ERROR("Unknow SemRWLock current state[%d]", (int)(rwlock_state_));
+                break;
+        }
+        rwlock_state_ = SemRWLockState::NLocked;
+        return ret;
+    }
+
+    void print() {
+        _ctrl_mutex_lock(NULL);
+        printf("reader[%u]", rwlock_info_->reader_num_);
+        _ctrl_mutex_unlock();
+    }
 private:
     mempool::MemPool* mempool_;
     bool init_flag_;
@@ -194,30 +440,30 @@ private:
 
     std::string shm_path_;
     std::string sem_path_;
-    Shm shm_*;
-    Sem sem_*;
+    SHMT* shm_;
+    SEMT* sem_;
     struct SemRWLockInfo* rwlock_info_;
     SemRWLockState rwlock_state_;
 
-    IpcRet _ctrl_mutex_lock() {
-        return sem_->P(0, NULL);
+    IpcRet _ctrl_mutex_lock(util::time::Time* overtime) {
+        return sem_->P(0, overtime);
     }
     IpcRet _ctrl_mutex_unlock() {
-        return sem_->V(0, NULL);
+        return sem_->V(0);
     }
 
-    IpcRet _read_mutex_lock() {
-        return sem_->P(1, NULL);
+    IpcRet _read_mutex_lock(util::time::Time* overtime) {
+        return sem_->P(1, overtime);
     }
     IpcRet _read_mutex_unlock() {
-        return sem_->V(1, NULL);
+        return sem_->V(1);
     }
 
-    IpcRet _write_mutex_lock() {
-        return sem_->P(2, NULL);
+    IpcRet _write_mutex_lock(util::time::Time* overtime) {
+        return sem_->P(2, overtime);
     }
     IpcRet _write_mutex_unlock() {
-        return sem_->V(2, NULL);
+        return sem_->V(2);
     }
 };
 

@@ -97,7 +97,7 @@ IpcRet ShmSysV::Open(IpcMode mode)
     }
     struct shmid_ds shm_info;
     memset(&shm_info, 0, sizeof(struct shmid_ds));
-    if (shmctl(shmid_, IPC_INFO, &shm_info) < 0) {
+    if (shmctl(shmid_, IPC_STAT, &shm_info) < 0) {
         int tmp_errno = errno;
         return _errno2ret(tmp_errno);
     }
@@ -119,6 +119,7 @@ IpcRet ShmSysV::Open(IpcMode mode)
     } else {
         return IpcRet::SHM_EMODE;
     }
+    printf("*******%p**%d******\n", head_, size_);
     status_ = ShmStatus::OPEN;
     return IpcRet::SUCCESS;
 }

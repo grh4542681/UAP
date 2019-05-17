@@ -41,6 +41,9 @@ enum class IpcRet: int {
     SEM_ENOMEM,
     SEM_ENOSPC,
     SEM_ETIMEOUT,
+
+// sem rw lock
+    SEM_ELOCKED,
 };
 
 } // namespace ipc
