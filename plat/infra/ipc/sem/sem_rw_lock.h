@@ -89,19 +89,16 @@ public:
         shm_->Open(IpcMode::READ_WRITE);
 
         rwlock_info_ = reinterpret_cast<struct SemRWLockInfo*>(shm_->GetHeadPtr());
-        printf("-%p-%d----\n", rwlock_info_, __LINE__);
         rwlock_info_->user_num_ = 0;
-        printf("---%d----\n", __LINE__);
         rwlock_info_->rwlock_mode_ = SemRWLockMode::PreferRead;
         rwlock_info_->reader_num_ = 0;
         rwlock_info_->wait_reader_num_ = 0;
         rwlock_info_->writer_num_ = 0;
         rwlock_info_->wait_writer_num_ = 0;
-        printf("---%d----\n", __LINE__);
 
         shm_->Close();
         rwlock_info_ = NULL;
-        printf("---%d----\n", __LINE__);
+        _ctrl_mutex_unlock();
 
         return ret;
     }
@@ -216,12 +213,15 @@ public:
             }
             return ret;
         }
+        printf("---%d----\n", __LINE__);
         switch (rwlock_info_->rwlock_mode_) {
             case SemRWLockMode::PreferRead:
+        printf("---%d----\n", __LINE__);
                 if (rwlock_info_->writer_num_ == 0) {
                     rwlock_info_->reader_num_++;
                     _ctrl_mutex_unlock();
                     ret = IpcRet::SUCCESS;
+        printf("---%d----\n", __LINE__);
                 } else {
                     rwlock_info_->wait_reader_num_++;
                     _ctrl_mutex_unlock();
@@ -429,8 +429,9 @@ public:
     }
 
     void print() {
+        printf("---%d----\n", __LINE__);
         _ctrl_mutex_lock(NULL);
-        printf("reader[%u]", rwlock_info_->reader_num_);
+        printf("reader[%u]\n", rwlock_info_->reader_num_);
         _ctrl_mutex_unlock();
     }
 private:

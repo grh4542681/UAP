@@ -8,6 +8,8 @@ int main() {
     rwlock.Open();
     rwlock.RLock(NULL);
     rwlock.print();
+    rwlock.UnLock(NULL);
+    rwlock.print();
     rwlock.Close();
     //rwlock.Destroy();
 

@@ -48,7 +48,6 @@ IpcRet ShmSysV::Create(size_t size, mode_t mode)
     if (path_.empty() || size <= 0) {
         return IpcRet::EINIT;
     }
-    printf("-------\n");
     shmid_ = shmget(key_, size, mode|IPC_CREAT|IPC_EXCL);
     if (shmid_ < 0) {
         int tmp_errno = errno;
@@ -102,16 +101,16 @@ IpcRet ShmSysV::Open(IpcMode mode)
         return _errno2ret(tmp_errno);
     }
     size_ = shm_info.shm_segsz;
-    if (mode | IpcMode::READ_ONLY) {
+    if (mode & IpcMode::READ_ONLY) {
         head_ = shmat(shmid_, NULL, SHM_RDONLY);
-        if ((long)head_ < 0) {
+        if (head_ == (void*)-1) {
             int tmp_errno = errno;
             head_ = NULL;
             return _errno2ret(tmp_errno);
         }
-    } else if ((mode | IpcMode::WRITE_ONLY) || (mode | IpcMode::READ_WRITE)) {
+    } else if ((mode & IpcMode::WRITE_ONLY) || (mode & IpcMode::READ_WRITE)) {
         head_ = shmat(shmid_, NULL, 0);
-        if ((long)head_ < 0) {
+        if (head_ == (void *)-1) {
             int tmp_errno = errno;
             head_ = NULL;
             return _errno2ret(tmp_errno);
@@ -119,7 +118,6 @@ IpcRet ShmSysV::Open(IpcMode mode)
     } else {
         return IpcRet::SHM_EMODE;
     }
-    printf("*******%p**%d******\n", head_, size_);
     status_ = ShmStatus::OPEN;
     return IpcRet::SUCCESS;
 }
@@ -129,7 +127,7 @@ IpcRet ShmSysV::Close()
     if (shmid_ < 0 || head_ == NULL) {
         return IpcRet::EINIT;
     }
-    if (shmdt(head_) < 0) {
+    if (shmdt(head_) == -1) {
         int tmp_errno = errno;
         return _errno2ret(tmp_errno);
     }

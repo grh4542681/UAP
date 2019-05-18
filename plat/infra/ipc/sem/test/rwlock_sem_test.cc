@@ -5,7 +5,7 @@
 int main() {
     ipc::sem::SemRWLock rwlock("rwlock_test");
     rwlock.Create(0666);
-    sleep(10);
+    sleep(20);
     rwlock.Destroy();
 
     return 0;
