@@ -1,19 +1,19 @@
-#ifndef __PROCESS_POOL_H__
-#define __PROCESS_POOL_H__
+#ifndef __PROCESS_POOL_CTRL_H__
+#define __PROCESS_POOL_CTRL_H__
 
 #include <string>
 
 namespace process::pool {
 
-class ProcessPool {
+class ProcessPoolCtrl {
 public:
-    ProcessPool(std::string name);
-    ~ProcessPool();
+    ProcessPoolCtrl(std::string name);
+    ~ProcessPoolCtrl();
 
     ProcessRet Create(size_t min_size, size_t max_size);
     ProcessRet Destroy();
 
-    ProcessRet PushJob(ProcessPoolJob* job);
+    ProcessRet PushJob(ProcessPoolCtrlJob* job);
 private:
     std::string name_;
     size_t min_size_;
