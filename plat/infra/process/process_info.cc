@@ -48,6 +48,11 @@ ProcessInfo::~ProcessInfo()
 
 }
 
+bool IsWorker()
+{
+    return pool_worker_flag_;
+}
+
 pid_t ProcessInfo::GetPid()
 {
     return pid_;
