@@ -24,6 +24,8 @@ ProcessInfo::ProcessInfo()
     memset(name, 0x00, sizeof(name));
     sprintf(name, "%s_%d", strrchr(process_name_.c_str(), '/') ? strrchr(process_name_.c_str(), '/') + 1 : "", pid_);
     name_.assign(name);
+    state_ = ProcessState::Normal;
+    role_ = ProcessRole::Normal;
     raw_cmdline_ = NULL;
     raw_cmdline_size_ = 0;
     sigchld_callback_ = NULL;
@@ -37,6 +39,8 @@ ProcessInfo::ProcessInfo(ProcessInfo& other)
     process_name_ = other.process_name_;
     name_ = other.name_;
     pair_ = other.pair_;
+    state_ = other.state_;
+    role_ = other.role_;
     sigchld_callback_ = other.sigchld_callback_;
 
     raw_cmdline_ = other.raw_cmdline_;
@@ -46,11 +50,6 @@ ProcessInfo::ProcessInfo(ProcessInfo& other)
 ProcessInfo::~ProcessInfo()
 {
 
-}
-
-bool IsWorker()
-{
-    return pool_worker_flag_;
 }
 
 pid_t ProcessInfo::GetPid()
@@ -76,6 +75,16 @@ std::string& ProcessInfo::GetProcessName()
 std::string& ProcessInfo::GetProcessPath()
 {
     return process_path_;
+}
+
+ProcessState& ProcessInfo::GetProcessState()
+{
+    return state_;
+}
+
+ProcessRole& ProcessInfo::GetProcessRole()
+{
+    return role_;
 }
 
 const char* ProcessInfo::GetCmdLine(unsigned int index)

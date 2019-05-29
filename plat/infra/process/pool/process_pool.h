@@ -1,19 +1,22 @@
-#ifndef __PROCESS_POOL_CTRL_H__
-#define __PROCESS_POOL_CTRL_H__
+#ifndef __PROCESS_POOL_H__
+#define __PROCESS_POOL_H__
 
 #include <string>
 
 namespace process::pool {
 
-class ProcessPoolCtrl {
+template < typename T >
+class ProcessPool {
 public:
-    ProcessPoolCtrl(std::string name);
-    ~ProcessPoolCtrl();
+    ProcessPool(std::string name);
+    ~ProcessPool();
 
     ProcessRet Create(size_t min_size, size_t max_size);
     ProcessRet Destroy();
 
-    ProcessRet PushJob(ProcessPoolCtrlJob* job);
+    ProcessRet PushJob(ProcessPoolJob* job);
+private:
+    ProcessRet _register();
 private:
     std::string name_;
     size_t min_size_;
@@ -22,8 +25,8 @@ private:
     bool init_flag_;
     bool auto_size_flag_;
 
-
-
+    ProcessPoolKeeper<T> _keeper;
+    ProcessPoolWorker<T> _worker;
 };
 
 }

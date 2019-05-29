@@ -18,6 +18,7 @@
 #include "process_log.h"
 #include "process_return.h"
 #include "process_state.h"
+#include "process_role.h"
 
 namespace process::single {
 
@@ -33,13 +34,14 @@ public:
     friend class Process;
     template <typename F> friend class single::ProcessSingle;
 public:
-    bool IsWorker();
 
     pid_t GetPid();
     pid_t GetPPid();
     std::string& GetName();
     std::string& GetProcessName();
     std::string& GetProcessPath();
+    ProcessState& GetProcessState();
+    ProcessRole& GetProcessRole();
     std::string& GetProcessPoolName();
     const char* GetCmdLine(unsigned int index);
     void (*GetSigChldCallback())(int*);
@@ -69,20 +71,20 @@ private:
     ProcessInfo();
     ProcessInfo(ProcessInfo& other);
     ~ProcessInfo();
+public:
 
 private:
-
     mempool::MemPool* mempool_;
 
     // base
     pid_t pid_;                 ///< Process id.
     pid_t ppid_;                ///< Parent process id.
+    std::string name_;          ///< User defined process name.
     std::string process_path_;  ///< Process exec path.
     std::string process_name_;  ///< Real process name.
-    std::string name_;          ///< User defined process name.
-    bool pool_worker_flag_;     ///< Porcess is a worker process in a process pool.
-    std::string pool_name_;     ///< Process belong to which process pool.
     ProcessState state_;        ///< Process state.
+    ProcessRole role_;          ///< Process role.
+    std::string pool_name_;     ///< Process belong to which process pool.
     ipc::sock::SockPair pair_;  ///< Communication channel between father and child processes.
     void (*sigchld_callback_)(int*);    ///< if process dead, parent will use this func deal with SIGCHLD signal.
 
