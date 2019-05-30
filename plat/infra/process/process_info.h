@@ -19,6 +19,9 @@
 #include "process_return.h"
 #include "process_state.h"
 #include "process_role.h"
+#include "process_id.h"
+#include "process_parent.h"
+#include "process_child.h"
 
 namespace process::single {
 
@@ -98,6 +101,13 @@ private:
     std::map<pid_t, thread::ThreadInfo*> thread_info_map_;  ///< Map of all thread in this process.
 
     std::map<pid_t, ProcessInfo*> process_info_map_;    ///< Map of all child process in this process.
+
+
+
+    std::map<ProcessID*, ProcessChild*> child_map_;
+
+
+
 
     static ProcessInfo* pInstance;
 public:

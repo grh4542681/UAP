@@ -30,6 +30,7 @@ private:
 * @returns  TimeRet.
 */
 template < > TimeRet Time::To<struct timespec>(struct timespec* p);
+template < > TimeRet Time::To<struct timeval>(struct timeval* p);
 
 /**
  * @brief Now - Get current system time

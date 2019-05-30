@@ -40,6 +40,14 @@ TimeRet Time::To<struct timespec>(struct timespec* p)
     return TimeRet::SUCCESS;
 }
 
+template < >
+TimeRet Time::To<struct timeval>(struct timeval* p)
+{
+    p->tv_sec = second_;
+    p->tv_usec = nanosecond_ / 1000;
+    return TimeRet::SUCCESS;
+}
+
 std::string TimeC::Format(std::string format) {
     std::string str;
     char buff[1024];

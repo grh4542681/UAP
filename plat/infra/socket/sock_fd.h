@@ -3,6 +3,7 @@
 
 #include <netinet/in.h>
 
+#include "time/vtime.h"
 #include "mempool.h"
 #include "sock_log.h"
 #include "sock_return.h"
@@ -33,8 +34,8 @@ public:
     SockRet setMcastTTL(unsigned int ttl);
     SockRet setMcastloop(bool flag);
 
-    SockRet setSendBlock(struct timeval* overtime);
-    SockRet setRecvBlock(struct timeval* overtime);
+    SockRet setSendBlock(util::time::Time* overtime);
+    SockRet setRecvBlock(util::time::Time* overtime);
     SockRet setNonBlock();
 
     bool isClientFD();

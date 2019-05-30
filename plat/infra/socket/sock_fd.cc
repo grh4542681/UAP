@@ -426,7 +426,7 @@ SockRet SockFD::setMcastloop(bool flag)
 *
 * @returns  SockRet
 */
-SockRet SockFD::setSendBlock(struct timeval* overtime)
+SockRet SockFD::setSendBlock(util::time::Time* overtime)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -450,7 +450,7 @@ SockRet SockFD::setSendBlock(struct timeval* overtime)
         }
     }
     if (overtime) {
-        memcpy(&otime, overtime, sizeof(struct timeval));
+        overtime->To<struct timeval>(&otime);
     } else {
         otime.tv_sec = 0;
         otime.tv_usec = 0;
@@ -470,7 +470,7 @@ SockRet SockFD::setSendBlock(struct timeval* overtime)
 *
 * @returns  SockRet
 */
-SockRet SockFD::setRecvBlock(struct timeval* overtime)
+SockRet SockFD::setRecvBlock(util::time::Time* overtime)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -494,7 +494,7 @@ SockRet SockFD::setRecvBlock(struct timeval* overtime)
         }
     }
     if (overtime) {
-        memcpy(&otime, overtime, sizeof(struct timeval));
+        overtime->To<struct timeval>(&otime);
     } else {
         otime.tv_sec = 0;
         otime.tv_usec = 0;

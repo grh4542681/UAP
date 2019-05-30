@@ -1,6 +1,8 @@
 SET(LIBGPROCESS_SRC process_info.cc
                     process.cc
                     process_role.cc
+                    process_id.cc
+                    process_child.cc
                     signal/process_signal.cc
                     signal/process_signal_ctrl.cc
                     signal/process_signal_set.cc
