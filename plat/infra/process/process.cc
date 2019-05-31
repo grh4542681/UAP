@@ -21,7 +21,7 @@ ProcessRet Process::SetProcName(std::string name)
     return ProcessRet::SUCCESS;
 }
 
-ProcessRet Process::GetProcPath(std::string& path)
+ProcessRet Process::GetProcRealPath(std::string& path)
 {
     char process_path[MAX_PROCCESS_NAME_LEN];
     memset(process_path, 0x00, sizeof(process_path));
@@ -34,7 +34,7 @@ ProcessRet Process::GetProcPath(std::string& path)
     return ProcessRet::SUCCESS;
 }
 
-ProcessRet Process::GetProcName(std::string& name)
+ProcessRet Process::GetProcRealName(std::string& name)
 {
     char process_name[MAX_PROCCESS_NAME_LEN];
     memset(process_name, 0x00, sizeof(process_name));

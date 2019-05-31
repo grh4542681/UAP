@@ -38,37 +38,39 @@ public:
     template <typename F> friend class single::ProcessSingle;
 public:
 
-    pid_t GetPid();
-    pid_t GetPPid();
+    ProcessID& GetPid();
     std::string& GetName();
-    std::string& GetProcessName();
-    std::string& GetProcessPath();
+    std::string& GetRealName();
+    std::string& GetRealPath();
     ProcessState& GetProcessState();
     ProcessRole& GetProcessRole();
     std::string& GetProcessPoolName();
     const char* GetCmdLine(unsigned int index);
-    void (*GetSigChldCallback())(int*);
 
-    ProcessInfo& SetPid();
-    ProcessInfo& SetPPid();
+    ProcessInfo& SetPid(ProcessID&& pid);
     ProcessInfo& SetName(std::string name);
-    ProcessInfo& SetProcessName();
-    ProcessInfo& SetProcessPath();
+    ProcessInfo& SetRealName();
+    ProcessInfo& SetRealPath();
     ProcessInfo& SetCmdLine(int argc, char** argv, char** env);
-    ProcessInfo& SetSigChldCallback(void (*sigchld_callback)(int*));
 
     ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
     ProcessRet DelThreadInfo(pid_t tid);
 
-    ProcessRet AddChildProcessInfo(ProcessInfo& process_info);
-    ProcessRet DelChildProcessInfo(pid_t pid);
-    ProcessRet DelChildProcessInfo(ProcessInfo* process_info);
-    ProcessInfo* FindChildProcessInfo(pid_t pid);
+    ProcessRet AddParentProcess(ProcessParent&& parent);
+    ProcessRet DelParentProcess();
+    ProcessParent* GetParentProcess();
+
+    ProcessRet AddChildProcess(ProcessChild&& child);
+    ProcessRet DelChildProcess(ProcessID&& pid);
+    ProcessRet DelChildProcess(std::string name);
+    ProcessChild* GetChildProcess(ProcessID&& pid);
+    ProcessRet GetChildProcess(std::string name, std::vector<ProcessChild*> child_vector);
 
     void Report(file::File& fd, report::ReportMode mode);
     void Report(std::stringstream& ss, report::ReportMode mode);
 
     static ProcessInfo* getInstance();
+
 
 private:
     ProcessInfo();
@@ -79,35 +81,28 @@ public:
 private:
     mempool::MemPool* mempool_;
 
-    // base
-    pid_t pid_;                 ///< Process id.
-    pid_t ppid_;                ///< Parent process id.
-    std::string name_;          ///< User defined process name.
-    std::string process_path_;  ///< Process exec path.
-    std::string process_name_;  ///< Real process name.
-    ProcessState state_;        ///< Process state.
-    ProcessRole role_;          ///< Process role.
-    std::string pool_name_;     ///< Process belong to which process pool.
-    ipc::sock::SockPair pair_;  ///< Communication channel between father and child processes.
-    void (*sigchld_callback_)(int*);    ///< if process dead, parent will use this func deal with SIGCHLD signal.
+    // base argement
+    ProcessID           pid_;           ///< Process id.
+    std::string         name_;          ///< User defined process name.
+    std::string         real_path_;     ///< Process exec path.
+    std::string         real_name_;     ///< Real process name.
+    ProcessState        state_;         ///< Process state.
+    ProcessRole         role_;          ///< Process role.
+    std::string         pool_name_;     ///< Process belong to which process pool.
 
     // Command line argument
-    char** raw_cmdline_;                ///< Original command line parameter.
-    unsigned int raw_cmdline_size_;     ///< Size of original command line.
-    std::vector<char*> cmdline_;        ///< Command line arguments vector.
-    std::vector<char*> environ_;        ///< Environment arguments vector.
+    char**              raw_cmdline_;       ///< Original command line parameter.
+    unsigned int        raw_cmdline_size_;  ///< Size of original command line.
+    std::vector<char*>  cmdline_;           ///< Command line arguments vector.
+    std::vector<char*>  environ_;           ///< Environment arguments vector.
 
+    // process relationship
+    ProcessParent*                      parent_;    ///< Parent process info.
+    std::map<ProcessID, ProcessChild*> child_;     ///< Child process info.
+
+    // thread info
     thread::mutex::ThreadRWLock thread_info_rw_lock_;       ///< Mutex lock of thread map.
     std::map<pid_t, thread::ThreadInfo*> thread_info_map_;  ///< Map of all thread in this process.
-
-    std::map<pid_t, ProcessInfo*> process_info_map_;    ///< Map of all child process in this process.
-
-
-
-    std::map<ProcessID*, ProcessChild*> child_map_;
-
-
-
 
     static ProcessInfo* pInstance;
 public:

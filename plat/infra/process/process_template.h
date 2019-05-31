@@ -68,7 +68,7 @@ public:
     * @param [sigchld_callback] - Callback function.
     */
     void SetSigChldCallback(void (*sigchld_callback)(int*)) {
-        sigchld_callback_ = sigchld_callback;
+        dead_callback_ = sigchld_callback;
     }
 
     /**
@@ -95,6 +95,10 @@ public:
             PROCESS_ERROR("Fork error.");
             return ProcessRet::PROCESS_EFORK;
         } else if (pid == 0) {
+            //cache parent process data.
+            ProcessParent parent_cache(parent->GetPid(), parent->GetName());
+            parent_cache.setPair(pair);
+
             char** raw_cmdline = parent->raw_cmdline_;
             unsigned int raw_cmdline_size = parent->raw_cmdline_size_;
 
@@ -103,11 +107,9 @@ public:
 
             ProcessInfo::pInstance = NULL;
             ProcessInfo* child = ProcessInfo::getInstance();
-            child->pair_ = pair;
-            child->pair_.SetAutoClose(true);
+            child.SetParentProcess(parent_cache);
             child->raw_cmdline_ = raw_cmdline;
             child->raw_cmdline_size_ = raw_cmdline_size;
-            child->sigchld_callback_ = sigchld_callback_;
             if (!name_.empty()) {
                 Process::SetProcName(name_);
             }
@@ -122,7 +124,7 @@ public:
             child.ppid_ = parent->pid_;
             child.pair_ = pair;
             child.pair_.SetAutoClose(true);
-            child.sigchld_callback_ = sigchld_callback_;
+            child.dead_callback_ = dead_callback_;
 
             PROCESS_INFO("Register child [%d] into current process.", pid);
             return parent->AddChildProcessInfo(child);
@@ -184,7 +186,7 @@ private:
     mempool::MemPool* mempool_;         ///< Mempool pointer.
     std::string name_;                  ///< Process Name.
     F child_;                           ///< Process main function.
-    void (*sigchld_callback_)(int*);    ///< Process dead callback for parent SIGCHLD.
+    void (*dead_callback_)(int*);    ///< Process dead callback for parent SIGCHLD.
 
     template <typename ... Args>
     ProcessRet _run_main(Args&& ... args) {
@@ -232,7 +234,7 @@ public:
     * @param [sigchld_callback] - Callback function.
     */
     void SetSigChldCallback(void (*sigchld_callback)(int*)) {
-        sigchld_callback_ = sigchld_callback;
+        dead_callback_ = sigchld_callback;
     }
 
     /**
@@ -306,7 +308,7 @@ private:
     mempool::MemPool* mempool_;         ///< Mempool pointer.
     std::string name_;                  ///< Process Name.
     std::string child_;                 ///< Process execute path.
-    void (*sigchld_callback_)(int*);    ///< Process dead callback for parent SIGCHLD.
+    void (*dead_callback_)(int*);    ///< Process dead callback for parent SIGCHLD.
 };
 
 };

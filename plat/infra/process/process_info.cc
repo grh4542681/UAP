@@ -10,38 +10,29 @@ ProcessInfo* ProcessInfo::pInstance = NULL;
 ProcessInfo::ProcessInfo()
 {
     mempool_ = mempool::MemPool::getInstance();
-    pid_ = getpid();
-    ppid_ = getppid();
-    if (Process::GetProcPath(process_path_) != ProcessRet::SUCCESS) {
+    pid_ = ProcessID::GetProcessID();
+    if (Process::GetProcRealPath(real_path_) != ProcessRet::SUCCESS) {
         PROCESS_ERROR("Get process path error");
-        process_path_.erase();
+        real_path_.erase();
     }
-    if (Process::GetProcName(process_name_) != ProcessRet::SUCCESS) {
+    if (Process::GetProcRealName(real_name_) != ProcessRet::SUCCESS) {
         PROCESS_ERROR("Get process name error");
-        process_name_.erase();
+        real_name_.erase();
     }
-    char name[MAX_PROCCESS_NAME_LEN];
-    memset(name, 0x00, sizeof(name));
-    sprintf(name, "%s_%d", strrchr(process_name_.c_str(), '/') ? strrchr(process_name_.c_str(), '/') + 1 : "", pid_);
-    name_.assign(name);
+    name_.clear();
     state_ = ProcessState::Normal;
     role_ = ProcessRole::Normal;
     raw_cmdline_ = NULL;
     raw_cmdline_size_ = 0;
-    sigchld_callback_ = NULL;
 }
 
 ProcessInfo::ProcessInfo(ProcessInfo& other)
 {
     mempool_ = other.mempool_;
     pid_ = other.pid_;
-    ppid_ = other.ppid_;
-    process_name_ = other.process_name_;
     name_ = other.name_;
-    pair_ = other.pair_;
     state_ = other.state_;
     role_ = other.role_;
-    sigchld_callback_ = other.sigchld_callback_;
 
     raw_cmdline_ = other.raw_cmdline_;
     raw_cmdline_size_ = other.raw_cmdline_size_;
@@ -52,14 +43,9 @@ ProcessInfo::~ProcessInfo()
 
 }
 
-pid_t ProcessInfo::GetPid()
+ProcessID& ProcessInfo::GetPid()
 {
     return pid_;
-}
-
-pid_t ProcessInfo::GetPPid()
-{
-    return ppid_;
 }
 
 std::string& ProcessInfo::GetName()
@@ -67,14 +53,14 @@ std::string& ProcessInfo::GetName()
     return name_;
 }
 
-std::string& ProcessInfo::GetProcessName()
+std::string& ProcessInfo::GetRealName()
 {
-    return process_name_;
+    return real_name_;
 }
 
-std::string& ProcessInfo::GetProcessPath()
+std::string& ProcessInfo::GetRealPath()
 {
-    return process_path_;
+    return real_path_;
 }
 
 ProcessState& ProcessInfo::GetProcessState()
@@ -94,20 +80,9 @@ const char* ProcessInfo::GetCmdLine(unsigned int index)
     return cmdline_[index];
 }
 
-void (*ProcessInfo::GetSigChldCallback())(int*)
+ProcessInfo& ProcessInfo::SetPid(ProcessID&& pid)
 {
-    return sigchld_callback_;
-}
-
-ProcessInfo& ProcessInfo::SetPid()
-{
-    pid_ = getpid();
-    return *this;
-}
-
-ProcessInfo& ProcessInfo::SetPPid()
-{
-    ppid_ = getppid();
+    pid_ = pid;
     return *this;
 }
 
@@ -117,20 +92,20 @@ ProcessInfo& ProcessInfo::SetName(std::string name)
     return *this;
 }
 
-ProcessInfo& ProcessInfo::SetProcessName()
+ProcessInfo& ProcessInfo::SetRealName()
 {
-    if (Process::GetProcName(process_name_) != ProcessRet::SUCCESS) {
+    if (Process::GetProcRealName(real_name_) != ProcessRet::SUCCESS) {
         PROCESS_ERROR("Get process name error");
-        process_name_.erase();
+        real_name_.erase();
     }
     return *this;
 }
 
-ProcessInfo& ProcessInfo::SetProcessPath()
+ProcessInfo& ProcessInfo::SetRealPath()
 {
-    if (Process::GetProcPath(process_path_) != ProcessRet::SUCCESS) {
+    if (Process::GetProcRealPath(real_path_) != ProcessRet::SUCCESS) {
         PROCESS_ERROR("Get process path error");
-        process_path_.erase();
+        real_path_.erase();
     }
     return *this;
 }
@@ -169,10 +144,83 @@ ProcessInfo& ProcessInfo::SetCmdLine(int argc, char** argv, char** env)
     return *this;
 }
 
-ProcessInfo& ProcessInfo::SetSigChldCallback(void (*sigchld_callback)(int*))
+ProcessRet ProcessInfo::AddParentProcess(ProcessParent&& parent)
 {
-    sigchld_callback_ = sigchld_callback;
-    return *this;
+    if (parent_) {
+        mempool_->Reset<ProcessParent>(parent_, parent);
+    } else {
+        parent_ = mempool_->Malloc<ProcessParent>(parent);
+    }
+    return parent_ ? ProcessRet::SUCCESS : ProcessRet::EMALLOC;
+}
+
+ProcessRet ProcessInfo::DelParentProcess()
+{
+    if (parent_) {
+        mempool_->Free<ProcessParent>(parent_);
+    }
+    return ProcessRet::SUCCESS;
+}
+
+ProcessParent* ProcessInfo::GetParentProcess()
+{
+    return parent_;
+}
+
+ProcessRet ProcessInfo::AddChildProcess(ProcessChild&& child)
+{
+    auto it = child_.find(child.GetPid());
+    if (it != child_.end()) {
+        return ProcessRet::PROCESS_EPROCDUP;
+    }
+    child.GetPair().SetAutoClose(false);
+    ProcessChild* p = mempool_->Malloc<ProcessChild>(child);
+    if (!p) {
+        return ProcessRet::PROCESS_EMEMORY;
+    }
+    std::pair<std::map<ProcessID, ProcessChild*>::iterator, bool> ret;
+    ret = child_.insert(std::pair<ProcessID, ProcessChild*>(child.GetPid(), p));
+    if (ret.second == false) {
+        return ProcessRet::PROCESS_EPROCADD;
+    }
+    p->GetPair().SetAutoClose(true);
+    return ProcessRet::SUCCESS;
+}
+
+ProcessRet ProcessInfo::DelChildProcess(ProcessID&& pid)
+{
+    auto it = child_.find(pid);
+    if (it == child_.end()) {
+        return ProcessRet::PROCESS_EPROCNOTFOUND;
+    }
+    mempool_->Free<ProcessChild>(it->second);
+    child_.erase(it);
+    return ProcessRet::SUCCESS;
+}
+
+ProcessRet ProcessInfo::DelChildProcess(std::string name)
+{
+    for (auto& it : child_) {
+        if (!(it.second->GetName().compare(name))) {
+            mempool_->Free<ProcessChild>(it.second);
+            child_.erase(it.first);
+        }
+    }
+    return ProcessRet::SUCCESS;
+}
+
+ProcessChild* ProcessInfo::GetChildProcess(ProcessID&& pid)
+{
+    auto it = child_.find(pid);
+    if (it == child_.end()) {
+        return NULL;
+    }
+    return it->second;
+}
+
+ProcessRet ProcessInfo::GetChildProcess(std::string name, std::vector<ProcessChild*> child_vector)
+{
+    return ProcessRet::SUCCESS;
 }
 
 ProcessRet ProcessInfo::AddThreadInfo(thread::ThreadInfo* thread_info)
@@ -201,58 +249,10 @@ ProcessRet ProcessInfo::DelThreadInfo(pid_t tid)
     return ProcessRet::SUCCESS;
 }
 
-ProcessRet ProcessInfo::AddChildProcessInfo(ProcessInfo& process_info)
-{
-    auto it = process_info_map_.find(process_info.GetPid());
-    if (it != process_info_map_.end()) {
-        return ProcessRet::PROCESS_EPROCDUP;
-    }
-    ProcessInfo* p = mempool_->Malloc<ProcessInfo>(process_info);
-    if (!p) {
-        return ProcessRet::PROCESS_EMEMORY;
-    }
-    std::pair<std::map<pid_t, ProcessInfo*>::iterator, bool> ret;
-    ret = process_info_map_.insert(std::pair<pid_t, ProcessInfo*>(process_info.GetPid(), p));
-    if (ret.second == false) {
-        return ProcessRet::PROCESS_EPROCADD;
-    }
-    p->pair_.SetAutoClose(true);
-    return ProcessRet::SUCCESS;
-}
-
-ProcessRet ProcessInfo::DelChildProcessInfo(pid_t pid)
-{
-    auto it = process_info_map_.find(pid);
-    if (it == process_info_map_.end()) {
-        return ProcessRet::PROCESS_EPROCNOTFOUND;
-    }
-    mempool_->Free<ProcessInfo>(it->second);
-    process_info_map_.erase(it);
-    return ProcessRet::SUCCESS;
-}
-
-ProcessRet ProcessInfo::DelChildProcessInfo(ProcessInfo* process_info)
-{
-    if (!process_info) {
-        return ProcessRet::EBADARGS;
-    }
-    mempool_->Free<ProcessInfo>(process_info);
-    return ProcessRet::SUCCESS;
-}
-
-ProcessInfo* ProcessInfo::FindChildProcessInfo(pid_t pid)
-{
-    auto it = process_info_map_.find(pid);
-    if (it == process_info_map_.end()) {
-        return NULL;
-    }
-    return it->second;
-}
-
 void ProcessInfo::Report(file::File& fd, report::ReportMode mode)
 {
     thread_info_rw_lock_.RLock(NULL);
-    fd.WriteFmt("pid:%u threadnum:%d processnum:%d\n", pid_, thread_info_map_.size(), process_info_map_.size());
+    fd.WriteFmt("pid:%u threadnum:%d processnum:%d\n", pid_, thread_info_map_.size(), child_.size());
     for (auto it : thread_info_map_) {
         fd.WriteFmt("\ttid:%d\n", it.first);
     }

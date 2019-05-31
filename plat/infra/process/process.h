@@ -15,8 +15,8 @@ namespace process {
 class Process {
 public:
     static ProcessRet SetProcName(std::string name);
-    static ProcessRet GetProcPath(std::string& path);
-    static ProcessRet GetProcName(std::string& name);
+    static ProcessRet GetProcRealPath(std::string& path);
+    static ProcessRet GetProcRealName(std::string& name);
 
     static ProcessRet SendToParent(char* msg, unsigned int* msglen, util::time::Time* overtime);
     static ProcessRet RecvFromParent(char* msg, unsigned int* msglen, util::time::Time* overtime);

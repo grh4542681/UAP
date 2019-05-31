@@ -4,24 +4,23 @@ namespace process {
 
 ProcessParent::ProcessParent()
 {
-    Name.clear();
-    ProcessPath.clear();
-    ProcessName.clear();
-    Role |= ProcessRole::Child;
-    State = ProcessState::Normal;
-
+    name_.clear();
     dead_callback_ = NULL;
     init_flag_ = false;
 }
 
+ProcessParent::ProcessParent(std::string name, ProcessID&& pid)
+{
+    name_ = name;
+    pid_ = pid;
+    dead_callback_ = NULL;
+    init_flag_ = true;
+}
+
 ProcessParent::ProcessParent(ProcessParent& other)
 {
-    Pid = other.Pid;
-    Name = other.Name;
-    ProcessPath = other.ProcessPath;
-    ProcessName = other.ProcessName;
-    Role = other.Role;
-    State = other.State;
+    pid_ = other.pid_;
+    name_ = other.name_;
 
     dead_callback_ = other.dead_callback_;
     pair_ = other.pair_;
@@ -35,9 +34,9 @@ ProcessParent::~ProcessParent()
     }
 }
 
-ProcessParent& ProcessParent::Enable()
+ProcessParent& ProcessParent::setSockPair(ipc::sock::SockPair&& pair)
 {
-    init_flag_ = true;
+    pair_ = pair;
     return *this;
 }
 

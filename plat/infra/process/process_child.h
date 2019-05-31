@@ -19,27 +19,30 @@ namespace process {
 class ProcessChild {
 public:
     ProcessChild();
+    ProcessChild(std::string name, ProcessID&& pid);
     ProcessChild(ProcessChild& other);
     ~ProcessChild();
 
-    ProcessChild& Enable();
+    ProcessID& GetPid();
+    std::string GetName();
+    ProcessRole& GetRole();
+    ProcessState& GetState();
+    ipc::sock::SockPair& GetPair();
 
-    ProcessRet setSendBlock(util::time::Time* overtime);
-    ProcessRet setRecvBlock(util::time::Time* overtime);
-    ProcessRet setNonBlock();
+    ProcessChild& SetSockPair(ipc::sock::SockPair&& pair);
+    ProcessRet SetSendBlock(util::time::Time* overtime);
+    ProcessRet SetRecvBlock(util::time::Time* overtime);
+    ProcessRet SetNonBlock();
 
     ProcessRet Send();
     ProcessRet Recv();
 
-public:
+private:
     ProcessID       Pid;
     std::string     Name;
-    std::string     ProcessPath;
-    std::string     ProcessName;
     ProcessRole     Role;
     ProcessState    State;
 
-private:
     bool init_flag_;
     ipc::sock::SockPair pair_;
     void (*dead_callback_)(int*);

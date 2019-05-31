@@ -16,14 +16,18 @@
 
 namespace process {
 
+class ProcessTemplate;
+
 class ProcessParent {
 public:
+    friend class ProcessTemplate;
+public:
     ProcessParent();
+    ProcessParent(std::string name, ProcessID&& pid);
     ProcessParent(ProcessParent& other);
     ~ProcessParent();
 
-    ProcessParent& Enable();
-
+    ProcessParent& setSockPair(ipc::sock::SockPair&& pair);
     ProcessRet setSendBlock(util::time::Time* overtime);
     ProcessRet setRecvBlock(util::time::Time* overtime);
     ProcessRet setNonBlock();
@@ -31,18 +35,12 @@ public:
     ProcessRet Send();
     ProcessRet Recv();
 
-public:
-    ProcessID       Pid;
-    std::string     Name;
-    std::string     ProcessPath;
-    std::string     ProcessName;
-    ProcessRole     Role;
-    ProcessState    State;
-
 private:
+    ProcessID       pid_;
+    std::string     name_;
+
     bool init_flag_;
     ipc::sock::SockPair pair_;
-    void (*dead_callback_)(int*);
 };
 
 }

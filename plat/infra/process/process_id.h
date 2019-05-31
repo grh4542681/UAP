@@ -11,10 +11,17 @@ public:
 public:
     ProcessID();
     ProcessID(ProcessID& other);
+    ProcessID(const ProcessID& other);
     ~ProcessID();
 
-    ProcessID& operator=(ProcessID& other);
+    ProcessID& operator=(ProcessID other);
+
     bool operator==(ProcessID& other);
+    bool operator==(const ProcessID& other);
+    bool operator<(ProcessID& other);
+    bool operator<(const ProcessID& other);
+    bool operator>(ProcessID& other);
+    bool operator>(const ProcessID& other);
 
     ProcessID& SetID(ProcessID_t pid);
     ProcessID_t GetID();
@@ -24,6 +31,8 @@ public:
 private:
     ProcessID_t pid_;
 };
+
+bool operator<(const ProcessID& a, const ProcessID& b);
 
 }
 

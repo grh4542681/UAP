@@ -12,12 +12,16 @@ ProcessID::ProcessID(ProcessID& other)
 {
     pid_ = other.pid_;
 }
+ProcessID::ProcessID(const ProcessID& other)
+{
+    pid_ = other.pid_;
+}
 ProcessID::~ProcessID()
 {
 
 }
 
-ProcessID& ProcessID::operator=(ProcessID& other)
+ProcessID& ProcessID::operator=(ProcessID other)
 {
     pid_ = other.pid_;
     return *this;
@@ -26,6 +30,31 @@ ProcessID& ProcessID::operator=(ProcessID& other)
 bool ProcessID::operator==(ProcessID& other)
 {
     return (pid_ == other.pid_);
+}
+
+bool ProcessID::operator==(const ProcessID& other)
+{
+    return (pid_ == other.pid_);
+}
+
+bool ProcessID::operator<(ProcessID& other)
+{
+    return (pid_ < other.pid_);
+}
+
+bool ProcessID::operator<(const ProcessID& other)
+{
+    return (pid_ < other.pid_);
+}
+
+bool ProcessID::operator>(ProcessID& other)
+{
+    return (pid_ > other.pid_);
+}
+
+bool ProcessID::operator>(const ProcessID& other)
+{
+    return (pid_ > other.pid_);
 }
 
 ProcessID& ProcessID::SetID(ProcessID_t pid)
@@ -51,6 +80,11 @@ ProcessID ProcessID::GetProcessParentID()
     ProcessID ppid;
     ppid.SetID(getppid());
     return ppid;
+}
+
+bool operator<(const ProcessID& a, const ProcessID& b)
+{
+    return (a.GetID() < b.GetID());
 }
 
 }
