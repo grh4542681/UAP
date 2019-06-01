@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "process_info.h"
-#include "single/process_single.h"
+#include "process_template.h"
 #include "signal/process_signal.h"
 #include "signal/process_signal_ctrl.h"
 #include "signal/process_signal_action.h"
@@ -16,7 +16,7 @@ void test_process()
 {
     printf("child [%d]\n",getpid());
     process::ProcessInfo* p = process::ProcessInfo::getInstance();
-    printf("child [%d] name [%s]\n", p->GetPid(), p->GetProcessName().c_str());
+    printf("child [%d] name [%s]\n", p->GetPid(), p->GetName().c_str());
     sleep(20);
 }
 
@@ -39,8 +39,8 @@ int main(int argc, char** argv)
 */
 
     auto process_type = test_process;
-    process::single::ProcessSingle<decltype(process_type)> p1("process_test_single:child1", test_process);
-    p1.SetSigChldCallback(dead);
+    process::ProcessTemplate<decltype(process_type)> p1("process_test_single:child1", test_process);
+    p1.SetDeadCallback(dead);
     p1.Run();
 //    p1.RunDaemon();
 

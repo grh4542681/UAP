@@ -59,14 +59,14 @@ SockFD::~SockFD(){
 }
 
 /**
-* @brief setFD - Set or reset file descriptors.
+* @brief SetFD - Set or reset file descriptors.
 *
 * @param [fd] - File descriptor
 * @param [auto_close] - Automatically close when destructuring
 *
 * @returns  SockRet
 */
-SockRet SockFD::setFD(unsigned int fd, bool auto_close)
+SockRet SockFD::SetFD(unsigned int fd, bool auto_close)
 {
     if (this->fd_ > 0 && this->init_flag_ && this->auto_close_) {
         _close();
@@ -103,24 +103,29 @@ unsigned int SockFD::getFD()
     }
 }
 
+void SockFD::SetAutoClose(bool flag)
+{
+    auto_close_ = flag;
+}
+
 /**
-* @brief setMcastJoin - Add the current socket descriptor to the multicast address.
+* @brief SetMcastJoin - Add the current socket descriptor to the multicast address.
 *
 * @param [mcast_addr] - Multicast address.
 *
 * @returns  SockRet.
 */
-SockRet SockFD::setMcastJoin(const char* mcast_addr)
+SockRet SockFD::SetMcastJoin(const char* mcast_addr)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
         return SockRet::EINIT;
     }
-    return setMcastJoin(mcast_addr, NULL, 0);
+    return SetMcastJoin(mcast_addr, NULL, 0);
 }
 
 /**
-* @brief setMcastJoin - Add the current socket descriptor to the multicast address
+* @brief SetMcastJoin - Add the current socket descriptor to the multicast address
 *                       If you specify both if_name and if_index,Ipv6 used if_index
 *                       and Ipv4 used if_name.
 *
@@ -130,7 +135,7 @@ SockRet SockFD::setMcastJoin(const char* mcast_addr)
 *
 * @returns  
 */
-SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* if_name, unsigned int if_index)
+SockRet SockFD::SetMcastJoin(const char* mcast_addr, const char* if_name, unsigned int if_index)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -207,13 +212,13 @@ SockRet SockFD::setMcastJoin(const char* mcast_addr, const char* if_name, unsign
 }
 
 /**
-* @brief setMcastLeave - Remove the current socket descriptor from the multicast address
+* @brief SetMcastLeave - Remove the current socket descriptor from the multicast address
 *
 * @param [mcast_addr] - Multicast address.
 *
 * @returns  SockRet.
 */
-SockRet SockFD::setMcastLeave(const char* mcast_addr)
+SockRet SockFD::SetMcastLeave(const char* mcast_addr)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -258,7 +263,7 @@ SockRet SockFD::setMcastLeave(const char* mcast_addr)
 }
 
 /**
-* @brief setMcastInterface - Modify current multicast interface.
+* @brief SetMcastInterface - Modify current multicast interface.
 *                            If you specify both if_name and if_index,Ipv6 used if_index
 *                            and Ipv4 used if_name.
 *
@@ -267,7 +272,7 @@ SockRet SockFD::setMcastLeave(const char* mcast_addr)
 *
 * @returns  SockRet.
 */
-SockRet SockFD::setMcastInterface(const char* if_name, unsigned int if_index)
+SockRet SockFD::SetMcastInterface(const char* if_name, unsigned int if_index)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -338,13 +343,13 @@ SockRet SockFD::setMcastInterface(const char* if_name, unsigned int if_index)
 }
 
 /**
-* @brief setMcastTTL - Set the TTL value of the multicast group data
+* @brief SetMcastTTL - Set the TTL value of the multicast group data
 *
 * @param [ttl] - TTL value.
 *
 * @returns  SockRet.
 */
-SockRet SockFD::setMcastTTL(unsigned int ttl)
+SockRet SockFD::SetMcastTTL(unsigned int ttl)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -378,13 +383,13 @@ SockRet SockFD::setMcastTTL(unsigned int ttl)
 }
 
 /**
-* @brief setMcastloop - Disable multicast data echo
+* @brief SetMcastloop - Disable multicast data echo
 *
 * @param [flag] - true/false.
 *
 * @returns  SockRet.
 */
-SockRet SockFD::setMcastloop(bool flag)
+SockRet SockFD::SetMcastloop(bool flag)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -420,13 +425,13 @@ SockRet SockFD::setMcastloop(bool flag)
 }
 
 /**
-* @brief setSendBlock - Set Blocked when send msg
+* @brief SetSendBlock - Set Blocked when send msg
 *
 * @param [overtime] - Over time, if NULL, it will be blocked all time.
 *
 * @returns  SockRet
 */
-SockRet SockFD::setSendBlock(util::time::Time* overtime)
+SockRet SockFD::SetSendBlock(util::time::Time* overtime)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -464,13 +469,13 @@ SockRet SockFD::setSendBlock(util::time::Time* overtime)
 }
 
 /**
-* @brief setRecvBlock - Set blocked when recv msg
+* @brief SetRecvBlock - Set blocked when recv msg
 *
 * @param [overtime] - Over time, if NULL, it will be blocked all the time
 *
 * @returns  SockRet
 */
-SockRet SockFD::setRecvBlock(util::time::Time* overtime)
+SockRet SockFD::SetRecvBlock(util::time::Time* overtime)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -508,11 +513,11 @@ SockRet SockFD::setRecvBlock(util::time::Time* overtime)
 }
 
 /**
-* @brief setNonBlock - Set recv and send msg non-block
+* @brief SetNonBlock - Set recv and send msg non-block
 *
 * @returns  SockRet
 */
-SockRet SockFD::setNonBlock()
+SockRet SockFD::SetNonBlock()
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");

@@ -31,7 +31,7 @@ namespace process::signal {
 */
 void SignalCommonCallback_SIGCHLD(int sig) {
     ProcessInfo* parent = ProcessInfo::getInstance();
-    pid_t parent_pid = parent->GetPid();
+    pid_t parent_pid = parent->GetPid().GetID();
     pid_t pid = waitpid(0, NULL, WNOHANG);
     if (pid == 0) {
         PROCESS_INFO("Process [%d] catch a SIGCHLD that not belong to it.", parent_pid);
@@ -43,13 +43,13 @@ void SignalCommonCallback_SIGCHLD(int sig) {
         PROCESS_INFO("Process [%d] catch a SIGCHLD from [%d]", parent_pid, pid);
     }
 
-    ProcessInfo* child = parent->FindChildProcessInfo(pid);
+    ProcessChild* child = parent->GetChildProcess(ProcessID(pid));
     if (child) {
-        auto callback = child->GetSigChldCallback();
+        auto callback = child->GetDeadCallback();
         if (callback) {
             callback(NULL);
         }
-        parent->DelChildProcessInfo(pid);
+        parent->DelChildProcess(ProcessID(pid));
         PROCESS_INFO("Remove child[%d] from [%d]", pid, parent_pid);
     } else {
         PROCESS_INFO("Dead process [%d] is not a child for [%d]", pid, parent_pid);

@@ -80,6 +80,13 @@ const char* ProcessInfo::GetCmdLine(unsigned int index)
     return cmdline_[index];
 }
 
+ProcessInfo& ProcessInfo::GetCmdLine(char*** raw_cmdline, unsigned int* raw_cmdline_size)
+{
+    *raw_cmdline = raw_cmdline_;
+    *raw_cmdline_size = raw_cmdline_size_;
+    return *this;
+}
+
 ProcessInfo& ProcessInfo::SetPid(ProcessID&& pid)
 {
     pid_ = pid;
@@ -144,13 +151,26 @@ ProcessInfo& ProcessInfo::SetCmdLine(int argc, char** argv, char** env)
     return *this;
 }
 
+ProcessInfo& ProcessInfo::SetCmdLine(char** raw_cmdline, unsigned int raw_cmdline_size)
+{
+    raw_cmdline_ = raw_cmdline;
+    raw_cmdline_size_ = raw_cmdline_size;
+    return *this;
+}
+
+ProcessRet ProcessInfo::AddParentProcess(ProcessParent& parent)
+{
+    return AddParentProcess(std::move(parent));
+}
 ProcessRet ProcessInfo::AddParentProcess(ProcessParent&& parent)
 {
+    parent.GetSockPair().SetAutoClose(true);
     if (parent_) {
         mempool_->Reset<ProcessParent>(parent_, parent);
     } else {
         parent_ = mempool_->Malloc<ProcessParent>(parent);
     }
+    parent_->GetSockPair().SetAutoClose(true);
     return parent_ ? ProcessRet::SUCCESS : ProcessRet::EMALLOC;
 }
 
@@ -167,13 +187,17 @@ ProcessParent* ProcessInfo::GetParentProcess()
     return parent_;
 }
 
+ProcessRet ProcessInfo::AddChildProcess(ProcessChild& child)
+{
+    return AddChildProcess(std::move(child));
+}
 ProcessRet ProcessInfo::AddChildProcess(ProcessChild&& child)
 {
     auto it = child_.find(child.GetPid());
     if (it != child_.end()) {
         return ProcessRet::PROCESS_EPROCDUP;
     }
-    child.GetPair().SetAutoClose(false);
+    child.GetSockPair().SetAutoClose(false);
     ProcessChild* p = mempool_->Malloc<ProcessChild>(child);
     if (!p) {
         return ProcessRet::PROCESS_EMEMORY;
@@ -183,10 +207,14 @@ ProcessRet ProcessInfo::AddChildProcess(ProcessChild&& child)
     if (ret.second == false) {
         return ProcessRet::PROCESS_EPROCADD;
     }
-    p->GetPair().SetAutoClose(true);
+    p->GetSockPair().SetAutoClose(true);
     return ProcessRet::SUCCESS;
 }
 
+ProcessRet ProcessInfo::DelChildProcess(ProcessID& pid)
+{
+    return DelChildProcess(std::move(pid));
+}
 ProcessRet ProcessInfo::DelChildProcess(ProcessID&& pid)
 {
     auto it = child_.find(pid);
@@ -209,6 +237,10 @@ ProcessRet ProcessInfo::DelChildProcess(std::string name)
     return ProcessRet::SUCCESS;
 }
 
+ProcessChild* ProcessInfo::GetChildProcess(ProcessID& pid)
+{
+    return GetChildProcess(std::move(pid));
+}
 ProcessChild* ProcessInfo::GetChildProcess(ProcessID&& pid)
 {
     auto it = child_.find(pid);
@@ -272,6 +304,11 @@ ProcessInfo* ProcessInfo::getInstance()
         pInstance = mp->Malloc<ProcessInfo>();
     }
     return pInstance;
+}
+
+void ProcessInfo::setInstance(ProcessInfo* info)
+{
+    pInstance = info;
 }
 
 }

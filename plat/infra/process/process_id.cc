@@ -8,6 +8,10 @@ ProcessID::ProcessID()
 {
     pid_ = 0;
 }
+ProcessID::ProcessID(ProcessID_t pid)
+{
+    pid_ = pid;
+}
 ProcessID::ProcessID(ProcessID& other)
 {
     pid_ = other.pid_;
@@ -63,7 +67,7 @@ ProcessID& ProcessID::SetID(ProcessID_t pid)
     return *this;
 }
 
-ProcessID::ProcessID_t ProcessID::GetID()
+ProcessID::ProcessID_t ProcessID::GetID() const
 {
     return pid_;
 }
@@ -85,6 +89,12 @@ ProcessID ProcessID::GetProcessParentID()
 bool operator<(const ProcessID& a, const ProcessID& b)
 {
     return (a.GetID() < b.GetID());
+}
+
+std::ostream & operator<<(std::ostream &out, ProcessID& pid)
+{
+    out << pid.pid_;
+    return out;
 }
 
 }

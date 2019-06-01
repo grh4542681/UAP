@@ -139,4 +139,10 @@ ProcessRole& ProcessRole::operator&=(unsigned int&& a)
     return *this;
 }
 
+ProcessRole& ProcessRole::AddRole(unsigned int role)
+{
+    role_ |= role;
+    return *this;
+}
+
 }

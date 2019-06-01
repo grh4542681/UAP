@@ -16,21 +16,21 @@
 
 namespace process {
 
-class ProcessTemplate;
-
 class ProcessParent {
 public:
-    friend class ProcessTemplate;
-public:
     ProcessParent();
+    ProcessParent(std::string name, ProcessID& pid);
     ProcessParent(std::string name, ProcessID&& pid);
     ProcessParent(ProcessParent& other);
     ~ProcessParent();
 
-    ProcessParent& setSockPair(ipc::sock::SockPair&& pair);
-    ProcessRet setSendBlock(util::time::Time* overtime);
-    ProcessRet setRecvBlock(util::time::Time* overtime);
-    ProcessRet setNonBlock();
+    ipc::sock::SockPair& GetSockPair();
+
+    ProcessParent& SetSockPair(ipc::sock::SockPair& pair);
+    ProcessParent& SetSockPair(ipc::sock::SockPair&& pair);
+    ProcessRet SetSendBlock(util::time::Time* overtime);
+    ProcessRet SetRecvBlock(util::time::Time* overtime);
+    ProcessRet SetNonBlock();
 
     ProcessRet Send();
     ProcessRet Recv();

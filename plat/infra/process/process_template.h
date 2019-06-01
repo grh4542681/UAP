@@ -67,8 +67,8 @@ public:
     *
     * @param [sigchld_callback] - Callback function.
     */
-    void SetSigChldCallback(void (*sigchld_callback)(int*)) {
-        dead_callback_ = sigchld_callback;
+    void SetDeadCallback(void (*dead_callback)(int*)) {
+        dead_callback_ = dead_callback;
     }
 
     /**
@@ -81,13 +81,14 @@ public:
     */
     template <typename ... Args>
     ProcessRet Run(Args&& ... args) {
-        PROCESS_INFO("Starting create child process.");
+        PROCESS_INFO("Starting create process.");
         //Create socket pair
         ipc::sock::SockPair pair;
         if (pair.Open() != ipc::IpcRet::SUCCESS) {
             PROCESS_ERROR("SockPair Open error.");
             return ProcessRet::PROCESS_EFIFOPAIR;
         }
+        pair.SetAutoClose(false);
         ProcessInfo* parent = ProcessInfo::getInstance();
         pid_t pid = fork();
         if (pid < 0) {
@@ -96,42 +97,47 @@ public:
             return ProcessRet::PROCESS_EFORK;
         } else if (pid == 0) {
             //cache parent process data.
-            ProcessParent parent_cache(parent->GetPid(), parent->GetName());
-            parent_cache.setPair(pair);
+            ProcessParent parent_cache(parent->GetName(), parent->GetPid());
+            parent_cache.SetSockPair(pair);
 
-            char** raw_cmdline = parent->raw_cmdline_;
-            unsigned int raw_cmdline_size = parent->raw_cmdline_size_;
+            char** raw_cmdline = NULL;
+            unsigned int raw_cmdline_size = 0;
+            parent->GetCmdLine(&raw_cmdline, &raw_cmdline_size);
 
             //destory parent mempool
             mempool::MemPool::freeInstance();
+            ProcessInfo::setInstance(NULL);
 
-            ProcessInfo::pInstance = NULL;
-            ProcessInfo* child = ProcessInfo::getInstance();
-            child.SetParentProcess(parent_cache);
-            child->raw_cmdline_ = raw_cmdline;
-            child->raw_cmdline_size_ = raw_cmdline_size;
             if (!name_.empty()) {
                 Process::SetProcName(name_);
             }
-            Process::GetProcName(child->process_name_);
+            ProcessInfo* child = ProcessInfo::getInstance();
+            child->SetName(name_);
+            child->SetCmdLine(raw_cmdline, raw_cmdline_size);
+            child->AddParentProcess(parent_cache);
 
             PROCESS_INFO("Execute child main function.");
             _run_main(std::forward<Args>(args)...);
             exit(0);
         } else {
-            ProcessInfo child;
-            child.pid_ = pid;
-            child.ppid_ = parent->pid_;
-            child.pair_ = pair;
-            child.pair_.SetAutoClose(true);
-            child.dead_callback_ = dead_callback_;
+            std::string child_name = name_;
+            if (child_name.empty()) {
+                child_name = parent->GetName() + "_" + std::to_string(pid);
+            }
+            ProcessChild child(child_name, ProcessID(pid));
+            child.SetSockPair(pair);
+            child.GetSockPair().SetAutoClose(false);
+            child.SetDeadCallback(dead_callback_);
+            child.GetRole().AddRole(ProcessRole::Child);
+            child.SetState(ProcessState::Prepare);
 
             PROCESS_INFO("Register child [%d] into current process.", pid);
-            return parent->AddChildProcessInfo(child);
+            parent->AddChildProcess(child);
+            return ProcessRet::SUCCESS;
         }
         return ProcessRet::SUCCESS;
     }
-
+#if 0
     /**
     * @brief RunDaemon - Start daemon process.
     *
@@ -181,7 +187,7 @@ public:
             return ProcessRet::SUCCESS;
         }
     }
-
+#endif
 private:
     mempool::MemPool* mempool_;         ///< Mempool pointer.
     std::string name_;                  ///< Process Name.
@@ -195,6 +201,7 @@ private:
     }
 };
 
+#if 0
 /**
 * @brief - ProcessTemplate template string type exception.
 */
@@ -311,6 +318,7 @@ private:
     void (*dead_callback_)(int*);    ///< Process dead callback for parent SIGCHLD.
 };
 
+#endif
 };
 
 #endif

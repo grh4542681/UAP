@@ -132,7 +132,7 @@ SockRet SockServer::Bind()
     } else if (this->s_address_->type_ == SOCK_DGRAM) {
         //if multicast server and given multicast group, add socket to this multicast group
         if (this->s_address_->isMulticast() && !this->s_address_->address_.empty()) {
-            if ((ret = this->listen_fd_->setMcastJoin(this->s_address_->address_.c_str())) != SockRet::SUCCESS) {
+            if ((ret = this->listen_fd_->SetMcastJoin(this->s_address_->address_.c_str())) != SockRet::SUCCESS) {
                 this->listen_fd_->Close();
                 this->mempool_->Free<SockFD>(this->listen_fd_);
                 this->listen_fd_ = NULL;
@@ -165,7 +165,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
                 SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
                 return _errno2ret(temp_errno);
             }
-            sockfd->setFD(acpt_fd);
+            sockfd->SetFD(acpt_fd);
             sockfd->orig = SockAddress(*(this->s_address_));
             sockfd->dest = SockAddress(this->s_address_->family_, un_addr.sun_path);
             break;
@@ -178,7 +178,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
                 SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
                 return _errno2ret(temp_errno);
             }
-            sockfd->setFD(acpt_fd);
+            sockfd->SetFD(acpt_fd);
             sockfd->orig = SockAddress(*(this->s_address_));
             sockfd->dest = SockAddress(this->s_address_->family_, inet_ntoa(in_addr.sin_addr), in_addr.sin_port);
             break;
@@ -197,7 +197,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
                 SOCK_ERROR("%s%s", "Accept socket error, inet_ntop error", strerror(temp_errno));
                 return _errno2ret(temp_errno);
             }
-            sockfd->setFD(acpt_fd);
+            sockfd->SetFD(acpt_fd);
             sockfd->orig = SockAddress(*(this->s_address_));
             sockfd->dest = SockAddress(this->s_address_->family_, c_in6_addr, in6_addr.sin6_port);
             break;

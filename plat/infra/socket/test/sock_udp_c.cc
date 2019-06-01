@@ -13,7 +13,7 @@ int main()
     //sock::SockClient s = sock::SockClient(sock::SockFamily::UDP_INET6, NULL, 60005);
     sock::SockClient s = sock::SockClient(sock::SockFamily::MULTICAST_INET4, "228.0.0.1", 60005);
     fd = s.Connect();
-    fd->setMcastJoin("228.0.0.1");
+    fd->SetMcastJoin("228.0.0.1");
     if(!fd){
         printf("------\n");
         return 0;

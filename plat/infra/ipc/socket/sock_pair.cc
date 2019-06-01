@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -15,20 +16,20 @@ SockPair::SockPair(SockPair& other)
 {
     init_flag_ = other.init_flag_;
     auto_close_ = other.auto_close_;
-    fds_[0].setFD(other.fds_[0].getFD(), false);
-    fds_[1].setFD(other.fds_[1].getFD(), false);
+    fds_[0].SetFD(other.fds_[0].getFD(), false);
+    fds_[1].SetFD(other.fds_[1].getFD(), false);
 }
 
 SockPair::~SockPair()
 {
     if (init_flag_ && auto_close_) {
-//        Close();
+        Close();
     }
 }
 
 void SockPair::SetAutoClose(bool flag)
 {
-    auto_close_ = true;
+    auto_close_ = flag;
 }
 
 IpcRet SockPair::Open()
@@ -40,8 +41,8 @@ IpcRet SockPair::Open()
 
     //fds_[0] = socklib::SockFD(fds[0]);
     //fds_[1] = socklib::SockFD(fds[1]);
-    fds_[0].setFD(fds[0], false);
-    fds_[1].setFD(fds[1], false);
+    fds_[0].SetFD(fds[0], false);
+    fds_[1].SetFD(fds[1], false);
     init_flag_ = true;
 
     return IpcRet::SUCCESS;
@@ -69,8 +70,8 @@ SockPair& SockPair::operator= (SockPair& other)
 {
     init_flag_ = other.init_flag_;
     auto_close_ = other.auto_close_;
-    fds_[0].setFD(other.fds_[0].getFD(), false);
-    fds_[1].setFD(other.fds_[1].getFD(), false);
+    fds_[0].SetFD(other.fds_[0].getFD(), false);
+    fds_[1].SetFD(other.fds_[1].getFD(), false);
     return *this;
 }
 

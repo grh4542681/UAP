@@ -82,7 +82,7 @@ SockFD* SockClient::getSockFD()
     return this->conn_fd_;
 }
 
-SockRet SockClient::setTimeout(struct timeval* overtime)
+SockRet SockClient::SetTimeout(struct timeval* overtime)
 {
     SOCK_DEBUG("Not support now");
     return SockRet::SUCCESS;

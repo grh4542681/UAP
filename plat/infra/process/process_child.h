@@ -27,9 +27,14 @@ public:
     std::string GetName();
     ProcessRole& GetRole();
     ProcessState& GetState();
-    ipc::sock::SockPair& GetPair();
+    void (*GetDeadCallback())(int*);
+    ipc::sock::SockPair& GetSockPair();
 
+    ProcessChild& SetState(ProcessState state);
+    ProcessChild& SetDeadCallback(void (*dead_callback)(int*));
+    ProcessChild& SetSockPair(ipc::sock::SockPair& pair);
     ProcessChild& SetSockPair(ipc::sock::SockPair&& pair);
+
     ProcessRet SetSendBlock(util::time::Time* overtime);
     ProcessRet SetRecvBlock(util::time::Time* overtime);
     ProcessRet SetNonBlock();
@@ -38,10 +43,10 @@ public:
     ProcessRet Recv();
 
 private:
-    ProcessID       Pid;
-    std::string     Name;
-    ProcessRole     Role;
-    ProcessState    State;
+    ProcessID       pid_;
+    std::string     name_;
+    ProcessRole     role_;
+    ProcessState    state_;
 
     bool init_flag_;
     ipc::sock::SockPair pair_;

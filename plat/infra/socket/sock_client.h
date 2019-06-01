@@ -27,13 +27,13 @@ public:
     */
     SockFD* getSockFD();
     /**
-    * @brief setTimeout - Set connect over time.
+    * @brief SetTimeout - Set connect over time.
     *
     * @param [overtime] - Over time.
     *
     * @returns  SockRet.
     */
-    SockRet setTimeout(struct timeval* overtime);
+    SockRet SetTimeout(struct timeval* overtime);
     /**
     * @brief Connect - connect.
     *

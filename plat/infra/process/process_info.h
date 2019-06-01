@@ -46,23 +46,29 @@ public:
     ProcessRole& GetProcessRole();
     std::string& GetProcessPoolName();
     const char* GetCmdLine(unsigned int index);
+    ProcessInfo& GetCmdLine(char*** raw_cmdline, unsigned int* raw_cmdline_size);
 
     ProcessInfo& SetPid(ProcessID&& pid);
     ProcessInfo& SetName(std::string name);
     ProcessInfo& SetRealName();
     ProcessInfo& SetRealPath();
     ProcessInfo& SetCmdLine(int argc, char** argv, char** env);
+    ProcessInfo& SetCmdLine(char** raw_cmdline, unsigned int raw_cmdline_size);
 
     ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
     ProcessRet DelThreadInfo(pid_t tid);
 
+    ProcessRet AddParentProcess(ProcessParent& parent);
     ProcessRet AddParentProcess(ProcessParent&& parent);
     ProcessRet DelParentProcess();
     ProcessParent* GetParentProcess();
 
+    ProcessRet AddChildProcess(ProcessChild& child);
     ProcessRet AddChildProcess(ProcessChild&& child);
+    ProcessRet DelChildProcess(ProcessID& pid);
     ProcessRet DelChildProcess(ProcessID&& pid);
     ProcessRet DelChildProcess(std::string name);
+    ProcessChild* GetChildProcess(ProcessID& pid);
     ProcessChild* GetChildProcess(ProcessID&& pid);
     ProcessRet GetChildProcess(std::string name, std::vector<ProcessChild*> child_vector);
 
@@ -70,6 +76,7 @@ public:
     void Report(std::stringstream& ss, report::ReportMode mode);
 
     static ProcessInfo* getInstance();
+    static void setInstance(ProcessInfo* info);
 
 
 private:

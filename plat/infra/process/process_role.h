@@ -34,6 +34,9 @@ public:
     ProcessRole operator&(unsigned int&& a);
     ProcessRole& operator&=(unsigned int& a);
     ProcessRole& operator&=(unsigned int&& a);
+
+    ProcessRole& AddRole(unsigned int role);
+    ProcessRole& DelRole(unsigned int role);
 public:
     static unsigned int Normal;
     static unsigned int Parent;

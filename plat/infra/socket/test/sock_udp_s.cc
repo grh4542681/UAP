@@ -14,7 +14,7 @@ int main()
     sock::SockServer s = sock::SockServer(sock::SockFamily::MULTICAST_INET4, NULL, 60005);
     s.Bind();
     sock::SockFD* fd = s.getSockFD();
-    fd->setMcastJoin("228.0.0.1");
+    fd->SetMcastJoin("228.0.0.1");
     if(!fd){
         printf("-**--\n");
     }

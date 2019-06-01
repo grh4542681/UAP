@@ -24,19 +24,20 @@ public:
     ~SockFD();
 
     unsigned int getFD();
-    SockRet setFD(unsigned int fd, bool auto_close = true);
+    SockRet SetFD(unsigned int fd, bool auto_close = true);
+    void SetAutoClose(bool flag);
 
     //for multicast attrubit
-    SockRet setMcastJoin(const char* mcast_addr);
-    SockRet setMcastJoin(const char* mcast_addr, const char* if_name, unsigned int if_index);
-    SockRet setMcastLeave(const char* mcast_addr);
-    SockRet setMcastInterface(const char* if_name, unsigned int if_index);
-    SockRet setMcastTTL(unsigned int ttl);
-    SockRet setMcastloop(bool flag);
+    SockRet SetMcastJoin(const char* mcast_addr);
+    SockRet SetMcastJoin(const char* mcast_addr, const char* if_name, unsigned int if_index);
+    SockRet SetMcastLeave(const char* mcast_addr);
+    SockRet SetMcastInterface(const char* if_name, unsigned int if_index);
+    SockRet SetMcastTTL(unsigned int ttl);
+    SockRet SetMcastloop(bool flag);
 
-    SockRet setSendBlock(util::time::Time* overtime);
-    SockRet setRecvBlock(util::time::Time* overtime);
-    SockRet setNonBlock();
+    SockRet SetSendBlock(util::time::Time* overtime);
+    SockRet SetRecvBlock(util::time::Time* overtime);
+    SockRet SetNonBlock();
 
     bool isClientFD();
     bool isServerFD();

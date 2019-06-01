@@ -28,7 +28,7 @@ ProcessChild::ProcessChild(ProcessChild& other)
     pid_ = other.pid_;
     name_ = other.name_;
     role_ = other.role_;
-    state = other.state_;
+    state_ = other.state_;
 
     dead_callback_ = other.dead_callback_;
     pair_ = other.pair_;
@@ -37,9 +37,7 @@ ProcessChild::ProcessChild(ProcessChild& other)
 
 ProcessChild::~ProcessChild()
 {
-    if (init_flag_) {
-        pair_.Close();
-    }
+
 }
 
 ProcessID& ProcessChild::GetPid()
@@ -62,11 +60,32 @@ ProcessState& ProcessChild::GetState()
     return state_;
 }
 
-ipc::sock::SockPair& ProcessChild::GetPair()
+void (*ProcessChild::GetDeadCallback())(int*)
+{
+    return dead_callback_;
+}
+
+ipc::sock::SockPair& ProcessChild::GetSockPair()
 {
     return pair_;
 }
 
+ProcessChild& ProcessChild::SetState(ProcessState state)
+{
+    state_ = state;
+    return *this;
+}
+
+ProcessChild& ProcessChild::SetDeadCallback(void (*dead_callback)(int*))
+{
+    dead_callback_ = dead_callback;
+    return *this;
+}
+
+ProcessChild& ProcessChild::SetSockPair(ipc::sock::SockPair& pair)
+{
+    return SetSockPair(std::move(pair));
+}
 ProcessChild& ProcessChild::SetSockPair(ipc::sock::SockPair&& pair)
 {
     pair_ = pair;
