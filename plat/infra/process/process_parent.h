@@ -24,10 +24,13 @@ public:
     ProcessParent(ProcessParent& other);
     ~ProcessParent();
 
+    ProcessID& GetPid();
+    std::string GetName();
     ipc::sock::SockPair& GetSockPair();
 
     ProcessParent& SetSockPair(ipc::sock::SockPair& pair);
     ProcessParent& SetSockPair(ipc::sock::SockPair&& pair);
+
     ProcessRet SetSendBlock(util::time::Time* overtime);
     ProcessRet SetRecvBlock(util::time::Time* overtime);
     ProcessRet SetNonBlock();

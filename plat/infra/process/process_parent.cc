@@ -38,6 +38,16 @@ ProcessParent::~ProcessParent()
     }
 }
 
+ProcessID& ProcessParent::GetPid()
+{
+    return pid_;
+}
+
+std::string ProcessParent::GetName()
+{
+    return name_;
+}
+
 ipc::sock::SockPair& ProcessParent::GetSockPair()
 {
     return pair_;
