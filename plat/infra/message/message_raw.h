@@ -3,6 +3,8 @@
 
 #include <sstream>
 
+#include "message_return.h"
+
 namespace message {
 
 class MessageRaw {
