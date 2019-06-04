@@ -21,7 +21,7 @@ public:
 
     template < typename T >
     MessageStreamBinary& Pop(T data) {
-
+        ss >> data;
     }
 
 private:

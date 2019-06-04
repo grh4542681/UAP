@@ -4,16 +4,19 @@
 #include <sstream>
 
 #include "message_return.h"
+#include "message_stream_binary.h"
 
 namespace message {
 
 class MessageRaw {
 public:
-    MessageRaw();
+    MessageRaw() { msg_len_ = 0; }
     virtual ~MessageRaw() { }
 
-    virtual MessageRet Serialization(std::stringstream&& ss) { return MessageRet::ESUBCLASS; }
-    virtual MessageRet Deserialization(std::stringstream&& ss) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet Serialization(MessageStreamBinary&& bs) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet Deserialization(MessageStreamBinary&& bs) { return MessageRet::ESUBCLASS; }
+public:
+    unsigned int msg_len_;
 };
 
 }
