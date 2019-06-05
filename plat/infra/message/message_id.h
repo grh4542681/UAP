@@ -1,22 +1,54 @@
 #ifndef __MESSAGE_ID_H__
 #define __MESSAGE_ID_H__
 
-#include "message_raw.h"
+#include <time.h>
+
+#include "message_stream_binary.h"
 
 namespace message {
 
-class MessageId : MessageRaw {
+class MessageId {
 public:
-    MessageId();
-    MessageId(MessageId& other);
-    ~MessageId();
+    friend MessageStreamBinary& operator<<(MessageStreamBinary& bs, MessageId& mid);
+    friend MessageStreamBinary& operator>>(MessageStreamBinary& bs, MessageId& mid);
+public:
+    MessageId() {
+        id_ = 0;
+    }
+    MessageId(MessageId& other) {
+        id_ = other.id_;
+    }
+    ~MessageId() { }
 
-    std::string toString();
-    static MessageID GenMessageID();
-    
-    MessageRet Serialization(MessageStreamBinary&& bs);
-    MessageRet Deserialization(MessageStreamBinary&& bs)
+    MessageId& operator=(MessageId& other) {
+        id_ = other.id_;
+        return *this;
+    }
+
+    long GetId() {
+        return id_;
+    }
+
+    static MessageId GenMessageIdByTime() {
+       return MessageId((long)time(NULL));
+    }
+private:
+    MessageId(long id) {
+        id_ = id;
+    }
+
+    long id_;
 };
+
+MessageStreamBinary& operator<<(MessageStreamBinary& bs, MessageId& mid) {
+    bs << mid.id_;
+    return bs;
+}
+
+MessageStreamBinary& operator>>(MessageStreamBinary& bs, MessageId& mid) {
+    bs >> mid.id_;
+    return bs;
+}
 
 }
 

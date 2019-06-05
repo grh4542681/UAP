@@ -13,8 +13,8 @@ public:
     MessageRaw() { msg_len_ = 0; }
     virtual ~MessageRaw() { }
 
-    virtual MessageRet Serialization(MessageStreamBinary&& bs) { return MessageRet::ESUBCLASS; }
-    virtual MessageRet Deserialization(MessageStreamBinary&& bs) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet Serialization(MessageStreamBinary& bs) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet Deserialization(MessageStreamBinary& bs) { return MessageRet::ESUBCLASS; }
 public:
     unsigned int msg_len_;
 };
