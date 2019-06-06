@@ -14,6 +14,11 @@ enum class MessageRet: int {
     ESUBCLASS,
 
     EUNKOWNERRNO,
+
+// message stream
+    EMSNOSPACE,
+    EMSNOMESSG,
+    EMSMODE,
 };
 
 }
