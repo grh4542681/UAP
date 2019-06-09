@@ -107,6 +107,70 @@ public:
         return *this;
     }
 
+    MessageStreamMemory& operator>>(char& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(short& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(unsigned short& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(int& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(unsigned int& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(long& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(long long& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(unsigned long long& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(float& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(double& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(long double& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(bool& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+    MessageStreamMemory& operator>>(void*& value) {
+        _read(&value, sizeof(value));
+        return *this;
+    }
+
+    template < typename T >
+    MessageStreamMemory& Put(T*, size_t size) {
+        _write(T, size);
+        return *this;
+    }
+
+    template < typename T >
+    MessageStreamMemory& Get(T*, size_t size) {
+        _read(T, size);
+        return *this;
+    }
 
     void Clean() {
         if (cache_) {

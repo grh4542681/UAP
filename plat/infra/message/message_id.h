@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "message_stream_binary.h"
+#include "message_stream_memory.h"
 
 namespace message {
 
@@ -11,6 +12,8 @@ class MessageId {
 public:
     friend MessageStreamBinary& operator<<(MessageStreamBinary& bs, MessageId& mid);
     friend MessageStreamBinary& operator>>(MessageStreamBinary& bs, MessageId& mid);
+    friend MessageStreamMemory& operator<<(MessageStreamMemory& ms, MessageId& mid);
+    friend MessageStreamMemory& operator>>(MessageStreamMemory& ms, MessageId& mid);
 public:
     MessageId() {
         id_ = 0;
@@ -44,10 +47,18 @@ MessageStreamBinary& operator<<(MessageStreamBinary& bs, MessageId& mid) {
     bs << mid.id_;
     return bs;
 }
-
 MessageStreamBinary& operator>>(MessageStreamBinary& bs, MessageId& mid) {
     bs >> mid.id_;
     return bs;
+}
+
+MessageStreamMemory& operator<<(MessageStreamMemory& ms, MessageId& mid) {
+    ms << mid.id_;
+    return ms;
+}
+MessageStreamMemory& operator>>(MessageStreamMemory& ms, MessageId& mid) {
+    ms >> mid.id_;
+    return ms;
 }
 
 }
