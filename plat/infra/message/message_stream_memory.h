@@ -1,8 +1,10 @@
-#define __MESSAGE_STREAM_MEMORY_H__
+#ifndef __MESSAGE_STREAM_MEMORY_H__
 #define __MESSAGE_STREAM_MEMORY_H__
 
-#include "mempool_return.h"
-#include "mempool_stream_mode.h"
+#include "mempool.h"
+
+#include "message_return.h"
+#include "message_stream_mode.h"
 
 namespace message {
 
@@ -10,37 +12,38 @@ class MessageStreamMemory {
 public:
     MessageStreamMemory(MessageStreamMode smode, size_t size) {
         smode_ = smode;
-        size_ = size;
-        use_size_ = 0;
+        limit_size_ = size;
         mempool_ = mempool::MemPool::getInstance();
-        cache_ = mempool->Malloc(size_);
+        cache_ = mempool_->Malloc(limit_size_);
         if (!cache_) {
-            ret_ = MessageRet::EMEMORY;
+            ret_ = MessageRet::EMALLOC;
         }
-        pcursor_ = cache_;
+        phead_ = cache_;
+        ptail_ = cache_;
+        ret_ = MessageRet::SUCCESS;
     }
 
     MessageStreamMemory() {
         smode_ = MessageStreamMode::In;
-        size_ = 1024*1024;
-        use_size_ = 0;
+        limit_size_ = 1024*1024;
         mempool_ = mempool::MemPool::getInstance();
-        cache_ = mempool->Malloc(size_);
+        cache_ = mempool_->Malloc(limit_size_);
         if (!cache_) {
-            ret_ = MessageRet::EMEMORY;
+            ret_ = MessageRet::EMALLOC;
         }
         phead_ = cache_;
         ptail_ = cache_;
+        ret_ = MessageRet::SUCCESS;
     }
 
     ~MessageStreamMemory() {
         if (cache_) {
-            mempool_->Free(cache);
+            mempool_->Free(cache_);
         }
     }
 
     size_t GetSize() {
-        return ptail_ - phead_;
+        return (reinterpret_cast<long>(ptail_) - reinterpret_cast<long>(phead_));
     }
     void* GetPointer() {
         return phead_;
@@ -49,7 +52,7 @@ public:
         return smode_;
     }
 
-    MessageStreamMemory& SetStreamMode(MessageStreamMode& smode) {
+    MessageStreamMemory& SetStreamMode(MessageStreamMode smode) {
         smode_ = smode;
         return *this;
     }
@@ -161,21 +164,20 @@ public:
     }
 
     template < typename T >
-    MessageStreamMemory& Put(T*, size_t size) {
-        _write(T, size);
+    MessageStreamMemory& Put(T* value, size_t size) {
+        _write(reinterpret_cast<void*>(value), size);
         return *this;
     }
 
     template < typename T >
-    MessageStreamMemory& Get(T*, size_t size) {
-        _read(T, size);
+    MessageStreamMemory& Get(T* value, size_t size) {
+        _read(reinterpret_cast<void*>(value), size);
         return *this;
     }
 
     void Clean() {
         if (cache_) {
-            memset(cache, 0, size_);
-            use_size_ = 0;
+            memset(cache_, 0, limit_size_);
         }
     }
 
@@ -183,55 +185,56 @@ private:
     MessageStreamMemory(MessageStreamMemory& other) { }
 
     size_t _write(void* pdata, size_t size) {
-        if (ret_ == MessageRet::EINIT || ret_ == MessageRet::EMEMORY) {
+        if (ret_ == MessageRet::EINIT || ret_ == MessageRet::EMALLOC) {
             return 0;
         }
         if (smode_ != MessageStreamMode::In) {
             ret_ = MessageRet::EMSMODE;
             return 0;
         }
-        if (size > (limit_size_ - (ptail_ - phread_)) -1 ) {
+        if (size > (limit_size_ - (reinterpret_cast<long>(ptail_) - reinterpret_cast<long>(phead_))) -1 ) {
             ret_ = MessageRet::EMSNOSPACE;
             return 0;
         }
-        memcpy(ptail_, pdate, size);
-        ptail_ += size;
-        use_size_ += size;
+        memcpy(ptail_, pdata, size);
+        ptail_ = reinterpret_cast<void*>(reinterpret_cast<long>(ptail_) + size);
         ret_ = MessageRet::SUCCESS;
+        return size;
     }
 
     size_t _read(void* pdata, size_t size) {
-        if (ret_ == MessageRet::EINIT || ret_ == MessageRet::EMEMORY) {
+        if (ret_ == MessageRet::EINIT || ret_ == MessageRet::EMALLOC) {
             return 0;
         }
         if (smode_ != MessageStreamMode::Out) {
             ret_ = MessageRet::EMSMODE;
             return 0;
         }
-        if (size > (ptail_ - phead_)) {
+        if (size > static_cast<size_t>((reinterpret_cast<long>(ptail_) - reinterpret_cast<long>(phead_)))) {
             ret_ = MessageRet::EMSNOMESSG;
             return 0;
         }
         memcpy(pdata, phead_, size);
-        phead_ += size;
-        use_size -= size;
+        phead_ = reinterpret_cast<void*>(reinterpret_cast<long>(phead_) + size);
         ret_ = MessageRet::SUCCESS;
+        return size;
     }
 
     size_t _peek(void* pdata, size_t size) {
-        if (ret_ == MessageRet::EINIT || ret_ == MessageRet::EMEMORY) {
+        if (ret_ == MessageRet::EINIT || ret_ == MessageRet::EMALLOC) {
             return 0;
         }
         if (smode_ != MessageStreamMode::Out) {
             ret_ = MessageRet::EMSMODE;
             return 0;
         }
-        if (size > (ptail_ - phead_)) {
+        if (size > static_cast<size_t>((reinterpret_cast<long>(ptail_) - reinterpret_cast<long>(phead_)))) {
             ret_ = MessageRet::EMSNOMESSG;
             return 0;
         }
         memcpy(pdata, phead_, size);
         ret_ = MessageRet::SUCCESS;
+        return size;
     }
 
 private:
@@ -243,7 +246,7 @@ private:
     void* ptail_;
 
     mempool::MemPool* mempool_;
-}
+};
 
 }
 
