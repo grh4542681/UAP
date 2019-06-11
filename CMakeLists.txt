@@ -33,6 +33,7 @@ SET (PLAT_INFRA_HRD "${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     "${FRAM_ROOT_PATH}/plat/infra/parser"
                     "${FRAM_ROOT_PATH}/plat/infra/ipc"
                     "${FRAM_ROOT_PATH}/plat/infra/util"
+                    "${FRAM_ROOT_PATH}/plat/infra/baseio"
                     )
 
 SET (COMMON_OS_LIB rt

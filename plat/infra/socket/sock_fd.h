@@ -5,6 +5,8 @@
 
 #include "time/vtime.h"
 #include "mempool.h"
+#include "baseio_fd.h"
+
 #include "sock_log.h"
 #include "sock_return.h"
 #include "sock_address.h"
@@ -14,18 +16,19 @@ namespace sock{
 /**
 * @brief - Socker file descriptor operator class.
 */
-class SockFD{
+class SockFD : public baseio::FD{
 public:
     friend class SockServer;
     friend class SockClient;
 
     SockFD();
-    SockFD(unsigned int fd, bool auto_close = true);
+    SockFD(unsigned int fd, bool auto_close = false);
+    SockFD(SockFD& other);
     ~SockFD();
 
     unsigned int getFD();
-    SockRet SetFD(unsigned int fd, bool auto_close = true);
-    void SetAutoClose(bool flag);
+    SockRet SetFD(unsigned int fd, bool auto_close = false);
+    baseio::FD* Clone();
 
     //for multicast attrubit
     SockRet SetMcastJoin(const char* mcast_addr);
@@ -45,8 +48,8 @@ public:
     bool isMulitcastFD();
 
     void Close();
-    size_t Send(const void* data, size_t datalen);
-    size_t Recv(void* data, size_t datalen);
+    size_t Write(const void* data, size_t datalen);
+    size_t Read(void* data, size_t datalen);
     size_t Send(SockAddress* dest, const void* data, size_t datalen);
     size_t Recv(SockAddress* orig, void* data, size_t datalen);
     size_t SendFD(unsigned int fd);
@@ -54,9 +57,9 @@ public:
     
 private:
 
-    bool init_flag_;            ///< init flag.
-    bool auto_close_;           ///< auto close fd flag.
-    unsigned int fd_;           ///< socket file descriptor.
+//    bool init_flag_;            ///< init flag.
+//    bool auto_close_;           ///< auto close fd flag.
+//    unsigned int fd_;           ///< socket file descriptor.
     mempool::MemPool* mempool_; ///< memory pool interface.
     SockAddress orig;           ///< source address.
     SockAddress dest;           ///< destination address.

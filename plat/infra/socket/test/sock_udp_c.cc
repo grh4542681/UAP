@@ -20,7 +20,7 @@ int main()
     }
 //    sock::SockAddress address = sock::SockAddress(sock::SockFamily::UDP_INET6, "::", 60005);
 //    fd->Send(&address,"hello world", 12);
-    fd->Send("hello world", 12);
+    fd->Write("hello world", 12);
     fd->Close();
     return 0;
 }

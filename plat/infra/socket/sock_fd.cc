@@ -31,7 +31,7 @@ SockFD::SockFD(){
 * @param [fd] - File descriptor
 * @param [auto_close] - Automatically close when destructuring
 */
-SockFD::SockFD(unsigned int fd, bool auto_close) : auto_close_(auto_close){
+SockFD::SockFD(unsigned int fd, bool auto_close) {
     int temp_errno = 0;
     struct stat fd_stat;
     if (fstat(fd, &fd_stat)) {
@@ -46,7 +46,14 @@ SockFD::SockFD(unsigned int fd, bool auto_close) : auto_close_(auto_close){
 
     this->mempool_ = mempool::MemPool::getInstance();
     this->fd_ = fd;
+    this->auto_close_ = auto_close;
     this->init_flag_ = true;
+}
+
+SockFD::SockFD(SockFD& other) {
+    fd_ = other.fd_;
+    orig = other.orig;
+    dest = other.dest;
 }
 
 /**
@@ -103,9 +110,8 @@ unsigned int SockFD::getFD()
     }
 }
 
-void SockFD::SetAutoClose(bool flag)
-{
-    auto_close_ = flag;
+baseio::FD* SockFD::Clone() {
+    return mempool_->Malloc<SockFD>(*this);
 }
 
 /**
@@ -611,7 +617,7 @@ void SockFD::Close()
 *
 * @returns  SockRet or send length
 */
-size_t SockFD::Send(const void* data, size_t datalen)
+size_t SockFD::Write(const void* data, size_t datalen)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -644,7 +650,7 @@ size_t SockFD::Send(const void* data, size_t datalen)
 *
 * @returns  SockRet or recv length.
 */
-size_t SockFD::Recv(void* data, size_t datalen)
+size_t SockFD::Read(void* data, size_t datalen)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
