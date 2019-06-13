@@ -23,6 +23,9 @@ SET(CXX_COMPILE_FLAGS "-std=c++17 ${COMPILE_WARNINGS} ${COMPILE_OPTIMIZATION} ${
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_COMPILE_FLAGS}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_COMPILE_FLAGS}")
 
+SET (PLAT_HRD "${FRAM_ROOT_PATH}/plat/message"
+              )
+
 SET (PLAT_INFRA_HRD "${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     "${FRAM_ROOT_PATH}/plat/infra/mempool"
                     "${FRAM_ROOT_PATH}/plat/infra/thread"
@@ -41,6 +44,8 @@ SET (COMMON_OS_LIB rt
                    m
                    )
 
+SET (PLAT_LIB libgmsg.so
+              )
 SET (PLAT_INFRA_LIB libgfile.so
                     libgipc.so
                     libgmp.so

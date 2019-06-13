@@ -8,7 +8,6 @@ ADD_SUBDIRECTORY(parser)
 ADD_SUBDIRECTORY(socket)
 ADD_SUBDIRECTORY(ipc)
 ADD_SUBDIRECTORY(util)
-ADD_SUBDIRECTORY(message)
 ADD_SUBDIRECTORY(heartbeat)
 
 
@@ -23,5 +22,4 @@ ADD_SUBDIRECTORY(process/test)
 ADD_SUBDIRECTORY(ipc/shm/test)
 ADD_SUBDIRECTORY(ipc/sem/test)
 ADD_SUBDIRECTORY(util/time/test)
-ADD_SUBDIRECTORY(message/test)
 
