@@ -4,7 +4,7 @@
 #include <string>
 
 #include "time/vtime.h"
-#include "socket/sock_pair.h"
+#include "sock_fd.h"
 
 #include "process_log.h"
 #include "process_return.h"
@@ -26,10 +26,10 @@ public:
 
     ProcessID& GetPid();
     std::string GetName();
-    ipc::sock::SockPair& GetSockPair();
+    sock::SockFD& GetFD();
 
-    ProcessParent& SetSockPair(ipc::sock::SockPair& pair);
-    ProcessParent& SetSockPair(ipc::sock::SockPair&& pair);
+    ProcessParent& SetFD(sock::SockFD& fd);
+    ProcessParent& SetFD(sock::SockFD&& fd);
 
     ProcessRet SetSendBlock(util::time::Time* overtime);
     ProcessRet SetRecvBlock(util::time::Time* overtime);
@@ -43,7 +43,7 @@ private:
     std::string     name_;
 
     bool init_flag_;
-    ipc::sock::SockPair pair_;
+    sock::SockFD fd_;
 };
 
 }

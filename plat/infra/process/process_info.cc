@@ -164,13 +164,12 @@ ProcessRet ProcessInfo::AddParentProcess(ProcessParent& parent)
 }
 ProcessRet ProcessInfo::AddParentProcess(ProcessParent&& parent)
 {
-    parent.GetSockPair().SetAutoClose(true);
     if (parent_) {
         mempool_->Reset<ProcessParent>(parent_, parent);
     } else {
         parent_ = mempool_->Malloc<ProcessParent>(parent);
     }
-    parent_->GetSockPair().SetAutoClose(true);
+    parent_->GetFD().SetAutoClose(true);
     return parent_ ? ProcessRet::SUCCESS : ProcessRet::EMALLOC;
 }
 
@@ -197,7 +196,7 @@ ProcessRet ProcessInfo::AddChildProcess(ProcessChild&& child)
     if (it != child_.end()) {
         return ProcessRet::PROCESS_EPROCDUP;
     }
-    child.GetSockPair().SetAutoClose(false);
+    child.GetFD().SetAutoClose(false);
     ProcessChild* p = mempool_->Malloc<ProcessChild>(child);
     if (!p) {
         return ProcessRet::PROCESS_EMEMORY;
@@ -207,7 +206,7 @@ ProcessRet ProcessInfo::AddChildProcess(ProcessChild&& child)
     if (ret.second == false) {
         return ProcessRet::PROCESS_EPROCADD;
     }
-    p->GetSockPair().SetAutoClose(true);
+    p->GetFD().SetAutoClose(true);
     return ProcessRet::SUCCESS;
 }
 

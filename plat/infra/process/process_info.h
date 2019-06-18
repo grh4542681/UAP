@@ -105,7 +105,7 @@ private:
 
     // process relationship
     ProcessParent*                      parent_;    ///< Parent process info.
-    std::map<ProcessID, ProcessChild*> child_;     ///< Child process info.
+    std::map<ProcessID, ProcessChild*>  child_;     ///< Child process info.
 
     // thread info
     thread::mutex::ThreadRWLock thread_info_rw_lock_;       ///< Mutex lock of thread map.

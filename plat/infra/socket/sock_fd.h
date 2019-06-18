@@ -26,7 +26,7 @@ public:
     SockFD(SockFD& other);
     ~SockFD();
 
-    unsigned int getFD();
+    unsigned int GetFD();
     SockRet SetFD(unsigned int fd, bool auto_close = false);
     baseio::FD* Clone();
 

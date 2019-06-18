@@ -43,6 +43,7 @@ public:
         mempool_ = mempool::MemPool::getInstance();
         name_.clear();
         child_ = child;
+        auto_create_sockpair_ = false;
     }
 
     /**
@@ -55,6 +56,7 @@ public:
         mempool_ = mempool::MemPool::getInstance();
         name_ = name;
         child_ = child;
+        auto_create_sockpair_ = false;
     }
 
     ~ProcessTemplate() {
@@ -62,7 +64,7 @@ public:
     }
 
     /**
-    * @brief SetSigChldCallback - Set the callback if process dead parent process
+    * @brief SetDeadCallback - Set the callback if process dead parent process
     *                       will invoke the function.
     *
     * @param [sigchld_callback] - Callback function.
@@ -84,21 +86,28 @@ public:
         PROCESS_INFO("Starting create process.");
         //Create socket pair
         ipc::sock::SockPair pair;
-        if (pair.Open() != ipc::IpcRet::SUCCESS) {
-            PROCESS_ERROR("SockPair Open error.");
-            return ProcessRet::PROCESS_EFIFOPAIR;
+        if (auto_create_sockpair_) {
+            if (pair.Open() != ipc::IpcRet::SUCCESS) {
+                PROCESS_ERROR("SockPair Open error.");
+                return ProcessRet::PROCESS_EFIFOPAIR;
+            }
+            pair.SetAutoClose(false);
         }
-        pair.SetAutoClose(false);
         ProcessInfo* parent = ProcessInfo::getInstance();
         pid_t pid = fork();
         if (pid < 0) {
-            pair.Close();
+            if (auto_create_sockpair_) {
+                pair.Close();
+            }
             PROCESS_ERROR("Fork error.");
             return ProcessRet::PROCESS_EFORK;
         } else if (pid == 0) {
             //cache parent process data.
             ProcessParent parent_cache(parent->GetName(), parent->GetPid());
-            parent_cache.SetSockPair(pair);
+            if (auto_create_sockpair_) {
+                pair[1].Close();
+                parent_cache.SetFD(pair[0]);
+            }
 
             char** raw_cmdline = NULL;
             unsigned int raw_cmdline_size = 0;
@@ -125,8 +134,10 @@ public:
                 child_name = parent->GetName() + "_" + std::to_string(pid);
             }
             ProcessChild child(child_name, ProcessID(pid));
-            child.SetSockPair(pair);
-            child.GetSockPair().SetAutoClose(false);
+            if (auto_create_sockpair_) {
+                pair[0].Close();
+                child.SetFD(pair[1]);
+            }
             child.SetDeadCallback(dead_callback_);
             child.GetRole().AddRole(ProcessRole::Child);
             child.SetState(ProcessState::Prepare);
@@ -192,7 +203,8 @@ private:
     mempool::MemPool* mempool_;         ///< Mempool pointer.
     std::string name_;                  ///< Process Name.
     F child_;                           ///< Process main function.
-    void (*dead_callback_)(int*);    ///< Process dead callback for parent SIGCHLD.
+    bool auto_create_sockpair_;         ///< Auto create socketpair between process.
+    void (*dead_callback_)(int*);       ///< Process dead callback for parent SIGCHLD.
 
     template <typename ... Args>
     ProcessRet _run_main(Args&& ... args) {

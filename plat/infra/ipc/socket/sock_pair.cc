@@ -16,8 +16,8 @@ SockPair::SockPair(SockPair& other)
 {
     init_flag_ = other.init_flag_;
     auto_close_ = other.auto_close_;
-    fds_[0].SetFD(other.fds_[0].getFD(), false);
-    fds_[1].SetFD(other.fds_[1].getFD(), false);
+    fds_[0].SetFD(other.fds_[0].GetFD(), false);
+    fds_[1].SetFD(other.fds_[1].GetFD(), false);
 }
 
 SockPair::~SockPair()
@@ -70,8 +70,8 @@ SockPair& SockPair::operator= (SockPair& other)
 {
     init_flag_ = other.init_flag_;
     auto_close_ = other.auto_close_;
-    fds_[0].SetFD(other.fds_[0].getFD(), false);
-    fds_[1].SetFD(other.fds_[1].getFD(), false);
+    fds_[0].SetFD(other.fds_[0].GetFD(), false);
+    fds_[1].SetFD(other.fds_[1].GetFD(), false);
     return *this;
 }
 

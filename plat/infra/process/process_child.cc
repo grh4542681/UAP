@@ -31,7 +31,7 @@ ProcessChild::ProcessChild(ProcessChild& other)
     state_ = other.state_;
 
     dead_callback_ = other.dead_callback_;
-    pair_ = other.pair_;
+    fd_ = other.fd_;
     init_flag_ = other.init_flag_;
 }
 
@@ -65,9 +65,9 @@ void (*ProcessChild::GetDeadCallback())(int*)
     return dead_callback_;
 }
 
-ipc::sock::SockPair& ProcessChild::GetSockPair()
+sock::SockFD& ProcessChild::GetFD()
 {
-    return pair_;
+    return fd_;
 }
 
 ProcessChild& ProcessChild::SetState(ProcessState state)
@@ -82,19 +82,19 @@ ProcessChild& ProcessChild::SetDeadCallback(void (*dead_callback)(int*))
     return *this;
 }
 
-ProcessChild& ProcessChild::SetSockPair(ipc::sock::SockPair& pair)
+ProcessChild& ProcessChild::SetFD(sock::SockFD& fd)
 {
-    return SetSockPair(std::move(pair));
+    return SetFD(std::move(fd));
 }
-ProcessChild& ProcessChild::SetSockPair(ipc::sock::SockPair&& pair)
+ProcessChild& ProcessChild::SetFD(sock::SockFD&& fd)
 {
-    pair_ = pair;
+    fd_.SetFD(fd.GetFD());
     return *this;
 }
 
 ProcessRet ProcessChild::SetSendBlock(util::time::Time* overtime)
 {
-    if (pair_[ProcessChildSockFDIndex].SetSendBlock(overtime) != sock::SockRet::SUCCESS) {
+    if (fd_.SetSendBlock(overtime) != sock::SockRet::SUCCESS) {
         PROCESS_ERROR("Set Child sockfd in pair send block time failed");
         return ProcessRet::ERROR;
     }
@@ -103,7 +103,7 @@ ProcessRet ProcessChild::SetSendBlock(util::time::Time* overtime)
 
 ProcessRet ProcessChild::SetRecvBlock(util::time::Time* overtime)
 {
-    if (pair_[ProcessChildSockFDIndex].SetRecvBlock(overtime) != sock::SockRet::SUCCESS) {
+    if (fd_.SetRecvBlock(overtime) != sock::SockRet::SUCCESS) {
         PROCESS_ERROR("Set Child sockfd in pair recv block time failed");
         return ProcessRet::ERROR;
     }
@@ -112,7 +112,7 @@ ProcessRet ProcessChild::SetRecvBlock(util::time::Time* overtime)
 
 ProcessRet ProcessChild::SetNonBlock()
 {
-    if (pair_[ProcessChildSockFDIndex].SetNonBlock() != sock::SockRet::SUCCESS) {
+    if (fd_.SetNonBlock() != sock::SockRet::SUCCESS) {
         PROCESS_ERROR("Set Child sockfd in pair non block failed");
         return ProcessRet::ERROR;
     }

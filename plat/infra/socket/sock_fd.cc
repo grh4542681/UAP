@@ -97,11 +97,11 @@ SockRet SockFD::SetFD(unsigned int fd, bool auto_close)
 }
 
 /**
-* @brief getFD - Get file descriptor
+* @brief GetFD - Get file descriptor
 *
 * @returns  File descriptor
 */
-unsigned int SockFD::getFD()
+unsigned int SockFD::GetFD()
 {
     if (this->init_flag_) {
         return this->fd_;

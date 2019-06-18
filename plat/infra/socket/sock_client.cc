@@ -145,7 +145,7 @@ SockRet SockClient::_connect()
         struct sockaddr_un addr;
         addr.sun_family = AF_LOCAL;
         strcpy(addr.sun_path, this->s_address_->address_.c_str());
-        ret = connect(this->conn_fd_->getFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr));
+        ret = connect(this->conn_fd_->GetFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr));
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "connect socket error, ", strerror(temp_errno));
@@ -162,7 +162,7 @@ SockRet SockClient::_connect()
         }
         addr.sin_port = htons(this->s_address_->port_);
 
-        ret = connect(this->conn_fd_->getFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr));
+        ret = connect(this->conn_fd_->GetFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr));
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "connect socket error, ", strerror(temp_errno));
@@ -183,7 +183,7 @@ SockRet SockClient::_connect()
         }
         addr.sin6_port = htons(this->s_address_->port_);
 
-        ret = connect(this->conn_fd_->getFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr_in6));
+        ret = connect(this->conn_fd_->GetFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr_in6));
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "connect socket error, ", strerror(temp_errno));

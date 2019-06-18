@@ -159,7 +159,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
         case AF_LOCAL:
             struct sockaddr_un un_addr;
             socklen_t un_addrlen;
-            acpt_fd = accept(this->listen_fd_->getFD(), (struct sockaddr*)&un_addr, &un_addrlen);
+            acpt_fd = accept(this->listen_fd_->GetFD(), (struct sockaddr*)&un_addr, &un_addrlen);
             if (acpt_fd < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
@@ -172,7 +172,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
         case AF_INET:
             struct sockaddr_in in_addr;
             socklen_t in_addrlen;
-            acpt_fd = accept(this->listen_fd_->getFD(), (struct sockaddr*)&in_addr, &in_addrlen);
+            acpt_fd = accept(this->listen_fd_->GetFD(), (struct sockaddr*)&in_addr, &in_addrlen);
             if (acpt_fd < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
@@ -186,7 +186,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
             struct sockaddr_in6 in6_addr;
             char c_in6_addr[SOCK_ADDRESS_MAX_LEN];
             socklen_t in6_addrlen;
-            acpt_fd = accept(this->listen_fd_->getFD(), (struct sockaddr*)&in6_addr, &in6_addrlen);
+            acpt_fd = accept(this->listen_fd_->GetFD(), (struct sockaddr*)&in6_addr, &in6_addrlen);
             if (acpt_fd < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
@@ -245,7 +245,7 @@ SockRet SockServer::_bind()
         addr.sun_family = AF_LOCAL;
         strcpy(addr.sun_path, this->s_address_->address_.c_str());
         unlink(this->s_address_->address_.c_str());
-        ret = bind(this->listen_fd_->getFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr));
+        ret = bind(this->listen_fd_->GetFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr));
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "bind socket error, ", strerror(temp_errno));
@@ -262,7 +262,7 @@ SockRet SockServer::_bind()
         }
         addr.sin_port = htons(this->s_address_->port_);
 
-        ret = bind(this->listen_fd_->getFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr));
+        ret = bind(this->listen_fd_->GetFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr));
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "bind socket error, ", strerror(temp_errno));
@@ -283,7 +283,7 @@ SockRet SockServer::_bind()
         }
         addr.sin6_port = htons(this->s_address_->port_);
 
-        ret = bind(this->listen_fd_->getFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr_in6));
+        ret = bind(this->listen_fd_->GetFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr_in6));
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "bind socket error, ", strerror(temp_errno));
@@ -299,7 +299,7 @@ SockRet SockServer::_bind()
 SockRet SockServer::_listen()
 {
     int temp_errno;
-    int ret = listen(this->listen_fd_->getFD(), this->listen_cache_);
+    int ret = listen(this->listen_fd_->GetFD(), this->listen_cache_);
     if (ret) {
         temp_errno = errno;
         SOCK_ERROR("%s%s", "Listen socket error, ", strerror(temp_errno));

@@ -4,7 +4,7 @@
 #include <string>
 
 #include "time/vtime.h"
-#include "socket/sock_pair.h"
+#include "sock_fd.h"
 
 #include "process_log.h"
 #include "process_return.h"
@@ -28,12 +28,12 @@ public:
     ProcessRole& GetRole();
     ProcessState& GetState();
     void (*GetDeadCallback())(int*);
-    ipc::sock::SockPair& GetSockPair();
+    sock::SockFD& GetFD();
 
     ProcessChild& SetState(ProcessState state);
     ProcessChild& SetDeadCallback(void (*dead_callback)(int*));
-    ProcessChild& SetSockPair(ipc::sock::SockPair& pair);
-    ProcessChild& SetSockPair(ipc::sock::SockPair&& pair);
+    ProcessChild& SetFD(sock::SockFD& fd);
+    ProcessChild& SetFD(sock::SockFD&& fd);
 
     ProcessRet SetSendBlock(util::time::Time* overtime);
     ProcessRet SetRecvBlock(util::time::Time* overtime);
@@ -49,7 +49,7 @@ private:
     ProcessState    state_;
 
     bool init_flag_;
-    ipc::sock::SockPair pair_;
+    sock::SockFD fd_;
     void (*dead_callback_)(int*);
 };
 

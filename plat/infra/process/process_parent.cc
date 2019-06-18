@@ -27,14 +27,14 @@ ProcessParent::ProcessParent(ProcessParent& other)
     pid_ = other.pid_;
     name_ = other.name_;
 
-    pair_ = other.pair_;
+    fd_ = other.fd_;
     init_flag_ = other.init_flag_;
 }
 
 ProcessParent::~ProcessParent()
 {
     if (init_flag_) {
-        pair_.Close();
+        fd_.Close();
     }
 }
 
@@ -48,24 +48,25 @@ std::string ProcessParent::GetName()
     return name_;
 }
 
-ipc::sock::SockPair& ProcessParent::GetSockPair()
+sock::SockFD& ProcessParent::GetFD()
 {
-    return pair_;
+    return fd_;
 }
 
-ProcessParent& ProcessParent::SetSockPair(ipc::sock::SockPair& pair)
+ProcessParent& ProcessParent::SetFD(sock::SockFD& fd)
 {
-    return SetSockPair(std::move(pair));
+    return SetFD(std::move(fd));
 }
-ProcessParent& ProcessParent::SetSockPair(ipc::sock::SockPair&& pair)
+
+ProcessParent& ProcessParent::SetFD(sock::SockFD&& fd)
 {
-    pair_ = pair;
+    fd_.SetFD(fd.GetFD());
     return *this;
 }
 
 ProcessRet ProcessParent::SetSendBlock(util::time::Time* overtime)
 {
-    if (pair_[ProcessParentSockFDIndex].SetSendBlock(overtime) != sock::SockRet::SUCCESS) {
+    if (fd_.SetSendBlock(overtime) != sock::SockRet::SUCCESS) {
         PROCESS_ERROR("set Child sockfd in pair send block time failed");
         return ProcessRet::ERROR;
     }
@@ -74,7 +75,7 @@ ProcessRet ProcessParent::SetSendBlock(util::time::Time* overtime)
 
 ProcessRet ProcessParent::SetRecvBlock(util::time::Time* overtime)
 {
-    if (pair_[ProcessParentSockFDIndex].SetRecvBlock(overtime) != sock::SockRet::SUCCESS) {
+    if (fd_.SetRecvBlock(overtime) != sock::SockRet::SUCCESS) {
         PROCESS_ERROR("set Child sockfd in pair recv block time failed");
         return ProcessRet::ERROR;
     }
@@ -83,7 +84,7 @@ ProcessRet ProcessParent::SetRecvBlock(util::time::Time* overtime)
 
 ProcessRet ProcessParent::SetNonBlock()
 {
-    if (pair_[ProcessParentSockFDIndex].SetNonBlock() != sock::SockRet::SUCCESS) {
+    if (fd_.SetNonBlock() != sock::SockRet::SUCCESS) {
         PROCESS_ERROR("set Child sockfd in pair non block failed");
         return ProcessRet::ERROR;
     }
