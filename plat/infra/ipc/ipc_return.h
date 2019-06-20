@@ -20,6 +20,7 @@ enum class IpcRet: int {
 
 // shm return val
     SHM_EMODE,
+    SHM_ECREATED,
 
     SHM_EACCES,
     SHM_EEXIST,

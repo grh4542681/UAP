@@ -33,6 +33,7 @@ public:
         head_ = NULL;
         size_ = 0;
         status_ = ShmStatus::UNKNOW;
+        auto_close_ = false;
     }
 
     /**
@@ -44,12 +45,39 @@ public:
         path_ = path;
         head_ = NULL;
         size_ = 0;
+        auto_close_ = false;
     }
 
     /**
     * @brief ~Shm - Destructor.
     */
     virtual ~Shm() { }
+
+    /**
+    * @brief GetAutoClose - Get autoclose flag.
+    *
+    * @returns  True/False.
+    */
+    bool GetAutoClose() {
+        return auto_close_;
+    }
+
+    std::string GetPath() {
+        return path_;
+    }
+
+    size_t GetSize() {
+        return size_;
+    }
+
+    /**
+    * @brief SetAutoClose - Set autoclose flag
+    *
+    * @param [flag] - True/False.
+    */
+    void SetAutoClose(bool flag) {
+        auto_close_ = flag;
+    }
 
     /**
     * @brief Create - Create share memory.
@@ -104,11 +132,13 @@ protected:
     size_t size_;       ///< Share memory size.
     void* head_;        ///< Share memory pointer.
     ShmStatus status_;  ///< Share memory status.
+    bool auto_close_;   ///< Instance Destructor will automaically close shm.
 
     Shm(const Shm& other) {
         path_ = other.path_;
-        head_ = head_;
+        head_ = other.head_;
         size_ = other.size_;
+        auto_close_ = other.auto_close_;
     }
 };
 

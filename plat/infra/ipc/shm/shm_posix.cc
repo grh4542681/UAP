@@ -44,7 +44,7 @@ ShmPosix::~ShmPosix()
 IpcRet ShmPosix::Create(size_t size, mode_t mode)
 {
     if (head_) {
-        return IpcRet::SHM_EEXIST;
+        return IpcRet::SHM_ECREATED;
     }
     if (path_.empty() || size <= 0) {
         return IpcRet::EINIT;

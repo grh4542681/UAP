@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "shm.h"
+#include "shm_posix.h"
 
 namespace ipc::shm {
 
@@ -28,7 +28,6 @@ public:
     } ShmArrayHead;
 public:
     ShmArray();
-    ShmArray(Shm* shm);
     ~ShmArray();
 
     IpcRet Create(size_t obj_size, mode_t mode);
@@ -36,12 +35,9 @@ public:
     IpcRet Open(IpcMode mode);
     IpcRet Close();
 
-    IpcRet FormatCheck();
-    IpcRet Format();
-
 private:
     ShmArrayHead p_shm_head_;
-    Shm* shm_;
+    ShmPosix shm_;
 };
 
 }

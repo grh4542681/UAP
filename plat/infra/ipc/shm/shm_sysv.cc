@@ -43,7 +43,7 @@ ShmSysV::~ShmSysV()
 IpcRet ShmSysV::Create(size_t size, mode_t mode)
 {
     if (shmid_ > 0) {
-        return IpcRet::SUCCESS;
+        return IpcRet::SHM_ECREATED;
     }
     if (path_.empty() || size <= 0) {
         return IpcRet::EINIT;
