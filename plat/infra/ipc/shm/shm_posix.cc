@@ -97,10 +97,9 @@ IpcRet ShmPosix::Open(IpcMode mode)
     int flags = 0;
     if ((mode | IpcMode::READ_ONLY) || (mode | IpcMode::READ_WRITE)) {
         flags |= PROT_READ;
-    } else if ((mode | IpcMode::WRITE_ONLY) || (mode | IpcMode::READ_WRITE)) {
+    }
+    if ((mode | IpcMode::WRITE_ONLY) || (mode | IpcMode::READ_WRITE)) {
         flags |= PROT_WRITE;   
-    } else {
-        return IpcRet::SHM_EMODE;
     }
 
     if (fd_ < 0) {

@@ -14,7 +14,10 @@ int main()
     shm.Open(ipc::IpcMode::READ_WRITE);
     void* p = shm.GetHeadPtr();
     printf("%p\n", p);
+//    *(int*)p = 10;
+//    printf("%d\n", *(int*)p);
 //    memcpy((char*)p, "hello", 5);
+//    printf("%s\n",(char*)p);
     shm.Sync();
     sleep(10);
     shm.Close();
