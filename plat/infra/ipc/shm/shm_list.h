@@ -15,9 +15,6 @@ template < typename T >
 class ShmList {
 public:
     typedef struct _ShmListHead {
-        std::string shm_path_;
-        size_t shm_size_;
-
         std::string object_name_;
         size_t object_size_;
         size_t object_max_num_;
@@ -30,6 +27,11 @@ public:
         util::time::Time create_time_;
         util::time::Time last_access_time_;
     } ShmListHead;
+
+    typedef struct _ShmListNode {
+        struct _ShmListNode* prev;
+        struct _ShmListNode* next;
+    } ShmListNode;
 public:
     ShmList(std::string path) {
         shm_ = ShmPosix(path);
@@ -37,6 +39,10 @@ public:
     }
     ~ShmList() {
         p_shm_head_ = NULL;
+    }
+
+    Shm& GetShm() {
+        return shm_;
     }
 
     std::string GetObjectName() {
@@ -70,9 +76,6 @@ public:
         ret = shm_.Open(IpcMode::READ_WRITE);
         if (ret == IpcRet::SUCCESS) {
             p_shm_head_ = reinterpret_cast<ShmListHead*>(shm_.GetHeadPtr());
-
-            p_shm_head_->shm_path_ = shm_.GetPath();
-            p_shm_head_->shm_size_ = shm_.GetSize();
 
             p_shm_head_->object_name_.assign(typeid(T).name());
             p_shm_head_->object_size_ = sizeof(T);
@@ -111,6 +114,14 @@ public:
             p_shm_head_ = NULL;
         }
         return ret;
+    }
+
+    IpcRet Pusb(T&& data) {
+        return IpcRet::SUCCESS;
+    }
+
+    IpcRet Pop() {
+        return IpcRet::SUCCESS;
     }
 
     IpcRet Format();
