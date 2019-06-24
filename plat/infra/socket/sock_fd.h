@@ -5,7 +5,7 @@
 
 #include "time/vtime.h"
 #include "mempool.h"
-#include "baseio_fd.h"
+#include "io_fd.h"
 
 #include "sock_log.h"
 #include "sock_return.h"
@@ -16,7 +16,7 @@ namespace sock{
 /**
 * @brief - Socker file descriptor operator class.
 */
-class SockFD : public baseio::FD{
+class SockFD : public io::FD{
 public:
     friend class SockServer;
     friend class SockClient;
@@ -28,7 +28,7 @@ public:
 
     unsigned int GetFD();
     SockRet SetFD(unsigned int fd, bool auto_close = false);
-    baseio::FD* Clone();
+    io::FD* Clone();
 
     //for multicast attrubit
     SockRet SetMcastJoin(const char* mcast_addr);

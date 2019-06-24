@@ -1,9 +1,10 @@
-#ifndef __BASEIO_RETURN_H__
-#define __BASEIO_RETURN_H__
+#ifndef __IO_RETURN_H__
+#define __IO_RETURN_H__
 
-namespace baseio {
+namespace io {
 
-enum class BaseIORet: int {
+enum class IoRet: int {
+
 //common return val
     SUCCESS = 0x00,
     ERROR,

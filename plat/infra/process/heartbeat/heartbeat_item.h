@@ -1,7 +1,7 @@
 #ifndef __HEARTBEAT_ITEM_H__
 #define __HEARTBEAT_ITEM_H__
 
-#include "baseio_fd.h"
+#include "io_fd.h"
 #include "time/vtime.h"
 #include "mempool.h"
 
@@ -11,10 +11,10 @@ namespace heartbeat {
 
 class HeartbeatItem {
 public:
-    HeartbeatItem(baseio::FD& fd, util::time::Time& over_time);
+    HeartbeatItem(io::FD& fd, util::time::Time& over_time);
     ~HeartbeatItem();
 
-    baseio::FD* GetFD();
+    io::FD* GetFD();
     HeartbeatState GetState();
 
     util::time::Time& GetLastTime();
@@ -27,7 +27,7 @@ public:
 
 private:
     mempool::MemPool* mempool_;
-    baseio::FD* fd_;
+    io::FD* fd_;
     HeartbeatState state_;
 
     util::time::Time last_time_;

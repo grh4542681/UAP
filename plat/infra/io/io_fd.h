@@ -1,11 +1,11 @@
-#ifndef __BASE_IO_H__
-#define __BASE_IO_H__
+#ifndef __IO_FD_H__
+#define __IO_FD_H__
 
 #include <unistd.h>
 
-#include "baseio_return.h"
+#include "io_return.h"
 
-namespace baseio {
+namespace io {
 
 class FD {
 public:

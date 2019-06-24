@@ -3,6 +3,8 @@
 
 #include <string>
 #include <typeinfo>
+#include <type_traits>
+#include <iterator>
 
 #include "time/time_c.h"
 
@@ -32,6 +34,40 @@ public:
         struct _ShmListNode* prev;
         struct _ShmListNode* next;
     } ShmListNode;
+
+    class iterator : public std::iterator<std::input_iterator_tag, ShmListNode> {
+    public:
+        friend class ShmList;
+        iterator(ShmListNode* node = NULL) : ptr(node) { }
+
+        iterator(const iterator& other) : ptr(other.ptr) { } 
+        ~iterator() { }
+                                                                                                                                                                                            
+
+        T& operator*() { return *(reinterpret_cast<T*>(reinterpret_cast<char*>(ptr) - sizeof(T))); }
+        bool operator!=(const iterator& other) const { return (ptr != other.ptr); }
+        bool operator==(const iterator& other) const { return (ptr == other.ptr); }
+        const iterator& operator--() {
+            ptr = ptr->prev;
+            return *this;
+        }   
+        const iterator operator--(int) {
+            iterator tmp = *this;
+            ptr = ptr->prev;
+            return tmp;
+        }   
+        const iterator& operator++() {
+            ptr = ptr->next;
+            return *this;
+        }   
+        const iterator operator++(int) {
+            iterator tmp = *this;
+            ptr = ptr->next;
+            return tmp;
+        }
+    private:
+        ShmListNode* ptr;
+    };
 public:
     ShmList(std::string path) {
         shm_ = ShmPosix(path);
@@ -40,6 +76,9 @@ public:
     ~ShmList() {
         p_shm_head_ = NULL;
     }
+
+    iterator begin () const { return p_shm_head_ ? iterator(p_shm_head_->object_head_) : iterator(NULL); }
+    iterator end () const { return iterator(NULL); }
 
     Shm& GetShm() {
         return shm_;
@@ -116,7 +155,7 @@ public:
         return ret;
     }
 
-    IpcRet Pusb(T&& data) {
+    template < typename ... Args > IpcRet Push(Args&& ... args) {
         return IpcRet::SUCCESS;
     }
 
@@ -125,6 +164,19 @@ public:
     }
 
     IpcRet Format();
+
+private:
+    template < typename ... Args > IpcRet _push_before(ShmListNode* node, Args&& ... args) {
+        return IpcRet::SUCCESS;
+    }
+    template < typename ... Args > IpcRet _push_after(ShmListNode* node, Args&& ... args) {
+        return IpcRet::SUCCESS;
+    }
+
+    IpcRet pop(ShmListNode* node) {
+        return IpcRet::SUCCESS;
+    }
+
 
 private:
     ShmListHead* p_shm_head_;

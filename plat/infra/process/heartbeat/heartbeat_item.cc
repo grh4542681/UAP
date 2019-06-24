@@ -2,7 +2,7 @@
 
 namespace heartbeat {
 
-HeartbeatItem::HeartbeatItem(baseio::FD& fd, util::time::Time& over_time)
+HeartbeatItem::HeartbeatItem(io::FD& fd, util::time::Time& over_time)
 {
     fd_ = fd.Clone();
     if (!fd_) {
@@ -19,11 +19,11 @@ HeartbeatItem::HeartbeatItem(baseio::FD& fd, util::time::Time& over_time)
 HeartbeatItem::~HeartbeatItem()
 {
     if (fd_) {
-        mempool_->Free<baseio::FD>(fd_);
+        mempool_->Free<io::FD>(fd_);
     }
 }
 
-baseio::FD* HeartbeatItem::GetFD()
+io::FD* HeartbeatItem::GetFD()
 {
     return fd_;
 }

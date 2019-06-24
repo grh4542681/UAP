@@ -110,7 +110,7 @@ unsigned int SockFD::GetFD()
     }
 }
 
-baseio::FD* SockFD::Clone() {
+io::FD* SockFD::Clone() {
     return mempool_->Malloc<SockFD>(*this);
 }
 
