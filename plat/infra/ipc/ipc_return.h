@@ -45,6 +45,9 @@ enum class IpcRet: int {
 
 // sem rw lock
     SEM_ELOCKED,
+
+// shm list return val
+    SL_ENOSPACE,
 };
 
 } // namespace ipc

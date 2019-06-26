@@ -3,7 +3,14 @@
 
 namespace io {
 
+typedef struct _SelectEvent {
+    FD fd;
+} SelectEvent;
+
 class Select {
+public:
+    Select();
+    ~Select();
 
 };
 
