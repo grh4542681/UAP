@@ -1,25 +1,36 @@
 #ifndef __BITMAP_H__
 #define __BITMAP_H__
 
+#include "mempool.h"
+#include "bitmap_return.h"
+
+#define BITMAP_PAGESIZE (8)
+
 namespace util::bitmap {
 
 class Bitmap {
 public:
+    Bitmap();
     Bitmap(size_t bit_size);
-    Bitmap(size_t bit_size, long* page_head);
+    Bitmap(size_t bit_size, void* bit_head);
     Bitmap(Bitmap& other);
     ~Bitmap();
 
-    
+    size_t GetCurBitsize();
+    size_t GetMaxBitsize();
 
-private;
-    bool init_flag_;
-    bool free_flag_;
-
-    long* page_head_;
-    size_t page_num_;
-    size_t bit_max_size_;
-    size_t bit_cur_size_;
+    BitmapRet Set(size_t index);
+    BitmapRet Unset(size_t index);
+    size_t Find0();
+    size_t Find1();
+    void Print();
+public:
+    mempool::MemPool* mempool_ = { mempool::MemPool::getInstance() };
+    bool free_flag_ = { false };
+    void* page_head_ = { NULL };
+    size_t page_num_ = { 0 };
+    size_t bit_max_size_ = { 0 };
+    size_t bit_cur_size_ = { 0 };
 };
 
 }

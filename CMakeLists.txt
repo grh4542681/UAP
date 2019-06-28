@@ -39,22 +39,22 @@ SET (PLAT_INFRA_HRD "${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     "${FRAM_ROOT_PATH}/plat/infra/io"
                     )
 
-SET (COMMON_OS_LIB rt
-                   pthread
-                   m
+SET (COMMON_OS_LIB librt.so
+                   libpthread.so
+                   libm.so
                    )
 
 SET (PLAT_LIB libgmsg.so
               )
-SET (PLAT_INFRA_LIB libgfile.so
-                    libgipc.so
+SET (PLAT_INFRA_LIB libgipc.so
                     libgmp.so
                     libgparser.so
+                    libgthread.so
                     libgprocess.so
+                    libgfile.so
                     libgrm.so
                     libgsocket.so
-                    libgthread.so
-                    libgtime.so
+                    libgutil.so
                     )
 
 INCLUDE_DIRECTORIES(${PLAT_INFRA_HRD})

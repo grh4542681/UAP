@@ -15,6 +15,9 @@ enum class BitmapRet: int {
     ESUBCLASS,
     ENSUPTYPE,
 
+//bitmap
+    BM_EOUTBOUND,
+
 };
 
 }
