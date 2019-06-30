@@ -2,17 +2,30 @@
 
 int main()
 {
+    size_t i;
     util::bitmap::Bitmap bm(10);
-    printf("%d---%d-----%d\n",bm.page_num_,bm.bit_max_size_,bm.bit_cur_size_);
+    bm.Set(2);
+    bm.Print();
     bm.Set(8);
+    bm.Print();
     bm.Set(7);
-    printf("%d---%d-----%d\n",bm.page_num_,bm.bit_max_size_,bm.bit_cur_size_);
     bm.Print();
     bm.Set(9);
-    bm.Set(11);
-    printf("%d---%d-----%d\n",bm.page_num_,bm.bit_max_size_,bm.bit_cur_size_);
-    bm.Unset(5);
-    printf("%d---%d-----%d\n",bm.page_num_,bm.bit_max_size_,bm.bit_cur_size_);
     bm.Print();
+    bm.Print1();
+    printf("1---%d\n", bm.Find1());
+    i = bm.Find1();
+    bm.Unset(i);
+    bm.Print();
+    printf("1---%d\n", bm.Find1());
+    printf("0---%d\n", bm.Find0());
+    i = bm.Find0();
+    bm.Set(i);
+    bm.Print();
+    printf("0---%d\n", bm.Find0());
+    i = bm.Find0();
+    bm.Set(i);
+    bm.Print();
+    printf("0---%d\n", bm.Find0());
     return 0;
 }

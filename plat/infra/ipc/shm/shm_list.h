@@ -47,7 +47,6 @@ public:
 
         iterator(const iterator& other) : ptr(other.ptr) { } 
         ~iterator() { }
-                                                                                                                                                                                            
 
         T& operator*() { return *(reinterpret_cast<T*>(reinterpret_cast<char*>(ptr) - sizeof(T))); }
         bool operator!=(const iterator& other) const { return (ptr != other.ptr); }

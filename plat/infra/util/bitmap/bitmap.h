@@ -23,8 +23,12 @@ public:
     BitmapRet Unset(size_t index);
     size_t Find0();
     size_t Find1();
+    bool IsFull();
+
+    void Print1();
+    void Print0();
     void Print();
-public:
+private:
     mempool::MemPool* mempool_ = { mempool::MemPool::getInstance() };
     bool free_flag_ = { false };
     void* page_head_ = { NULL };
