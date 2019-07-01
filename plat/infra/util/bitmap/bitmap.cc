@@ -8,7 +8,6 @@ Bitmap::Bitmap() { }
 Bitmap::Bitmap(size_t bit_size)
 {
     bit_max_size_ = bit_size;
-    bit_cur_size_ = 0;
     page_num_ = (bit_size + (BITMAP_PAGESIZE-1)) / BITMAP_PAGESIZE;
     page_head_ = mempool_->Malloc(page_num_ * BITMAP_PAGESIZE);
     if (page_head_) {
@@ -19,7 +18,6 @@ Bitmap::Bitmap(size_t bit_size)
 Bitmap::Bitmap(size_t bit_size, void* bit_head)
 {
     bit_max_size_ = bit_size;
-    bit_cur_size_ = 0;
     page_num_ = (bit_size + (BITMAP_PAGESIZE-1)) / BITMAP_PAGESIZE;
     if (bit_head) {
         page_head_ = bit_head;
@@ -28,23 +26,6 @@ Bitmap::Bitmap(size_t bit_size, void* bit_head)
         page_head_ = mempool_->Malloc(page_num_ * BITMAP_PAGESIZE);
         if (page_head_) {
             free_flag_ = true;
-        }
-    }
-
-    size_t loop_page = 0;
-    size_t loop_page_bit = 0;
-    size_t tmp_max_bit = bit_max_size_;
-    char* tmp = reinterpret_cast<char*>(page_head_);
-
-    for (loop_page = 0; loop_page < page_num_; loop_page++) {
-        for (loop_page_bit = 0; loop_page_bit < BITMAP_PAGESIZE; loop_page_bit++, tmp_max_bit--) {
-            if (tmp_max_bit == 0) {
-                break;
-            }
-            tmp[loop_page] & (1 << loop_page_bit) ? bit_cur_size_++ : bit_cur_size_;
-        }
-        if (tmp_max_bit == 0) {
-            break;
         }
     }
 }
@@ -61,14 +42,14 @@ Bitmap::~Bitmap()
     }
 }
 
-size_t Bitmap::GetCurBitsize()
-{
-    return bit_cur_size_;
-}
-
 size_t Bitmap::GetMaxBitsize()
 {
     return bit_max_size_;
+}
+
+size_t Bitmap::GetCurBitsize()
+{
+
 }
 
 BitmapRet Bitmap::Set(size_t index)
@@ -83,7 +64,6 @@ BitmapRet Bitmap::Set(size_t index)
     size_t page_offset = (index - 1 ) % BITMAP_PAGESIZE;
     char* tmp = reinterpret_cast<char*>(page_head_);
     tmp[page_index - 1] = tmp[page_index - 1] | (1 << page_offset);
-    bit_cur_size_++;
     return BitmapRet::SUCCESS;
 }
 
@@ -99,7 +79,6 @@ BitmapRet Bitmap::Unset(size_t index)
     size_t page_offset = (index - 1 ) % BITMAP_PAGESIZE;
     char* tmp = reinterpret_cast<char*>(page_head_);
     tmp[page_index - 1] = tmp[page_index - 1] &~ (1 << page_offset);
-    bit_cur_size_--;
     return BitmapRet::SUCCESS;
 }
 
@@ -193,7 +172,11 @@ size_t Bitmap::Find0()
 
 bool Bitmap::IsFull()
 {
-    return bit_max_size_ == bit_cur_size_;
+    if (Find0() == 0) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void Bitmap::Print()

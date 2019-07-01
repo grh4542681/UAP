@@ -16,8 +16,8 @@ public:
     Bitmap(Bitmap& other);
     ~Bitmap();
 
-    size_t GetCurBitsize();
     size_t GetMaxBitsize();
+    size_t GetCurBitsize();
 
     BitmapRet Set(size_t index);
     BitmapRet Unset(size_t index);

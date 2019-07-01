@@ -12,6 +12,7 @@ enum class IpcRet: int {
     EINIT,
     ETIMEOUT,
     ESUBCLASS,
+    ECONSTRUCT,
 
     EUNKOWNERRNO,
 
@@ -48,6 +49,7 @@ enum class IpcRet: int {
 
 // shm list return val
     SL_ENOSPACE,
+    SL_EBITMAP,
 };
 
 } // namespace ipc

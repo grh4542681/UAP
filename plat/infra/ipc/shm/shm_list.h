@@ -1,3 +1,13 @@
+/*******************************************************
+ * Copyright (C) For free.
+ * All rights reserved.
+ *******************************************************
+ * @author   : Ronghua Gao
+ * @date     : 2019-07-01 10:35
+ * @file     : shm_list.h
+ * @brief    : A list on share memory.
+ * @note     : Email - grh4542681@163.com
+ * ******************************************************/
 #ifndef __SHM_LIST_H__
 #define __SHM_LIST_H__
 
@@ -7,17 +17,23 @@
 #include <iterator>
 
 #include "time/time_c.h"
+#include "bitmap/bitmap.h"
 
 #include "shm_sysv.h"
 #include "shm_posix.h"
 
 namespace ipc::shm {
 
+/**
+* @brief - A share memory list.
+*
+* @tparam [T] - Element type.
+*/
 template < typename T >
 class ShmList {
 public:
     typedef struct _ShmListNode {
-        long _index;
+        size_t index;
         struct _ShmListNode* prev;
         struct _ShmListNode* next;
     } ShmListNode;
@@ -27,7 +43,7 @@ public:
         size_t object_size_;
         size_t object_max_num_;
         size_t object_cur_num_;
-        long* object_bitmap_;
+        void* object_bitmap_;
         void* object_data_area_;
 
         ShmListNode* object_head_;
@@ -103,15 +119,21 @@ public:
         return 0;
     }
 
-    size_t GetObjectNumber() {
+    size_t GetObjectMaxNumber() {
         if (p_shm_head_) {
             return p_shm_head_->object_max_num_;
         }
         return 0;
     }
 
+    size_t GetObjectCurNumber() {
+        if (p_shm_head_) {
+            return p_shm_head_->object_cur_num_;
+        }
+        return 0;
+    }
+
     IpcRet Create(size_t obj_num, mode_t mode) {
-        printf("--%d--\n", ((obj_num + 8 - 1) / 8));
         size_t shm_size = sizeof(ShmListHead) + ((obj_num + 8 - 1) / 8)  + obj_num * (sizeof(T) + sizeof(ShmListNode));
         IpcRet ret = shm_.Create(shm_size, mode);
         if (ret != IpcRet::SUCCESS) {
@@ -125,7 +147,7 @@ public:
             p_shm_head_->object_size_ = sizeof(T);
             p_shm_head_->object_max_num_ = obj_num;
             p_shm_head_->object_cur_num_ = 0;
-            p_shm_head_->object_bitmap_ = reinterpret_cast<long*>(reinterpret_cast<char*>(shm_.GetHeadPtr()) + sizeof(ShmListHead));
+            p_shm_head_->object_bitmap_ = reinterpret_cast<void*>(reinterpret_cast<char*>(shm_.GetHeadPtr()) + sizeof(ShmListHead));
             p_shm_head_->object_data_area_ = reinterpret_cast<char*>(shm_.GetHeadPtr()) + sizeof(ShmListHead) + (((obj_num + 64 - 1) / 64) * sizeof(long));
             p_shm_head_->object_head_ = NULL;
             p_shm_head_->object_tail_ = NULL;
@@ -163,52 +185,188 @@ public:
         return ret;
     }
 
-    template < typename ... Args > IpcRet Push(Args&& ... args) {
+    template < typename ... Args > T* PushBefore(iterator& node, Args&& ... args) {
+        return _push_before(node.ptr, std::forward<Args>(args)...);
+    }
+    template < typename ... Args > T* PushAfter(iterator& node, Args&& ... args) {
+        return _push_after(node.ptr, std::forward<Args>(args)...);
+    }
+    template < typename ... Args > T* PushHead(Args&& ... args) {
+        return _push_before(p_shm_head_->object_head_, std::forward<Args>(args)...);
+    }
+    template < typename ... Args > T* PushTail(Args&& ... args) {
         return _push_after(p_shm_head_->object_tail_, std::forward<Args>(args)...);
     }
 
-    IpcRet Pop() {
-        return IpcRet::SUCCESS;
+    void Pop(iterator& node) {
+        _pop(node.ptr);
+    }
+    void PopHead() {
+        _pop(p_shm_head_->object_head_);
+    }
+    void PopTail() {
+        _pop(p_shm_head_->object_tail_);
     }
 
     IpcRet Format();
 
 private:
-    void* _find_empty_bit() {
+    template < typename ... Args > T* _push_before(ShmListNode* node, Args&& ... args) {
+        void* parea = NULL;
+        T* pdata = NULL;
+        ShmListNode* pnode = NULL;
+        size_t bit_index = 0;
+
         if (!p_shm_head_) {
+            ret_ = IpcRet::EINIT;
             return NULL;
         }
-    }
-    template < typename ... Args > IpcRet _push_before(ShmListNode* node, Args&& ... args) {
-        if (!node) {
-            return IpcRet::EBADARGS;
+        if (p_shm_head_->object_max_num_ == p_shm_head_->object_cur_num_) {
+            ret_ = IpcRet::SL_ENOSPACE;
+            return NULL;
         }
 
-        return IpcRet::SUCCESS;
+        util::bitmap::Bitmap bm(p_shm_head_->object_max_num_, p_shm_head_->object_bitmap_);
+        bit_index = bm.Find0();
+        if (bit_index == 0) {
+            ret_ = IpcRet::SL_EBITMAP;
+            return NULL;
+        }
+        parea = reinterpret_cast<void*>(reinterpret_cast<char*>(p_shm_head_->object_data_area_) + ((bit_index -1 ) * (sizeof(T) + sizeof(ShmListNode))));
+        pdata  = mempool::MemPool::Construct<T>(parea, std::forward<Args>(args)...);
+        if (!pdata) {
+            ret_ = IpcRet::ECONSTRUCT;
+            return NULL;
+        }
+
+        if (bm.Set(bit_index) != util::bitmap::BitmapRet::SUCCESS) {
+            ret_ = IpcRet::SL_EBITMAP;
+            return NULL;
+        }
+
+        pnode = reinterpret_cast<ShmListNode*>(reinterpret_cast<char*>(parea) + sizeof(T));
+        pnode->index = bit_index;
+
+        if (!node) {
+            if (!p_shm_head_->object_head_ && !p_shm_head_->object_tail_) {
+                p_shm_head_->object_head_ = p_shm_head_->object_tail_ = pnode;
+                pnode->next = pnode->prev = NULL;
+            } else {
+                p_shm_head_->object_head_->prev = pnode;
+                pnode->next = p_shm_head_->object_head_;
+                pnode->prev = NULL;
+                p_shm_head_->object_head_ = pnode;
+            }
+        } else {
+            pnode->next = node;
+            pnode->prev = node->prev;
+            node->prev = pnode;
+            if (node == p_shm_head_->object_head_) {
+                p_shm_head_->object_head_ = pnode;
+            }
+        }
+
+        p_shm_head_->object_cur_num_++;
+
+        return pdata;
     }
-    template < typename ... Args > IpcRet _push_after(ShmListNode* node, Args&& ... args) {
+    template < typename ... Args > T* _push_after(ShmListNode* node, Args&& ... args) {
+        void* parea = NULL;
+        T* pdata = NULL;
+        ShmListNode* pnode = NULL;
+        size_t bit_index = 0;
+
         if (!p_shm_head_) {
-            return IpcRet::EINIT;
+            ret_ = IpcRet::EINIT;
+            return NULL;
         }
         if (p_shm_head_->object_max_num_ == p_shm_head_->object_cur_num_) {
-            return IpcRet::SL_ENOSPACE;
+            ret_ = IpcRet::SL_ENOSPACE;
+            return NULL;
         }
-        if (!node && !p_shm_head_->object_head_ && !p_shm_head_->object_tail_) {
-            
-        } else {
 
+        util::bitmap::Bitmap bm(p_shm_head_->object_max_num_, p_shm_head_->object_bitmap_);
+        bit_index = bm.Find0();
+        if (bit_index == 0) {
+            ret_ = IpcRet::SL_EBITMAP;
+            return NULL;
         }
-        return IpcRet::SUCCESS;
+        parea = reinterpret_cast<void*>(reinterpret_cast<char*>(p_shm_head_->object_data_area_) + ((bit_index -1 ) * (sizeof(T) + sizeof(ShmListNode))));
+        pdata  = mempool::MemPool::Construct<T>(parea, std::forward<Args>(args)...);
+        if (!pdata) {
+            ret_ = IpcRet::ECONSTRUCT;
+            return NULL;
+        }
+
+        if (bm.Set(bit_index) != util::bitmap::BitmapRet::SUCCESS) {
+            ret_ = IpcRet::SL_EBITMAP;
+            return NULL;
+        }
+
+        pnode = reinterpret_cast<ShmListNode*>(reinterpret_cast<char*>(parea) + sizeof(T));
+        pnode->index = bit_index;
+
+        if (!node) {
+            if (!p_shm_head_->object_head_ && !p_shm_head_->object_tail_) {
+                p_shm_head_->object_head_ = p_shm_head_->object_tail_ = pnode;
+                pnode->next = pnode->prev = NULL;
+            } else {
+                p_shm_head_->object_tail_->next = pnode;
+                pnode->prev = p_shm_head_->object_tail_;
+                pnode->next = NULL;
+                p_shm_head_->object_tail_ = pnode;
+            }
+        } else {
+            pnode->prev = node;
+            pnode->next = node->next;
+            node->next = pnode;
+            if (node == p_shm_head_->object_tail_) {
+                p_shm_head_->object_tail_ = pnode;
+            }
+        }
+
+        p_shm_head_->object_cur_num_++;
+
+        return pdata;
     }
 
-    IpcRet pop(ShmListNode* node) {
-        return IpcRet::SUCCESS;
+    void _pop(ShmListNode* node) {
+        if (!p_shm_head_) {
+            ret_ = IpcRet::EINIT;
+            return;
+        }
+        if (!node) {
+            ret_ = IpcRet::EBADARGS;
+            return;
+        }
+
+        size_t bit_index = node->index;
+        util::bitmap::Bitmap bm(p_shm_head_->object_max_num_, p_shm_head_->object_bitmap_);
+        bm.Unset(bit_index);
+
+        T* pdata = reinterpret_cast<T*>(reinterpret_cast<char*>(node) - sizeof(T));
+        if (node->next && node->prev) {
+            node->prev->next = node->next;
+            node->next->prev = node->prev;
+        } else if (node->next) {
+            node->next->prev = node->prev;
+            p_shm_head_->object_head_ = node->next;
+        } else if (node->prev) {
+            node->prev->next = node->next;
+            p_shm_head_->object_tail_ = node->prev;
+        } else {
+            p_shm_head_->object_head_ = p_shm_head_->object_tail_ = NULL;
+        }
+        mempool::MemPool::Destruct<T>(pdata);
+
+        p_shm_head_->object_cur_num_--;
     }
 
 
 private:
     ShmListHead* p_shm_head_;
     ShmPosix shm_;
+    IpcRet ret_;
 };
 
 }

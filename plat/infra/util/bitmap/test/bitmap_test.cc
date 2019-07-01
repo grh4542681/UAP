@@ -27,5 +27,11 @@ int main()
     bm.Set(i);
     bm.Print();
     printf("0---%d\n", bm.Find0());
+    printf("---------------------------------------\n");
+    char cc;
+    util::bitmap::Bitmap bm2(8, (void*)&cc);
+    bm2.Print();
+    cc |= 1;
+    bm2.Print();
     return 0;
 }
