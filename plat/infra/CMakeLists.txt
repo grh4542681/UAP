@@ -20,6 +20,7 @@ ADD_SUBDIRECTORY(thread/test)
 ADD_SUBDIRECTORY(process/test)
 ADD_SUBDIRECTORY(ipc/shm/test)
 ADD_SUBDIRECTORY(ipc/sem/test)
+ADD_SUBDIRECTORY(ipc/msg/test)
 ADD_SUBDIRECTORY(util/time/test)
 ADD_SUBDIRECTORY(util/bitmap/test)
 

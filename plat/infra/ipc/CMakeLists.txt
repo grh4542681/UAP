@@ -3,6 +3,7 @@ SET(LIBGRHIPC_SRC ipc_mode.cc
                   shm/shm_posix.cc
                   sem/sem_sysv.cc
                   sem/sem_posix.cc
+                  msg/msg_shm.cc
                   socket/sock_pair.cc
                   )
 
