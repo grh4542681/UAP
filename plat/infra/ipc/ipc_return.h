@@ -50,6 +50,9 @@ enum class IpcRet: int {
 // shm list return val
     SL_ENOSPACE,
     SL_EBITMAP,
+
+// msg shm return val
+    MSG_ENOSPACE,
 };
 
 } // namespace ipc

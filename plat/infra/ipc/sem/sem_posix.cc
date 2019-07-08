@@ -74,30 +74,20 @@ IpcRet SemPosix::Create(size_t semnum, mode_t mode)
 
 IpcRet SemPosix::Destroy()
 {
-    if (!semset_.empty()) {
-        Close();
-        for(auto it : semset_) {
-            if (sem_unlink(it.first.c_str()) < 0) {
-                int tmperrno = errno;
-                IPC_ERROR("Destroy posix semaphore set [%s] realpath[%s] failed, errno[%s]", path_.c_str(), it.first.c_str(), strerror(tmperrno));
+    Close();
+    int semnum = 0;
+    while (1) {
+        std::string real_name = path_ + "_" + std::to_string(semnum);
+        if (sem_unlink(real_name.c_str()) < 0) {
+            int tmperrno = errno;
+            if (tmperrno == ENOENT) {
+                break;
+            } else {
+                IPC_ERROR("Destroy posix semaphore set [%s] realpath[%s] failed, errno[%s]", path_.c_str(), real_name.c_str(), strerror(tmperrno));
                 return _errno2ret(tmperrno);
             }
         }
-    } else {
-        int semnum = 0;
-        while (1) {
-            std::string real_name = path_ + "_" + std::to_string(semnum);
-            if (sem_unlink(real_name.c_str()) < 0) {
-                int tmperrno = errno;
-                if (tmperrno == ENOENT) {
-                    break;
-                } else {
-                    IPC_ERROR("Destroy posix semaphore set [%s] realpath[%s] failed, errno[%s]", path_.c_str(), real_name.c_str(), strerror(tmperrno));
-                    return _errno2ret(tmperrno);
-                }
-            }
-            semnum++;
-        }
+        semnum++;
     }
     init_flag_ = false;
     return IpcRet::SUCCESS;
@@ -124,21 +114,22 @@ IpcRet SemPosix::Open(IpcMode mode)
         return IpcRet::SEM_EMODE;
     }
 
-    semnum_ = 0;
+    int semindex = 0;
     while(1) {
-        std::string real_name = path_ + "_" + std::to_string(semnum_);
-        sem_t* psem = sem_open(real_name.c_str(), flags, 0);
+        std::string real_name = path_ + "_" + std::to_string(semindex);
+        sem_t* psem = sem_open(real_name.c_str(), flags);
         if (psem == SEM_FAILED) {
             int tmperrno = errno;
-            if (semnum_ == 0) {
+            if (semindex == 0) {
                 return _errno2ret(tmperrno);
             } else {
                 break;
             }
         }
         semset_.insert_or_assign(real_name, psem);
-        semnum_++;
+        semindex++;
     }
+    semnum_ = semindex;
     init_flag_ = true;
     return IpcRet::SUCCESS;
 }
@@ -152,6 +143,8 @@ IpcRet SemPosix::Close()
     for(auto it : semset_) {
         sem_close(it.second);
     }
+    semset_.clear();
+    init_flag_ = false;
 
     return IpcRet::SUCCESS;
 }
@@ -164,7 +157,6 @@ IpcRet SemPosix::_p(size_t sem_index, util::time::Time* overtime)
     if (sem_index >= semnum_ ) {
         return IpcRet::EBADARGS;
     }
-
     int tmperrno = 0;
 
     std::string real_name = path_ + "_" + std::to_string(sem_index);
@@ -211,6 +203,8 @@ IpcRet SemPosix::_p(size_t sem_index, util::time::Time* overtime)
                         return _errno2ret(tmperrno);
                     }
                 } else {
+                    curr_time = util::time::NowC();
+                    *overtime = T_intervals - curr_time;
                     return IpcRet::SUCCESS;
                 }
             }

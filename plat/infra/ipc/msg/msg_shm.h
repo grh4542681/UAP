@@ -14,10 +14,10 @@ public:
     typedef struct _MsgShmHead {
         size_t msg_num;
         size_t free_size;
-        void* data_start;
-        void* data_end;
-        void* msg_head;
-        void* msg_tail;
+        size_t data_start;
+        size_t data_end;
+        size_t msg_head;
+        size_t msg_tail;
     } MsgShmHead;
 public:
     MsgShm();
@@ -31,14 +31,19 @@ public:
 
     size_t GetMsgNum();
     size_t GetFreeSize();
+    IpcRet GetRet();
 
-    size_t Recv(MsgID* id, MsgLevel* level, void* data, size_t data_len, util::time::Time* overtime);
-    size_t Send(MsgID* id, MsgLevel* level, void* data, size_t data_len, util::time::Time* overtime);
-private:
+    size_t Recv(void* data, size_t data_len, util::time::Time* overtime);
+    size_t Send(void* data, size_t data_len, util::time::Time* overtime);
+//private:
+public:
     shm::ShmPosix shm_;
     sem::SemPosix sem_;
+    IpcRet ret_;
 
     MsgShmHead* p_shm_head_ = {NULL};
+
+    size_t _align(size_t raw_size, size_t align_size);
 };
 
 }
