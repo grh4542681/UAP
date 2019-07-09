@@ -1,0 +1,15 @@
+{
+    "ipc" : {
+        "name" : "PLAT_MESSAGE_DEAMON",
+        "size" : 100M,
+        "ipv4" : "local",
+        "ipv6" : "local",
+        "mac" : "local",
+        "cache" : {
+
+        }
+    },
+    "mempool" : {
+
+    }
+}

@@ -11,6 +11,13 @@
             "path" : "",
             "overtime" : 30,
             "dependent" : ["ns"]
+        },
+        {
+            "name" : "messaged",
+            "path" : "/bin/plat/messaged",
+            "config" : "/etc/process/messaged.json",
+            "overtime" : 30,
+            "dependent" : []
         }
     ],
     "root" : {
