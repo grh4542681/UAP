@@ -5,17 +5,22 @@
 #include <string>
 #include <iostream>
 
+#include "process_info.h"
 #include "message_deamon.h"
 
 int main(int argc, char** argv)
 {
     //command line arguments
-    std::string process_config_file;
+    std::string process_config_file = "";
+    bool group_worker = false;
+    int file_describe = 0;
 
     //command line process.
-    char short_options[] = ":P:h";
+    char short_options[] = ":gp:f:h";
     struct option long_options[] = {
-        {"process_config", 1, 0, 'P'},
+        {"group_worker", 0, 0, 'g'},
+        {"process_config", 1, 0, 'p'},
+        {"file_describe", 1, 0, 'f'},
         {"help", 0, 0, 'h'},
         {0, 0, 0, 0}
     };
@@ -31,8 +36,14 @@ int main(int argc, char** argv)
         switch (option_val) {
             case 0:
                 break;
-            case 'P':
+            case 'g':
+                group_worker = true;
+                break;
+            case 'p':
                 process_config_file.assign(optarg);
+                break;
+            case 'f':
+                file_describe = *(reinterpret_cast<int*>(optarg));
                 break;
             case 'h':
                 std::cout << "Useage:" << std::endl;
@@ -60,10 +71,14 @@ int main(int argc, char** argv)
     }
 
     //process resource initlization.
+    process::ProcessInfo* process_info = process::ProcessInfo::getInstance();
+    if (group_worker) {
+        process_info->GetProcessRole() |= process::ProcessRole::PoolWorker;
+    }
 
     std::cout<<process_config_file<<std::endl;
 
-//    message::MessageDeamon deamon;
-//    deamon.Run();
+    message::MessageDeamon deamon;
+    deamon.Run();
     return 0;
 }
