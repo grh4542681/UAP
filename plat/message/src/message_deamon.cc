@@ -14,12 +14,12 @@ MessageDeamon::~MessageDeamon()
 
 MessageRet MessageDeamon::Run()
 {
-
+    return _run();
 }
 
 MessageRet MessageDeamon::_run()
 {
-
+    return MessageRet::SUCCESS;
 }
 
 }

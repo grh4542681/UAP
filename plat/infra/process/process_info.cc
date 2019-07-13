@@ -24,6 +24,7 @@ ProcessInfo::ProcessInfo()
     role_ = ProcessRole::Normal;
     raw_cmdline_ = NULL;
     raw_cmdline_size_ = 0;
+    parent_ = NULL;
 }
 
 ProcessInfo::ProcessInfo(ProcessInfo& other)
@@ -33,6 +34,7 @@ ProcessInfo::ProcessInfo(ProcessInfo& other)
     name_ = other.name_;
     state_ = other.state_;
     role_ = other.role_;
+    parent_ = NULL;
 
     raw_cmdline_ = other.raw_cmdline_;
     raw_cmdline_size_ = other.raw_cmdline_size_;

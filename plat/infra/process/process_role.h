@@ -37,6 +37,7 @@ public:
 
     ProcessRole& AddRole(unsigned int role);
     ProcessRole& DelRole(unsigned int role);
+    bool HasRole(unsigned int role);
 public:
     static unsigned int Normal;
     static unsigned int Parent;

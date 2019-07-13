@@ -61,6 +61,7 @@ SET (PLAT_INFRA_LIB libgipc.so
                     libgutil.so
                     )
 
+INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/3pp")
 INCLUDE_DIRECTORIES(${PLAT_INFRA_HRD})
 
 ADD_SUBDIRECTORY(plat)

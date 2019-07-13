@@ -4,8 +4,12 @@
 
 #include <string>
 #include <iostream>
+#include <map>
 
 #include "process_info.h"
+#include "parser_json.h"
+
+#include "message_log.h"
 #include "message_deamon.h"
 
 int main(int argc, char** argv)
@@ -70,15 +74,47 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    //process resource initlization.
+    //Process resource initlization.
+    //1.Set Role.
     process::ProcessInfo* process_info = process::ProcessInfo::getInstance();
     if (group_worker) {
-        process_info->GetProcessRole() |= process::ProcessRole::PoolWorker;
+        process_info->GetProcessRole().AddRole(process::ProcessRole::PoolWorker);
     }
+
+    //2.Get process config.
+    if (process_config_file.empty() || access(process_config_file.c_str(), R_OK) == -1) {
+        MESSAGE_FATAL("Con't access process config file [%s].", process_config_file.c_str());
+        exit(9);
+    }
+    parser::ParserJson process_config;
+    if (process_config.ParserJsonFile(process_config_file.c_str()) != parser::ParserRet::SUCCESS) {
+        MESSAGE_FATAL("Parser process config file [%s] error.", process_config_file.c_str());
+        exit(9);
+    }
+
+    //3.Initlize mempool.
+    parser::ParserJsonObject mempool_obj = process_config.find("/mempool");
+
+    //4.Initlize message handler.
+    if (process_info->GetProcessRole().HasRole(process::ProcessRole::PoolWorker)) {
+        if (!file_describe) {
+            MESSAGE_FATAL("Process run as pool worker need file describe communition with pool keeper.");
+            exit(9);
+        } else {
+
+        }
+    } else {
+        parser::ParserJsonObject ipc_obj = process_config.find("/ipc");
+        int size;
+        ipc_obj["size"].getInt(&size);
+        printf("%d\n",size);
+    }
+
 
     std::cout<<process_config_file<<std::endl;
 
     message::MessageDeamon deamon;
     deamon.Run();
+
     return 0;
 }

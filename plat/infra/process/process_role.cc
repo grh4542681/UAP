@@ -145,4 +145,9 @@ ProcessRole& ProcessRole::AddRole(unsigned int role)
     return *this;
 }
 
+bool ProcessRole::HasRole(unsigned int role)
+{
+    return (role_ & role) ? true : false;
+}
+
 }
