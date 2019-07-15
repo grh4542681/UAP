@@ -1,6 +1,8 @@
 #ifndef __MESSAGE_AGENT_H__
 #define __MESSAGE_AGENT_H__
 
+#include "message_process_endpoint.h"
+
 namespace message {
 
 class MessageAgent {
@@ -10,15 +12,25 @@ public:
     }MessageAgentConfig;
 
 public:
-    MessageAgent(MessageAgentConfig& config);
+    MessageAgent(MessageAgentConfig& config, MessageProcessEndpoint& pep);
     ~MessageAgent();
 
-    MessageRet AddItem();
-    MessageRet DelItem();
+    MessageRet RegisterAgent();
+    MessageRet UnregisterAgent();
+
+    MessageRet RegisterEP(MessageEndpoint& ep);
+    MessageRet UnregisterEP(MessageEndpoint& ep);
+
+    MessageRet AddFD();
+    MessageRet DelFD();
+
+    void Run();
 
 private:
-    void _message_listen_handler();
-    void _fd_listen_handler();
+    void _run();
+
+    MessageProcessEndpoint pep_;
+    std::map<std::string, MessageEndpoint> tep_map_;
 
 };
 

@@ -1,4 +1,5 @@
-SET(LIBGRHTHREAD_SRC thread_info.cc
+SET(LIBGRHTHREAD_SRC thread_id.cc
+                     thread_info.cc
                      mutex/thread_mutex_lock.cc
                      mutex/thread_rw_lock.cc 
                      signal/thread_signal_ctrl.cc
