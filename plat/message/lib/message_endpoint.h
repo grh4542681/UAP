@@ -3,6 +3,8 @@
 
 #include "thread_id.h"
 
+#include "message_return.h"
+
 #define MESSAGE_EP_NAME_MAXLEN (128 + 1)
 
 namespace message {
@@ -20,8 +22,7 @@ public:
 
     MessageRet Search();
 private:
-    std::string name_;
-    MessageProcessEndpoint pep_;
+    MessageEndpointInfo ep_info_;
 };
 
 }

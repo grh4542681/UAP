@@ -1,39 +1,35 @@
 #ifndef __MESSAGE_AGENT_H__
 #define __MESSAGE_AGENT_H__
 
+#include <map>
+
 #include "io_fd.h"
-#include "message_process_endpoint.h"
+#include "message_endpoint.h"
+#include "message_agent_endpoint.h"
 #include "message_handle.h"
 
 namespace message {
 
 class MessageAgent {
 public:
-    typedef struct _MessageAgentConfig {
-        size_t cache_size;
-    }MessageAgentConfig;
-
-public:
-    MessageAgent(MessageAgentConfig& config, MessageProcessEndpoint& pep);
+    MessageAgent();
     ~MessageAgent();
 
     MessageRet RegisterAgent();
     MessageRet UnregisterAgent();
 
-    MessageRet RegisterEP(MessageEndpoint& ep);
-    MessageRet UnregisterEP(MessageEndpoint& ep);
+    MessageRet RegisterEP(std::string, MessageEndpoint& ep);
+    MessageRet UnregisterEP(std::string, MessageEndpoint& ep);
 
-    MessageRet AddHandle(std::string name, io::FD& fd);
-    MessageRet DelHandle(std::string name);
-    MessageHandle GetHandle(std::string name);
+    MessageRet AddAgentEP(std::string name, io::FD& fd);
+    MessageRet DelAgentEP(std::string name);
 
     void Run();
 
 private:
     void _run();
 
-    MessageProcessEndpoint pep_;
-    std::map<std::string, MessageEndpoint> tep_map_;
+    std::map<std::string, MessageAgentEndpoint> agent_ep_map_;
 
 };
 
