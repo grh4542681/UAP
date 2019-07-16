@@ -1,6 +1,8 @@
 #ifndef __MESSAGE_ENDPOINT_H__
 #define __MESSAGE_ENDPOINT_H__
 
+#include "thread_id.h"
+
 #define MESSAGE_EP_NAME_MAXLEN (128 + 1)
 
 namespace message {

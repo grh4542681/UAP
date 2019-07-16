@@ -9,21 +9,21 @@
 
 #include "thread_info.h"
 
-namespace thread::single {
+namespace thread {
 
-class ThreadSingleRet {
+class ThreadTemplateRet {
 
 };
 
-template < typename F, typename R = ThreadSingleRet >
-class ThreadSingle {
+template < typename F, typename R = ThreadTemplateRet >
+class ThreadTemplate {
 public:
-    ThreadSingle(F func) {
+    ThreadTemplate(F func) {
         running_flag_= false;
         func_ = func;
     }
 
-    ~ThreadSingle() {
+    ~ThreadTemplate() {
 
     }
 
@@ -36,7 +36,7 @@ public:
         if (running_flag_) {
             return ThreadRet::THREAD_ERUNNING;
         }
-        thread_ = std::thread(&ThreadSingle::_run_main<Args ...>, this, std::forward<Args>(args)...);
+        thread_ = std::thread(&ThreadTemplate::_run_main<Args ...>, this, std::forward<Args>(args)...);
         running_flag_ = true;
         return ThreadRet::SUCCESS;
     }
@@ -73,14 +73,14 @@ private:
 };
 
 template < typename F >
-class ThreadSingle <F, ThreadSingleRet> {
+class ThreadTemplate <F, ThreadTemplateRet> {
 public:
-    ThreadSingle(F func) {
+    ThreadTemplate(F func) {
         running_flag_= false;
         func_ = func;
     }
 
-    ~ThreadSingle() {
+    ~ThreadTemplate() {
 
     }
 
@@ -93,7 +93,7 @@ public:
         if (running_flag_) {
             return ThreadRet::THREAD_ERUNNING;
         }
-        thread_ = std::thread(&ThreadSingle::_run_main<Args ...>, this, std::forward<Args>(args)...);
+        thread_ = std::thread(&ThreadTemplate::_run_main<Args ...>, this, std::forward<Args>(args)...);
         running_flag_ = true;
         return ThreadRet::SUCCESS;
     }

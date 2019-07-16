@@ -1,5 +1,7 @@
 #include "message_deamon.h"
 
+extern parser::ParserJson process_config;
+
 namespace message {
 
 MessageDeamon::MessageDeamon()

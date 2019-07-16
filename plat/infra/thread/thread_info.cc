@@ -2,9 +2,10 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#include "process_info.h"
+
 #include "thread_log.h"
 #include "thread_info.h"
-#include "process_info.h"
 
 #define MAX_THREAD_NAME_LEN (1024)
 
@@ -14,10 +15,10 @@ thread_local ThreadInfo* ThreadInfo::pInstance = NULL;
 
 ThreadInfo::ThreadInfo()
 {
-    tid_ = (pid_t)syscall(__NR_gettid);
+    tid_ = ThreadID((pid_t)syscall(__NR_gettid));
     char name[MAX_THREAD_NAME_LEN];
     memset(name, 0x00, sizeof(name));
-    sprintf(name, "_%d", tid_);
+    sprintf(name, "_%d", tid_.GetID());
     thread_name_.assign(name);
 }
 
@@ -42,7 +43,7 @@ void ThreadInfo::freeInstance()
     }
 }
 
-pid_t ThreadInfo::GetTid()
+ThreadID& ThreadInfo::GetTid()
 {
     return tid_;
 }
@@ -53,7 +54,7 @@ void ThreadInfo::SetThreadName(const char* name)
         return;
     char cname[MAX_THREAD_NAME_LEN];
     memset(cname, 0x00, sizeof(cname));
-    sprintf(cname, "%s_%d", name, tid_);
+    sprintf(cname, "%s_%d", name, tid_.GetID());
     thread_name_.assign(cname);
 }
 

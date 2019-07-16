@@ -11,6 +11,7 @@
 #include "file.h"
 #include "report.h"
 #include "mempool.h"
+#include "thread_id.h"
 #include "thread_info.h"
 #include "mutex/thread_rw_lock.h"
 #include "socket/sock_pair.h"
@@ -56,7 +57,7 @@ public:
     ProcessInfo& SetCmdLine(char** raw_cmdline, unsigned int raw_cmdline_size);
 
     ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
-    ProcessRet DelThreadInfo(pid_t tid);
+    ProcessRet DelThreadInfo(thread::ThreadID& tid);
 
     ProcessRet AddParentProcess(ProcessParent& parent);
     ProcessRet AddParentProcess(ProcessParent&& parent);
@@ -109,7 +110,7 @@ private:
 
     // thread info
     thread::mutex::ThreadRWLock thread_info_rw_lock_;       ///< Mutex lock of thread map.
-    std::map<pid_t, thread::ThreadInfo*> thread_info_map_;  ///< Map of all thread in this process.
+    std::map<thread::ThreadID, thread::ThreadInfo*> thread_info_map_;  ///< Map of all thread in this process.
 
     static ProcessInfo* pInstance;
 public:

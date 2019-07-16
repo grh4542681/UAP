@@ -4,7 +4,7 @@
 namespace message {
 
 enum class MessageEndpointStatus : int {
-    Unknow = 0;
+    Unknow = 0,
     Ready,
     Listen,
     Close,

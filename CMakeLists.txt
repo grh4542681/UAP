@@ -41,7 +41,13 @@ SET (PLAT_INFRA_HRD "${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
 
 SET (PLAT_MESSAGE_HRD "${FRAM_ROOT_PATH}/plat/message"
                       "${FRAM_ROOT_PATH}/plat/message/lib"
+                      "${FRAM_ROOT_PATH}/plat/nameserver"
+                      "${FRAM_ROOT_PATH}/plat/nameserver/lib"
                       )
+
+SET (PLAT_NS_HRD "${FRAM_ROOT_PATH}/plat/nameserver"
+                 "${FRAM_ROOT_PATH}/plat/nameserver/lib"
+                 )
 
 SET (COMMON_OS_LIB librt.so
                    libpthread.so

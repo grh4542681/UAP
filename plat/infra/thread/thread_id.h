@@ -1,7 +1,7 @@
 #ifndef __THREAD_ID_H__
 #define __THREAD_ID_H__
 
-#include <pthread.h>
+#include <sys/types.h>
 #include <iostream>
 
 namespace thread {
@@ -10,7 +10,7 @@ class ThreadID {
 public:
     friend std::ostream & operator<<(std::ostream &out, ThreadID& tid);
 public:
-    typedef pthread_t ThreadID_t;
+    typedef pid_t ThreadID_t;
 public:
     ThreadID();
     ThreadID(ThreadID_t tid);

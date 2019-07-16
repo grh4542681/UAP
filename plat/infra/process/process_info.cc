@@ -264,8 +264,8 @@ ProcessRet ProcessInfo::AddThreadInfo(thread::ThreadInfo* thread_info)
         thread_info_rw_lock_.UnLock();
         return ProcessRet::PROCESS_ETHREADDUP;
     }
-    std::pair<std::map<pid_t, thread::ThreadInfo*>::iterator, bool> ret;
-    ret = thread_info_map_.insert(std::pair<pid_t, thread::ThreadInfo*>(thread_info->GetTid(), thread_info));
+    std::pair<std::map<thread::ThreadID, thread::ThreadInfo*>::iterator, bool> ret;
+    ret = thread_info_map_.insert(std::pair<thread::ThreadID, thread::ThreadInfo*>(thread_info->GetTid(), thread_info));
     if (ret.second==false) {
         thread_info_rw_lock_.UnLock();
         return ProcessRet::PROCESS_ETHREADADD;
@@ -274,7 +274,7 @@ ProcessRet ProcessInfo::AddThreadInfo(thread::ThreadInfo* thread_info)
     return ProcessRet::SUCCESS;
 }
 
-ProcessRet ProcessInfo::DelThreadInfo(pid_t tid)
+ProcessRet ProcessInfo::DelThreadInfo(thread::ThreadID& tid)
 {
     thread_info_rw_lock_.WLock(NULL);
     thread_info_map_.erase(tid);
@@ -285,9 +285,9 @@ ProcessRet ProcessInfo::DelThreadInfo(pid_t tid)
 void ProcessInfo::Report(file::File& fd, report::ReportMode mode)
 {
     thread_info_rw_lock_.RLock(NULL);
-    fd.WriteFmt("pid:%u threadnum:%d processnum:%d\n", pid_, thread_info_map_.size(), child_.size());
+    fd.WriteFmt("pid:%u threadnum:%d processnum:%d\n", pid_.GetID(), thread_info_map_.size(), child_.size());
     for (auto it : thread_info_map_) {
-        fd.WriteFmt("\ttid:%d\n", it.first);
+        fd.WriteFmt("\ttid:%d\n", it.first.GetID());
     }
     thread_info_rw_lock_.UnLock();
 }

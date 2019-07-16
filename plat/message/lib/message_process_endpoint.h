@@ -4,7 +4,8 @@
 #include "process_id.h"
 
 #include "message_return.h"
-#include "message_thread_endpoint.h"
+#include "message_endpoint_type.h"
+#include "message_endpoint_status.h"
 
 namespace message {
 
@@ -18,9 +19,6 @@ public:
 
 private:
     char name_[128] = { 0 };
-    util::ip::Ipv4 ip4_;
-    util::ip::Ipv6 ip6_;
-    util::ip::Mac mac_;
 
     MessageEndpointType scope_;
     MessageEndpointType type_;

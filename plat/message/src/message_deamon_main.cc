@@ -12,6 +12,8 @@
 #include "message_log.h"
 #include "message_deamon.h"
 
+static parser::ParserJson process_config;
+
 int main(int argc, char** argv)
 {
     //command line arguments
@@ -86,7 +88,6 @@ int main(int argc, char** argv)
         MESSAGE_FATAL("Con't access process config file [%s].", process_config_file.c_str());
         exit(9);
     }
-    parser::ParserJson process_config;
     if (process_config.ParserJsonFile(process_config_file.c_str()) != parser::ParserRet::SUCCESS) {
         MESSAGE_FATAL("Parser process config file [%s] error.", process_config_file.c_str());
         exit(9);

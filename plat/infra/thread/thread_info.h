@@ -5,6 +5,7 @@
 #include <string>
 
 #include "thread_return.h"
+#include "thread_id.h"
 
 namespace thread {
 
@@ -13,7 +14,7 @@ public:
     static ThreadInfo* getInstance();
     static void freeInstance();
 
-    pid_t GetTid();
+    ThreadID& GetTid();
     std::string& GetThreadName();
     void SetThreadName(const char* name);
 
@@ -24,7 +25,7 @@ private:
     ThreadInfo();
     ~ThreadInfo();
 
-    pid_t tid_;
+    ThreadID tid_;
     std::string thread_name_;
 
     thread_local static ThreadInfo* pInstance;

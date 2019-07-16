@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include "thread_info.h"
-#include "single/thread_single.h"
+#include "thread_template.h"
 
 #include "process_info.h"
 #include "file_c.h"
@@ -19,9 +19,9 @@ int main()
 {
     auto thread_type = test_thread;
 
-    thread::single::ThreadSingle thread1(test_thread);
-    thread::single::ThreadSingle<decltype(thread_type), int> thread2(test_thread);
-    thread::single::ThreadSingle<decltype(thread_type), int> thread3(test_thread);
+    thread::ThreadTemplate thread1(test_thread);
+    thread::ThreadTemplate<decltype(thread_type), int> thread2(test_thread);
+    thread::ThreadTemplate<decltype(thread_type), int> thread3(test_thread);
 
     process::ProcessInfo* p = process::ProcessInfo::getInstance();
     file::FileC fd(stdout);
