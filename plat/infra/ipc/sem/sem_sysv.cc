@@ -166,6 +166,7 @@ IpcRet SemSysV::_p(size_t sem_index, util::time::Time* overtime)
 
     ops.sem_num = sem_index;
     ops.sem_op = -1;
+    ops.sem_flg |= SEM_UNDO;
     if (nonblock_flag_) {
         ops.sem_flg |= IPC_NOWAIT;
         if (semop(semid_, &ops, 1) < 0) {

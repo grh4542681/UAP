@@ -4,13 +4,12 @@
 namespace message {
 
 enum class MessageEndpointType {
-    Public,
-    Private,
-    Local,
-    Remote,
-
     Socket,
     Fifo,
+    Event,
+    Timer,
+
+    MsgShm,
 };
 
 }

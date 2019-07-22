@@ -6,31 +6,29 @@
 #include "io_fd.h"
 #include "message_endpoint.h"
 #include "message_agent_endpoint.h"
+#include "message_listen_endpoint.h"
 #include "message_handle.h"
 
 namespace message {
 
 class MessageAgent {
 public:
-    MessageAgent();
+    MessageAgent(std::string name);
     ~MessageAgent();
-
-    MessageRet RegisterAgent();
-    MessageRet UnregisterAgent();
 
     MessageRet RegisterEP(std::string, MessageEndpoint& ep);
     MessageRet UnregisterEP(std::string, MessageEndpoint& ep);
 
-    MessageRet AddAgentEP(std::string name, io::FD& fd);
-    MessageRet DelAgentEP(std::string name);
+    MessageRet RegisterListenEP(std::string name, io::FD& fd);
+    MessageRet UnregisterListenEP(std::string name);
 
     void Run();
 
 private:
     void _run();
-
-    std::map<std::string, MessageAgentEndpoint> agent_ep_map_;
-
+    MessageRet _register();
+    MessageAgentEndpoint cep_;
+    std::map<std::string, MessageListenEndpoint> listen_ep_map_;
 };
 
 }

@@ -6,7 +6,8 @@
 #include "parser_json.h"
 
 #include "message_return.h"
-#include "message_process_endpoint.h"
+#include "message_agent_endpoint.h"
+#include "message_listen_endpoint.h"
 #include "message_endpoint.h"
 
 namespace message {
@@ -20,12 +21,13 @@ public:
 private:
     mempool::MemPool* mempool_;
 
-    std::map<std::string, MessageProcessEndpoint*> pep_map_;
-    std::map<MessageProcessEndpoint*, MessageEndpoint*> ep_map_;
-
-    MessageRet _register_self();
+    std::map<std::string, MessageAgentEndpoint*> cep_map_;
+    std::map<std::string, MessageListenEndpoint*> aep_map_;
+    std::map<std::string, MessageEndpoint*> ep_map_;
 
     MessageRet _run();
+    MessageRet _listen_thread();
+
 };
 
 }
