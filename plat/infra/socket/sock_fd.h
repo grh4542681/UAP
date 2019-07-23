@@ -16,7 +16,7 @@ namespace sock{
 /**
 * @brief - Socker file descriptor operator class.
 */
-class SockFD : public io::FD{
+class SockFD : public io::FD {
 public:
     friend class SockServer;
     friend class SockClient;
