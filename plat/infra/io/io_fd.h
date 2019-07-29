@@ -28,6 +28,14 @@ public:
         return true;
     }
 
+    int GetFD() {
+        if (init_flag_) {
+            return fd_;
+        } else {
+            return (-1);
+        }
+    }
+
     virtual FD* Clone() = 0;
     virtual void Close() = 0;
     virtual size_t Write(const void* data, size_t datalen) = 0;

@@ -11,6 +11,7 @@ ADD_SUBDIRECTORY(util)
 
 
 #ADD_SUBDIRECTORY(odp/test)
+ADD_SUBDIRECTORY(base/test)
 ADD_SUBDIRECTORY(file/test)
 ADD_SUBDIRECTORY(mempool/test)
 ADD_SUBDIRECTORY(ds/cpp/test)

@@ -96,20 +96,6 @@ SockRet SockFD::SetFD(unsigned int fd, bool auto_close)
     return SockRet::SUCCESS;
 }
 
-/**
-* @brief GetFD - Get file descriptor
-*
-* @returns  File descriptor
-*/
-unsigned int SockFD::GetFD()
-{
-    if (this->init_flag_) {
-        return this->fd_;
-    } else {
-        return (-1);
-    }
-}
-
 io::FD* SockFD::Clone() {
     return mempool_->Malloc<SockFD>(*this);
 }

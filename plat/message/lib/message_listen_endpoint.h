@@ -7,6 +7,7 @@
 #include "message_endpoint_type.h"
 #include "message_endpoint_role.h"
 #include "message_endpoint_status.h"
+#include "message_endpoint.h"
 
 namespace message {
 
