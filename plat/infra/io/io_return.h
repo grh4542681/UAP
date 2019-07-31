@@ -1,20 +1,15 @@
 #ifndef __IO_RETURN_H__
 #define __IO_RETURN_H__
 
+#include "return.h"
+
 namespace io {
 
-enum class IoRet: int {
+class IoRet : public ret::Return {
+public:
+    IoRet(int err_code) : ret::Return(err_code) { }
+    ~IoRet();
 
-//common return val
-    SUCCESS = 0x00,
-    ERROR,
-    EBADARGS,
-    EMALLOC,
-    EINIT,
-    ETIMEOUT,
-    ESUBCLASS,
-
-    EUNKOWNERRNO,
 };
 
 }

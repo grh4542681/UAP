@@ -1,0 +1,5 @@
+SET(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH}/test)
+
+SET(RETURN_TEST_SRC return_test.cc)
+ADD_EXECUTABLE(return_test ${RETURN_TEST_SRC})
+TARGET_LINK_LIBRARIES(return_test libgret.so)
