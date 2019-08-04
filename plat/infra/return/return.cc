@@ -2,7 +2,7 @@
 
 namespace ret {
 
-std::map<const int, const std::string> Return::ECodeMap = {
+Return::ECodeMapType Return::ECodeMap = {
      { ECode::UNKNOW, "Unknow error code." },
      { ECode::SUCCESS, "Success" },
      { ECode::ERROR, "Error." },
