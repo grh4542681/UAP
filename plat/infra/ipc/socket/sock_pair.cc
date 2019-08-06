@@ -36,7 +36,7 @@ IpcRet SockPair::Open()
 {
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, fds)) {
-        return IpcRet(IpcRet::FIFO_ESOCKPAIR);
+        return IpcRet::SOCK_EPAIR;
     }
 
     //fds_[0] = socklib::SockFD(fds[0]);
@@ -45,7 +45,7 @@ IpcRet SockPair::Open()
     fds_[1].SetFD(fds[1], false);
     init_flag_ = true;
 
-    return IpcRet(0);
+    return IpcRet::SUCCESS;
 }
 
 void SockPair::Close()

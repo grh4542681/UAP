@@ -1,60 +1,60 @@
 #ifndef __IPC_RETURN_H__
 #define __IPC_RETURN_H__
 
-namespace ipc{
+#include "return.h"
 
-enum class IpcRet: int {
-//common return val
-    SUCCESS = 0x00,
-    ERROR,
-    EBADARGS,
-    EMALLOC,
-    EINIT,
-    ETIMEOUT,
-    ESUBCLASS,
-    ECONSTRUCT,
+namespace ipc {
 
-    EUNKOWNERRNO,
+class IpcRet : public ret::Return {
+public:
+    enum ECode{
+        // socket return val
+        SOCK_EPAIR = IPC_ERROR_CODE_BASE,
 
-// fifo return val
-    FIFO_ESOCKPAIR,
+        // fifo return val
+        FIFO_ESOCKPAIR,
 
-// shm return val
-    SHM_EMODE,
-    SHM_ECREATED,
+        // shm return val
+        SHM_EMODE,
+        SHM_ECREATED,
 
-    SHM_EACCES,
-    SHM_EEXIST,
-    SHM_EINVAL,
-    SHM_ENFILE,
-    SHM_ENOENT,
-    SHM_ENOMEM,
-    SHM_ENOSPC,
-    SHM_EPERM,
+        // sem return val
+        SEM_EMODE,
+        SEM_ENOTFOUND,
 
-// sem return val
-    SEM_EMODE,
-    SEM_ENOTFOUND,
+        // sem rw lock
+        SEM_ELOCKED,
 
-    SEM_EEXIST,
-    SEM_EACCES,
-    SEM_EINVAL,
-    SEM_ENOENT,
-    SEM_ENOMEM,
-    SEM_ENOSPC,
-    SEM_ETIMEOUT,
+        // shm list return val
+        SL_ENOSPACE,
+        SL_EBITMAP,
 
-// sem rw lock
-    SEM_ELOCKED,
-
-// shm list return val
-    SL_ENOSPACE,
-    SL_EBITMAP,
-
-// msg shm return val
-    MSG_ENOSPACE,
+        // msg shm return val
+        MSG_ENOSPACE
+    };
+public:
+    static ECodeMapType ECodeMap;
+public:
+    IpcRet(int err_code = 0) : ret::Return(err_code) {
+        err_code_vec_.push_back(&IpcRet::ECodeMap);
+    }
+    IpcRet(IpcRet& other) : ret::Return(other) { }
+    ~IpcRet() { };
+public:
+    IpcRet& operator=(int err_code) {
+        Return::operator=(err_code);
+        return *this;
+    }   
+    IpcRet& operator=(IpcRet& ret) {
+        Return::operator=(ret);
+        return *this;
+    }   
+    IpcRet& operator=(IpcRet&& ret) {
+        Return::operator=(ret);
+        return *this;
+    }
 };
 
-} // namespace ipc
+}
 
 #endif

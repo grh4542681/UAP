@@ -82,26 +82,6 @@ private:
     int fd_;    ///< Share memory file descriptor.
 
     ShmPosix(const ShmPosix& other);
-
-    static IpcRet _errno2ret(int ierrno)
-    {   
-        switch (ierrno) {
-            case 0:
-                return IpcRet::SUCCESS;
-            default:
-                return IpcRet::EUNKOWNERRNO;
-        }   
-    }   
-
-    static int _ret2errno(IpcRet ret)
-    {   
-        switch (ret) {
-            case IpcRet::SUCCESS:
-            default:
-                return (-1);
-        }   
-    }
-    
 };
 
 }//namespace ipc end

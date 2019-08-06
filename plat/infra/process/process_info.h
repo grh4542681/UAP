@@ -113,34 +113,6 @@ private:
     std::map<thread::ThreadID, thread::ThreadInfo*> thread_info_map_;  ///< Map of all thread in this process.
 
     static ProcessInfo* pInstance;
-public:
-    static ProcessRet _error2ret(int ierrno) {
-        switch (ierrno) {
-            case 0:
-                return ProcessRet::SUCCESS;
-            case EACCES:
-                return ProcessRet::PROCESS_EACCES;
-            case EFAULT:
-                return ProcessRet::PROCESS_EFAULT;
-            case EINVAL:
-                return ProcessRet::PROCESS_EINVAL;
-            case EIO:
-                return ProcessRet::PROCESS_EIO;
-            case ELOOP:
-                return ProcessRet::PROCESS_ELOOP;
-            case ENAMETOOLONG:
-                return ProcessRet::PROCESS_ENAMETOOLONG;
-            case ENOENT:
-                return ProcessRet::PROCESS_ENOENT;
-            case ENOMEM:
-                return ProcessRet::PROCESS_ENOMEM;
-            case ENOTDIR:
-                return ProcessRet::PROCESS_ENOTDIR;
-            default:
-                PROCESS_ERROR("Unknow errno[%d]", ierrno);
-                return ProcessRet::EUNKOWNERRNO;
-        }
-    }
 };
 
 };

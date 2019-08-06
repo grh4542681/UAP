@@ -63,7 +63,7 @@ IpcRet SemPosix::Create(size_t semnum, mode_t mode)
         if (psem == SEM_FAILED) {
             int tmperrno = errno;
             IPC_ERROR("Create posix semaphore set [%s] index[%ld] failed, errno[%s]", path_.c_str(), loop, strerror(tmperrno));
-            return _errno2ret(tmperrno);
+            return tmperrno;
         }
         semset_.insert_or_assign(real_name, psem);
     }
@@ -84,7 +84,7 @@ IpcRet SemPosix::Destroy()
                 break;
             } else {
                 IPC_ERROR("Destroy posix semaphore set [%s] realpath[%s] failed, errno[%s]", path_.c_str(), real_name.c_str(), strerror(tmperrno));
-                return _errno2ret(tmperrno);
+                return tmperrno;
             }
         }
         semnum++;
@@ -121,7 +121,7 @@ IpcRet SemPosix::Open(IpcMode mode)
         if (psem == SEM_FAILED) {
             int tmperrno = errno;
             if (semindex == 0) {
-                return _errno2ret(tmperrno);
+                return tmperrno;
             } else {
                 break;
             }
@@ -169,14 +169,14 @@ IpcRet SemPosix::_p(size_t sem_index, util::time::Time* overtime)
         if (sem_trywait(it->second) < 0) {
             tmperrno = errno;
             IPC_ERROR("Semaphore set [%s] index [%ld] P operator failed, errno[%s]", path_.c_str(), sem_index, strerror(tmperrno));
-            return _errno2ret(tmperrno);
+            return tmperrno;
         }
     } else {
         if (!overtime) {
             if (sem_wait(it->second) < 0) {
                 tmperrno = errno;
                 IPC_ERROR("Semaphore set [%s] index [%ld] P operator failed, errno[%s]", path_.c_str(), sem_index, strerror(tmperrno));
-                return _errno2ret(tmperrno);
+                return tmperrno;
             }
         } else {
             if (!overtime->IsPositive()) {
@@ -200,7 +200,7 @@ IpcRet SemPosix::_p(size_t sem_index, util::time::Time* overtime)
                         curr_time = util::time::NowC();
                     } else {
                         IPC_ERROR("Semaphore set [%s] index [%ld] P operator failed, errno[%s]", path_.c_str(), sem_index, strerror(tmperrno));
-                        return _errno2ret(tmperrno);
+                        return tmperrno;
                     }
                 } else {
                     curr_time = util::time::NowC();
@@ -235,7 +235,7 @@ IpcRet SemPosix::_v(size_t sem_index)
     if (sem_post(it->second) < 0) {
         tmperrno = errno;
         IPC_ERROR("Semaphore set [%s] index [%ld] P operator failed, errno[%s]", path_.c_str(), sem_index, strerror(tmperrno));
-        return _errno2ret(tmperrno);
+        return tmperrno;
     }
     return IpcRet::SUCCESS;
 }

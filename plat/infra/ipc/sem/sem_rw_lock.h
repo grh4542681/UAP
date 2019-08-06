@@ -72,7 +72,7 @@ public:
         }
         ret = sem_->Create(3, mode);
         if (ret != IpcRet::SUCCESS) {
-            IPC_ERROR("Create sem[%s] failed in RWLock, ret[%d]", sem_path_.c_str(), static_cast<int>(ret));
+            IPC_ERROR("Create sem[%s] failed in RWLock, ret[%d][%s]", sem_path_.c_str(), ret.Code(), ret.Message().c_str());
             return ret;
         }
 
@@ -83,7 +83,7 @@ public:
         }
         ret = shm_->Create(sizeof(struct SemRWLockInfo)+200, mode);
         if (ret != IpcRet::SUCCESS) {
-            IPC_ERROR("Create shm[%s] failed in RWLock, ret[%d]", shm_path_.c_str(), static_cast<int>(ret));
+            IPC_ERROR("Create shm[%s] failed in RWLock, ret[%d][%s]", shm_path_.c_str(), ret.Code(), ret.Message().c_str());
             return ret;
         }
         shm_->Open(IpcMode::READ_WRITE);
@@ -113,7 +113,7 @@ public:
             ret = sem.Destroy();
         }
         if (ret != IpcRet::SUCCESS) {
-            IPC_ERROR("Destroy sem[%s] failed in RWLock, ret[%d]", sem_path_.c_str(), static_cast<int>(ret));
+            IPC_ERROR("Destroy sem[%s] failed in RWLock, ret[%d][%s]", sem_path_.c_str(), ret.Code(), ret.Message().c_str());
             return ret;
         }
 
@@ -125,7 +125,7 @@ public:
             ret = shm.Destroy();
         }
         if (ret != IpcRet::SUCCESS) {
-            IPC_ERROR("Destroy shm[%s] failed in RWLock, ret[%d]", shm_path_.c_str(), static_cast<int>(ret));
+            IPC_ERROR("Destroy shm[%s] failed in RWLock, ret[%d][%s]", shm_path_.c_str(), ret.Code(), ret.Message().c_str());
             return ret;
         }
         return ret;

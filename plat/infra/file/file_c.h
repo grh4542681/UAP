@@ -41,35 +41,6 @@ private:
     int fd_;
     FILE* ffd_;
     FileState state_;
-
-public:
-    static FileRet _error2ret(int ierrno) {
-        switch (ierrno) {
-            case 0:
-                return FileRet::SUCCESS;
-            case EACCES:
-                return FileRet::FILE_EACCES;
-            case EFAULT:
-                return FileRet::FILE_EFAULT;
-            case EINVAL:
-                return FileRet::FILE_EINVAL;
-            case EIO:
-                return FileRet::FILE_EIO;
-            case ELOOP:
-                return FileRet::FILE_ELOOP;
-            case ENAMETOOLONG:
-                return FileRet::FILE_ENAMETOOLONG;
-            case ENOENT:
-                return FileRet::FILE_ENOENT;
-            case ENOMEM:
-                return FileRet::FILE_ENOMEM;
-            case ENOTDIR:
-                return FileRet::FILE_ENOTDIR;
-            default:
-                FILE_ERROR("Unknow errno[%d]", ierrno);
-                return FileRet::EUNKOWNERRNO;
-        }
-    }
 };
 
 }//namespcae file end

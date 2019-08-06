@@ -9,14 +9,14 @@ int main()
 {
     ipc::msg::MsgShm ms("msgshm_test");
     ipc::IpcRet ret = ms.Open(ipc::IpcMode::READ_WRITE);
-            printf("%d\n",ret);
+            printf("%d\n",ret.Code());
     char data[1024];
 
     while(1) {
         memset(data,0x00, sizeof(data));
         size_t ret = ms.Recv(data,sizeof(data),NULL);
         if (!ret) {
-            printf("%d\n",(int)ms.GetRet());
+            printf("%d\n",(int)ms.GetRet().Code());
         }
         printf("--------------\n");
         

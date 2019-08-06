@@ -57,13 +57,14 @@ SET (COMMON_OS_LIB librt.so
 
 SET (PLAT_LIB libgmsg.so
               )
-SET (PLAT_INFRA_LIB libgipc.so
+SET (PLAT_INFRA_LIB libgret.so
+                    libgipc.so
+                    libgret.so
                     libgmp.so
                     libgparser.so
                     libgthread.so
                     libgprocess.so
                     libgfile.so
-                    libgrm.so
                     libgsocket.so
                     libgutil.so
                     )

@@ -99,7 +99,7 @@ FileRet FileC::Open(unsigned int mode)
         state_ = FileState::INTEROPENED;
         return FileRet::SUCCESS;        
     } else {
-        return FileRet::ESTATE;
+        return FileRet::FILE_ESTATE;
     }
 }
 
@@ -145,7 +145,7 @@ FileRet FileC::GetFileName(int fd, std::string& ofilename)
     if (readlink(buf, filename, sizeof(filename)-1) < 0) {
         int tmperrno = errno;
         FILE_ERROR("Get file name from file descriptor error");
-        return _error2ret(tmperrno);
+        return tmperrno;
     }
     ofilename = std::string(filename);
     return FileRet::SUCCESS;

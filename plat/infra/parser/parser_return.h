@@ -11,30 +11,47 @@
 #ifndef __PARSER_RETURN_H__
 #define __PARSER_RETURN_H__
 
+#include "return.h"
+
 namespace parser{
 
 /**
 * @brief - Parser return value.
 */
-typedef enum class _ParserRet: int {
-//common return val
-    SUCCESS = 0x00, ///< success.
-    ERROR,          ///< error.
-    EMALLOC,        ///< malloc error.
-    EINIT,          ///< init check error.
-    ETIMEOUT,       ///< time out.
-    EBADARGS,       ///< bad arguments.
-    ENOTFOUND,      ///< not found.
-    ELOCK,          ///< lock error.
-    EGETRLOCK,      ///< get read lock error.
-    EGETWLOCK,      ///< get write lock error.
-    EUNLOCK,        ///< release lock error.
-    EMAHTYPE,       ///< field type not match.
+class ParserRet : public ret::Return {
+public:
+    enum ECode{
+        PARSER_EBASE = PARSER_ERROR_CODE_BASE,
+        PARSER_ENOTFOUND,
+        PARSER_ELOCK,
+        PARSER_EGETRLOCK,
+        PARSER_EGETWLOCK,
+        PARSER_EUNLOCK,
+        PARSER_ETYPE,
+    };
+public:
+    static ECodeMapType ECodeMap;
+public:
+    ParserRet(int err_code = 0) : ret::Return(err_code) {
+        err_code_vec_.push_back(&ParserRet::ECodeMap);
+    }
+    ParserRet(ParserRet& other) : ret::Return(other) { }
+    ~ParserRet() { };
+public:
+    ParserRet& operator=(const int err_code) {
+        Return::operator=(err_code);
+        return *this;
+    }   
+    ParserRet& operator=(const ParserRet& ret) {
+        Return::operator=(ret);
+        return *this;
+    }   
+    ParserRet& operator=(const ParserRet&& ret) {
+        Return::operator=(ret);
+        return *this;
+    }
+};
 
-    EUNKOWNERRNO,   ///< unknow error.
-
-} ParserRet;
-
-} // namespace parser
+}
 
 #endif

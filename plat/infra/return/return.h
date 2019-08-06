@@ -18,28 +18,36 @@ public:
     enum ECode{
         UNKNOW = -2,
         ERROR = -1,
-        SUCCESS = 0,
 
-        EBADARGS = PUBLIC_ERROR_CODE_BASE,
+        EBADARGS   = PUBLIC_ERROR_CODE_BASE,
+        EMALLOC    = PUBLIC_ERROR_CODE_BASE + 1,
+        EINIT      = PUBLIC_ERROR_CODE_BASE + 2,
+        ETIMEOUT   = PUBLIC_ERROR_CODE_BASE + 3,
+        ESUBCLASS  = PUBLIC_ERROR_CODE_BASE + 4,
+        ECONSTRUCT = PUBLIC_ERROR_CODE_BASE + 5,
     };
 public:
+    const static int SUCCESS = 0;
     static ECodeMapType ECodeMap;
 public:
     Return(int err_code) : err_code_(err_code) {
         err_code_vec_.push_back(&Return::ECodeMap);
     }
+    Return(Return& other) {
+        err_code_ = other.err_code_;
+    }
     virtual ~Return() { }
 
-    virtual int Code() {
+    virtual int Code() const {
         return err_code_;
     }
 
     virtual const std::string Message() {
         std::string emgs = "";
-        if (err_code_ > 0 && err_code_ < ERROR_CODE_BASE) {
+        if (err_code_ >= 0 && err_code_ < ERROR_CODE_BASE) {
             emgs.assign(strerror(err_code_));
         } else {
-                for (auto vit : err_code_vec_ ) {
+            for (auto vit : err_code_vec_ ) {
                 auto it = vit->find(err_code_);
                 if (it != vit->end()) {
                     emgs = it->second;
@@ -47,6 +55,40 @@ public:
             }
         }
         return emgs;
+    }
+
+public:
+    Return& operator=(const int err_code) {
+        err_code_ = err_code;
+        return *this;
+    }
+    Return& operator=(const Return& ret) {
+        err_code_ = ret.Code();
+        return *this;
+    }
+    Return& operator=(const Return&& ret) {
+        err_code_ = ret.Code();
+        return *this;
+    }
+    
+    bool operator==(int err_code) {
+        return (err_code_ == err_code);
+    }
+    bool operator==(Return& ret) {
+        return (err_code_ == ret.Code());
+    }
+    bool operator==(Return&& ret) {
+        return (err_code_ == ret.Code());
+    }
+
+    bool operator!=(int err_code) {
+        return (err_code_ != err_code);
+    }
+    bool operator!=(Return& ret) {
+        return (err_code_ != ret.Code());
+    }
+    bool operator!=(Return&& ret) {
+        return (err_code_ != ret.Code());
     }
 
 protected:

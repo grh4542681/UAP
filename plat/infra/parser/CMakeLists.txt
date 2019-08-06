@@ -1,4 +1,4 @@
-SET(LIBGRHPARSER_SRC parser_ini.cc parser_json.cc)
+SET(LIBGRHPARSER_SRC parser_return.cc parser_ini.cc parser_json.cc)
 ADD_LIBRARY(GRHparser_SO SHARED ${LIBGRHPARSER_SRC})
 ADD_LIBRARY(GRHparser_A STATIC ${LIBGRHPARSER_SRC})
 INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/3pp")

@@ -53,13 +53,13 @@ IpcRet ShmPosix::Create(size_t size, mode_t mode)
     if (fd_ < 0) {
         int tmp_errno = errno;
         IPC_ERROR("Create posix share memory error [%s]", strerror(tmp_errno));
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     if (ftruncate(fd_, size) < 0) {
         int tmp_errno = errno;
         close(fd_);
         fd_ = -1;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
 
     struct stat mstat;
@@ -68,7 +68,7 @@ IpcRet ShmPosix::Create(size_t size, mode_t mode)
         int tmp_errno = errno;
         close(fd_);
         fd_ = -1;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     size_ = mstat.st_size;
 
@@ -82,7 +82,7 @@ IpcRet ShmPosix::Destroy()
 {
     if (shm_unlink(path_.c_str()) < 0) {
         int tmp_errno = errno;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     status_ = ShmStatus::DESTROY;
     return IpcRet::SUCCESS;
@@ -107,7 +107,7 @@ IpcRet ShmPosix::Open(IpcMode mode)
         if (fd_ < 0) {
             int tmp_errno = errno;
             IPC_ERROR("Open posix share memory file error [%s]", strerror(tmp_errno));
-            return _errno2ret(tmp_errno);
+            return tmp_errno;
         }
     }
 
@@ -117,7 +117,7 @@ IpcRet ShmPosix::Open(IpcMode mode)
         int tmp_errno = errno;
         close(fd_);
         fd_ = -1;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     size_ = mstat.st_size;
 
@@ -128,7 +128,7 @@ IpcRet ShmPosix::Open(IpcMode mode)
         head_ = NULL;
         close(fd_);
         fd_ = -1;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
 
     close(fd_);
@@ -144,7 +144,7 @@ IpcRet ShmPosix::Close()
     }
     if (munmap(head_, size_) < 0 ) {
         int tmp_errno = errno;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     head_ = NULL;
     status_ = ShmStatus::CLOSE;
@@ -158,7 +158,7 @@ IpcRet ShmPosix::Sync()
     }
     if (msync(head_, size_, MS_SYNC) < 0) {
         int tmp_errno = errno;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     return IpcRet::SUCCESS;
 }

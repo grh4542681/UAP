@@ -1,4 +1,5 @@
 SET(LIBGRHIPC_SRC ipc_mode.cc
+                  ipc_return.cc
                   shm/shm_sysv.cc
                   shm/shm_posix.cc
                   sem/sem_sysv.cc

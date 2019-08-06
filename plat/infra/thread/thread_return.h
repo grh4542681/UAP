@@ -11,32 +11,49 @@
 #ifndef __THREAD_RETURN_H__
 #define __THREAD_RETURN_H__
 
-#include <errno.h>
+#include "return.h"
 
 namespace thread{
 
-enum class ThreadRet: int {
-//common return val
-    SUCCESS = 0,    ///< sucess.
-    ERROR = -999,   ///< error.
-    EMALLOC,        ///< malloc error.
-    EINIT,          ///< check init error.
-    EBADARGS,       ///< bad arguments.
-    ETIMEOUT,       ///< time out.
-    EUNKOWNERRNO,   ///< unknow error.
+class ThreadRet : public ret::Return {
+public:
+    enum ECode{
+        THREAD_EBASE = THREAD_ERROR_CODE_BASE,
 
-//thread info
-    THREAD_EREGISTER,
-    THREAD_EUNREGISTER,
+    //thread info
+        THREAD_EREGISTER,
+        THREAD_EUNREGISTER,
 
-//thread single
-    THREAD_ERUNNING,
+    //thread single
+        THREAD_ERUNNING,
 
-//thread signal
-    THREAD_ESIGNALMASKTYPE,
-    THREAD_ESIGNALMASK,
+    //thread signal
+        THREAD_ESIGNALMASKTYPE,
+        THREAD_ESIGNALMASK,
+    };
+public:
+    static ECodeMapType ECodeMap;
+public:
+    ThreadRet(int err_code = 0) : ret::Return(err_code) {
+        err_code_vec_.push_back(&ThreadRet::ECodeMap);
+    }
+    ThreadRet(ThreadRet& other) : ret::Return(other) { }
+    ~ThreadRet() { };
+public:
+    ThreadRet& operator=(const int err_code) {
+        Return::operator=(err_code);
+        return *this;
+    }   
+    ThreadRet& operator=(const ThreadRet& ret) {
+        Return::operator=(ret);
+        return *this;
+    }   
+    ThreadRet& operator=(const ThreadRet&& ret) {
+        Return::operator=(ret);
+        return *this;
+    }
 };
 
-} // namespace THREAD
+}
 
 #endif

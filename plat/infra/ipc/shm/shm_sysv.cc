@@ -52,13 +52,13 @@ IpcRet ShmSysV::Create(size_t size, mode_t mode)
     if (shmid_ < 0) {
         int tmp_errno = errno;
         IPC_ERROR("Create sysv share memory error [%s]", strerror(tmp_errno));
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     struct shmid_ds shm_info;
     memset(&shm_info, 0, sizeof(struct shmid_ds));
     if (shmctl(shmid_, IPC_INFO, &shm_info) < 0) {
         int tmp_errno = errno;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     size_ = shm_info.shm_segsz;
     status_ = ShmStatus::OPEN;
@@ -71,12 +71,12 @@ IpcRet ShmSysV::Destroy()
         shmid_ = shmget(key_, 0, 0);
         if (shmid_ < 0) {
             int tmp_errno = errno;
-            return _errno2ret(tmp_errno);
+            return tmp_errno;
         }
     }
     if (shmctl(shmid_, IPC_RMID, NULL) < 0) {
         int tmp_errno = errno;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     status_ = ShmStatus::DESTROY;
     return IpcRet::SUCCESS;
@@ -91,14 +91,14 @@ IpcRet ShmSysV::Open(IpcMode mode)
         shmid_ = shmget(key_, 0, 0);
         if (shmid_ < 0) {
             int tmp_errno = errno;
-            return _errno2ret(tmp_errno);
+            return tmp_errno;
         }
     }
     struct shmid_ds shm_info;
     memset(&shm_info, 0, sizeof(struct shmid_ds));
     if (shmctl(shmid_, IPC_STAT, &shm_info) < 0) {
         int tmp_errno = errno;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     size_ = shm_info.shm_segsz;
     if (mode & IpcMode::READ_ONLY) {
@@ -106,14 +106,14 @@ IpcRet ShmSysV::Open(IpcMode mode)
         if (head_ == (void*)-1) {
             int tmp_errno = errno;
             head_ = NULL;
-            return _errno2ret(tmp_errno);
+            return tmp_errno;
         }
     } else if ((mode & IpcMode::WRITE_ONLY) || (mode & IpcMode::READ_WRITE)) {
         head_ = shmat(shmid_, NULL, 0);
         if (head_ == (void *)-1) {
             int tmp_errno = errno;
             head_ = NULL;
-            return _errno2ret(tmp_errno);
+            return tmp_errno;
         }
     } else {
         return IpcRet::SHM_EMODE;
@@ -129,7 +129,7 @@ IpcRet ShmSysV::Close()
     }
     if (shmdt(head_) == -1) {
         int tmp_errno = errno;
-        return _errno2ret(tmp_errno);
+        return tmp_errno;
     }
     head_ = NULL;
     status_ = ShmStatus::CLOSE;

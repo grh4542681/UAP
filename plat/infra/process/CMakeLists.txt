@@ -1,4 +1,5 @@
-SET(LIBGPROCESS_SRC process_info.cc
+SET(LIBGPROCESS_SRC process_return.cc
+                    process_info.cc
                     process.cc
                     process_role.cc
                     process_id.cc

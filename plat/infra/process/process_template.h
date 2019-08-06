@@ -87,7 +87,7 @@ public:
         //Create socket pair
         ipc::sock::SockPair pair;
         if (auto_create_sockpair_) {
-            if (pair.Open() != ipc::IpcRet::SUCCESS) {
+            if (pair.Open() != ret::Return::SUCCESS) {
                 PROCESS_ERROR("SockPair Open error.");
                 return ProcessRet::PROCESS_EFIFOPAIR;
             }
