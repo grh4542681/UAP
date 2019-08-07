@@ -33,8 +33,8 @@ public:
     size_t GetFreeSize();
     IpcRet GetRet();
 
-    size_t Recv(void* data, size_t data_len, util::time::Time* overtime);
-    size_t Send(void* data, size_t data_len, util::time::Time* overtime);
+    size_t Recv(void* data, size_t data_len, timer::Time* overtime);
+    size_t Send(void* data, size_t data_len, timer::Time* overtime);
 //private:
 public:
     shm::ShmPosix shm_;

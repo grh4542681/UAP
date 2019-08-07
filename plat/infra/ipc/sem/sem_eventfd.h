@@ -23,7 +23,7 @@ public:
     IpcRet Open(IpcMode mode);
     IpcRet Close();
 private:
-    IpcRet _p(size_t sem_index, util::time::Time* overtime);
+    IpcRet _p(size_t sem_index, timer::Time* overtime);
     IpcRet _v(size_t sem_index);
 };
 

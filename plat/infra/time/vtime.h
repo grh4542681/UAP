@@ -17,7 +17,7 @@
 
 #include "time_return.h"
 
-namespace util::time {
+namespace timer {
 
 /**
 * @brief - Virtual class Time

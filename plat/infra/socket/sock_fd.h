@@ -37,8 +37,8 @@ public:
     SockRet SetMcastTTL(unsigned int ttl);
     SockRet SetMcastloop(bool flag);
 
-    SockRet SetSendBlock(util::time::Time* overtime);
-    SockRet SetRecvBlock(util::time::Time* overtime);
+    SockRet SetSendBlock(timer::Time* overtime);
+    SockRet SetRecvBlock(timer::Time* overtime);
     SockRet SetNonBlock();
 
     bool isClientFD();

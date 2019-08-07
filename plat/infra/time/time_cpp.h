@@ -4,7 +4,7 @@
 #include "time_return.h"
 #include "vtime.h"
 
-namespace util::time {
+namespace timer {
 
 class TimeCpp : public Time {
 public:

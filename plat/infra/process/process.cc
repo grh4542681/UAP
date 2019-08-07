@@ -48,14 +48,14 @@ ProcessRet Process::GetProcRealName(std::string& name)
     return ProcessRet::SUCCESS;
 }
 
-ProcessRet Process::SendToParent(char* msg, unsigned int* msglen, util::time::Time* overtime)
+ProcessRet Process::SendToParent(char* msg, unsigned int* msglen, timer::Time* overtime)
 {
     ProcessInfo* self_info = ProcessInfo::getInstance();
     return ProcessRet::SUCCESS;
 }
 
 
-ProcessRet Process::RecvFromParent(char* msg, unsigned int* msglen, util::time::Time* overtime)
+ProcessRet Process::RecvFromParent(char* msg, unsigned int* msglen, timer::Time* overtime)
 {
     ProcessInfo* self_info = ProcessInfo::getInstance();
     return ProcessRet::SUCCESS;

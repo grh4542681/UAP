@@ -4,6 +4,6 @@
  */
 
 /**
- * @namespace util::time
+ * @namespace timer
  * @brief time operator tools namespace.
  */

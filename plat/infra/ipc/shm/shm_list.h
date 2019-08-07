@@ -52,8 +52,8 @@ public:
         bool rw_lock_enable_;
         bool mutex_lock_enable_;
 
-        util::time::Time create_time_;
-        util::time::Time last_access_time_;
+        timer::Time create_time_;
+        timer::Time last_access_time_;
     } ShmListHead;
 
     class iterator : public std::iterator<std::input_iterator_tag, ShmListNode> {
@@ -152,7 +152,7 @@ public:
             p_shm_head_->object_head_ = NULL;
             p_shm_head_->object_tail_ = NULL;
 
-            p_shm_head_->create_time_ = util::time::NowC();
+            p_shm_head_->create_time_ = timer::NowC();
         }
         ret = shm_.Close();
         if (ret == IpcRet::SUCCESS) {
@@ -173,7 +173,7 @@ public:
         if (ret == IpcRet::SUCCESS) {
             p_shm_head_ = reinterpret_cast<ShmListHead*>(shm_.GetHeadPtr());
 
-            p_shm_head_->last_access_time_ = util::time::NowC();
+            p_shm_head_->last_access_time_ = timer::NowC();
         }
         return ret;
     }

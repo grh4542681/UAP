@@ -18,8 +18,8 @@ public:
     static ProcessRet GetProcRealPath(std::string& path);
     static ProcessRet GetProcRealName(std::string& name);
 
-    static ProcessRet SendToParent(char* msg, unsigned int* msglen, util::time::Time* overtime);
-    static ProcessRet RecvFromParent(char* msg, unsigned int* msglen, util::time::Time* overtime);
+    static ProcessRet SendToParent(char* msg, unsigned int* msglen, timer::Time* overtime);
+    static ProcessRet RecvFromParent(char* msg, unsigned int* msglen, timer::Time* overtime);
 
     static ProcessRet RegisterCommonSigChld();
 private:

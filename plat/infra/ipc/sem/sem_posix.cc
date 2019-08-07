@@ -149,7 +149,7 @@ IpcRet SemPosix::Close()
     return IpcRet::SUCCESS;
 }
 
-IpcRet SemPosix::_p(size_t sem_index, util::time::Time* overtime)
+IpcRet SemPosix::_p(size_t sem_index, timer::Time* overtime)
 {
     if (!init_flag_) {
         return IpcRet::EINIT;
@@ -184,8 +184,8 @@ IpcRet SemPosix::_p(size_t sem_index, util::time::Time* overtime)
                 return IpcRet::EBADARGS;
             }   
 
-            util::time::Time curr_time = util::time::NowC();
-            util::time::Time T_intervals = curr_time + *overtime;
+            timer::Time curr_time = timer::NowC();
+            timer::Time T_intervals = curr_time + *overtime;
 
             struct timespec intervals;
             memset(&intervals, 0, sizeof(struct timespec));
@@ -197,13 +197,13 @@ IpcRet SemPosix::_p(size_t sem_index, util::time::Time* overtime)
                     if (tmperrno == ETIMEDOUT) {
                         return IpcRet::ETIMEOUT;
                     } else if (tmperrno == EINTR) {
-                        curr_time = util::time::NowC();
+                        curr_time = timer::NowC();
                     } else {
                         IPC_ERROR("Semaphore set [%s] index [%ld] P operator failed, errno[%s]", path_.c_str(), sem_index, strerror(tmperrno));
                         return tmperrno;
                     }
                 } else {
-                    curr_time = util::time::NowC();
+                    curr_time = timer::NowC();
                     *overtime = T_intervals - curr_time;
                     return IpcRet::SUCCESS;
                 }

@@ -126,7 +126,7 @@ IpcRet MsgShm::Close()
     return IpcRet::SUCCESS;
 }
 
-size_t MsgShm::Recv(void* data, size_t data_len, util::time::Time* overtime)
+size_t MsgShm::Recv(void* data, size_t data_len, timer::Time* overtime)
 {
     IpcRet ret;
     if (!init_flag_ || !p_shm_head_) {
@@ -196,7 +196,7 @@ size_t MsgShm::Recv(void* data, size_t data_len, util::time::Time* overtime)
     return tmp_len;
 }
 
-size_t MsgShm::Send(void* data, size_t data_len, util::time::Time* overtime)
+size_t MsgShm::Send(void* data, size_t data_len, timer::Time* overtime)
 {
     IpcRet ret;
     if (!init_flag_ || !p_shm_head_) {

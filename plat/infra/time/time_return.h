@@ -3,7 +3,7 @@
 
 #include "return.h"
 
-namespace util::time {
+namespace timer {
 
 class TimeRet : public ret::Return {
 public:

@@ -25,7 +25,7 @@ public:
     IpcRet Close();
 
 protected:
-    IpcRet _p(size_t sem_index, util::time::Time* overtime);
+    IpcRet _p(size_t sem_index, timer::Time* overtime);
     IpcRet _v(size_t sem_index);
 
 private:

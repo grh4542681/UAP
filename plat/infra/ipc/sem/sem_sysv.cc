@@ -154,7 +154,7 @@ IpcRet SemSysV::Close()
     return IpcRet::SUCCESS;
 }
 
-IpcRet SemSysV::_p(size_t sem_index, util::time::Time* overtime)
+IpcRet SemSysV::_p(size_t sem_index, timer::Time* overtime)
 {
     if (semid_ <= 0 || sem_index > semnum_) {
         return IpcRet::EINIT;
@@ -187,13 +187,13 @@ IpcRet SemSysV::_p(size_t sem_index, util::time::Time* overtime)
                 IPC_ERROR("Overtime is not correct.");
                 return IpcRet::EBADARGS;
             }
-            util::time::Time T_intervals = *overtime;
+            timer::Time T_intervals = *overtime;
 
             struct timespec intervals;
             memset(&intervals, 0, sizeof(struct timespec));
             T_intervals.To<struct timespec>(&intervals);
 
-            util::time::Time first_time = util::time::NowC();
+            timer::Time first_time = timer::NowC();
 
             do {
                 if (semtimedop(semid_, &ops, 1, &intervals) < 0) {
@@ -201,7 +201,7 @@ IpcRet SemSysV::_p(size_t sem_index, util::time::Time* overtime)
                     if (tmperrno == EAGAIN) {
                         return IpcRet::ETIMEOUT;
                     } else if (tmperrno == EINTR) {
-                        util::time::Time second_time = util::time::NowC();
+                        timer::Time second_time = timer::NowC();
                         T_intervals = T_intervals - (second_time - first_time);
                         IPC_LOG("Semaphore set [%d] index [%ld] P operator Interrupted by signal", semid_, sem_index);
                     } else {

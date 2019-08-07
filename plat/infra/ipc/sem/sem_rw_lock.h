@@ -198,7 +198,7 @@ public:
         return false;
     }
 
-    IpcRet RLock(util::time::Time* overtime) {
+    IpcRet RLock(timer::Time* overtime) {
         if (rwlock_state_ != SemRWLockState::NLocked) {
             return IpcRet::SEM_ELOCKED;
         }
@@ -251,7 +251,7 @@ public:
         return ret;
     }
 
-    IpcRet WLock(util::time::Time* overtime) {
+    IpcRet WLock(timer::Time* overtime) {
         if (rwlock_state_ != SemRWLockState::NLocked) {
             return IpcRet::SEM_ELOCKED;
         }
@@ -303,7 +303,7 @@ public:
         
     }
 
-    IpcRet UnLock(util::time::Time* overtime) {
+    IpcRet UnLock(timer::Time* overtime) {
         IpcRet ret = IpcRet::SUCCESS;
         switch (rwlock_state_) {
             case SemRWLockState::NLocked:
@@ -446,21 +446,21 @@ private:
     struct SemRWLockInfo* rwlock_info_;
     SemRWLockState rwlock_state_;
 
-    IpcRet _ctrl_mutex_lock(util::time::Time* overtime) {
+    IpcRet _ctrl_mutex_lock(timer::Time* overtime) {
         return sem_->P(0, overtime);
     }
     IpcRet _ctrl_mutex_unlock() {
         return sem_->V(0);
     }
 
-    IpcRet _read_mutex_lock(util::time::Time* overtime) {
+    IpcRet _read_mutex_lock(timer::Time* overtime) {
         return sem_->P(1, overtime);
     }
     IpcRet _read_mutex_unlock() {
         return sem_->V(1);
     }
 
-    IpcRet _write_mutex_lock(util::time::Time* overtime) {
+    IpcRet _write_mutex_lock(timer::Time* overtime) {
         return sem_->P(2, overtime);
     }
     IpcRet _write_mutex_unlock() {

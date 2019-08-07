@@ -4,7 +4,7 @@
 
 #include "time_c.h"
 
-namespace util::time {
+namespace timer {
 
 TimeC::TimeC() : Time()
 {

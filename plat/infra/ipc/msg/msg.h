@@ -30,8 +30,8 @@ public:
     virtual IpcRet Open(IpcMode mode) { return IpcRet::ESUBCLASS; }
     virtual IpcRet Close() { return IpcRet::ESUBCLASS; }
 
-    virtual size_t Recv(void* data, size_t data_len, util::time::Time* overtime) { return 0; }
-    virtual size_t Send(void* data, size_t data_len, util::time::Time* overtime) { return 0; }
+    virtual size_t Recv(void* data, size_t data_len, timer::Time* overtime) { return 0; }
+    virtual size_t Send(void* data, size_t data_len, timer::Time* overtime) { return 0; }
 
 protected:
     std::string path_ = {""};

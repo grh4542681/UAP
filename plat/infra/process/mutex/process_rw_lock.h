@@ -16,8 +16,8 @@ public:
     void setNonBlock(bool);
     bool getNonBlock();
 
-    ProcessRet RLock(util::time::Time* overtime);
-    ProcessRet WLock(util::time::Time* overtime);
+    ProcessRet RLock(timer::Time* overtime);
+    ProcessRet WLock(timer::Time* overtime);
     ProcessRet UnLock();
 private:
     bool init_flag_;

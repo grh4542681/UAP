@@ -92,7 +92,7 @@ ProcessChild& ProcessChild::SetFD(sock::SockFD&& fd)
     return *this;
 }
 
-ProcessRet ProcessChild::SetSendBlock(util::time::Time* overtime)
+ProcessRet ProcessChild::SetSendBlock(timer::Time* overtime)
 {
     if (fd_.SetSendBlock(overtime) != sock::SockRet::SUCCESS) {
         PROCESS_ERROR("Set Child sockfd in pair send block time failed");
@@ -101,7 +101,7 @@ ProcessRet ProcessChild::SetSendBlock(util::time::Time* overtime)
     return ProcessRet::SUCCESS;
 }
 
-ProcessRet ProcessChild::SetRecvBlock(util::time::Time* overtime)
+ProcessRet ProcessChild::SetRecvBlock(timer::Time* overtime)
 {
     if (fd_.SetRecvBlock(overtime) != sock::SockRet::SUCCESS) {
         PROCESS_ERROR("Set Child sockfd in pair recv block time failed");

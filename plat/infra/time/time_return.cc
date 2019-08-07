@@ -1,6 +1,6 @@
 #include "time_return.h"
 
-namespace util::time {
+namespace timer {
 
 TimeRet::ECodeMapType TimeRet::ECodeMap = {
     { ECode::TIME_EBASE, "" },

@@ -35,8 +35,8 @@ public:
     ProcessChild& SetFD(sock::SockFD& fd);
     ProcessChild& SetFD(sock::SockFD&& fd);
 
-    ProcessRet SetSendBlock(util::time::Time* overtime);
-    ProcessRet SetRecvBlock(util::time::Time* overtime);
+    ProcessRet SetSendBlock(timer::Time* overtime);
+    ProcessRet SetRecvBlock(timer::Time* overtime);
     ProcessRet SetNonBlock();
 
     ProcessRet Send();

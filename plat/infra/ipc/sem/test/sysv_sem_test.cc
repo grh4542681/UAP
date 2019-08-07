@@ -10,9 +10,9 @@ int main()
 
     sem.V(1);
     printf("hello\n");
-    sem.P(1,&(util::time::Time().SetSecond(2)));
+    sem.P(1,&(timer::Time().SetSecond(2)));
     printf("hello\n");
-    sem.P(1,&(util::time::Time().SetSecond(2)));
+    sem.P(1,&(timer::Time().SetSecond(2)));
     printf("hello\n");
     sem.Destroy();
     printf("hello\n");

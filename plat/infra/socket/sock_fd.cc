@@ -423,7 +423,7 @@ SockRet SockFD::SetMcastloop(bool flag)
 *
 * @returns  SockRet
 */
-SockRet SockFD::SetSendBlock(util::time::Time* overtime)
+SockRet SockFD::SetSendBlock(timer::Time* overtime)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -467,7 +467,7 @@ SockRet SockFD::SetSendBlock(util::time::Time* overtime)
 *
 * @returns  SockRet
 */
-SockRet SockFD::SetRecvBlock(util::time::Time* overtime)
+SockRet SockFD::SetRecvBlock(timer::Time* overtime)
 {
     if (!this->init_flag_) {
         SOCK_ERROR("%s", "fd not inited");

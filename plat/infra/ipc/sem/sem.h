@@ -87,7 +87,7 @@ public:
     *
     * @returns  IpcRet.
     */
-    IpcRet P(size_t sem_index, util::time::Time* overtime) {
+    IpcRet P(size_t sem_index, timer::Time* overtime) {
         return (init_flag_ ? _p(sem_index, overtime) : IpcRet::EINIT);
     }
     /**
@@ -126,7 +126,7 @@ protected:
         init_flag_ = false;
     }
 
-    virtual IpcRet _p(size_t sem_index, util::time::Time* overtime) { return IpcRet::ESUBCLASS; }
+    virtual IpcRet _p(size_t sem_index, timer::Time* overtime) { return IpcRet::ESUBCLASS; }
     virtual IpcRet _v(size_t sem_index) { return IpcRet::ESUBCLASS; }
 };
 

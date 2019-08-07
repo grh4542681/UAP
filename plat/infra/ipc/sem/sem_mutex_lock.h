@@ -98,7 +98,7 @@ public:
         return sem_->SetNonBlock(flag);
     }
 
-    IpcRet Lock(util::time::Time* overtime) {
+    IpcRet Lock(timer::Time* overtime) {
         if (!init_flag_) {
             return IpcRet::EINIT;
         }

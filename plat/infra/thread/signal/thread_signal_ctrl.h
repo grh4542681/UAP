@@ -88,7 +88,7 @@ public:
     ThreadRet MaskRevert();
 
     ThreadRet SendSignal(pthread_t tid, process::signal::ProcessSignal& sig);
-    static ThreadRet WaitSignal(util::time::Time* overtime);
+    static ThreadRet WaitSignal(timer::Time* overtime);
 
     /**
     * @brief getInstance - Get Signal ctrl class instance.

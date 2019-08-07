@@ -11,28 +11,28 @@ namespace heartbeat {
 
 class HeartbeatItem {
 public:
-    HeartbeatItem(io::FD& fd, util::time::Time& over_time);
+    HeartbeatItem(io::FD& fd, timer::Time& over_time);
     ~HeartbeatItem();
 
     io::FD* GetFD();
     HeartbeatState GetState();
 
-    util::time::Time& GetLastTime();
-    util::time::Time& GetOverTime();
-    util::time::Time& GetDeadTime();
+    timer::Time& GetLastTime();
+    timer::Time& GetOverTime();
+    timer::Time& GetDeadTime();
 
-    HeartbeatItem& SetLastTime(util::time::Time& last_time);
-    HeartbeatItem& SetOverTime(util::time::Time& over_time);
-    HeartbeatItem& SetDeadTime(util::time::Time& dead_time);
+    HeartbeatItem& SetLastTime(timer::Time& last_time);
+    HeartbeatItem& SetOverTime(timer::Time& over_time);
+    HeartbeatItem& SetDeadTime(timer::Time& dead_time);
 
 private:
     mempool::MemPool* mempool_;
     io::FD* fd_;
     HeartbeatState state_;
 
-    util::time::Time last_time_;
-    util::time::Time over_time_;
-    util::time::Time dead_time_;
+    timer::Time last_time_;
+    timer::Time over_time_;
+    timer::Time dead_time_;
 
     void (*over_callback_)(void);
     void (*dead_callback_)(void);

@@ -2,7 +2,7 @@
 
 namespace heartbeat {
 
-HeartbeatItem::HeartbeatItem(io::FD& fd, util::time::Time& over_time)
+HeartbeatItem::HeartbeatItem(io::FD& fd, timer::Time& over_time)
 {
     fd_ = fd.Clone();
     if (!fd_) {
@@ -33,34 +33,34 @@ HeartbeatState HeartbeatItem::GetState()
     return state_;
 }
 
-util::time::Time& HeartbeatItem::GetLastTime()
+timer::Time& HeartbeatItem::GetLastTime()
 {
     return last_time_;
 }
 
-util::time::Time& HeartbeatItem::GetOverTime()
+timer::Time& HeartbeatItem::GetOverTime()
 {
     return over_time_;
 }
 
-util::time::Time& HeartbeatItem::GetDeadTime()
+timer::Time& HeartbeatItem::GetDeadTime()
 {
     return dead_time_;
 }
 
-HeartbeatItem& HeartbeatItem::SetLastTime(util::time::Time& last_time)
+HeartbeatItem& HeartbeatItem::SetLastTime(timer::Time& last_time)
 {
     last_time_ = last_time;
     return *this;
 }
 
-HeartbeatItem& HeartbeatItem::SetOverTime(util::time::Time& over_time)
+HeartbeatItem& HeartbeatItem::SetOverTime(timer::Time& over_time)
 {
     over_time_ = over_time;
     return *this;
 }
 
-HeartbeatItem& HeartbeatItem::SetDeadTime(util::time::Time& dead_time)
+HeartbeatItem& HeartbeatItem::SetDeadTime(timer::Time& dead_time)
 {
     dead_time_ = dead_time;
     return *this;
