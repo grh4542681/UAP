@@ -7,7 +7,7 @@
 #include <time.h>
 
 #include "mempool.h"
-#include "time/time_c.h"
+#include "time_c.h"
 
 #include "ipc_return.h"
 #include "ipc_log.h"

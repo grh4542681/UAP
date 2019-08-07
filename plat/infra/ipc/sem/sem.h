@@ -14,7 +14,7 @@
 #include <sys/types.h>
 #include <string>
 
-#include "time/vtime.h"
+#include "vtime.h"
 #include "ipc_return.h"
 #include "ipc_mode.h"
 

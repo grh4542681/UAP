@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "time/time_c.h"
+#include "time_c.h"
 
 #include "ipc_log.h"
 #include "sem_posix.h"

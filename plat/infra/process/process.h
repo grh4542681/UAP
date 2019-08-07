@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "time/vtime.h"
+#include "vtime.h"
 
 #include "process_return.h"
 #include "process_info.h"

@@ -8,7 +8,7 @@
 #include "signal/process_signal.h"
 #include "signal/process_signal_set.h"
 #include "signal/process_signal_mask_type.h"
-#include "time/vtime.h"
+#include "vtime.h"
 
 #include "thread_return.h"
 

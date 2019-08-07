@@ -28,6 +28,7 @@ SET (PLAT_HRD "${FRAM_ROOT_PATH}/plat/message"
 
 SET (PLAT_INFRA_HRD "${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     "${FRAM_ROOT_PATH}/plat/infra/return"
+                    "${FRAM_ROOT_PATH}/plat/infra/time"
                     "${FRAM_ROOT_PATH}/plat/infra/mempool"
                     "${FRAM_ROOT_PATH}/plat/infra/thread"
                     "${FRAM_ROOT_PATH}/plat/infra/process"
@@ -58,6 +59,7 @@ SET (COMMON_OS_LIB librt.so
 SET (PLAT_LIB libgmsg.so
               )
 SET (PLAT_INFRA_LIB libgret.so
+                    libgtime.so
                     libgipc.so
                     libgret.so
                     libgmp.so

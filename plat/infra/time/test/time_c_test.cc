@@ -1,6 +1,6 @@
 #include <unistd.h>
 #include <string.h>
-#include "time/time_c.h"
+#include "time_c.h"
 
 int main()
 {

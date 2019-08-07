@@ -1,7 +1,7 @@
 #include "sem/sem_sysv.h"
 #include <stdio.h>
 #include <unistd.h>
-#include "time/vtime.h"
+#include "vtime.h"
 int main()
 {
     printf("hello\n");

@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "time/vtime.h"
+#include "vtime.h"
 #include "sock_fd.h"
 
 #include "process_log.h"

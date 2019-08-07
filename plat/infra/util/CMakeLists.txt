@@ -1,4 +1,4 @@
-SET(LIBGUTIL_SRC time/time_c.cc
+SET(LIBGUTIL_SRC bitmap/bitmap_return.cc
                  bitmap/bitmap.cc
 )
 

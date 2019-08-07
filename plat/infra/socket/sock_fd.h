@@ -3,7 +3,7 @@
 
 #include <netinet/in.h>
 
-#include "time/vtime.h"
+#include "vtime.h"
 #include "mempool.h"
 #include "io_fd.h"
 

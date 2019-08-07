@@ -63,7 +63,7 @@ std::string TimeC::Format(std::string format) {
 TimeRet TimeC::GetCurrTime()
 {
     if (clock_gettime(CLOCK_REALTIME, &tp_) < 0) {
-        return TimeRet::ETIMEGET;
+        return TimeRet::TIME_EGET;
     }
     second_ = tp_.tv_sec;
     nanosecond_ = tp_.tv_nsec;

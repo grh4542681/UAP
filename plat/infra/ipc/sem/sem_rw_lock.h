@@ -4,7 +4,7 @@
 #include <string>
 
 #include "mempool.h"
-#include "time/vtime.h"
+#include "vtime.h"
 
 #include "shm/shm.h"
 #include "shm/shm_sysv.h"

@@ -7,5 +7,5 @@ SET(PROCESS_SINGLE_TEST_SRC process_single_test.cc)
 ADD_EXECUTABLE(process_single_test ${PROCESS_SINGLE_TEST_SRC})
 
 INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/plat/infra/process")
-TARGET_LINK_LIBRARIES(process_test libgprocess.so libgfile.so libgipc.so libgmp.so libgsocket.so libgutil.so libgthread.so libgret.so)
-TARGET_LINK_LIBRARIES(process_single_test libgprocess.so libgfile.so libgipc.so libgmp.so libgsocket.so libgutil.so libgthread.so libgret.so)
+TARGET_LINK_LIBRARIES(process_test libgprocess.so libgfile.so libgipc.so libgmp.so libgsocket.so libgutil.so libgthread.so libgret.so libgtime.so)
+TARGET_LINK_LIBRARIES(process_single_test libgprocess.so libgfile.so libgipc.so libgmp.so libgsocket.so libgutil.so libgthread.so libgret.so libgtime.so)
