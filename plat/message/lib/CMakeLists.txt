@@ -1,4 +1,5 @@
-SET(LIBGRHMSG_SRC message_type.cc
+SET(LIBGRHMSG_SRC ../message_return.cc
+                  message_type.cc
                   )
 ADD_LIBRARY(GRHmsg_SO SHARED ${LIBGRHMSG_SRC})
 SET_TARGET_PROPERTIES(GRHmsg_SO PROPERTIES OUTPUT_NAME "gmsg" CLEAN_DIRECT_OUTPUT 1)

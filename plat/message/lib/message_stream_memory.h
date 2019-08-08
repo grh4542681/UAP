@@ -189,11 +189,11 @@ private:
             return 0;
         }
         if (smode_ != MessageStreamMode::In) {
-            ret_ = MessageRet::EMSMODE;
+            ret_ = MessageRet::MESSAGE_EMSMODE;
             return 0;
         }
         if (size > (limit_size_ - (reinterpret_cast<long>(ptail_) - reinterpret_cast<long>(phead_))) -1 ) {
-            ret_ = MessageRet::EMSNOSPACE;
+            ret_ = MessageRet::MESSAGE_EMSNOSPACE;
             return 0;
         }
         memcpy(ptail_, pdata, size);
@@ -207,11 +207,11 @@ private:
             return 0;
         }
         if (smode_ != MessageStreamMode::Out) {
-            ret_ = MessageRet::EMSMODE;
+            ret_ = MessageRet::MESSAGE_EMSMODE;
             return 0;
         }
         if (size > static_cast<size_t>((reinterpret_cast<long>(ptail_) - reinterpret_cast<long>(phead_)))) {
-            ret_ = MessageRet::EMSNOMESSG;
+            ret_ = MessageRet::MESSAGE_EMSNOSPACE;
             return 0;
         }
         memcpy(pdata, phead_, size);
@@ -225,11 +225,11 @@ private:
             return 0;
         }
         if (smode_ != MessageStreamMode::Out) {
-            ret_ = MessageRet::EMSMODE;
+            ret_ = MessageRet::MESSAGE_EMSMODE;
             return 0;
         }
         if (size > static_cast<size_t>((reinterpret_cast<long>(ptail_) - reinterpret_cast<long>(phead_)))) {
-            ret_ = MessageRet::EMSNOMESSG;
+            ret_ = MessageRet::MESSAGE_EMSNOMESSG;
             return 0;
         }
         memcpy(pdata, phead_, size);

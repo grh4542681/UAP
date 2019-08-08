@@ -5,6 +5,7 @@
 #define ERROR_CODE_BASE (0x00001000)
 #define ERROR_CODE_SPACE (0x00000100)                                                                                                                                                    
 
+//infra
 #define PUBLIC_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 1))
 #define SOCKET_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 2))
 #define IO_ERROR_CODE_BASE      (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 3))
@@ -16,4 +17,8 @@
 #define REPORT_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 9))
 #define BM_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 10))
 #define TIME_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 11))
+
+//platfrom
+#define MESSAGE_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 100))
+
 #endif

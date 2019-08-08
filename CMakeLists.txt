@@ -28,7 +28,7 @@ SET (PLAT_HRD "${FRAM_ROOT_PATH}/plat/message"
 
 SET (PLAT_INFRA_HRD "${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     "${FRAM_ROOT_PATH}/plat/infra/return"
-                    "${FRAM_ROOT_PATH}/plat/infra/time"
+                    "${FRAM_ROOT_PATH}/plat/infra/timer"
                     "${FRAM_ROOT_PATH}/plat/infra/mempool"
                     "${FRAM_ROOT_PATH}/plat/infra/thread"
                     "${FRAM_ROOT_PATH}/plat/infra/process"
