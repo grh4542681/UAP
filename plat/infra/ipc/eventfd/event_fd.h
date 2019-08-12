@@ -12,15 +12,28 @@ namespace ipc::eventfd {
 class EventFD : public io::FD {
 public:
     EventFD();
-    EventFD(int flag);
+    EventFD(unsigned int fd, bool auto_close = false);
+    EventFD(EventFD& other);
     ~EventFD();
 
-    IpcRet SetFD(unsigned int fd, bool auto_close);
+    //Inherited from class FD.
+    ret::Return SetFD(unsigned int fd, bool auto_close);
+    ret::Return Dup(io::FD& new_fd);
     io::FD* Clone();
     void Close();
     size_t Write(const void* data, size_t datalen);
     size_t Read(void* data, size_t datalen);
 
+    //get & set
+    bool IsCloexec();
+    bool IsNonblock();
+    bool IsSemaphore();
+    void SetEfdFlag(int flag);
+
+private:
+    int efd_flag_ = { 0 };
+
+public:
     static const int CLOEXEC = { EFD_CLOEXEC };
     static const int NONBLOCK = { EFD_NONBLOCK };
     static const int SEMAPHORE = { EFD_SEMAPHORE };

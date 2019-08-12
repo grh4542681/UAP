@@ -20,11 +20,12 @@ public:
         ERROR = -1,
 
         EBADARGS   = PUBLIC_ERROR_CODE_BASE,
-        EMALLOC    = PUBLIC_ERROR_CODE_BASE + 1,
-        EINIT      = PUBLIC_ERROR_CODE_BASE + 2,
-        ETIMEOUT   = PUBLIC_ERROR_CODE_BASE + 3,
-        ESUBCLASS  = PUBLIC_ERROR_CODE_BASE + 4,
-        ECONSTRUCT = PUBLIC_ERROR_CODE_BASE + 5,
+        EMALLOC,
+        EINIT,
+        ETIMEOUT,
+        ESUBCLASS,
+        ECONSTRUCT,
+        ENONSUPPORT,
     };
 public:
     const static int SUCCESS = 0;

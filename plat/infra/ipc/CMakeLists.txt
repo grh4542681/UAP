@@ -7,6 +7,7 @@ SET(LIBGRHIPC_SRC ipc_mode.cc
                   msg/msg_shm.cc
                   socket/sock_pair.cc
                   eventfd/event_fd.cc
+                  eventfd/event_fd_semaphore.cc
                   )
 
 ADD_LIBRARY(GRHipc_SO SHARED ${LIBGRHIPC_SRC})

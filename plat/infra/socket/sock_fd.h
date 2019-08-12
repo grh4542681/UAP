@@ -26,8 +26,19 @@ public:
     SockFD(SockFD& other);
     ~SockFD();
 
-    SockRet SetFD(unsigned int fd, bool auto_close = false);
+    //Inherited from class FD.
+    ret::Return SetFD(unsigned int fd, bool auto_close = false);
+    ret::Return Dup(io::FD& new_fd);
     io::FD* Clone();
+    void Close();
+    size_t Write(const void* data, size_t datalen);
+    size_t Read(void* data, size_t datalen);
+
+    //get & set
+    SockAddress& GetOrigAddress();
+    SockAddress& GetDestAddress();
+    SockRet SetOrigAddress(SockAddress& addr);
+    SockRet SetDestAddress(SockAddress& addr);
 
     //for multicast attrubit
     SockRet SetMcastJoin(const char* mcast_addr);
@@ -46,65 +57,15 @@ public:
     bool isAcceptFD();
     bool isMulitcastFD();
 
-    void Close();
-    size_t Write(const void* data, size_t datalen);
-    size_t Read(void* data, size_t datalen);
     size_t Send(SockAddress* dest, const void* data, size_t datalen);
     size_t Recv(SockAddress* orig, void* data, size_t datalen);
     size_t SendFD(unsigned int fd);
     size_t RecvFD(unsigned int *fd);
     
 private:
-
-//    bool init_flag_;            ///< init flag.
-//    bool auto_close_;           ///< auto close fd flag.
-//    unsigned int fd_;           ///< socket file descriptor.
     mempool::MemPool* mempool_; ///< memory pool interface.
     SockAddress orig;           ///< source address.
     SockAddress dest;           ///< destination address.
-
-    /**
-    * @brief _errno2ret - Convert errno to SockRet.
-    *
-    * @param [ierrno] - errno.
-    *
-    * @returns  SockRet.
-    */
-    static SockRet _errno2ret(int ierrno){
-        switch (ierrno) {
-            case 0:
-                return SockRet::SUCCESS;
-            case EACCES:
-                return SockRet::SOCK_EACCES;
-            case EAFNOSUPPORT:
-                return SockRet::SOCK_EAFNOSUPPORT;
-            case EINVAL:
-                return SockRet::SOCK_EINVAL;
-            case EMFILE:
-                return SockRet::SOCK_EMFILE;
-            case ENFILE:
-                return SockRet::SOCK_ENFILE;
-            case ENOBUFS:
-                return SockRet::SOCK_ENOBUFS;
-            case ENOMEM:
-                return SockRet::SOCK_ENOMEM;
-            case EPROTONOSUPPORT:
-                return SockRet::SOCK_EPROTONOSUPPORT;
-            case EADDRINUSE:
-                return SockRet::SOCK_EADDRINUSE;
-            case EBADF:
-                return SockRet::SOCK_EBADF;
-            case ENOTSOCK:
-                return SockRet::SOCK_ENOTSOCK;
-            case EOPNOTSUPP:
-                return SockRet::SOCK_EOPNOTSUPP;
-            case EAGAIN:
-                return SockRet::SOCK_EAGAIN;
-            default:
-                SOCK_ERROR("Unknow errno[%d]", ierrno);
-                return SockRet::EUNKOWNERRNO;
-        }   
-    }
 
     int _close();
 

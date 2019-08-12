@@ -19,7 +19,7 @@ namespace sock{
 /**
 * @brief SockFD - Default consturctor
 */
-SockFD::SockFD(){
+SockFD::SockFD() : FD(){
     this->mempool_ = mempool::MemPool::getInstance();
     this->fd_ = 0;
     this->init_flag_ = false;
@@ -31,7 +31,7 @@ SockFD::SockFD(){
 * @param [fd] - File descriptor
 * @param [auto_close] - Automatically close when destructuring
 */
-SockFD::SockFD(unsigned int fd, bool auto_close) {
+SockFD::SockFD(unsigned int fd, bool auto_close) : FD(fd, auto_close){
     int temp_errno = 0;
     struct stat fd_stat;
     if (fstat(fd, &fd_stat)) {
@@ -45,8 +45,6 @@ SockFD::SockFD(unsigned int fd, bool auto_close) {
     }
 
     this->mempool_ = mempool::MemPool::getInstance();
-    this->fd_ = fd;
-    this->auto_close_ = auto_close;
     this->init_flag_ = true;
 }
 
@@ -73,7 +71,7 @@ SockFD::~SockFD(){
 *
 * @returns  SockRet
 */
-SockRet SockFD::SetFD(unsigned int fd, bool auto_close)
+ret::Return SockFD::SetFD(unsigned int fd, bool auto_close)
 {
     if (this->fd_ > 0 && this->init_flag_ && this->auto_close_) {
         _close();
@@ -96,8 +94,39 @@ SockRet SockFD::SetFD(unsigned int fd, bool auto_close)
     return SockRet::SUCCESS;
 }
 
+ret::Return SockFD::Dup(io::FD& new_fd)
+{
+    ret::Return ret = SockRet::SUCCESS;
+    ret = io::FD::Dup(new_fd);
+    if (ret != SockRet::SUCCESS) {
+        return ret;
+    } else {
+        dynamic_cast<SockFD&>(new_fd).SetOrigAddress(orig);
+        dynamic_cast<SockFD&>(new_fd).SetDestAddress(dest);
+        return SockRet::SUCCESS;
+    }
+}
+
 io::FD* SockFD::Clone() {
     return mempool_->Malloc<SockFD>(*this);
+}
+
+SockAddress& SockFD::GetOrigAddress() {
+    return orig;
+}
+
+SockAddress& SockFD::GetDestAddress() {
+    return dest;
+}
+
+SockRet SockFD::SetOrigAddress(SockAddress& addr) {
+    orig = addr;
+    return SockRet::SUCCESS;
+}
+
+SockRet SockFD::SetDestAddress(SockAddress& addr) {
+    dest = addr;
+    return SockRet::SUCCESS;
 }
 
 /**
@@ -153,13 +182,13 @@ SockRet SockFD::SetMcastJoin(const char* mcast_addr, const char* if_name, unsign
                     if (if_indextoname(if_index, ifreq.ifr_name) == NULL) {
                         temp_errno = errno;
                         SOCK_ERROR("%s", strerror(temp_errno));
-                        return _errno2ret(temp_errno);
+                        return (temp_errno);
                     }
                 }
                 if (ioctl(this->fd_, SIOCGIFADDR, &ifreq) < 0){
                     temp_errno = errno;
                     SOCK_ERROR("%s", strerror(temp_errno));
-                    return _errno2ret(temp_errno);
+                    return (temp_errno);
                 }
                 memcpy(&mreq.imr_interface, &((struct sockaddr_in*)&ifreq.ifr_addr)->sin_addr, sizeof(struct in_addr));
             } else {
@@ -168,7 +197,7 @@ SockRet SockFD::SetMcastJoin(const char* mcast_addr, const char* if_name, unsign
             if (setsockopt(this->fd_, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(struct ip_mreq)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             break;
         case AF_INET6:
@@ -182,7 +211,7 @@ SockRet SockFD::SetMcastJoin(const char* mcast_addr, const char* if_name, unsign
                     if ((mreq6.ipv6mr_interface = if_nametoindex(if_name)) == 0) {
                         temp_errno = errno;
                         SOCK_ERROR("%s", strerror(temp_errno));
-                        return _errno2ret(temp_errno);
+                        return (temp_errno);
                     }
                 } else {
                     mreq6.ipv6mr_interface = if_index;
@@ -193,7 +222,7 @@ SockRet SockFD::SetMcastJoin(const char* mcast_addr, const char* if_name, unsign
             if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, &mreq6, sizeof(struct ipv6_mreq)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             break;
         default:
@@ -231,7 +260,7 @@ SockRet SockFD::SetMcastLeave(const char* mcast_addr)
             if (setsockopt(this->fd_, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(struct ip_mreq)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             break;
         case AF_INET6:
@@ -244,7 +273,7 @@ SockRet SockFD::SetMcastLeave(const char* mcast_addr)
             if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_DROP_MEMBERSHIP, &mreq6, sizeof(struct ipv6_mreq)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             break;
         default:
@@ -289,13 +318,13 @@ SockRet SockFD::SetMcastInterface(const char* if_name, unsigned int if_index)
                     if (if_indextoname(if_index, ifreq.ifr_name) == NULL) {
                         temp_errno = errno;
                         SOCK_ERROR("%s", strerror(temp_errno));
-                        return _errno2ret(temp_errno);
+                        return (temp_errno);
                     }
                 }
                 if (ioctl(this->fd_, SIOCGIFADDR, &ifreq) < 0){
                     temp_errno = errno;
                     SOCK_ERROR("%s", strerror(temp_errno));
-                    return _errno2ret(temp_errno);
+                    return (temp_errno);
                 }
                 memcpy(&addr, &((struct sockaddr_in*)&ifreq.ifr_addr)->sin_addr, sizeof(struct in_addr));
             } else {
@@ -304,7 +333,7 @@ SockRet SockFD::SetMcastInterface(const char* if_name, unsigned int if_index)
             if (setsockopt(this->fd_, IPPROTO_IP, IP_MULTICAST_IF, &addr, sizeof(struct in_addr)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             break;
         case AF_INET6:
@@ -313,7 +342,7 @@ SockRet SockFD::SetMcastInterface(const char* if_name, unsigned int if_index)
                     if ((index = if_nametoindex(if_name)) == 0) {
                         temp_errno = errno;
                         SOCK_ERROR("%s", strerror(temp_errno));
-                        return _errno2ret(temp_errno);
+                        return (temp_errno);
                     }
                 } else {
                     index = if_index;
@@ -324,7 +353,7 @@ SockRet SockFD::SetMcastInterface(const char* if_name, unsigned int if_index)
             if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULTICAST_IF, &index, sizeof(index)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             break;
         default:
@@ -357,14 +386,14 @@ SockRet SockFD::SetMcastTTL(unsigned int ttl)
             if (setsockopt(this->fd_, IPPROTO_IP, IP_MULTICAST_TTL, (char*)&ttl, sizeof(ttl)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             break;
         case AF_INET6:
             if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(ttl)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             break;
         default:
@@ -399,14 +428,14 @@ SockRet SockFD::SetMcastloop(bool flag)
             if (setsockopt(this->fd_, IPPROTO_IP, IP_MULTICAST_LOOP, &loopflag, sizeof(loopflag)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             break;
         case AF_INET6:
             if (setsockopt(this->fd_, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &loopflag6, sizeof(loopflag6)) < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             break;
         default:
@@ -436,14 +465,14 @@ SockRet SockFD::SetSendBlock(timer::Time* overtime)
     if (flag < 0) {
         temp_errno = errno;
         SOCK_ERROR("%s", strerror(temp_errno));
-        return _errno2ret(temp_errno);
+        return (temp_errno);
     }
     if (flag & O_NONBLOCK) {
         flag &= (~O_NONBLOCK);
         if (fcntl(this->fd_, F_SETFL, &flag) < 0) {
             temp_errno = errno;
             SOCK_ERROR("%s", strerror(temp_errno));
-            return _errno2ret(temp_errno);
+            return (temp_errno);
         }
     }
     if (overtime) {
@@ -455,7 +484,7 @@ SockRet SockFD::SetSendBlock(timer::Time* overtime)
     if (setsockopt(this->fd_, SOL_SOCKET, SO_SNDTIMEO, &otime, sizeof(struct timeval)) < 0) {
         temp_errno = errno;
         SOCK_ERROR("%s", strerror(temp_errno));
-        return _errno2ret(temp_errno);
+        return (temp_errno);
     }
     return SockRet::SUCCESS;
 }
@@ -480,14 +509,14 @@ SockRet SockFD::SetRecvBlock(timer::Time* overtime)
     if (flag < 0) {
         temp_errno = errno;
         SOCK_ERROR("%s", strerror(temp_errno));
-        return _errno2ret(temp_errno);
+        return (temp_errno);
     }
     if (flag & O_NONBLOCK) {
         flag &= (~O_NONBLOCK);
         if (fcntl(this->fd_, F_SETFL, &flag) < 0) {
             temp_errno = errno;
             SOCK_ERROR("%s", strerror(temp_errno));
-            return _errno2ret(temp_errno);
+            return (temp_errno);
         }
     }
     if (overtime) {
@@ -499,7 +528,7 @@ SockRet SockFD::SetRecvBlock(timer::Time* overtime)
     if (setsockopt(this->fd_, SOL_SOCKET, SO_RCVTIMEO, &otime, sizeof(struct timeval)) < 0) {
         temp_errno = errno;
         SOCK_ERROR("%s", strerror(temp_errno));
-        return _errno2ret(temp_errno);
+        return (temp_errno);
     }
     return SockRet::SUCCESS;
 }
@@ -521,14 +550,14 @@ SockRet SockFD::SetNonBlock()
     if (flag < 0) {
         temp_errno = errno;
         SOCK_ERROR("%s", strerror(temp_errno));
-        return _errno2ret(temp_errno);
+        return (temp_errno);
     }
     if (!(flag & O_NONBLOCK)) {
         flag |= O_NONBLOCK;
         if (fcntl(this->fd_, F_SETFL, &flag) < 0) {
             temp_errno = errno;
             SOCK_ERROR("%s", strerror(temp_errno));
-            return _errno2ret(temp_errno);
+            return (temp_errno);
         }
     }
     return SockRet::SUCCESS;
@@ -860,7 +889,7 @@ size_t SockFD::_send(struct sockaddr* dest, const void* data, size_t datalen, vo
         ret = (int)SockRet::SOCK_LINKDOWN;
     } else if (ret < 0) {
         temp_errno = errno;
-        ret = (int)_errno2ret(temp_errno);
+        ret = (int)(temp_errno);
     }
     if (buff_free_flag) {
         this->mempool_->Free(buff);
@@ -917,7 +946,7 @@ size_t SockFD::_recv(struct sockaddr* orig, void* data, size_t datalen, void* ct
         return (size_t)SockRet::SOCK_LINKDOWN;
     } else if (ret < 0) {
         temp_errno = errno;
-        return (size_t)_errno2ret(temp_errno);
+        return (size_t)(temp_errno);
     }
 
     //fill data

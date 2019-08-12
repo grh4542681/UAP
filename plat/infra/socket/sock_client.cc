@@ -123,7 +123,7 @@ SockRet SockClient::_socket()
     if (sockfd < 0) {
         temp_errno = errno;
         SOCK_ERROR("%s%s", "Create socket error, ", strerror(temp_errno));
-        return _errno2ret(temp_errno);
+        return (temp_errno);
     }
     if (!this->conn_fd_) {
         this->conn_fd_ = this->mempool_->Malloc<SockFD>(sockfd);
@@ -150,7 +150,7 @@ SockRet SockClient::_connect()
             temp_errno = errno;
             SOCK_ERROR("%s%s", "connect socket error, ", strerror(temp_errno));
             unlink(this->s_address_->address_.c_str());
-            return _errno2ret(temp_errno);
+            return (temp_errno);
         }
     } else if (this->s_address_->domain_ == AF_INET) {
         struct sockaddr_in addr;
@@ -166,7 +166,7 @@ SockRet SockClient::_connect()
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "connect socket error, ", strerror(temp_errno));
-            return _errno2ret(temp_errno);
+            return (temp_errno);
         }
     } else if (this->s_address_->domain_ == AF_INET6) {
         struct sockaddr_in6 addr;
@@ -178,7 +178,7 @@ SockRet SockClient::_connect()
           if (ret < 0) {
             temp_errno = errno;
             SOCK_ERROR("Address is not in presentation format[%s]", this->s_address_->address_.c_str());
-            return _errno2ret(temp_errno);
+            return (temp_errno);
           }
         }
         addr.sin6_port = htons(this->s_address_->port_);
@@ -187,7 +187,7 @@ SockRet SockClient::_connect()
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "connect socket error, ", strerror(temp_errno));
-            return _errno2ret(temp_errno);
+            return (temp_errno);
         }
     } else {
         SOCK_ERROR("%s", "Unknow domain for socket");

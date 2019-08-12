@@ -1,4 +1,9 @@
-SET(LIBGRHSOCKET_SRC sock_address.cc sock_fd.cc sock_server.cc sock_client.cc)
+SET(LIBGRHSOCKET_SRC sock_return.cc
+                     sock_address.cc
+                     sock_fd.cc
+                     sock_server.cc
+                     sock_client.cc
+                     )
 ADD_LIBRARY(GRHsocket_SO SHARED ${LIBGRHSOCKET_SRC})
 ADD_LIBRARY(GRHsocket_A STATIC ${LIBGRHSOCKET_SRC})
 TARGET_LINK_LIBRARIES(GRHsocket_SO pthread libgmp.so)

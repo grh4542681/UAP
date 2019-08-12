@@ -163,7 +163,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
             if (acpt_fd < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             sockfd->SetFD(acpt_fd);
             sockfd->orig = SockAddress(*(this->s_address_));
@@ -176,7 +176,7 @@ SockRet SockServer::Accept(SockFD* sockfd)
             if (acpt_fd < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             sockfd->SetFD(acpt_fd);
             sockfd->orig = SockAddress(*(this->s_address_));
@@ -190,12 +190,12 @@ SockRet SockServer::Accept(SockFD* sockfd)
             if (acpt_fd < 0) {
                 temp_errno = errno;
                 SOCK_ERROR("%s%s", "Accept socket error, ", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             if (!inet_ntop(AF_INET6, &in6_addr.sin6_addr, c_in6_addr, SOCK_ADDRESS_MAX_LEN)) {
                 temp_errno = errno;
                 SOCK_ERROR("%s%s", "Accept socket error, inet_ntop error", strerror(temp_errno));
-                return _errno2ret(temp_errno);
+                return (temp_errno);
             }
             sockfd->SetFD(acpt_fd);
             sockfd->orig = SockAddress(*(this->s_address_));
@@ -217,12 +217,12 @@ SockRet SockServer::_socket()
     if (sockfd < 0) {
         temp_errno = errno;
         SOCK_ERROR("%s%s", "Create socket error, ", strerror(temp_errno));
-        return _errno2ret(temp_errno);
+        return (temp_errno);
     }
     if ((setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on))) < 0) {
         temp_errno = errno;
         SOCK_ERROR("%s%s", "Create socket error, ", strerror(temp_errno));
-        return _errno2ret(temp_errno);
+        return (temp_errno);
     }
     if (!this->listen_fd_) {
         this->listen_fd_ = this->mempool_->Malloc<SockFD>(sockfd);
@@ -250,7 +250,7 @@ SockRet SockServer::_bind()
             temp_errno = errno;
             SOCK_ERROR("%s%s", "bind socket error, ", strerror(temp_errno));
             unlink(this->s_address_->address_.c_str());
-            return _errno2ret(temp_errno);
+            return (temp_errno);
         }
     } else if (this->s_address_->domain_ == AF_INET) {
         struct sockaddr_in addr;
@@ -266,7 +266,7 @@ SockRet SockServer::_bind()
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "bind socket error, ", strerror(temp_errno));
-            return _errno2ret(temp_errno);
+            return (temp_errno);
         }
     } else if (this->s_address_->domain_ == AF_INET6 || this->s_address_->isMulticast()) {
         struct sockaddr_in6 addr;
@@ -278,7 +278,7 @@ SockRet SockServer::_bind()
           if (ret < 0) {
             temp_errno = errno;
             SOCK_ERROR("Address is not in presentation format[%s]", this->s_address_->address_.c_str());
-            return _errno2ret(temp_errno);
+            return (temp_errno);
           }
         }
         addr.sin6_port = htons(this->s_address_->port_);
@@ -287,7 +287,7 @@ SockRet SockServer::_bind()
         if (ret != 0) {
             temp_errno = errno;
             SOCK_ERROR("%s%s", "bind socket error, ", strerror(temp_errno));
-            return _errno2ret(temp_errno);
+            return (temp_errno);
         }
     } else {
         SOCK_ERROR("%s", "Unknow domain for socket");
@@ -303,7 +303,7 @@ SockRet SockServer::_listen()
     if (ret) {
         temp_errno = errno;
         SOCK_ERROR("%s%s", "Listen socket error, ", strerror(temp_errno));
-        return _errno2ret(temp_errno);
+        return (temp_errno);
     }
     return SockRet::SUCCESS;
 }
