@@ -37,6 +37,8 @@ public:
     static const int CLOEXEC = { EFD_CLOEXEC };
     static const int NONBLOCK = { EFD_NONBLOCK };
     static const int SEMAPHORE = { EFD_SEMAPHORE };
+
+    static EventFD CreateEFD(int flag);
 };
 
 }

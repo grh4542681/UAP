@@ -4,17 +4,17 @@
 
 namespace ipc::eventfd {
 
-EventFD::EventFD()
+EventFD::EventFD() : FD()
 {
 
 }
 
-EventFD::EventFD(unsigned int fd, bool auto_close)
+EventFD::EventFD(unsigned int fd, bool auto_close) : FD(fd, auto_close)
 {
 
 }
 
-EventFD::EventFD(EventFD& other)
+EventFD::EventFD(EventFD& other) : FD(other)
 {
 
 }

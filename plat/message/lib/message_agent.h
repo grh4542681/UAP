@@ -25,10 +25,12 @@ public:
     void Run();
 
 private:
+    MessageAgentEndpoint aep_;
+    std::map<std::string, MessageListenEndpoint> listen_ep_map_;
+
     void _run();
     MessageRet _register();
-    MessageAgentEndpoint cep_;
-    std::map<std::string, MessageListenEndpoint> listen_ep_map_;
+    SockAddress _get_message_deamon_address();
 };
 
 }
