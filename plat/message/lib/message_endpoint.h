@@ -4,15 +4,14 @@
 #include "thread_id.h"
 
 #include "message_return.h"
-
-#define MESSAGE_EP_NAME_MAXLEN (128 + 1)
+#include "message_defines.h"
 
 namespace message {
-
+class MessageListenEndpoint;
 class MessageEndpoint {
 public:
     typedef struct _MessageEndpointInfo {
-        char name[MESSAGE_EP_NAME_MAXLEN];
+        char name[MESSAGE_ENDPOINT_NAME_MAX_LEN] = { 0 };
         thread::ThreadID tid;
         //cond
     } MessageEndpointInfo;
@@ -22,6 +21,7 @@ public:
 
     MessageRet Search();
 private:
+    MessageListenEndpoint* listener;
     MessageEndpointInfo ep_info_;
 };
 

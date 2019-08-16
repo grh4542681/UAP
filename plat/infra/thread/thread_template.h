@@ -46,6 +46,10 @@ public:
         return ThreadRet::SUCCESS;
     }
 
+    void Detach() {
+        thread_.detach();
+    }
+
     R& Return() {
         return ret_;
     }
@@ -61,6 +65,7 @@ private:
     template <typename ... Args>
     ThreadRet _run_main(Args&& ... args) {
         thread_info_ = ThreadInfo::getInstance();
+//        thread_info_->thread_ = &thread_;
         thread_info_->Register2Process();
 
         ret_ = func_(std::forward<Args>(args)...);
@@ -103,6 +108,10 @@ public:
         return ThreadRet::SUCCESS;
     }
 
+    void Detach() {
+        thread_.detach();
+    }
+
 private:
     ThreadInfo* thread_info_;
 private:
@@ -113,6 +122,7 @@ private:
     template <typename ... Args>
     ThreadRet _run_main(Args&& ... args) {
         thread_info_ = ThreadInfo::getInstance();
+//        thread_info_->thread_ = &thread_;
         thread_info_->Register2Process();
 
         func_(std::forward<Args>(args)...);

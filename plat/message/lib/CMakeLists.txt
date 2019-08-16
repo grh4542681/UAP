@@ -1,6 +1,8 @@
 SET(LIBGRHMSG_SRC ../message_return.cc
+                  message_agent.cc
                   message_type.cc
                   )
+INCLUDE_DIRECTORIES(${PLAT_MESSAGE_HRD})
 ADD_LIBRARY(GRHmsg_SO SHARED ${LIBGRHMSG_SRC})
 SET_TARGET_PROPERTIES(GRHmsg_SO PROPERTIES OUTPUT_NAME "gmsg" CLEAN_DIRECT_OUTPUT 1)
 TARGET_LINK_LIBRARIES(GRHmsg_SO rt)

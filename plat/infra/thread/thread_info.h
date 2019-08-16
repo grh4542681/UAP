@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 #include <string>
+#include <thread>
 
 #include "thread_return.h"
 #include "thread_id.h"
@@ -26,6 +27,8 @@ private:
     ~ThreadInfo();
 
     ThreadID tid_;
+//    std::thread* thread_;
+    bool exit_;
     std::string thread_name_;
 
     thread_local static ThreadInfo* pInstance;

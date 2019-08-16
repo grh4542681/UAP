@@ -128,7 +128,7 @@ SockRet SockClient::_socket()
     if (!this->conn_fd_) {
         this->conn_fd_ = this->mempool_->Malloc<SockFD>(sockfd);
     } else {
-        this->conn_fd_ = this->mempool_->Reset<SockFD>(this->conn_fd_, sockfd);                                                                                                                               
+        this->conn_fd_ = this->mempool_->Reset<SockFD>(this->conn_fd_, sockfd);
     }
     if (!this->conn_fd_) {
         return SockRet::EMALLOC;
