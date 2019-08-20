@@ -14,18 +14,20 @@ namespace sock{
 */
 class SockClient {
 public:
-
+    SockClient();
     SockClient(SockFamily family, const char* address, unsigned short int port);
     SockClient(SockFamily family, const char* address);
     SockClient(SockAddress* address);
+    SockClient(const SockClient&);
     ~SockClient();
 
+    const SockClient& operator=(const SockClient&);
     /**
     * @brief getSockFD - Get current socket file descriptor.
     *
     * @returns  SockFD pointer.
     */
-    SockFD* getSockFD();
+    SockFD& GetSockFD();
     /**
     * @brief SetTimeout - Set connect over time.
     *
@@ -34,21 +36,20 @@ public:
     * @returns  SockRet.
     */
     SockRet SetTimeout(struct timeval* overtime);
+    void SetAutoClose(bool flag);
     /**
     * @brief Connect - connect.
     *
     * @returns  SockFD pointer.
     */
-    SockFD* Connect();
+    SockRet Connect();
 
 private:
-    SockClient(const SockClient&);
-    const SockClient& operator=(const SockClient&);
 
     bool init_flag_;
-    mempool::MemPool* mempool_;
-    SockAddress* s_address_;
-    SockFD* conn_fd_;
+    bool auto_close_flag_;
+    SockAddress s_address_;
+    SockFD conn_fd_;
 
     SockRet _socket();
     SockRet _connect();

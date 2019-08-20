@@ -50,6 +50,12 @@ public:
         this->_init(family, address);
     }
 
+    SockAddress(const SockAddress& other);
+    SockAddress(const SockAddress&& other);
+
+    const SockAddress& operator=(const SockAddress& other);
+    const SockAddress& operator=(const SockAddress&& other);
+
     /**
     * @brief getAddr - get address.
     *

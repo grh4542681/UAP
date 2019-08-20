@@ -12,6 +12,8 @@ public:
         MESSAGE_EMSNOSPACE,
         MESSAGE_EMSNOMESSG,
         MESSAGE_EMSMODE,
+
+        MESSAGE_AGENT_ECONN,
     };
 public:
     static ECodeMapType ECodeMap;

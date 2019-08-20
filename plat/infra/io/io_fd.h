@@ -22,7 +22,27 @@ public:
     FD(unsigned int fd, bool auto_close) : fd_(fd), auto_close_(auto_close){
         init_flag_ = false;
     }
+    FD(const FD& other) {
+        if (fd_ > 0 && init_flag_ && auto_close_) {
+            Close();
+            fd_ = 0;
+        }
+        fd_ = other.fd_;
+        auto_close_ = other.auto_close_;
+        init_flag_ = other.init_flag_;
+    }
     virtual ~FD() {}
+
+    const FD& operator=(const FD& other) {
+        if (fd_ > 0 && init_flag_ && auto_close_) {
+            Close();
+            fd_ = 0;
+        }
+        fd_ = other.fd_;
+        auto_close_ = other.auto_close_;
+        init_flag_ = other.init_flag_;
+        return *this;
+    }
 
     bool GetAutoClose() {
         return auto_close_;
@@ -78,9 +98,9 @@ public:
     virtual size_t Write(const void* data, size_t datalen) = 0;
     virtual size_t Read(void* data, size_t datalen) = 0;
 protected:
-    unsigned int fd_;
-    bool auto_close_;
-    bool init_flag_;
+    unsigned int fd_ = 0;
+    bool auto_close_ = false;
+    bool init_flag_ = false;
 };
 
 }

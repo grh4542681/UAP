@@ -1,9 +1,9 @@
-#include "sock_address.h"
-#include "sock_client.h"
-
+#include "message_defines.h"
 #include "message_agent.h"
 
 namespace message {
+
+sock::SockAddress* MessageAgent::MessageServerAddress = NULL;
 
 MessageAgent::MessageAgent(std::string name)
 {
@@ -67,25 +67,30 @@ MessageEndpoint* MessageAgent::LookupEP(std::string listener_name, std::string e
 
 }
 
-void MessageAgent::Run()
+MessageRet MessageAgent::Run()
 {
+    MessageRet ret = MessageRet::SUCCESS:
+    client_ = sock::SockClient(GetMessageServerAddress());
+    if ((ret = client_.Connect()) != MessageRet::SUCCESS) {
+        return MessageRet::MESSAGE_AGENT_ECONN;
+    }
+
     thread::ThreadTemplate listener_(message_listener_thread);
     listener_.Run(this);
     listener_.Detach();
 }
 
-MessageRet MessageAgent::_connect_server()
-{
-    sock::SockAddress msgd_address(sock::SockFamily::TCP_LOCAL, MESSAGE_DEAMON_SOCK_FILE);
-    sock::SockClient agent(msgd_address);
-    sock::SockFD* msgd_fd = agent.Connect();
-
-    MessageListenEndpoint()
-}
-
 int MessageAgent::message_listener_thread(MessageAgent* mg)
 {
+    sleep(200);
+}
 
+sock::SockAddress* MessageAgent::GetMessageServerAddress()
+{
+    if (!MessageServerAddress) {
+        MessageServerAddress = mempool::MemPool::getInstance()->Malloc<sock::SockAddress>(sock::SockFamily::TCP_LOCAL, "/home/ezgaoro/workspace/cppfram/tmp/messaged.sock");
+    }
+    return MessageServerAddress;
 }
 
 }

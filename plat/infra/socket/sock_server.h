@@ -17,19 +17,20 @@ namespace sock{
 */
 class SockServer {
 public:
-    
     SockServer(SockFamily family, unsigned short int port);
     SockServer(SockFamily family, const char* address, unsigned short int port);
     SockServer(SockFamily family, const char* address);
     SockServer(SockAddress* address);
+    SockServer(const SockServer&);
     ~SockServer();
 
+    SockServer& operator=(SockServer&);
     /**
     * @brief getSockFD - Get current socket file descriptor.
     *
     * @returns  SockFD pointer.
     */
-    SockFD* getSockFD();
+    SockFD& GetSockFD();
 
     /**
     * @brief Bind - bind
@@ -47,19 +48,15 @@ public:
     SockRet Accept(SockFD* sockfd);
 
 private:
-    SockServer(const SockServer&);
-    const SockServer& operator=(const SockServer&);
-
     bool init_flag_;
-    mempool::MemPool* mempool_;
-    SockAddress* s_address_;
+    bool auto_close_flag_;
+    SockAddress s_address_;
     unsigned int listen_cache_;
-    SockFD* listen_fd_;
+    SockFD listen_fd_;
 
     SockRet _socket();
     SockRet _bind();
     SockRet _listen();
-
 };
 
 }//namespace sock end

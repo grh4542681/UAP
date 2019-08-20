@@ -8,4 +8,5 @@ ADD_SUBDIRECTORY(rm)
 #ADD_SUBDIRECTORY(nameserver)
 ADD_SUBDIRECTORY(message)
 
-#ADD_SUBDIRECTORY(message/test)
+#test
+ADD_SUBDIRECTORY(message/lib/test)

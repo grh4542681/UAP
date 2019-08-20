@@ -7,11 +7,13 @@
 #include "process_id.h"
 #include "thread_id.h"
 #include "thread_template.h"
+#include "sock_client.h"
+#include "sock_address.h"
 
 #include "message_defines.h"
 #include "message_endpoint.h"
-#include "message_agent_state.h"
 #include "message_listen_endpoint.h"
+#include "message_agent_state.h"
 
 namespace message {
 
@@ -48,15 +50,14 @@ public:
     void Run();
 public:
     static int message_listener_thread(MessageAgent* mg);
+    static sock::SockAddress* GetMessageServerAddress();
 private:
     bool init_flag_ = false;
     MessageAgentInfo info_;
     std::map<std::string, MessageListenEndpoint*> listen_ep_map_;
+    sock::SockClient client_;
 
-private:
-    MessageRet _connect_server();
-//    MessageRet _create_listener();
-//    MessageRet _delete_listener();
+    static sock::SockAddress* MessageServerAddress;
 };
 
 }

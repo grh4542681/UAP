@@ -23,8 +23,10 @@ public:
 
     SockFD();
     SockFD(unsigned int fd, bool auto_close = false);
-    SockFD(SockFD& other);
+    SockFD(const SockFD& other);
     ~SockFD();
+
+    const SockFD& operator=(const SockFD& other);
 
     //Inherited from class FD.
     ret::Return SetFD(unsigned int fd, bool auto_close = false);

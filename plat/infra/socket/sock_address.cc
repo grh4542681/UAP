@@ -13,6 +13,44 @@ SockAddress::SockAddress()
     this->multicast_flag_ = false;
 }
 
+SockAddress::SockAddress(const SockAddress& other)
+{
+    init_flag_ = other.init_flag_;
+    family_ = other.family_;
+    multicast_flag_ = other.multicast_flag_;
+    address_ = other.address_;
+    port_ = other.port_;
+    domain_ = other.domain_;
+    type_ = other.type_;
+}
+
+SockAddress::SockAddress(const SockAddress&& other)
+{
+    init_flag_ = other.init_flag_;
+    family_ = other.family_;
+    multicast_flag_ = other.multicast_flag_;
+    address_ = other.address_;
+    port_ = other.port_;
+    domain_ = other.domain_;
+    type_ = other.type_;
+}
+
+const SockAddress& SockAddress::operator=(const SockAddress& other)
+{
+    return SockAddress::operator=(std::move(other));
+}
+const SockAddress& SockAddress::operator=(const SockAddress&& other)
+{
+    init_flag_ = other.init_flag_;
+    family_ = other.family_;
+    multicast_flag_ = other.multicast_flag_;
+    address_ = other.address_;
+    port_ = other.port_;
+    domain_ = other.domain_;
+    type_ = other.type_;
+    return *this;
+}
+
 std::string SockAddress::getAddr()
 {
     return this->address_;
