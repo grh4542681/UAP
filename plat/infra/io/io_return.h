@@ -8,7 +8,8 @@ namespace io {
 class IoRet : public ret::Return {
 public:
     enum ECode{
-        EFDTYPE = IO_ERROR_CODE_BASE,
+        IO_EFDTYPE = IO_ERROR_CODE_BASE,
+        IO_EUNKNOWEVENT,
     };
 public:
     static ECodeMapType ECodeMap;

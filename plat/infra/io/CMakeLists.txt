@@ -1,4 +1,6 @@
 SET(LIBGIO_SRC io_return.cc
+               io_select.cc
+               io_select_item.cc
 )
 
 ADD_LIBRARY(GRHio_SO SHARED ${LIBGIO_SRC})

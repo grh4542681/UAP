@@ -24,7 +24,11 @@ public:
         MessageEndpointStatus status_;
     } MessageListenEndpointInfo;
 public:
-    MessageListenEndpoint(std::string name, io::FD& fd);
+    MessageListenEndpoint(std::string name, io::FD& fd) {
+        if (name.size() > MESSAGE_ENDPOINT_NAME_MAX_LEN) {
+            return;
+        }
+    }
     ~MessageListenEndpoint();
 
 private:

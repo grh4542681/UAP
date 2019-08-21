@@ -3,7 +3,8 @@
 namespace io {
 
 IoRet::ECodeMapType IoRet::ECodeMap = {
-     { ECode::EFDTYPE, "Bad file descriptor type." }
+     { ECode::IO_EFDTYPE, "Bad file descriptor type." },
+     { ECode::IO_EUNKNOWEVENT, "Unknow select event." }
 };
 
 }

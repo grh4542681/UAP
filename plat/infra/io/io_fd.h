@@ -94,9 +94,15 @@ public:
         close(fd_);
     }
 
-    virtual FD* Clone() = 0;
-    virtual size_t Write(const void* data, size_t datalen) = 0;
-    virtual size_t Read(void* data, size_t datalen) = 0;
+    virtual FD* Clone() {
+        return NULL;
+    }
+    virtual size_t Write(const void* data, size_t datalen) {
+        return 0;
+    }
+    virtual size_t Read(void* data, size_t datalen) {
+        return 0;
+    }
 protected:
     unsigned int fd_ = 0;
     bool auto_close_ = false;

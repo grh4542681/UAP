@@ -9,6 +9,7 @@
 #include "thread_template.h"
 #include "sock_client.h"
 #include "sock_address.h"
+#include "io_select.h"
 
 #include "message_defines.h"
 #include "message_endpoint.h"
@@ -47,15 +48,17 @@ public:
     MessageEndpoint* LookupEP(std::string ep_name);
     MessageEndpoint* LookupEP(std::string listener_name, std::string ep_name);
 
-    void Run();
+    MessageRet Run();
 public:
     static int message_listener_thread(MessageAgent* mg);
+    static io::IoRet message_client_callback(io::SelectItem* item);
     static sock::SockAddress* GetMessageServerAddress();
 private:
     bool init_flag_ = false;
     MessageAgentInfo info_;
     std::map<std::string, MessageListenEndpoint*> listen_ep_map_;
     sock::SockClient client_;
+    io::Select select_;
 
     static sock::SockAddress* MessageServerAddress;
 };

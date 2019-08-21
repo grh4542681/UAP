@@ -1,0 +1,10 @@
+#ifndef __IO_DEFINES_H__
+#define __IO_DEFINES_H__
+
+#define SELECT_INPUT    EPOLLIN
+#define SELECT_OUTPUT   EPOLLOUT
+#define SELECT_HANGUP   EPOLLHUP
+#define SELECT_ERROR    EPOLLERR
+#define SELECT_ONESHOT  EPOLLONESHOT
+
+#endif
