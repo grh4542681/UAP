@@ -1,6 +1,7 @@
 # messaged
 SET(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH}/plat)
-SET(MESSAGE_DEAMON_SRC src/message_deamon.cc
+SET(MESSAGE_DEAMON_SRC src/message_server.cc
+                       src/message_deamon.cc
                        src/message_deamon_main.cc
                        )
 ADD_EXECUTABLE(messaged ${MESSAGE_DEAMON_SRC})

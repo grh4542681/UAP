@@ -11,6 +11,7 @@
 #include "sock_address.h"
 #include "io_select.h"
 
+#include "message_api.h"
 #include "message_defines.h"
 #include "message_endpoint.h"
 #include "message_listen_endpoint.h"
@@ -52,15 +53,12 @@ public:
 public:
     static int message_listener_thread(MessageAgent* mg);
     static io::IoRet message_client_callback(io::SelectItem* item);
-    static sock::SockAddress* GetMessageServerAddress();
 private:
     bool init_flag_ = false;
     MessageAgentInfo info_;
     std::map<std::string, MessageListenEndpoint*> listen_ep_map_;
     sock::SockClient client_;
     io::Select select_;
-
-    static sock::SockAddress* MessageServerAddress;
 };
 
 }

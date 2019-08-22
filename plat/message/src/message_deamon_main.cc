@@ -10,6 +10,7 @@
 #include "parser_json.h"
 
 #include "message_log.h"
+#include "message_server.h"
 #include "message_deamon.h"
 
 static parser::ParserJson process_config;
@@ -114,8 +115,10 @@ int main(int argc, char** argv)
 
     std::cout<<process_config_file<<std::endl;
 
-    message::MessageDeamon deamon;
-    deamon.Run();
+    //message::MessageDeamon deamon;
+    //deamon.Run();
+    message::MessageServer server;
+    server.Run();
 
     return 0;
 }

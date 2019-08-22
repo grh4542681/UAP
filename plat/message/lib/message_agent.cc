@@ -3,8 +3,6 @@
 
 namespace message {
 
-sock::SockAddress* MessageAgent::MessageServerAddress = NULL;
-
 MessageAgent::MessageAgent(std::string name)
 {
     if (name.length() > MESSAGE_ENDPOINT_NAME_MAX_LEN) {
@@ -70,15 +68,16 @@ MessageEndpoint* MessageAgent::LookupEP(std::string listener_name, std::string e
 MessageRet MessageAgent::Run()
 {
     ret::Return ret = MessageRet::SUCCESS;
-    client_ = sock::SockClient(GetMessageServerAddress());
+    client_ = sock::SockClient(message::GetMessageServerAddress());
     if ((ret = client_.Connect()) != MessageRet::SUCCESS) {
         return MessageRet::MESSAGE_AGENT_ECONN;
     }
-
+    client_.GetSockFD().Write("hello world", 12);
+/*
     thread::ThreadTemplate listener_(message_listener_thread);
     listener_.Run(this);
     listener_.Detach();
-
+*/
     return MessageRet::SUCCESS;
 }
 
@@ -93,14 +92,6 @@ int MessageAgent::message_listener_thread(MessageAgent* msg_agent)
 io::IoRet MessageAgent::message_client_callback(io::SelectItem* item)
 {
 
-}
-
-sock::SockAddress* MessageAgent::GetMessageServerAddress()
-{
-    if (!MessageServerAddress) {
-        MessageServerAddress = mempool::MemPool::getInstance()->Malloc<sock::SockAddress>(sock::SockFamily::TCP_LOCAL, "/home/ezgaoro/workspace/cppfram/tmp/messaged.sock");
-    }
-    return MessageServerAddress;
 }
 
 }

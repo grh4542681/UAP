@@ -17,6 +17,7 @@ namespace sock{
 */
 class SockServer {
 public:
+    SockServer();
     SockServer(SockFamily family, unsigned short int port);
     SockServer(SockFamily family, const char* address, unsigned short int port);
     SockServer(SockFamily family, const char* address);
@@ -24,7 +25,7 @@ public:
     SockServer(const SockServer&);
     ~SockServer();
 
-    SockServer& operator=(SockServer&);
+    const SockServer& operator=(const SockServer&);
     /**
     * @brief getSockFD - Get current socket file descriptor.
     *
@@ -47,10 +48,10 @@ public:
     */
     SockRet Accept(SockFD* sockfd);
 
+    SockAddress s_address_;
 private:
     bool init_flag_;
     bool auto_close_flag_;
-    SockAddress s_address_;
     unsigned int listen_cache_;
     SockFD listen_fd_;
 

@@ -13,6 +13,11 @@
 
 namespace sock {
 
+SockServer::SockServer()
+{
+    init_flag_ = false;
+}
+
 SockServer::SockServer(SockFamily family, unsigned short int port)
 {
     s_address_ = SockAddress(family, port);
@@ -74,7 +79,7 @@ SockServer::~SockServer()
 {
 }
 
-SockServer& SockServer::operator=(SockServer& other)
+const SockServer& SockServer::operator=(const SockServer& other)
 {
     init_flag_ = other.init_flag_;
     auto_close_flag_ = other.auto_close_flag_;
