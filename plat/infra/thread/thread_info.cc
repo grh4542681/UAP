@@ -20,6 +20,7 @@ ThreadInfo::ThreadInfo()
     memset(name, 0x00, sizeof(name));
     sprintf(name, "_%d", tid_.GetID());
     thread_name_.assign(name);
+    thread_ = NULL;
 }
 
 ThreadInfo::~ThreadInfo()
@@ -30,7 +31,7 @@ ThreadInfo::~ThreadInfo()
 ThreadInfo* ThreadInfo::getInstance()
 {
     if (!pInstance) {
-        pInstance = new ThreadInfo();
+        pInstance = mempool::MemPool::getInstance()->Malloc<ThreadInfo>();
     }
     return pInstance;
 }
@@ -38,7 +39,7 @@ ThreadInfo* ThreadInfo::getInstance()
 void ThreadInfo::freeInstance()
 {
     if (pInstance) {
-        delete pInstance;
+        mempool::MemPool::getInstance()->Free<ThreadInfo>(pInstance);
         pInstance = NULL;
     }
 }

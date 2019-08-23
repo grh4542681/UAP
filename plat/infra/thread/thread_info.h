@@ -4,13 +4,19 @@
 #include <sys/types.h>
 #include <string>
 #include <thread>
+#include <memory>
+
+#include "mempool.h"
 
 #include "thread_return.h"
 #include "thread_id.h"
 
 namespace thread {
-
+template <typename F, typename R> class ThreadTemplate;
 class ThreadInfo {
+public:
+    friend class mempool::MemPool;
+    template <typename F, typename R> friend class ThreadTemplate;
 public:
     static ThreadInfo* getInstance();
     static void freeInstance();
@@ -27,7 +33,7 @@ private:
     ~ThreadInfo();
 
     ThreadID tid_;
-//    std::thread* thread_;
+    std::shared_ptr<std::thread> thread_;
     bool exit_;
     std::string thread_name_;
 

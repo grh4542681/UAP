@@ -10,6 +10,7 @@ public:
     enum ECode{
         IO_EFDTYPE = IO_ERROR_CODE_BASE,
         IO_EUNKNOWEVENT,
+        IO_EBADSELECTITEM,
     };
 public:
     static ECodeMapType ECodeMap;

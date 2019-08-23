@@ -35,6 +35,8 @@ public:
     MessageAgent(std::string name);
     ~MessageAgent();
 
+    sock::SockClient& GetClient();
+
     MessageRet RegisterEP(MessageEndpoint& ep);
     MessageRet RegisterEP(std::string name, MessageEndpoint& ep);
     MessageRet UnregisterEP(MessageEndpoint& ep);
@@ -51,12 +53,14 @@ public:
 
     MessageRet Run();
 public:
-    static int message_listener_thread(MessageAgent* mg);
     static io::IoRet message_client_callback(io::SelectItem* item);
+    static int message_listener_thread(MessageAgent* mg);
+
 private:
     bool init_flag_ = false;
     MessageAgentInfo info_;
     std::map<std::string, MessageListenEndpoint*> listen_ep_map_;
+    thread::ThreadTemplate<decltype(&message_listener_thread), int> listener_;
     sock::SockClient client_;
     io::Select select_;
 };

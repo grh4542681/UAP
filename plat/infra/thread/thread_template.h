@@ -6,6 +6,8 @@
 #include <utility>
 #include <functional>
 #include <type_traits>
+#include <typeinfo>
+#include <memory>
 
 #include "thread_info.h"
 
@@ -18,13 +20,32 @@ class ThreadTemplateRet {
 template < typename F, typename R = ThreadTemplateRet >
 class ThreadTemplate {
 public:
+    ThreadTemplate() {
+    }
     ThreadTemplate(F func) {
         running_flag_= false;
         func_ = func;
+        thread_ = NULL;
+    }
+    ThreadTemplate(ThreadTemplate& other) {
+        thread_info_ = other.thread_info_;
+        func_ = other.func_;
+        running_flag_ = other.running_flag_;
+        thread_ = other.thread_;
+        ret_ = other.ret_;
     }
 
     ~ThreadTemplate() {
 
+    }
+
+    const ThreadTemplate& operator=(const ThreadTemplate& other) {
+        thread_info_ = other.thread_info_;
+        func_ = other.func_;
+        running_flag_ = other.running_flag_;
+        thread_ = other.thread_;
+        ret_ = other.ret_;
+        return *this;
     }
 
     ThreadInfo* GetThreadInfo() {
@@ -36,18 +57,25 @@ public:
         if (running_flag_) {
             return ThreadRet::THREAD_ERUNNING;
         }
-        thread_ = std::thread(&ThreadTemplate::_run_main<Args ...>, this, std::forward<Args>(args)...);
+        thread_ = std::make_shared<std::thread>(&ThreadTemplate::_run_main<Args ...>, this, std::forward<Args>(args)...);
         running_flag_ = true;
         return ThreadRet::SUCCESS;
     }
 
     ThreadRet Join() {
-        thread_.join();
+        if (!running_flag_ || !thread_) {
+            return ThreadRet::THREAD_ERUNNING;
+        }
+        thread_->join();
         return ThreadRet::SUCCESS;
     }
 
-    void Detach() {
-        thread_.detach();
+    ThreadRet Detach() {
+        if (!running_flag_ || !thread_) {
+            return ThreadRet::THREAD_ERUNNING;
+        }
+        thread_->detach();
+        return ThreadRet::SUCCESS;
     }
 
     R& Return() {
@@ -59,13 +87,13 @@ private:
 private:
     F func_;
     bool running_flag_;
-    std::thread thread_;
+    std::shared_ptr<std::thread> thread_;
     R ret_;
 
     template <typename ... Args>
     ThreadRet _run_main(Args&& ... args) {
         thread_info_ = ThreadInfo::getInstance();
-//        thread_info_->thread_ = &thread_;
+        thread_info_->thread_ = thread_;
         thread_info_->Register2Process();
 
         ret_ = func_(std::forward<Args>(args)...);
@@ -77,6 +105,7 @@ private:
 
 };
 
+#if 0
 template < typename F >
 class ThreadTemplate <F, ThreadTemplateRet> {
 public:
@@ -133,6 +162,7 @@ private:
     }
 
 };
+#endif
 
 };
 

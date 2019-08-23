@@ -19,8 +19,18 @@ class SelectItem {
 public:
     typedef IoRet (*Callback)(SelectItem* item);
 public:
+    SelectItem();
     SelectItem(FD& fd);
+    SelectItem(const SelectItem& other);
     ~SelectItem();
+
+    const SelectItem& operator=(const SelectItem& other);
+
+    FD GetFd();
+    FD* GetFdPointer();
+
+    SelectItemState GetState();
+    void SetState(SelectItemState state);
 
     IoRet AddEvent(int event, Callback func);
     IoRet DelEvent(int event);

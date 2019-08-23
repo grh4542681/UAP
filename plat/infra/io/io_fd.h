@@ -31,6 +31,15 @@ public:
         auto_close_ = other.auto_close_;
         init_flag_ = other.init_flag_;
     }
+    FD(const FD&& other) {
+        if (fd_ > 0 && init_flag_ && auto_close_) {
+            Close();
+            fd_ = 0;
+        }
+        fd_ = other.fd_;
+        auto_close_ = other.auto_close_;
+        init_flag_ = other.init_flag_;
+    }
     virtual ~FD() {}
 
     const FD& operator=(const FD& other) {
@@ -42,6 +51,21 @@ public:
         auto_close_ = other.auto_close_;
         init_flag_ = other.init_flag_;
         return *this;
+    }
+
+    const FD& operator=(const FD&& other) {
+        if (fd_ > 0 && init_flag_ && auto_close_) {
+            Close();
+            fd_ = 0;
+        }
+        fd_ = other.fd_;
+        auto_close_ = other.auto_close_;
+        init_flag_ = other.init_flag_;
+        return *this;
+    }
+
+    bool operator<(const FD& other) const {
+        return (fd_ < other.fd_);
     }
 
     bool GetAutoClose() {

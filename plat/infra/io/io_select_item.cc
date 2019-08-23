@@ -4,9 +4,31 @@
 
 namespace io {
 
+SelectItem::SelectItem()
+{
+
+}
+
 SelectItem::SelectItem(FD& fd)
 {
     fd_ = fd.Clone();
+}
+
+SelectItem::SelectItem(const SelectItem& other)
+{
+    fd_ = other.fd_ ? other.fd_->Clone() : NULL;
+    select_event_ = other.select_event_;
+    state_ = other.state_;
+    func_map_ = other.func_map_;
+}
+
+const SelectItem& SelectItem::operator=(const SelectItem& other)
+{
+    fd_ = other.fd_ ? other.fd_->Clone() : NULL;
+    select_event_ = other.select_event_;
+    state_ = other.state_;
+    func_map_ = other.func_map_;
+    return *this;
 }
 
 SelectItem::~SelectItem()
@@ -14,6 +36,26 @@ SelectItem::~SelectItem()
     if (fd_) {
         mempool::MemPool::getInstance()->Free<FD>(fd_);
     }
+}
+
+FD SelectItem::GetFd()
+{
+    return (fd_ ? *fd_ : FD());
+}
+
+FD* SelectItem::GetFdPointer()
+{
+    return fd_;
+}
+
+SelectItemState SelectItem::GetState()
+{
+    return state_;
+}
+
+void SelectItem::SetState(SelectItemState state)
+{
+    state_ = state;
 }
 
 IoRet SelectItem::AddEvent(int event, Callback func)
