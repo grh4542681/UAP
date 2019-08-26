@@ -98,7 +98,7 @@ int MessageAgent::message_listener_thread(MessageAgent* msg_agent)
     io::SelectItem& msg_client = msg_agent->select_.GetSelectItem(msg_agent->client_.GetSockFD());
     msg_client.AddEvent(SELECT_OUTPUT, message_client_callback);
 */
-    msg_agent->select_.Listen();
+    msg_agent->select_.Listen(NULL);
 
     sleep(5);
     return 0;

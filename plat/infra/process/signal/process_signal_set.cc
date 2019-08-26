@@ -82,4 +82,9 @@ bool ProcessSignalSet::HasSig(ProcessSignal& sig)
     return false;
 }
 
+sigset_t* ProcessSignalSet::GetSigset()
+{
+    return &set_;
+}
+
 }

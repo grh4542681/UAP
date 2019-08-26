@@ -80,6 +80,8 @@ public:
     bool HasSig(ProcessSignal& sig);
     bool HasSig(ProcessSignal&& sig);
 
+    sigset_t* GetSigset();
+
 private:
     sigset_t set_;  ///< Linux signal set.
 };

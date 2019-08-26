@@ -7,6 +7,7 @@ Select::Select()
 {
     efd_ = -1;
     init_flag_ = false;
+    max_item_size_ = SELECT_MAX_FD_SIZE;
 }
 
 Select::~Select()
@@ -27,14 +28,32 @@ IoRet Select::Initalize()
     return IoRet::SUCCESS;
 }
 
-IoRet Select::Listen()
+IoRet Select::Listen(timer::Time* overtime)
 {
-    if (efd <= 0) {
+    return Listen(NULL, overtime);
+}
+
+IoRet Select::Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* overtime)
+{
+    if (efd_ <= 0) {
         return IoRet::EINIT;
     }
+
+    struct epoll_event rep_evts[max_item_size_];
+    memset(rep_evts, 0, sizeof(epoll_event) * max_item_size_);
+
+    sigset_t* set = sigmask ? sigmask->GetSigset() : NULL;
+    int otime = overtime ? static_cast<int>(overtime->ToMilliseconds()) : -1;
+
     _traversal_select_item();
     for (;;) {
-        int fd_num = epoll_wait(efd_, )
+        int fd_num = epoll_pwait(efd_, rep_evts, max_item_size_, otime, set);
+        if (fd_num == -1) {
+            return errno;
+        }
+        for (int loop = 0; loop < fd_num; ++loop) {
+            
+        }
     }
 }
 
