@@ -77,9 +77,19 @@ IoRet SelectItem::DelEvent(int event)
     return IoRet::SUCCESS;
 }
 
+bool SelectItem::HasEvent(int event)
+{
+    return (select_event_ | event);
+}
+
 SelectItem::Callback SelectItem::GetFunc(int event)
 {
-
+    auto it = func_map_.find(event);
+    if (it == func_map_.end()) {
+        return NULL;
+    } else {
+        return it->second;
+    }
 }
 
 }

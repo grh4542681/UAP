@@ -45,14 +45,38 @@ IoRet Select::Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* ov
     sigset_t* set = sigmask ? sigmask->GetSigset() : NULL;
     int otime = overtime ? static_cast<int>(overtime->ToMilliseconds()) : -1;
 
-    _traversal_select_item();
     for (;;) {
+
+        if (_traversal_select_item() != IoRet::SUCCESS) {
+            return IoRet::IO_EADDEVENT;
+        }
+
         int fd_num = epoll_pwait(efd_, rep_evts, max_item_size_, otime, set);
         if (fd_num == -1) {
             return errno;
         }
+
         for (int loop = 0; loop < fd_num; ++loop) {
-            
+            auto it = select_item_map_.find(rep_evts[loop].data.fd);
+            if (it == select_item_map_.end()) {
+                return IoRet::IO_EUNKNOWFD;
+            } else {
+                if (rep_evts[loop].events | EPOLLIN) {
+                    if (it->second.HasEvent(EPOLLIN)) {
+                        SelectItem::Callback func = it->second.GetFunc(EPOLLIN);
+                        if (!func) {
+                            return IoRet::IO_ENOCALLBACK;
+                        } else {
+                            func(&(it->second));
+                printf("--%d---grh\n", __LINE__);
+                        }
+                    } else {
+                        return IoRet::IO_EMATCHEVENT;
+                    }
+                }
+                if (rep_evts[loop].events | EPOLLOUT) {
+                }
+            }
         }
     }
 }
@@ -65,6 +89,7 @@ IoRet Select::AddSelectItem(SelectItem& item)
     item.SetState(SelectItemState::Add);
     mutex_.lock();
     select_item_map_.insert_or_assign(item.GetFd(), item);
+    printf("--%d--%d-grh\n", __LINE__, item.GetFd().GetFD());
     mutex_.unlock();
     return IoRet::SUCCESS;
 }
@@ -79,11 +104,34 @@ SelectItem Select::GetSelectItem(FD& fd)
 
 }
 
-void Select::_traversal_select_item()
+IoRet Select::_traversal_select_item()
 {
-    for (auto it : select_item_map_) {
-
+    for (auto it = select_item_map_.begin(); it != select_item_map_.end(); it++) {
+        switch (it->second.state_) {
+            case SelectItemState::Normal:
+                break;
+            case SelectItemState::Add:
+                struct epoll_event event;
+                memset(&event, 0, sizeof(struct epoll_event));
+                event.events = it->second.select_event_;
+                event.events |= EPOLLET;
+                event.data.fd = it->second.fd_->GetFD();
+                if (epoll_ctl(efd_, EPOLL_CTL_ADD, it->second.fd_->GetFD(), &event) == -1) {
+                }
+                it->second.state_ = SelectItemState::Normal;
+                break;
+            case SelectItemState::Delete:
+                if (epoll_ctl(efd_, EPOLL_CTL_DEL, it->second.fd_->GetFD(), NULL) == -1) {
+                }
+                select_item_map_.erase(it);
+                break;
+            case SelectItemState::Update:
+                break;
+            default:
+                break;
+        }
     }
+    return IoRet::SUCCESS;
 }
 
 }

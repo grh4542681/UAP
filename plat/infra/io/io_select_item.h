@@ -15,8 +15,10 @@ enum class SelectItemState {
     Update,
 };
 
+class Select;
 class SelectItem {
 public:
+    friend class Select;
     typedef IoRet (*Callback)(SelectItem* item);
 public:
     SelectItem();
@@ -34,6 +36,7 @@ public:
 
     IoRet AddEvent(int event, Callback func);
     IoRet DelEvent(int event);
+    bool HasEvent(int event);
     Callback GetFunc(int event);
 private:
     FD*  fd_ = NULL;

@@ -20,6 +20,12 @@ public:
         auto_close_ = false;
     }
     FD(unsigned int fd, bool auto_close) : fd_(fd), auto_close_(auto_close){
+        struct stat fd_stat;
+        if (fstat(fd, &fd_stat)) {
+            this->init_flag_ = false;
+        }
+        fd_ = 0;
+        auto_close_ = false;
         init_flag_ = false;
     }
     FD(const FD& other) {
@@ -64,10 +70,20 @@ public:
         return *this;
     }
 
+    bool operator==(const FD& other) const {
+        return (fd_ == other.fd_);
+    }
+    bool operator==(const int& fd) const {
+        return (fd_ == fd);
+    }
+/*
     bool operator<(const FD& other) const {
         return (fd_ < other.fd_);
     }
-
+    bool operator<(const unsigned int& fd) const {
+        return (fd_ < fd);
+    }
+*/
     bool GetAutoClose() {
         return auto_close_;
     }
@@ -80,7 +96,7 @@ public:
         return true;
     }
 
-    int GetFD() {
+    int GetFD() const {
         if (init_flag_) {
             return fd_;
         } else {
@@ -128,10 +144,14 @@ public:
         return 0;
     }
 protected:
-    unsigned int fd_ = 0;
+    int fd_ = 0;
     bool auto_close_ = false;
     bool init_flag_ = false;
 };
+
+bool operator<(const FD& a, const int b);
+bool operator<(const int a, const FD& b);
+bool operator<(const FD& a, const FD& b);
 
 }
 

@@ -26,6 +26,7 @@ MessageRet MessageServer::Run()
         memset(buff,0,sizeof(buff));
         int ret = afd.Recv(&addr, buff, sizeof(buff));
         printf("ret[%d][%s][%s]\n", ret, buff, addr.getAddr().c_str());
+        sleep(2);
         afd.Send(NULL, buff, strlen(buff));
         sleep(2);
         afd.Close();

@@ -19,6 +19,16 @@
 
 namespace timer {
 
+enum class Unit {
+    Week,
+    Day,
+    Hour,
+    Second,
+    Millisecond,
+    Microsecond,
+    Nanosecond,
+};
+
 /**
 * @brief - Virtual class Time
 */
@@ -75,6 +85,32 @@ public:
         } else {
             return (second_ < other.second_);
         }
+    }
+
+    Time& SetTime(long t, Unit unit) {
+        second_ = 0;
+        nanosecond_ = 0;
+        switch (unit) {
+            case Unit::Second:
+                second_ = t;
+                nanosecond_ = 0;
+                break;
+            case Unit::Millisecond:
+                second_ = t / 1000;
+                nanosecond_ = (t % 1000) * 1000000;
+                break;
+            case Unit::Microsecond:
+                second_ = t/ 1000000;
+                nanosecond_ = (t % 1000000) * 1000;
+                break;
+            case Unit::Nanosecond:
+                second_ = t / 1000000000;
+                nanosecond_ = (t % 1000000000);
+                break;
+            default:
+                break;
+        }
+        return *this;
     }
 
     Time& SetSecond(long second) {

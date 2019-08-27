@@ -87,17 +87,20 @@ MessageRet MessageAgent::Run()
 
 int MessageAgent::message_listener_thread(MessageAgent* msg_agent)
 {
-/*
+
     msg_agent->GetClient().GetSockFD().Write("hello world", 12);
+/*
     char buff[1024];
     memset(buff, 0, sizeof(buff));
     msg_agent->GetClient().GetSockFD().Recv(NULL,buff,sizeof(buff));
     printf("reply %s\n", buff);
 */
-/*
-    io::SelectItem& msg_client = msg_agent->select_.GetSelectItem(msg_agent->client_.GetSockFD());
-    msg_client.AddEvent(SELECT_OUTPUT, message_client_callback);
-*/
+
+    io::SelectItem msg_client(msg_agent->client_.GetSockFD());
+    msg_client.AddEvent(SELECT_INPUT, message_client_callback);
+    msg_agent->select_.AddSelectItem(msg_client);
+
+    msg_agent->select_.Initalize();
     msg_agent->select_.Listen(NULL);
 
     sleep(5);
@@ -106,11 +109,13 @@ int MessageAgent::message_listener_thread(MessageAgent* msg_agent)
 
 io::IoRet MessageAgent::message_client_callback(io::SelectItem* item)
 {
+    printf("---callback--\n");
     sock::SockFD* fd = dynamic_cast<sock::SockFD*>(item->GetFdPointer());
     char buff[1024];
     memset(buff, 0, sizeof(buff));
     fd->Recv(NULL,buff,sizeof(buff));
     printf("recv %s\n", buff);
+    return io::IoRet::SUCCESS;
 }
 
 }

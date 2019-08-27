@@ -9,7 +9,11 @@ class IoRet : public ret::Return {
 public:
     enum ECode{
         IO_EFDTYPE = IO_ERROR_CODE_BASE,
+        IO_EUNKNOWFD,
         IO_EUNKNOWEVENT,
+        IO_EMATCHEVENT,
+        IO_EADDEVENT,
+        IO_ENOCALLBACK,
         IO_EBADSELECTITEM,
     };
 public:

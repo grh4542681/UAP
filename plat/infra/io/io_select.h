@@ -26,10 +26,10 @@ private:
     bool init_flag_;
     int efd_;
     size_t max_item_size_;
-    std::map<FD, SelectItem> select_item_map_;
+    std::map<FD, SelectItem, std::less<>> select_item_map_;
     thread::mutex::ThreadMutexLock mutex_;
 
-    void _traversal_select_item();
+    IoRet _traversal_select_item();
 };
 
 }
