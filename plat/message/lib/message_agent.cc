@@ -72,12 +72,6 @@ MessageEndpoint* MessageAgent::LookupEP(std::string listener_name, std::string e
 
 MessageRet MessageAgent::Run()
 {
-    ret::Return ret = MessageRet::SUCCESS;
-    client_ = sock::SockClient(message::GetMessageServerAddress());
-    if ((ret = client_.Connect()) != MessageRet::SUCCESS) {
-        return MessageRet::MESSAGE_AGENT_ECONN;
-    }
-
     listener_ = thread::ThreadTemplate<decltype(&message_listener_thread), int>(message_listener_thread);
     listener_.Run(this);
     listener_.Detach();
@@ -87,6 +81,11 @@ MessageRet MessageAgent::Run()
 
 int MessageAgent::message_listener_thread(MessageAgent* msg_agent)
 {
+    ret::Return ret = MessageRet::SUCCESS;
+    msg_agent->GetClient() = sock::SockClient(message::GetMessageServerAddress());
+    if ((ret = msg_agent->GetClient().Connect()) != MessageRet::SUCCESS) {
+        return MessageRet::MESSAGE_AGENT_ECONN;
+    }
 
     msg_agent->GetClient().GetSockFD().Write("hello world", 12);
 /*

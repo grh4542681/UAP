@@ -96,6 +96,9 @@ SockFD& SockServer::GetSockFD()
 
 SockRet SockServer::Bind()
 {
+    if (s_address_.domain_ == AF_LOCAL) {
+
+    }
     SockRet ret;
     if (!init_flag_) {
         SOCK_ERROR("%s", "Not initialized");
@@ -105,16 +108,19 @@ SockRet SockServer::Bind()
         return ret;
     }
     if ((ret = _bind()) != SockRet::SUCCESS) {
+        listen_fd_.Close();
         return ret;
     }
     if (s_address_.type_ == SOCK_STREAM) {
         if ((ret = _listen()) != SockRet::SUCCESS) {
+            listen_fd_.Close();
             return ret;
         }
     } else if (s_address_.type_ == SOCK_DGRAM) {
         //if multicast server and given multicast group, add socket to this multicast group
         if (s_address_.isMulticast() && !s_address_.address_.empty()) {
             if ((ret = listen_fd_.SetMcastJoin(s_address_.address_.c_str())) != SockRet::SUCCESS) {
+                listen_fd_.Close();
                 return ret;
             }
         }
