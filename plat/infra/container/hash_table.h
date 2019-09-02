@@ -14,7 +14,7 @@
 #include "mempool.h"
 #include "mutex/thread_rw_lock.h"
 
-namespace ds {
+namespace container {
 
 
 typedef unsigned long (*StringHash)(const char*);

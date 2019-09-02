@@ -1,9 +1,9 @@
-#include "bitmap/bitmap.h"
+#include "bitmap.h"
 
 int main()
 {
     size_t i;
-    util::bitmap::Bitmap bm(10);
+    container::Bitmap bm(10);
     bm.Set(2);
     bm.Print();
     bm.Set(8);
@@ -29,7 +29,7 @@ int main()
     printf("0---%d\n", bm.Find0());
     printf("---------------------------------------\n");
     char cc;
-    util::bitmap::Bitmap bm2(8, (void*)&cc);
+    container::Bitmap bm2(8, (void*)&cc);
     bm2.Print();
     cc |= 1;
     bm2.Print();

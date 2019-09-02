@@ -9,19 +9,18 @@ namespace file {
 class FilePath {
 public:
     FilePath();
+    FilePath(std::string raw);
     ~FilePath();
 
-    void Split(std::string raw);
     std::string GetRaw();
     int GetDepth();
-    std::string GetPath(int depth);
+    std::string GetPath();
+    std::string GetPath(unsigned int start, unsigned int depth);
 
-public:
-    static std::string GetFileName(std::string raw);
-    static std::string GetPathName(std::string raw);
 private:
     std::string raw_;
-    int depth_;
+    unsigned int depth_;
+    bool abs_path_;
     std::vector<std::string> path_vector_;
 };
 

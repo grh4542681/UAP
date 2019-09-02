@@ -30,6 +30,7 @@ SET (PLAT_INFRA_HRD "${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     "${FRAM_ROOT_PATH}/plat/infra/return"
                     "${FRAM_ROOT_PATH}/plat/infra/timer"
                     "${FRAM_ROOT_PATH}/plat/infra/mempool"
+                    "${FRAM_ROOT_PATH}/plat/infra/container"
                     "${FRAM_ROOT_PATH}/plat/infra/thread"
                     "${FRAM_ROOT_PATH}/plat/infra/process"
                     "${FRAM_ROOT_PATH}/plat/infra/file"
@@ -64,6 +65,7 @@ SET (PLAT_INFRA_LIB libgret.so
                     libgipc.so
                     libgret.so
                     libgmp.so
+                    libgcontainer.so
                     libgparser.so
                     libgthread.so
                     libgprocess.so

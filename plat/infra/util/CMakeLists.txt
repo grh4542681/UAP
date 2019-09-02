@@ -1,5 +1,4 @@
-SET(LIBGUTIL_SRC bitmap/bitmap_return.cc
-                 bitmap/bitmap.cc
+SET(LIBGUTIL_SRC string/string_util.cc
 )
 
 ADD_LIBRARY(GRHutil_SO SHARED ${LIBGUTIL_SRC})

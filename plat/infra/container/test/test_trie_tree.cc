@@ -3,7 +3,7 @@
 
 int main(){
     printf("%d\n", TT_DICT_INDEX(' '));
-    ds::TrieTree<int> tt;
+    container::TrieTree<int> tt;
     tt.insert("abcdef7",100);
     tt.insert("abcef7",101);
     tt.insert("abce7",102);
@@ -14,7 +14,7 @@ int main(){
     printf("abcef7 : [%d]\n", *(tt.find("abcef7")));
     tt.display();
     printf("---copy-----------\n");
-    ds::TrieTree<int> ttt(tt);
+    container::TrieTree<int> ttt(tt);
     printf("---copy-----------\n");
     printf("count [%d]\n", ttt.getCount());
     printf("abcdef7 : [%d]\n", *(ttt.find("abcdef7")));

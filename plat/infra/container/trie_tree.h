@@ -18,7 +18,7 @@
 #include <string>
 #include "mempool.h"
 
-namespace ds{
+namespace container{
 /*
  * Dictionary supported characters (ASCII code)
  * 

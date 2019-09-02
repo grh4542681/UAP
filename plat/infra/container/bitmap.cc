@@ -1,7 +1,7 @@
 #include <string>
 #include "bitmap.h"
 
-namespace util::bitmap {
+namespace container {
 
 Bitmap::Bitmap() { }
 
@@ -49,7 +49,7 @@ size_t Bitmap::GetMaxBitsize()
 
 size_t Bitmap::GetCurBitsize()
 {
-
+    return bit_cur_size_;
 }
 
 BitmapRet Bitmap::Set(size_t index)
@@ -64,6 +64,7 @@ BitmapRet Bitmap::Set(size_t index)
     size_t page_offset = (index - 1 ) % BITMAP_PAGESIZE;
     char* tmp = reinterpret_cast<char*>(page_head_);
     tmp[page_index - 1] = tmp[page_index - 1] | (1 << page_offset);
+    bit_cur_size_++;
     return BitmapRet::SUCCESS;
 }
 
@@ -79,6 +80,7 @@ BitmapRet Bitmap::Unset(size_t index)
     size_t page_offset = (index - 1 ) % BITMAP_PAGESIZE;
     char* tmp = reinterpret_cast<char*>(page_head_);
     tmp[page_index - 1] = tmp[page_index - 1] &~ (1 << page_offset);
+    bit_cur_size_--;
     return BitmapRet::SUCCESS;
 }
 

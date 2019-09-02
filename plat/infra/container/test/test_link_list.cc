@@ -2,7 +2,7 @@
 #include "link_list.h"
 int main()
 {
-    ds::LinkList<int> l;
+    container::LinkList<int> l;
     printf("count %d\n", l.count());
     l.pushback(1);
     l.pushback(2);
@@ -37,13 +37,13 @@ int main()
     }
     printf("count %d\n", l.count());
     printf("=======copy======================\n");
-    ds::LinkList<int> ll(l);
+    container::LinkList<int> ll(l);
     for (auto it : ll) {
         printf("%d\n", it);
     }
     printf("count %d\n", ll.count());
     printf("===== oper= =======================\n");
-    ds::LinkList<int> lll = l;
+    container::LinkList<int> lll = l;
     for (auto it : lll) {
         printf("%d\n", it);
     }
@@ -56,7 +56,7 @@ int main()
         char a;
     };
     struct aaa test1 = { 1,'1'};
-    ds::LinkList<struct aaa> l2;
+    container::LinkList<struct aaa> l2;
     l2.pushback(test1);
     printf("count %d\n", l2.count());
     for (auto it : l2) {

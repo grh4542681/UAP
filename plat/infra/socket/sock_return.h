@@ -23,6 +23,7 @@ public:
     enum ECode{
         SOCK_EBASE = SOCK_ERROR_CODE_BASE,
         SOCK_LINKDOWN,      ///< link down.
+        SOCK_EADDRESS,
     };
 public:
     static ECodeMapType ECodeMap;

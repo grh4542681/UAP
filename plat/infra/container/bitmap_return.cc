@@ -1,6 +1,6 @@
 #include "bitmap_return.h"
 
-namespace util::bitmap {
+namespace container {
 
 BitmapRet::ECodeMapType BitmapRet::ECodeMap = {
     { ECode::BM_EBASE, "" },

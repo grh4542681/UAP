@@ -17,7 +17,7 @@
 #include <iterator>
 
 #include "time_c.h"
-#include "bitmap/bitmap.h"
+#include "bitmap.h"
 
 #include "shm_sysv.h"
 #include "shm_posix.h"
@@ -226,7 +226,7 @@ private:
             return NULL;
         }
 
-        util::bitmap::Bitmap bm(p_shm_head_->object_max_num_, p_shm_head_->object_bitmap_);
+        container::Bitmap bm(p_shm_head_->object_max_num_, p_shm_head_->object_bitmap_);
         bit_index = bm.Find0();
         if (bit_index == 0) {
             ret_ = IpcRet::SL_EBITMAP;
@@ -239,7 +239,7 @@ private:
             return NULL;
         }
 
-        if (bm.Set(bit_index) != util::bitmap::BitmapRet::SUCCESS) {
+        if (bm.Set(bit_index) != container::BitmapRet::SUCCESS) {
             ret_ = IpcRet::SL_EBITMAP;
             return NULL;
         }
@@ -285,7 +285,7 @@ private:
             return NULL;
         }
 
-        util::bitmap::Bitmap bm(p_shm_head_->object_max_num_, p_shm_head_->object_bitmap_);
+        container::Bitmap bm(p_shm_head_->object_max_num_, p_shm_head_->object_bitmap_);
         bit_index = bm.Find0();
         if (bit_index == 0) {
             ret_ = IpcRet::SL_EBITMAP;
@@ -298,7 +298,7 @@ private:
             return NULL;
         }
 
-        if (bm.Set(bit_index) != util::bitmap::BitmapRet::SUCCESS) {
+        if (bm.Set(bit_index) != container::BitmapRet::SUCCESS) {
             ret_ = IpcRet::SL_EBITMAP;
             return NULL;
         }
@@ -341,7 +341,7 @@ private:
         }
 
         size_t bit_index = node->index;
-        util::bitmap::Bitmap bm(p_shm_head_->object_max_num_, p_shm_head_->object_bitmap_);
+        container::Bitmap bm(p_shm_head_->object_max_num_, p_shm_head_->object_bitmap_);
         bm.Unset(bit_index);
 
         T* pdata = reinterpret_cast<T*>(reinterpret_cast<char*>(node) - sizeof(T));

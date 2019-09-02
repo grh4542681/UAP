@@ -1,7 +1,7 @@
 #ifndef __NODE_TREE_H__
 #define __NODE_TREE_H__
 
-namespace ds {
+namespace container {
 
 class NodeTreeObject {};
 class NodeTree {};

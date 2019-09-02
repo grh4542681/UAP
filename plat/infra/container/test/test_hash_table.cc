@@ -4,7 +4,7 @@
 int main()
 {
     auto lam = [](int x)->unsigned long{ return (unsigned long)x; };
-    ds::HashTable<int,decltype(lam)> ht(10, lam);
+    container::HashTable<int,decltype(lam)> ht(10, lam);
     ht.insert(4,3);
     printf("size %ld count %ld free %ld\n", ht.size(), ht.count(), ht.available());
     int* test = ht.find(3);
@@ -20,14 +20,14 @@ int main()
     printf("size %ld count %ld free %ld\n", ht.size(), ht.count(), ht.available());
 
 
-    ds::HashTable<int> ht2(25);
+    container::HashTable<int> ht2(25);
     printf("hash index[%ld]\n",ht2.hashcode("aa"));
     printf("hash index[%ld]\n",ht2.hashcode("ab"));
     printf("hash index[%ld]\n",ht2.hashcode("alksanefnb"));
     ht2.insert(100, "asda");
     printf("get value[%d]\n", *(ht2.find("asda")));
     printf("==========copy==========\n");
-    ds::HashTable<int> ht3(ht2);
+    container::HashTable<int> ht3(ht2);
     printf("hash index[%ld]\n",ht3.hashcode("aa"));
     printf("hash index[%ld]\n",ht3.hashcode("ab"));
     printf("hash index[%ld]\n",ht3.hashcode("alksanefnb"));

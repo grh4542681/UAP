@@ -3,7 +3,7 @@
 
 #include "return.h"
 
-namespace util::bitmap {
+namespace container {
 
 class BitmapRet : public ret::Return {
 public:

@@ -6,7 +6,7 @@
 
 #define BITMAP_PAGESIZE (8)
 
-namespace util::bitmap {
+namespace container {
 
 class Bitmap {
 public:

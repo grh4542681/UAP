@@ -15,7 +15,7 @@
 #include <iterator>
 #include "mempool.h"
 
-namespace ds {
+namespace container {
 
 /**
 * @brief - Doubly linked list class.
