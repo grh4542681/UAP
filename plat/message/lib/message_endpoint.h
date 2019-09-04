@@ -7,11 +7,12 @@
 #include "message_defines.h"
 
 namespace message {
-class MessageListenEndpoint;
+class MessageListener;
 class MessageEndpoint {
 public:
     typedef struct _MessageEndpointInfo {
         char name[MESSAGE_ENDPOINT_NAME_MAX_LEN] = { 0 };
+        char listener_name[MESSAGE_ENDPOINT_NAME_MAX_LEN] = { 0 };
         thread::ThreadID tid;
         //cond
     } MessageEndpointInfo;
@@ -19,7 +20,9 @@ public:
     MessageEndpoint(std::string name);
     ~MessageEndpoint();
 
-    MessageRet Search();
+    MessageRet Register();
+    MessageRet Unregister();
+
 private:
     MessageListenEndpoint* listener;
     MessageEndpointInfo ep_info_;

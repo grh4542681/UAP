@@ -31,9 +31,27 @@ FilePath::FilePath(std::string raw) : raw_(raw)
 
 FilePath::~FilePath() {}
 
-std::string FilePath::GetRaw()
+std::string& FilePath::GetRaw()
 {
     return raw_;
+}
+
+FilePath& FilePath::operator<<(FilePath& other)
+{
+    path_vector_.insert(path_vector_.end(), other.path_vector_.begin(), other.path_vector_.end());
+    depth_ = path_vector_.size() - 1;
+    return *this;
+}
+
+FilePath& FilePath::operator<<(std::string&& other)
+{
+    FilePath p(other);
+    return (*this << p);
+}
+
+FilePath& FilePath::operator<<(std::string& other)
+{
+    return FilePath::operator<<(std::move(other));
 }
 
 int FilePath::GetDepth()
@@ -44,6 +62,10 @@ int FilePath::GetDepth()
 std::string FilePath::GetPath()
 {
     return GetPath(0, depth_);
+}
+
+std::string FilePath::GetPath(unsigned int depth) {
+    return GetPath(depth, depth);
 }
 
 std::string FilePath::GetPath(unsigned int start, unsigned int depth) {

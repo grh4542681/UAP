@@ -13,13 +13,14 @@
 
 #include "message_api.h"
 #include "message_defines.h"
+#include "message_raw.h"
 #include "message_endpoint.h"
 #include "message_listen_endpoint.h"
 #include "message_agent_state.h"
 
 namespace message {
 
-class MessageAgent {
+class MessageAgent : MessageRaw {
 public:
     typedef struct _MessageAgentInfo {
         char name_[MESSAGE_ENDPOINT_NAME_MAX_LEN] = { 0 };
@@ -36,6 +37,12 @@ public:
     ~MessageAgent();
 
     sock::SockClient& GetClient();
+
+    MessageRet Register();
+    MessageRet Unregister();
+
+    MessageRet Serialization(MessageStreamBinary& bs);
+    MessageRet Deserialization(MessageStreamBinary& bs);
 
     MessageRet RegisterEP(MessageEndpoint& ep);
     MessageRet RegisterEP(std::string name, MessageEndpoint& ep);

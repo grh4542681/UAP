@@ -12,9 +12,14 @@ public:
     FilePath(std::string raw);
     ~FilePath();
 
-    std::string GetRaw();
+    FilePath& operator<<(std::string& other);
+    FilePath& operator<<(std::string&& other);
+    FilePath& operator<<(FilePath& other);
+
+    std::string& GetRaw();
     int GetDepth();
     std::string GetPath();
+    std::string GetPath(unsigned int depth);
     std::string GetPath(unsigned int start, unsigned int depth);
 
 private:

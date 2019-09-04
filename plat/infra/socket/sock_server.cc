@@ -224,10 +224,10 @@ SockRet SockServer::_bind()
         addr.sun_family = AF_LOCAL;
 
         file::FilePath addr_path(s_address_.address_);
-        if (addr_path.GetPath(addr_path.GetDepth(), addr_path.GetDepth()).size() > sizeof(addr.sun_path)) {
+        if (addr_path.GetPath(addr_path.GetDepth()).size() > sizeof(addr.sun_path)) {
             return SockRet::SOCK_EADDRESS;
         }
-        strcpy(addr.sun_path, addr_path.GetPath(addr_path.GetDepth(), addr_path.GetDepth()).c_str());
+        strcpy(addr.sun_path, addr_path.GetPath(addr_path.GetDepth()).c_str());
         
         if (chdir(addr_path.GetPath(0, addr_path.GetDepth() - 1).c_str()) < 0) {
             return errno;
