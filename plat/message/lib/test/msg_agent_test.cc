@@ -7,8 +7,8 @@ int main()
     process::ProcessInfo* p = process::ProcessInfo::getInstance();
     file::FileC fd(stdout);
     p->Report(fd,report::ReportMode::DETAIL);
-    message::MessageAgent agent("test");
-    agent.Run();
+    message::MessageAgent* agent = message::MessageAgent::getInstance();
+    agent->Run();
     printf("run agent\n");
     sleep(2);
     p->Report(fd,report::ReportMode::DETAIL);

@@ -24,7 +24,7 @@ public:
     SelectItem();
     SelectItem(FD& fd);
     SelectItem(const SelectItem& other);
-    ~SelectItem();
+    virtual ~SelectItem();
 
     const SelectItem& operator=(const SelectItem& other);
 

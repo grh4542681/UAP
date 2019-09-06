@@ -16,7 +16,7 @@ public:
     ~Select();
 
     IoRet Initalize();
-    IoRet AddSelectItem(SelectItem& item);
+    IoRet AddSelectItem(SelectItem* item);
     IoRet DelSelectItem(FD& fd);
     SelectItem GetSelectItem(FD& fd);
 
@@ -26,7 +26,7 @@ private:
     bool init_flag_;
     int efd_;
     size_t max_item_size_;
-    std::map<FD, SelectItem, std::less<>> select_item_map_;
+    std::map<FD, SelectItem*, std::less<>> select_item_map_;
     thread::mutex::ThreadMutexLock mutex_;
 
     IoRet _traversal_select_item();

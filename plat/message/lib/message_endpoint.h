@@ -24,7 +24,7 @@ public:
     MessageRet Unregister();
 
 private:
-    MessageListenEndpoint* listener;
+    MessageListener* listener;
     MessageEndpointInfo ep_info_;
 };
 

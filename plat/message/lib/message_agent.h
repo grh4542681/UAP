@@ -5,6 +5,7 @@
 
 #include "vtime.h"
 #include "process_id.h"
+#include "process_info.h"
 #include "thread_id.h"
 #include "thread_template.h"
 #include "sock_client.h"
@@ -15,7 +16,7 @@
 #include "message_defines.h"
 #include "message_raw.h"
 #include "message_endpoint.h"
-#include "message_listen_endpoint.h"
+#include "message_listener.h"
 #include "message_agent_state.h"
 
 namespace message {
@@ -23,19 +24,19 @@ namespace message {
 class MessageAgent : MessageRaw {
 public:
     typedef struct _MessageAgentInfo {
-        char name_[MESSAGE_ENDPOINT_NAME_MAX_LEN] = { 0 };
+        std::string name_;
         process::ProcessID pid_;
-        thread::ThreadID tid_;
 
-        size_t listen_ep_num_;
+        size_t listener_num_;
         timer::Time create_time_;
         MessageAgentState state_;
     } MessageAgentInfo;
 
 public:
-    MessageAgent(std::string name);
+    MessageAgent();
     ~MessageAgent();
 
+    std::string GetName();
     sock::SockClient& GetClient();
 
     MessageRet Register();
@@ -49,11 +50,11 @@ public:
     MessageRet UnregisterEP(MessageEndpoint& ep);
     MessageRet UnregisterEP(std::string listener_name, std::string ep_name);
 
-    MessageRet RegisterListenEP(MessageListenEndpoint& lep);
+    MessageRet RegisterListenEP(MessageListener& lep);
     MessageRet UnregisterListenEP(std::string name);
 
-    MessageListenEndpoint* LookupLinstenEP();
-    MessageListenEndpoint* LookupLinstenEP(std::string listener_name);
+    MessageListener* LookupLinstenEP();
+    MessageListener* LookupLinstenEP(std::string listener_name);
 
     MessageEndpoint* LookupEP(std::string ep_name);
     MessageEndpoint* LookupEP(std::string listener_name, std::string ep_name);
@@ -62,14 +63,17 @@ public:
 public:
     static io::IoRet message_client_callback(io::SelectItem* item);
     static int message_listener_thread(MessageAgent* mg);
+    static MessageAgent* getInstance();
 
 private:
     bool init_flag_ = false;
     MessageAgentInfo info_;
-    std::map<std::string, MessageListenEndpoint*> listen_ep_map_;
+    std::map<std::string, MessageListener*> listen_ep_map_;
     thread::ThreadTemplate<decltype(&message_listener_thread), int> listener_;
     sock::SockClient client_;
     io::Select select_;
+
+    static MessageAgent* pInstance;
 };
 
 }

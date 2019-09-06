@@ -1,19 +1,19 @@
+#include "mempool.h"
+
 #include "message_defines.h"
 #include "message_agent.h"
 
 namespace message {
 
-MessageAgent::MessageAgent(std::string name)
+MessageAgent* MessageAgent::pInstance = NULL;
+
+MessageAgent::MessageAgent()
 {
-    if (name.length() > MESSAGE_ENDPOINT_NAME_MAX_LEN) {
-        info_.state_ = MessageAgentState::Error;
-        init_flag_ = false;
-    } else {
-        memcpy(info_.name_, name.c_str(), name.length());
-        info_.pid_ = process::ProcessID::GetProcessID();
-        info_.state_ = MessageAgentState::Ready;
-        init_flag_ = true;
-    }
+    info_.name_ = process::ProcessInfo::getInstance()->GetName();
+    info_.pid_ = process::ProcessInfo::getInstance()->GetPid();
+    info_.listener_num_ = 0;
+    info_.state_ = MessageAgentState::Ready;
+    init_flag_ = true;
 }
 
 MessageAgent::~MessageAgent()
@@ -21,9 +21,32 @@ MessageAgent::~MessageAgent()
 
 }
 
+std::string MessageAgent::GetName()
+{
+    return info_.name_;
+}
+
 sock::SockClient& MessageAgent::GetClient()
 {
     return client_;
+}
+
+MessageRet MessageAgent::Register()
+{
+
+}
+MessageRet MessageAgent::Unregister()
+{
+
+}
+
+MessageRet MessageAgent::Serialization(MessageStreamBinary& bs)
+{
+
+}
+MessageRet MessageAgent::Deserialization(MessageStreamBinary& bs)
+{
+
 }
 
 MessageRet MessageAgent::RegisterEP(MessageEndpoint& ep)
@@ -43,7 +66,7 @@ MessageRet MessageAgent::UnregisterEP(std::string listener_name, std::string ep_
 
 }
 
-MessageRet MessageAgent::RegisterListenEP(MessageListenEndpoint& lep)
+MessageRet MessageAgent::RegisterListenEP(MessageListener& lep)
 {
 
 }
@@ -52,11 +75,11 @@ MessageRet MessageAgent::UnregisterListenEP(std::string name)
 
 }
 
-MessageListenEndpoint* MessageAgent::LookupLinstenEP()
+MessageListener* MessageAgent::LookupLinstenEP()
 {
 
 }
-MessageListenEndpoint* MessageAgent::LookupLinstenEP(std::string listener_name)
+MessageListener* MessageAgent::LookupLinstenEP(std::string listener_name)
 {
 
 }
@@ -95,9 +118,12 @@ int MessageAgent::message_listener_thread(MessageAgent* msg_agent)
     printf("reply %s\n", buff);
 */
 
-    io::SelectItem msg_client(msg_agent->client_.GetSockFD());
-    msg_client.AddEvent(SELECT_INPUT, message_client_callback);
-    msg_agent->select_.AddSelectItem(msg_client);
+    MessageListener msg_client_listener("MSG_CTRL", msg_agent->client_.GetSockFD());
+    msg_client_listener.AddEvent(SELECT_INPUT, message_client_callback);
+    msg_agent->select_.AddSelectItem(&msg_client_listener);
+//    io::SelectItem msg_client(msg_agent->client_.GetSockFD());
+//    msg_client.AddEvent(SELECT_INPUT, message_client_callback);
+//    msg_agent->select_.AddSelectItem(&msg_client);
 
     msg_agent->select_.Initalize();
     msg_agent->select_.Listen(NULL);
@@ -115,6 +141,14 @@ io::IoRet MessageAgent::message_client_callback(io::SelectItem* item)
     fd->Recv(NULL,buff,sizeof(buff));
     printf("recv %s\n", buff);
     return io::IoRet::SUCCESS;
+}
+
+MessageAgent* MessageAgent::getInstance()
+{
+    if (!pInstance) {
+        pInstance = mempool::MemPool::getInstance()->Malloc<MessageAgent>();
+    }
+    return pInstance;
 }
 
 }

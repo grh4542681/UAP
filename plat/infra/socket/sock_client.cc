@@ -6,6 +6,8 @@
 #include <arpa/inet.h>
 #include <sys/un.h>
 
+#include "file_path.h"
+
 #include "sock_log.h"
 #include "sock_client.h"
 
@@ -130,7 +132,17 @@ SockRet SockClient::_connect()
     if (s_address_.domain_ == AF_LOCAL) {
         struct sockaddr_un addr;
         addr.sun_family = AF_LOCAL;
-        strcpy(addr.sun_path, s_address_.address_.c_str());
+
+        file::FilePath addr_path(s_address_.address_);
+        if (addr_path.GetPath(addr_path.GetDepth()).size() > sizeof(addr.sun_path)) {
+            return SockRet::SOCK_EADDRESS;
+        }   
+        strcpy(addr.sun_path, addr_path.GetPath(addr_path.GetDepth()).c_str());
+            
+        if (chdir(addr_path.GetPath(0, addr_path.GetDepth() - 1).c_str()) < 0) {
+            return errno;
+        }
+
         ret = connect(conn_fd_.GetFD(), (struct sockaddr*)&addr, sizeof(struct sockaddr));
         if (ret != 0) {
             temp_errno = errno;

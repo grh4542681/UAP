@@ -3,28 +3,30 @@
 
 #include <map>
 
+#include "vtime.h"
 #include "thread_id.h"
+#include "io_select_item.h"
 
 #include "message_return.h"
 #include "message_defines.h"
 #include "message_raw.h"
 #include "message_endpoint.h"
+#include "message_listener_state.h"
 
 namespace message {
 class MessageAgent;
-class MessageListener : MessageRaw {
+class MessageListener : public MessageRaw, public io::SelectItem {
 public:
     typedef struct _MessageListenerInfo {
-        char name_[MESSAGE_ENDPOINT_NAME_MAX_LEN] = { 0 };
-        char agent_name_[MESSAGE_ENDPOINT_NAME_MAX_LEN] = { 0 };
-        thread::ThreadID tid_;
+        std::string name_;
+        std::string agent_name_;
+
+        int endpoint_num_;
+        timer::Time create_time_;
+        MessageListenerState state_;
     } MessageListenerInfo;
 public:
-    MessageListener(std::string name, io::FD& fd) {
-        if (name.size() > MESSAGE_ENDPOINT_NAME_MAX_LEN) {
-            return;
-        }
-    }
+    MessageListener(std::string name, io::FD& fd);
     ~MessageListener();
 
     MessageRet Register();
@@ -32,7 +34,7 @@ public:
 
 private:
     MessageAgent* agent_;
-    MessageListenerInfo ep_info_;
+    MessageListenerInfo info_;
     std::map<std::string, MessageEndpoint*> tep_map_;
 };
 
