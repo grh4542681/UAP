@@ -18,6 +18,7 @@
 #include "message_endpoint.h"
 #include "message_listener.h"
 #include "message_agent_state.h"
+#include "message_link.h"
 
 namespace message {
 
@@ -36,28 +37,27 @@ public:
     MessageAgent();
     ~MessageAgent();
 
-    std::string GetName();
-    sock::SockClient& GetClient();
-
-    MessageRet Register();
-    MessageRet Unregister();
-
+    //from MessageRaw
     MessageRet Serialization(MessageStreamBinary& bs);
     MessageRet Deserialization(MessageStreamBinary& bs);
 
-    MessageRet RegisterEP(MessageEndpoint& ep);
-    MessageRet RegisterEP(std::string name, MessageEndpoint& ep);
-    MessageRet UnregisterEP(MessageEndpoint& ep);
-    MessageRet UnregisterEP(std::string listener_name, std::string ep_name);
+    std::string GetName();
+    sock::SockClient& GetClient();
 
-    MessageRet RegisterListenEP(MessageListener& lep);
-    MessageRet UnregisterListenEP(std::string name);
+    MessageListener* GetLinstener(std::string l_name);
+    MessageEndpoint* GetEndpoint(std::string listener_name, std::string ep_name);
 
-    MessageListener* LookupLinstenEP();
-    MessageListener* LookupLinstenEP(std::string listener_name);
+    MessageRet RegisterAgent();
+    MessageRet UnregisterAgent();
 
-    MessageEndpoint* LookupEP(std::string ep_name);
-    MessageEndpoint* LookupEP(std::string listener_name, std::string ep_name);
+    template < typename ... Args > MessageRet RegisterListener(Args&& ... args);
+    MessageRet UnregisterListener(std::string name);
+
+    template < typename ... Args > MessageRet RegisterEndpoint(std::string l_name, Args&& ... args);
+    MessageRet UnregisterEP(std::string l_name, std::string e_name);
+
+    MessageLink LookupLinstener(std::string l_name);
+    MessageLink LookupEndpoint(std::string listener_name, std::string ep_name);
 
     MessageRet Run();
 public:

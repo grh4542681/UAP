@@ -21,6 +21,15 @@ MessageAgent::~MessageAgent()
 
 }
 
+MessageRet MessageAgent::Serialization(MessageStreamBinary& bs)
+{
+
+}
+MessageRet MessageAgent::Deserialization(MessageStreamBinary& bs)
+{
+
+}
+
 std::string MessageAgent::GetName()
 {
     return info_.name_;
@@ -31,64 +40,54 @@ sock::SockClient& MessageAgent::GetClient()
     return client_;
 }
 
-MessageRet MessageAgent::Register()
-{
-
-}
-MessageRet MessageAgent::Unregister()
+MessageListener* MessageAgent::GetLinstener(std::string l_name)
 {
 
 }
 
-MessageRet MessageAgent::Serialization(MessageStreamBinary& bs)
-{
-
-}
-MessageRet MessageAgent::Deserialization(MessageStreamBinary& bs)
+MessageEndpoint* MessageAgent::GetEndpoint(std::string listener_name, std::string ep_name)
 {
 
 }
 
-MessageRet MessageAgent::RegisterEP(MessageEndpoint& ep)
-{
-
-}
-MessageRet MessageAgent::RegisterEP(std::string name, MessageEndpoint& ep)
-{
-
-}
-MessageRet MessageAgent::UnregisterEP(MessageEndpoint& ep)
-{
-
-}
-MessageRet MessageAgent::UnregisterEP(std::string listener_name, std::string ep_name)
+MessageRet MessageAgent::RegisterAgent()
 {
 
 }
 
-MessageRet MessageAgent::RegisterListenEP(MessageListener& lep)
-{
-
-}
-MessageRet MessageAgent::UnregisterListenEP(std::string name)
+MessageRet MessageAgent::UnregisterAgent()
 {
 
 }
 
-MessageListener* MessageAgent::LookupLinstenEP()
+template < typename ... Args >
+MessageRet MessageAgent::RegisterListener(Args&& ... args)
 {
 
 }
-MessageListener* MessageAgent::LookupLinstenEP(std::string listener_name)
+
+MessageRet MessageAgent::UnregisterListener(std::string name)
 {
 
 }
 
-MessageEndpoint* MessageAgent::LookupEP(std::string ep_name)
+template < typename ... Args >
+MessageRet MessageAgent::RegisterEndpoint(std::string l_name, Args&& ... args)
 {
 
 }
-MessageEndpoint* MessageAgent::LookupEP(std::string listener_name, std::string ep_name)
+
+MessageRet MessageAgent::UnregisterEP(std::string l_name, std::string e_name)
+{
+
+}
+
+MessageLink MessageAgent::LookupLinstener(std::string l_name)
+{
+
+}
+
+MessageLink MessageAgent::LookupEndpoint(std::string listener_name, std::string ep_name)
 {
 
 }
@@ -109,21 +108,14 @@ int MessageAgent::message_listener_thread(MessageAgent* msg_agent)
     if ((ret = msg_agent->GetClient().Connect()) != MessageRet::SUCCESS) {
         return MessageRet::MESSAGE_AGENT_ECONN;
     }
+    msg_agent->info_.state_ = MessageAgentState::ConnectServer;
 
     msg_agent->GetClient().GetSockFD().Write("hello world", 12);
-/*
-    char buff[1024];
-    memset(buff, 0, sizeof(buff));
-    msg_agent->GetClient().GetSockFD().Recv(NULL,buff,sizeof(buff));
-    printf("reply %s\n", buff);
-*/
-
     MessageListener msg_client_listener("MSG_CTRL", msg_agent->client_.GetSockFD());
     msg_client_listener.AddEvent(SELECT_INPUT, message_client_callback);
     msg_agent->select_.AddSelectItem(&msg_client_listener);
-//    io::SelectItem msg_client(msg_agent->client_.GetSockFD());
-//    msg_client.AddEvent(SELECT_INPUT, message_client_callback);
-//    msg_agent->select_.AddSelectItem(&msg_client);
+
+    msg_agent->info_.state_ = MessageAgentState::Listening;
 
     msg_agent->select_.Initalize();
     msg_agent->select_.Listen(NULL);
