@@ -4,6 +4,7 @@
 #include <map>
 
 #include "vtime.h"
+#include "mempool.h"
 #include "process_id.h"
 #include "process_info.h"
 #include "thread_id.h"
@@ -63,13 +64,16 @@ public:
 public:
     static io::IoRet message_client_callback(io::SelectItem* item);
     static int message_listener_thread(MessageAgent* mg);
+    static int message_ctrl_thread(MessageAgent* mg);
     static MessageAgent* getInstance();
 
 private:
     bool init_flag_ = false;
+    mempool::MemPool* mempool_;
     MessageAgentInfo info_;
     std::map<std::string, MessageListener*> listen_ep_map_;
-    thread::ThreadTemplate<decltype(&message_listener_thread), int> listener_;
+    thread::ThreadTemplate<decltype(&message_listener_thread), int> listener_thread_;
+    thread::ThreadTemplate<decltype(&message_ctrl_thread), int> ctrl_thread_;
     sock::SockClient client_;
     io::Select select_;
 

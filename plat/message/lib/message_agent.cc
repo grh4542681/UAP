@@ -1,5 +1,3 @@
-#include "mempool.h"
-
 #include "message_defines.h"
 #include "message_agent.h"
 
@@ -9,6 +7,7 @@ MessageAgent* MessageAgent::pInstance = NULL;
 
 MessageAgent::MessageAgent()
 {
+    mempool_ = mempool::MemPool::getInstance();
     info_.name_ = process::ProcessInfo::getInstance()->GetName();
     info_.pid_ = process::ProcessInfo::getInstance()->GetPid();
     info_.listener_num_ = 0;
@@ -63,7 +62,7 @@ MessageRet MessageAgent::UnregisterAgent()
 template < typename ... Args >
 MessageRet MessageAgent::RegisterListener(Args&& ... args)
 {
-
+    MessageListener* listener = mempool_->Malloc<MessageListener>(std::forward<Args>(args)...);
 }
 
 MessageRet MessageAgent::UnregisterListener(std::string name)
