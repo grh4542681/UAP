@@ -5,8 +5,6 @@
 
 #include "vtime.h"
 #include "mempool.h"
-#include "process_id.h"
-#include "process_info.h"
 #include "thread_id.h"
 #include "thread_template.h"
 #include "sock_client.h"
@@ -26,9 +24,6 @@ namespace message {
 class MessageAgent : MessageRaw {
 public:
     typedef struct _MessageAgentInfo {
-        std::string name_;
-        process::ProcessID pid_;
-
         size_t listener_num_;
         timer::Time create_time_;
         MessageAgentState state_;
@@ -42,7 +37,6 @@ public:
     MessageRet Serialization(MessageStreamBinary& bs);
     MessageRet Deserialization(MessageStreamBinary& bs);
 
-    std::string GetName();
     sock::SockClient& GetClient();
 
     MessageListener* GetLinstener(std::string l_name);
@@ -63,7 +57,7 @@ public:
     MessageRet Run();
 public:
     static io::IoRet message_client_callback(io::SelectItem* item);
-    static int message_listener_thread(MessageAgent* mg);
+    static int message_listener_thread();
     static int message_ctrl_thread(MessageAgent* mg);
     static MessageAgent* getInstance();
 

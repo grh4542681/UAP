@@ -8,8 +8,6 @@ MessageAgent* MessageAgent::pInstance = NULL;
 MessageAgent::MessageAgent()
 {
     mempool_ = mempool::MemPool::getInstance();
-    info_.name_ = process::ProcessInfo::getInstance()->GetName();
-    info_.pid_ = process::ProcessInfo::getInstance()->GetPid();
     info_.listener_num_ = 0;
     info_.state_ = MessageAgentState::Ready;
     init_flag_ = true;
@@ -27,11 +25,6 @@ MessageRet MessageAgent::Serialization(MessageStreamBinary& bs)
 MessageRet MessageAgent::Deserialization(MessageStreamBinary& bs)
 {
 
-}
-
-std::string MessageAgent::GetName()
-{
-    return info_.name_;
 }
 
 sock::SockClient& MessageAgent::GetClient()
@@ -93,16 +86,17 @@ MessageLink MessageAgent::LookupEndpoint(std::string listener_name, std::string 
 
 MessageRet MessageAgent::Run()
 {
-    listener_ = thread::ThreadTemplate<decltype(&message_listener_thread), int>(message_listener_thread);
-    listener_.Run(this);
-    listener_.Detach();
+    listener_thread_ = thread::ThreadTemplate<decltype(&message_listener_thread), int>(message_listener_thread);
+    listener_thread_.Run();
+    listener_thread_.Detach();
 
     return MessageRet::SUCCESS;
 }
 
-int MessageAgent::message_listener_thread(MessageAgent* msg_agent)
+int MessageAgent::message_listener_thread()
 {
     ret::Return ret = MessageRet::SUCCESS;
+    MessageAgent* msg_agent = MessageAgent::getInstance();
     msg_agent->GetClient() = sock::SockClient(message::GetMessageServerAddress());
     if ((ret = msg_agent->GetClient().Connect()) != MessageRet::SUCCESS) {
         return MessageRet::MESSAGE_AGENT_ECONN;

@@ -15,6 +15,7 @@
 #include "thread_info.h"
 #include "mutex/thread_rw_lock.h"
 #include "socket/sock_pair.h"
+#include "message_agent.h"
 
 #include "process_log.h"
 #include "process_return.h"
@@ -23,12 +24,7 @@
 #include "process_id.h"
 #include "process_parent.h"
 #include "process_child.h"
-
-namespace process::single {
-
-template < typename F > class ProcessSingle;
-
-}
+#include "signal/process_signal_ctrl.h"
 
 namespace process {
 class Process;
@@ -36,7 +32,6 @@ class ProcessInfo : public report::VReport {
 public:
     friend class mempool::MemPool;
     friend class Process;
-    template <typename F> friend class single::ProcessSingle;
 public:
 
     ProcessID& GetPid();
@@ -48,6 +43,8 @@ public:
     std::string& GetProcessPoolName();
     const char* GetCmdLine(unsigned int index);
     ProcessInfo& GetCmdLine(char*** raw_cmdline, unsigned int* raw_cmdline_size);
+    signal::ProcessSignalCtrl* GetSignalCtrl();
+    message::MessageAgent* GetMessageAgent();
 
     ProcessInfo& SetPid(ProcessID&& pid);
     ProcessInfo& SetName(std::string name);
@@ -111,6 +108,12 @@ private:
     // thread info
     thread::mutex::ThreadRWLock thread_info_rw_lock_;       ///< Mutex lock of thread map.
     std::map<thread::ThreadID, thread::ThreadInfo*> thread_info_map_;  ///< Map of all thread in this process.
+
+    // signal
+    signal::ProcessSignalCtrl* sig_ctrl_;
+
+    // message agent
+    message::MessageAgent* msg_agent_;
 
     static ProcessInfo* pInstance;
 };

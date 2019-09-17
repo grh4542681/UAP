@@ -19,7 +19,6 @@ class MessageListener : public MessageRaw, public io::SelectItem {
 public:
     typedef struct _MessageListenerInfo {
         std::string name_;
-        std::string agent_name_;
 
         int endpoint_num_;
         timer::Time create_time_;
