@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "time_c.h"
 
 #include "ipc_log.h"
 #include "sem_posix.h"
@@ -184,12 +183,12 @@ IpcRet SemPosix::_p(size_t sem_index, timer::Time* overtime)
                 return IpcRet::EBADARGS;
             }   
 
-            timer::Time curr_time = timer::NowC();
+            timer::Time curr_time = timer::Time::Now();
             timer::Time T_intervals = curr_time + *overtime;
 
             struct timespec intervals;
             memset(&intervals, 0, sizeof(struct timespec));
-            T_intervals.To<struct timespec>(&intervals);
+            T_intervals.To(&intervals);
 
             while (curr_time < T_intervals) {
                 if (sem_timedwait(it->second, &intervals) < 0) {
@@ -197,13 +196,13 @@ IpcRet SemPosix::_p(size_t sem_index, timer::Time* overtime)
                     if (tmperrno == ETIMEDOUT) {
                         return IpcRet::ETIMEOUT;
                     } else if (tmperrno == EINTR) {
-                        curr_time = timer::NowC();
+                        curr_time = timer::Time::Now();
                     } else {
                         IPC_ERROR("Semaphore set [%s] index [%ld] P operator failed, errno[%s]", path_.c_str(), sem_index, strerror(tmperrno));
                         return tmperrno;
                     }
                 } else {
-                    curr_time = timer::NowC();
+                    curr_time = timer::Time::Now();
                     *overtime = T_intervals - curr_time;
                     return IpcRet::SUCCESS;
                 }

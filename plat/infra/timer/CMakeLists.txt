@@ -1,5 +1,4 @@
-SET(LIBGTIME_SRC time_return.cc
-                 time_c.cc
+SET(LIBGTIME_SRC timer_return.cc
 )
 
 ADD_LIBRARY(GRHtime_SO SHARED ${LIBGTIME_SRC})

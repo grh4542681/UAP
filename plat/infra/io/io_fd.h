@@ -131,7 +131,9 @@ public:
     }
 
     virtual void Close() {
-        close(fd_);
+        if (init_flag_ && auto_close_){
+            close(fd_);
+        }
     }
 
     virtual FD* Clone() {

@@ -16,8 +16,8 @@
 #include <type_traits>
 #include <iterator>
 
-#include "time_c.h"
 #include "bitmap.h"
+#include "timer_time.h"
 
 #include "shm_sysv.h"
 #include "shm_posix.h"
@@ -152,7 +152,7 @@ public:
             p_shm_head_->object_head_ = NULL;
             p_shm_head_->object_tail_ = NULL;
 
-            p_shm_head_->create_time_ = timer::NowC();
+            p_shm_head_->create_time_ = timer::Time::Now();
         }
         ret = shm_.Close();
         if (ret == IpcRet::SUCCESS) {
@@ -173,7 +173,7 @@ public:
         if (ret == IpcRet::SUCCESS) {
             p_shm_head_ = reinterpret_cast<ShmListHead*>(shm_.GetHeadPtr());
 
-            p_shm_head_->last_access_time_ = timer::NowC();
+            p_shm_head_->last_access_time_ = timer::Time::Now();
         }
         return ret;
     }

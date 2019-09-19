@@ -2,7 +2,7 @@
 #define __HEARTBEAT_ITEM_H__
 
 #include "io_fd.h"
-#include "time/vtime.h"
+#include "time/timer_time.h"
 #include "mempool.h"
 
 #include "heartbeat_state.h"

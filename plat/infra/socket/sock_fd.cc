@@ -484,7 +484,7 @@ SockRet SockFD::SetSendBlock(timer::Time* overtime)
         }
     }
     if (overtime) {
-        overtime->To<struct timeval>(&otime);
+        overtime->To(&otime);
     } else {
         otime.tv_sec = 0;
         otime.tv_usec = 0;
@@ -528,7 +528,7 @@ SockRet SockFD::SetRecvBlock(timer::Time* overtime)
         }
     }
     if (overtime) {
-        overtime->To<struct timeval>(&otime);
+        overtime->To(&otime);
     } else {
         otime.tv_sec = 0;
         otime.tv_usec = 0;

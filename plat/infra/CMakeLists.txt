@@ -13,18 +13,3 @@ ADD_SUBDIRECTORY(socket)
 ADD_SUBDIRECTORY(ipc)
 ADD_SUBDIRECTORY(util)
 
-
-#ADD_SUBDIRECTORY(odp/test)
-ADD_SUBDIRECTORY(return/test)
-ADD_SUBDIRECTORY(file/test)
-ADD_SUBDIRECTORY(mempool/test)
-ADD_SUBDIRECTORY(container/test)
-ADD_SUBDIRECTORY(parser/test)
-ADD_SUBDIRECTORY(socket/test)
-ADD_SUBDIRECTORY(thread/test)
-ADD_SUBDIRECTORY(process/test)
-ADD_SUBDIRECTORY(ipc/shm/test)
-ADD_SUBDIRECTORY(ipc/sem/test)
-ADD_SUBDIRECTORY(ipc/msg/test)
-ADD_SUBDIRECTORY(timer/test)
-

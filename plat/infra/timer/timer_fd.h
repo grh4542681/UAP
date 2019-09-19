@@ -1,6 +1,8 @@
 #ifndef __TIMER_FD_H__
 #define __TIMER_FD_H__
 
+#include "timer_return.h"
+
 namespace timer {
 
 class TimerFD : public io::FD {
@@ -18,8 +20,22 @@ public:
     size_t Write(const void* data, size_t datalen);
     size_t Read(void* data, size_t datalen);
 
+    Time& GetTriggerTime();
+    Time& GetIntervalTime();
+    int GetTriggerCounts();
+
+    TimerRet Start();
+    TimerRet Stop();
+
 public:
-    static TimerFD CreateTFD();
+    static const int CLOEXEC = { EFD_CLOEXEC };
+    static const int NONBLOCK = { EFD_NONBLOCK };
+
+    static TimerFD CreateTFD(int flag, Time& trigger_time, Time& interval_time);
+
+private:
+    Time trigger_time_;
+    Time interval_time_;
 }
 
 }
