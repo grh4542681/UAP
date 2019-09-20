@@ -7,6 +7,12 @@ namespace timer {
 
 class TimerFD : public io::FD {
 public:
+    enum Flag {
+        CloseExec,
+        Nonblock,
+        Relative,
+    };
+public:
     TimerFD();
     TimerFD(unsigned int fd, bool auto_close = false);
     TimerFD(TimerFD& other);
