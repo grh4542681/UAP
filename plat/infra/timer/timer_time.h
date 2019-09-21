@@ -217,16 +217,14 @@ public:
         return str;
     }
 
-    TimerRet To(struct timespec* p) {
+    void To(struct timespec* p) {
         p->tv_sec = second_;
         p->tv_nsec = nanosecond_;
-        return TimerRet::SUCCESS;
     }
 
-    TimerRet To(struct timeval* p) {
+    void To(struct timeval* p) {
         p->tv_sec = second_;
         p->tv_usec = nanosecond_ / 1000;
-        return TimerRet::SUCCESS;
     }
 
     bool IsPositive() {

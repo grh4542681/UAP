@@ -11,8 +11,8 @@ namespace timer {
 class TimerFD : public io::FD {
 public:
     enum Flag {
-        REALTIME,
-        MONOTONIC,
+        Realtime,
+        Monotonic,
         CloseExec,
         Nonblock,
         Relative,
@@ -38,12 +38,15 @@ public:
     int GetTriggerCounts();
 
     TimerRet Start();
+    TimerRet Start(int flag, Time& trigger_time, Time& interval_time);
     TimerRet Stop();
 
 private:
+    bool first_start_ = true;
+    int flag_ = 0;
     Time trigger_time_;
     Time interval_time_;
-}
+};
 
 }
 
