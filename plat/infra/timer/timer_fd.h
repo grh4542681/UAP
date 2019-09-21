@@ -1,19 +1,26 @@
 #ifndef __TIMER_FD_H__
 #define __TIMER_FD_H__
 
+#include "io_fd.h"
+
 #include "timer_return.h"
+#include "timer_time.h"
 
 namespace timer {
 
 class TimerFD : public io::FD {
 public:
     enum Flag {
+        REALTIME,
+        MONOTONIC,
         CloseExec,
         Nonblock,
         Relative,
+        Absolute,
     };
 public:
     TimerFD();
+    TimerFD(int flag, Time& trigger_time, Time& interval_time);
     TimerFD(unsigned int fd, bool auto_close = false);
     TimerFD(TimerFD& other);
     ~TimerFD();
@@ -32,12 +39,6 @@ public:
 
     TimerRet Start();
     TimerRet Stop();
-
-public:
-    static const int CLOEXEC = { EFD_CLOEXEC };
-    static const int NONBLOCK = { EFD_NONBLOCK };
-
-    static TimerFD CreateTFD(int flag, Time& trigger_time, Time& interval_time);
 
 private:
     Time trigger_time_;
