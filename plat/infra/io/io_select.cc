@@ -1,13 +1,16 @@
-#include "io_defines.h"
+#include "io_log.h"
 #include "io_select.h"
 
 namespace io {
 
-Select::Select()
+Select::Select(unsigned int item_size) : item_size_(item_size)
 {
-    efd_ = -1;
-    init_flag_ = false;
-    max_item_size_ = SELECT_MAX_FD_SIZE;
+    efd_ = epoll_create(item_size);
+    if (efd_ == -1) {
+        init_flag_ = false;
+    } else {
+        init_flag_ = true;
+    }
 }
 
 Select::~Select()
@@ -15,123 +18,88 @@ Select::~Select()
 
 }
 
-IoRet Select::Initalize()
+IoRet Select::AddEvent(FD& fd, int events)
 {
-    if (init_flag_) {
-        return IoRet::SUCCESS;
-    }
-    efd_ = epoll_create(SELECT_MAX_FD_SIZE);
-    if (efd_ == -1) {
-        init_flag_ = false;
-        return errno;
+    struct epoll_event ep_event;
+    memset(&ep_event, 0, sizeof(struct epoll_event));
+
+    ep_event.events = events;
+    ep_event.events |= EPOLLET;
+
+    ep_event.data.fd = fd.GetFD();
+    if (epoll_ctl(efd_, EPOLL_CTL_ADD, fd.GetFD(), &ep_event) == -1) {
+        int tmp_errno = errno;
+        IO_ERROR("Epoll add fd error %s", strerror(tmp_errno));
+        return tmp_errno;
     }
     return IoRet::SUCCESS;
 }
 
-IoRet Select::Listen(timer::Time* overtime)
+IoRet Select::AddEvent(SelectEvent& event)
+{
+    return AddEvent(event.GetFd(), event.GetEvents());
+}
+
+IoRet Select::ModEvent(FD& fd, int events)
+{
+    struct epoll_event ep_event;
+    memset(&ep_event, 0, sizeof(struct epoll_event));
+
+    ep_event.events = events;
+    ep_event.events |= EPOLLET;
+
+    ep_event.data.fd = fd.GetFD();
+    if (epoll_ctl(efd_, EPOLL_CTL_MOD, fd.GetFD(), &ep_event) == -1) {
+        int tmp_errno = errno;
+        IO_ERROR("Epoll add fd error %s", strerror(tmp_errno));
+        return tmp_errno;
+    }
+    return IoRet::SUCCESS;
+}
+
+IoRet Select::ModEvent(SelectEvent& event)
+{
+    return ModEvent(event.GetFd(), event.GetEvents());
+}
+
+IoRet Select::DelEvent(FD& fd)
+{
+    if (epoll_ctl(efd_, EPOLL_CTL_DEL, fd.GetFD(), NULL) == -1) {
+        int tmp_errno = errno;
+        IO_ERROR("Epoll add fd error %s", strerror(tmp_errno));
+        return tmp_errno;
+    }
+    return IoRet::SUCCESS;
+}
+
+std::vector<SelectEvent> Select::Listen(timer::Time* overtime)
 {
     return Listen(NULL, overtime);
 }
 
-IoRet Select::Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* overtime)
+std::vector<SelectEvent> Select::Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* overtime)
 {
-    if (efd_ <= 0) {
-        return IoRet::EINIT;
+    std::vector<SelectEvent> event_vec;
+
+    if (!init_flag_) {
+        return event_vec;
     }
 
-    struct epoll_event rep_evts[max_item_size_];
-    memset(rep_evts, 0, sizeof(epoll_event) * max_item_size_);
+    struct epoll_event rep_evts[item_size_];
+    memset(rep_evts, 0, sizeof(epoll_event) * item_size_);
 
     sigset_t* set = sigmask ? sigmask->GetSigset() : NULL;
     int otime = overtime ? static_cast<int>(overtime->ToMilliseconds()) : -1;
 
-    for (;;) {
-
-        if (_traversal_select_item() != IoRet::SUCCESS) {
-            return IoRet::IO_EADDEVENT;
-        }
-
-        int fd_num = epoll_pwait(efd_, rep_evts, max_item_size_, otime, set);
-        if (fd_num == -1) {
-            return errno;
-        }
-
-        for (int loop = 0; loop < fd_num; ++loop) {
-            auto it = select_item_map_.find(rep_evts[loop].data.fd);
-            if (it == select_item_map_.end()) {
-                return IoRet::IO_EUNKNOWFD;
-            } else {
-                if (rep_evts[loop].events | EPOLLIN) {
-                    if (it->second->HasEvent(EPOLLIN)) {
-                        SelectItem::Callback func = it->second->GetFunc(EPOLLIN);
-                        if (!func) {
-                            return IoRet::IO_ENOCALLBACK;
-                        } else {
-                            func(it->second);
-                printf("--%d---grh\n", __LINE__);
-                        }
-                    } else {
-                        return IoRet::IO_EMATCHEVENT;
-                    }
-                }
-                if (rep_evts[loop].events | EPOLLOUT) {
-                }
-            }
-        }
+    int fd_num = epoll_pwait(efd_, rep_evts, item_size_, otime, set);
+    if (fd_num == -1) {
+        return event_vec;
     }
-}
 
-IoRet Select::AddSelectItem(SelectItem* item)
-{
-    if (!item->GetFdPointer()) {
-        return IoRet::IO_EBADSELECTITEM;
+    for (int loop = 0; loop < fd_num; ++loop) {
+        event_vec.push(SelectEvent(FD(rep_evts[loop].data.fd), rep_evts[loop].events));
     }
-    item->SetState(SelectItemState::Add);
-    mutex_.lock();
-    select_item_map_.insert_or_assign(item->GetFd(), item);
-    printf("--%d--%d-grh\n", __LINE__, item->GetFd().GetFD());
-    mutex_.unlock();
-    return IoRet::SUCCESS;
-}
-
-IoRet Select::DelSelectItem(FD& fd)
-{
-
-}
-
-SelectItem Select::GetSelectItem(FD& fd)
-{
-
-}
-
-IoRet Select::_traversal_select_item()
-{
-    for (auto it = select_item_map_.begin(); it != select_item_map_.end(); it++) {
-        switch (it->second->state_) {
-            case SelectItemState::Normal:
-                break;
-            case SelectItemState::Add:
-                struct epoll_event event;
-                memset(&event, 0, sizeof(struct epoll_event));
-                event.events = it->second->select_event_;
-                event.events |= EPOLLET;
-                event.data.fd = it->second->fd_->GetFD();
-                if (epoll_ctl(efd_, EPOLL_CTL_ADD, it->second->fd_->GetFD(), &event) == -1) {
-                }
-                it->second->state_ = SelectItemState::Normal;
-                break;
-            case SelectItemState::Delete:
-                if (epoll_ctl(efd_, EPOLL_CTL_DEL, it->second->fd_->GetFD(), NULL) == -1) {
-                }
-                select_item_map_.erase(it);
-                break;
-            case SelectItemState::Update:
-                break;
-            default:
-                break;
-        }
-    }
-    return IoRet::SUCCESS;
+    return event_vec;
 }
 
 }

@@ -1,6 +1,7 @@
 SET(LIBGIO_SRC io_return.cc
                io_fd.cc
                io_select.cc
+               io_auto_select.cc
                io_select_item.cc
 )
 

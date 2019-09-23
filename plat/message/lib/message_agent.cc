@@ -105,7 +105,7 @@ int MessageAgent::message_listener_thread()
 
     msg_agent->GetClient().GetSockFD().Write("hello world", 12);
     MessageListener msg_client_listener("MSG_CTRL", msg_agent->client_.GetSockFD());
-    msg_client_listener.AddEvent(SELECT_INPUT, message_client_callback);
+    msg_client_listener.AddEvent(io::SelectItem::Event::Input, message_client_callback);
     msg_agent->select_.AddSelectItem(&msg_client_listener);
 
     msg_agent->info_.state_ = MessageAgentState::Listening;

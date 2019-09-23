@@ -92,7 +92,7 @@ public:
         auto_close_ = flag;
     }
 
-    bool IsFine() {
+    bool Available() {
         return true;
     }
 

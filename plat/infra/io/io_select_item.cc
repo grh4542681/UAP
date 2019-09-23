@@ -48,12 +48,12 @@ FD* SelectItem::GetFdPointer()
     return fd_;
 }
 
-SelectItemState SelectItem::GetState()
+SelectItem::State SelectItem::GetState()
 {
     return state_;
 }
 
-void SelectItem::SetState(SelectItemState state)
+void SelectItem::SetState(SelectItem::State state)
 {
     state_ = state;
 }

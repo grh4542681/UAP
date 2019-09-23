@@ -8,18 +8,24 @@
 
 namespace io {
 
-enum class SelectItemState {
-    Normal,
-    Add,
-    Delete,
-    Update,
-};
 
 class Select;
 class SelectItem {
 public:
     friend class Select;
+    friend class AutoSelect;
     typedef IoRet (*Callback)(SelectItem* item);
+    enum Event {
+        Input = EPOLLIN,
+        Output = EPOLLOUT,
+        Error = EPOLLERR,
+    };
+    enum class State {
+        Normal,
+        Add,
+        Delete,
+        Update,
+    };
 public:
     SelectItem();
     SelectItem(FD& fd);
@@ -31,17 +37,17 @@ public:
     FD GetFd();
     FD* GetFdPointer();
 
-    SelectItemState GetState();
-    void SetState(SelectItemState state);
+    SelectItem::State GetState();
+    void SetState(State state);
 
     IoRet AddEvent(int event, Callback func);
     IoRet DelEvent(int event);
     bool HasEvent(int event);
     Callback GetFunc(int event);
 private:
-    FD*  fd_ = NULL;
+    FD* fd_;
     int select_event_ = 0;
-    SelectItemState state_ = SelectItemState::Normal;
+    State state_ = State::Add;
     std::map<int, Callback> func_map_ = {
         { SELECT_INPUT, NULL },
         { SELECT_OUTPUT, NULL },

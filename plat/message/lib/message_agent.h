@@ -9,7 +9,7 @@
 #include "thread_template.h"
 #include "sock_client.h"
 #include "sock_address.h"
-#include "io_select.h"
+#include "io_auto_select.h"
 
 #include "message_api.h"
 #include "message_defines.h"
@@ -69,7 +69,7 @@ private:
     thread::ThreadTemplate<decltype(&message_listener_thread), int> listener_thread_;
     thread::ThreadTemplate<decltype(&message_ctrl_thread), int> ctrl_thread_;
     sock::SockClient client_;
-    io::Select select_;
+    io::AutoSelect select_;
 
     static MessageAgent* pInstance;
 };
