@@ -105,13 +105,23 @@ int MessageAgent::message_listener_thread()
 
     msg_agent->GetClient().GetSockFD().Write("hello world", 12);
     MessageListener msg_client_listener("MSG_CTRL", msg_agent->client_.GetSockFD());
-    msg_client_listener.AddEvent(io::SelectItem::Event::Input, message_client_callback);
-    msg_agent->select_.AddSelectItem(&msg_client_listener);
 
+    msg_agent->select_.AddEvent(msg_client_listener.GetEvent());
     msg_agent->info_.state_ = MessageAgentState::Listening;
 
-    msg_agent->select_.Initalize();
-    msg_agent->select_.Listen(NULL);
+    std::vector<io::SelectEvent> events;
+
+    for(;;) {
+        events = msg_agent->select_.Listen(NULL);
+        for (auto it : events) {
+            if (it.GetFd() == msg_agent->GetClient().GetSockFD()) {
+                char buff[1024];
+                memset(buff, 0, sizeof(buff));
+                msg_agent->GetClient().GetSockFD().Recv(NULL,buff,sizeof(buff));
+                printf("recv %s\n", buff);
+            }
+        }
+    }
 
     sleep(5);
     return 0;

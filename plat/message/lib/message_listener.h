@@ -5,7 +5,7 @@
 
 #include "timer_time.h"
 #include "thread_id.h"
-#include "io_select_item.h"
+#include "io_select_event.h"
 
 #include "message_return.h"
 #include "message_defines.h"
@@ -15,7 +15,7 @@
 
 namespace message {
 class MessageAgent;
-class MessageListener : public MessageRaw, public io::SelectItem {
+class MessageListener : public MessageRaw {
 public:
     typedef struct _MessageListenerInfo {
         std::string name_;
@@ -28,10 +28,13 @@ public:
     MessageListener(std::string name, io::FD& fd);
     ~MessageListener();
 
+    io::SelectEvent& GetEvent();
+
     MessageRet Register();
     MessageRet Unregister();
 
 private:
+    io::SelectEvent event_;
     MessageAgent* agent_;
     MessageListenerInfo info_;
     std::map<std::string, MessageEndpoint*> tep_map_;

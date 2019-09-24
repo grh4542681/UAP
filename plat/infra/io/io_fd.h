@@ -19,14 +19,32 @@ public:
         init_flag_ = false;
         auto_close_ = false;
     }
-    FD(unsigned int fd, bool auto_close) : fd_(fd), auto_close_(auto_close){
+    FD(unsigned int fd, bool auto_close = false) : fd_(fd), auto_close_(auto_close){
         struct stat fd_stat;
         if (fstat(fd, &fd_stat)) {
+            fd_ = -1;
             this->init_flag_ = false;
         }
-        fd_ = 0;
         auto_close_ = false;
         init_flag_ = false;
+    }
+    FD(FD& other) {
+        if (fd_ > 0 && init_flag_ && auto_close_) {
+            Close();
+            fd_ = 0;
+        }
+        fd_ = other.fd_;
+        auto_close_ = other.auto_close_;
+        init_flag_ = other.init_flag_;
+    }
+    FD(FD&& other) {
+        if (fd_ > 0 && init_flag_ && auto_close_) {
+            Close();
+            fd_ = 0;
+        }
+        fd_ = other.fd_;
+        auto_close_ = other.auto_close_;
+        init_flag_ = other.init_flag_;
     }
     FD(const FD& other) {
         if (fd_ > 0 && init_flag_ && auto_close_) {

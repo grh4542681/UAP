@@ -1,6 +1,7 @@
 #ifndef __IO_SELECT_EVENT_H__
 #define __IO_SELECT_EVENT_H__
 
+#include <utility>
 #include <sys/epoll.h>
 
 namespace io {
@@ -14,22 +15,23 @@ public:
 public:
     SelectEvent() : events_(0) { }
     SelectEvent(FD& fd, int events) : fd_(fd), events_(events) { }
-    SelectEvent(SelectEvent& other) {
+    SelectEvent(FD&& fd, int events) : fd_(fd), events_(events) { }
+    SelectEvent(const SelectEvent& other) {
         fd_ = other.fd_;
         events_ = other.events_;
     }
     ~SelectEvent() { }
 
-    SelectEvent& operator=(SelectEvent& other) {
+    SelectEvent& operator=(const SelectEvent& other) {
         fd_ = other.fd_;
         events_ = other.events_;
         return *this;
     }
-    SelectEvent& operator+(int event) {
+    SelectEvent& operator|(int event) {
         events_ |= event;
         return *this;
     }
-    SelectEvent& operator-(int event) {
+    SelectEvent& operator&(int event) {
         events_ &= event;
         return *this;
     }

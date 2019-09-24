@@ -97,7 +97,7 @@ std::vector<SelectEvent> Select::Listen(process::signal::ProcessSignalSet* sigma
     }
 
     for (int loop = 0; loop < fd_num; ++loop) {
-        event_vec.push(SelectEvent(FD(rep_evts[loop].data.fd), rep_evts[loop].events));
+        event_vec.push_back(SelectEvent(FD(rep_evts[loop].data.fd), rep_evts[loop].events));
     }
     return event_vec;
 }
