@@ -2,9 +2,8 @@
 #include "message_listener.h"
 
 namespace message {
-MessageListener::MessageListener(std::string name, io::FD& fd)
+MessageListener::MessageListener(std::string name, io::FD& fd) : io::SelectItem(fd)
 {
-    event_ = io::SelectEvent(fd, io::SelectEvent::Input);
     agent_ = MessageAgent::getInstance();
     info_.name_ = name;
     info_.endpoint_num_ = 0;
@@ -14,11 +13,6 @@ MessageListener::MessageListener(std::string name, io::FD& fd)
 MessageListener::~MessageListener()
 {
 
-}
-
-io::SelectEvent& MessageListener::GetEvent()
-{
-    return event_;
 }
 
 MessageRet MessageListener::Register()

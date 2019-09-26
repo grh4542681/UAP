@@ -7,11 +7,18 @@
 
 #include "ipc_return.h"
 
-namespace ipc::eventfd {
+namespace ipc::event {
 
 class EventFD : public io::FD {
 public:
+    enum Flag {
+        CloseExec,
+        Nonblock,
+        Semaphore,
+    };
+public:
     EventFD();
+    EventFD(int initval, int flag);
     EventFD(unsigned int fd, bool auto_close = false);
     EventFD(EventFD& other);
     ~EventFD();
@@ -24,21 +31,8 @@ public:
     size_t Write(const void* data, size_t datalen);
     size_t Read(void* data, size_t datalen);
 
-    //get & set
-    bool IsCloexec();
-    bool IsNonblock();
-    bool IsSemaphore();
-    void SetEfdFlag(int flag);
-
 private:
-    int efd_flag_ = { 0 };
-
-public:
-    static const int CLOEXEC = { EFD_CLOEXEC };
-    static const int NONBLOCK = { EFD_NONBLOCK };
-    static const int SEMAPHORE = { EFD_SEMAPHORE };
-
-    static EventFD CreateEFD(int flag);
+    int flag_ = 0;
 };
 
 }

@@ -106,8 +106,9 @@ public:
         return auto_close_;
     }
 
-    void SetAutoClose(bool flag) {
+    FD& SetAutoClose(bool flag) {
         auto_close_ = flag;
+        return *this;
     }
 
     bool Available() {
@@ -155,7 +156,7 @@ public:
     }
 
     virtual FD* Clone() {
-        return NULL;
+        return mempool::MemPool::getInstance()->Malloc<FD>(*this);
     }
     virtual size_t Write(const void* data, size_t datalen) {
         return 0;

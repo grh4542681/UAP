@@ -29,6 +29,8 @@ public:
     SelectItem::State GetState();
     SelectItem& SetState(State state);
 
+    SelectEvent& GetSelectEvent();
+
     virtual IoRet Callback(){
         return IoRet::ESUBCLASS;
     }

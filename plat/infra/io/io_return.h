@@ -19,7 +19,7 @@ public:
 public:
     static ECodeMapType ECodeMap;
 public:
-    IoRet(int err_code) : ret::Return(err_code) {
+    IoRet(int err_code = 0) : ret::Return(err_code) {
         err_code_vec_.push_back(&IoRet::ECodeMap);
     }
     ~IoRet() { };

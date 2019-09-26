@@ -105,8 +105,9 @@ int MessageAgent::message_listener_thread()
 
     msg_agent->GetClient().GetSockFD().Write("hello world", 12);
     MessageListener msg_client_listener("MSG_CTRL", msg_agent->client_.GetSockFD());
+    msg_client_listener.GetSelectEvent().SetEvent(io::SelectEvent::Input);
 
-    msg_agent->select_.AddEvent(msg_client_listener.GetEvent());
+    msg_agent->select_.AddEvent(msg_client_listener.GetSelectEvent());
     msg_agent->info_.state_ = MessageAgentState::Listening;
 
     std::vector<io::SelectEvent> events;
@@ -129,12 +130,12 @@ int MessageAgent::message_listener_thread()
 
 io::IoRet MessageAgent::message_client_callback(io::SelectItem* item)
 {
-    printf("---callback--\n");
-    sock::SockFD* fd = dynamic_cast<sock::SockFD*>(item->GetFdPointer());
-    char buff[1024];
-    memset(buff, 0, sizeof(buff));
-    fd->Recv(NULL,buff,sizeof(buff));
-    printf("recv %s\n", buff);
+//    printf("---callback--\n");
+//    sock::SockFD* fd = dynamic_cast<sock::SockFD*>(item->GetFdPointer());
+//    char buff[1024];
+//    memset(buff, 0, sizeof(buff));
+//    fd->Recv(NULL,buff,sizeof(buff));
+//    printf("recv %s\n", buff);
     return io::IoRet::SUCCESS;
 }
 

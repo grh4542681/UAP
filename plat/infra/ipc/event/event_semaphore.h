@@ -1,17 +1,17 @@
-#ifndef __SEM_EVENT_FD_H__
-#define __SEM_EVENT_FD_H__
+#ifndef __SEM_EVENT_SEMAPHORE_H__
+#define __SEM_EVENT_SEMAPHORE_H__
 
 #include "sem/sem.h"
 
 #include "event_fd.h"
 
-namespace ipc::eventfd {
+namespace ipc::event {
 
-class SemEventFD : public sem::Sem {
+class SemEvent : public sem::Sem {
 public:
-    SemEventFD();
-    SemEventFD(std::string name);
-    ~SemEventFD();
+    SemEvent();
+    SemEvent(std::string name);
+    ~SemEvent();
 
     EventFD& GetEFD();
 

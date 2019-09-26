@@ -3,9 +3,13 @@
 
 #include <sys/epoll.h>
 
+#include "thread_template.h"
 #include "mutex/thread_mutex_lock.h"
 #include "signal/process_signal_set.h"
 #include "timer_time.h"
+#include "timer_fd.h"
+#include "event/event_fd.h"
+
 #include "io_select_item.h"
 
 namespace io {
@@ -15,21 +19,29 @@ public:
     AutoSelect();
     ~AutoSelect();
 
-    IoRet Initalize();
-    IoRet AddSelectItem(SelectItem* item);
+    template <typename T, typename ... Args> IoRet AddSelectItem(Args&& ... args);
     IoRet DelSelectItem(FD& fd);
-    SelectItem GetSelectItem(FD& fd);
+    IoRet ModSelectItem();
+    const SelectItem& GetSelectItem(FD& fd);
+
+    auto& GetListenrThread();
 
     IoRet Listen(timer::Time* overtime);
     IoRet Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* overtime);
+
+    static IoRet _select_listener_thread_handler();
 private:
     bool init_flag_;
     int efd_;
-    size_t max_item_size_;
-    std::map<FD, SelectItem*, std::less<>> select_item_map_;
-    thread::mutex::ThreadMutexLock mutex_;
+    unsigned int item_size_;
 
-    IoRet _traversal_select_item();
+    ipc::event::EventFD evfd_;
+    thread::mutex::ThreadMutexLock mutex_;
+    std::map<int, SelectItem*> select_item_map_;
+
+    thread::ThreadTemplate<decltype(&_select_listener_thread_handler), IoRet> listener_thread_;
+
+    IoRet _select_item_traversal();
 };
 
 }

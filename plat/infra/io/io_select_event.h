@@ -14,16 +14,32 @@ public:
     const static int Oneshot = EPOLLONESHOT;
 public:
     SelectEvent() : events_(0) { }
-    SelectEvent(FD& fd, int events) : fd_(fd), events_(events) { }
-    SelectEvent(FD&& fd, int events) : fd_(fd), events_(events) { }
+    SelectEvent(FD& fd, int events = 0) : events_(events) {
+        fd_ = fd.Clone();
+    }
+    SelectEvent(FD&& fd, int events = 0) : events_(events) {
+        fd_ = fd.Clone();
+    }
     SelectEvent(const SelectEvent& other) {
-        fd_ = other.fd_;
+        if (other.fd_) {
+            fd_ = other.fd_->Clone();
+        }
         events_ = other.events_;
     }
-    ~SelectEvent() { }
+    ~SelectEvent() {
+        if (fd_) {
+            mempool::MemPool::getInstance()->Free<FD>(fd_);
+        }
+    }
 
     SelectEvent& operator=(const SelectEvent& other) {
-        fd_ = other.fd_;
+        if (fd_) {
+            mempool::MemPool::getInstance()->Free<FD>(fd_);
+            fd_ = NULL;
+        }
+        if (other.fd_) {
+            fd_ = other.fd_->Clone();
+        }
         events_ = other.events_;
         return *this;
     }
@@ -36,7 +52,8 @@ public:
         return *this;
     }
 
-    FD& GetFd() { return fd_; };
+    FD& GetFd() { return *fd_; };
+    FD* GetFdPointer() { return fd_; };
     int GetEvents() { return events_; };
 
     SelectEvent& SetEvent(int events) {
@@ -48,9 +65,9 @@ public:
     bool HasOutput() { return (events_ & SelectEvent::Output); }
     bool HasError() { return (events_ & SelectEvent::Error); }
 
-private:
-    FD fd_;
-    int events_;
+protected:
+    FD* fd_ = NULL;
+    int events_ = 0;
 };
 
 }
