@@ -3,6 +3,7 @@
 
 #include <sys/epoll.h>
 
+#include "mempool.h"
 #include "thread_template.h"
 #include "mutex/thread_mutex_lock.h"
 #include "signal/process_signal_set.h"
@@ -19,7 +20,24 @@ public:
     AutoSelect();
     ~AutoSelect();
 
-    template <typename T, typename ... Args> IoRet AddSelectItem(Args&& ... args);
+    template <typename T, typename ... Args> IoRet AddSelectItem(Args&& ... args)
+    {
+        SelectItem* item = mempool::MemPool::getInstance()->Malloc<T>(std::forward<Args>(args)...);
+        if (!item) {
+            return IoRet::EMALLOC;
+        }
+        std::pair<std::map<int, SelectItem*>::iterator, bool> map_ret = select_item_map_.insert({item->GetSelectEvent().GetFd().GetFD(), item});
+        if (map_ret.second == false) {
+            mempool::MemPool::getInstance()->Free<T>(dynamic_cast<T*>(item));
+            return IoRet::EMAP;
+        }
+        IoRet ret = fd_.AddEvent(item->GetSelectEvent());
+        if (ret != IoRet::SUCCESS) {
+            mempool::MemPool::getInstance()->Free<T>(dynamic_cast<T*>(item));
+            return ret;
+        }
+        return ret;
+    }
     IoRet DelSelectItem(FD& fd);
     IoRet ModSelectItem();
     const SelectItem& GetSelectItem(FD& fd);
@@ -29,8 +47,7 @@ public:
     IoRet Listen(timer::Time* overtime);
     IoRet Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* overtime);
 
-    //static IoRet _select_listener_thread_handler(AutoSelect* instance, process::signal::ProcessSignalSet* sigmask, timer::Time* overtime);
-    static IoRet _select_listener_thread_handler(timer::Time* overtime);
+    static IoRet _select_listener_thread_handler(AutoSelect* instance, process::signal::ProcessSignalSet* sigmask, timer::Time* overtime);
 private:
     bool init_flag_;
     EpollFD fd_;

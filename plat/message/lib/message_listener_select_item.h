@@ -2,6 +2,7 @@
 #define __MESSAGE_LISTENER_SELECT_ITEM_H__
 
 #include <string>
+#include <utility>
 #include <functional>
 
 #include "io_select_item.h"
@@ -19,17 +20,17 @@ public:
     const MessageListenerSelectItem& operator=(const MessageListenerSelectItem& other) {
         io::SelectItem::operator=(other);
         name_ = other.name_;
-        input_func_ = other.input_func_;
-        output_func_ = other.output_func_;
-        error_func_ = other.error_func_;
+        InputFunc = other.InputFunc;
+        OutputFunc = other.OutputFunc;
+        ErrorFunc = other.ErrorFunc;
         return *this;
     }
 
     io::IoRet Callback(int events) {
         MessageRet ret = MessageRet::SUCCESS;
         if (events & io::SelectEvent::Input) {
-            if (input_func_) {
-                ret = input_func_(this);
+            if (InputFunc) {
+                ret = InputFunc(this);
                 if (ret != MessageRet::SUCCESS) {
                     return io::IoRet::IO_EINPUTCB;
                 }
@@ -39,8 +40,8 @@ public:
             events |= ~io::SelectEvent::Input;
         }
         if (events & io::SelectEvent::Output) {
-            if (output_func_) {
-                ret = output_func_(this);
+            if (OutputFunc) {
+                ret = OutputFunc(this);
                 if (ret != MessageRet::SUCCESS) {
                     return io::IoRet::IO_EOUTPUTCB;
                 }
@@ -50,8 +51,8 @@ public:
             events |= ~io::SelectEvent::Output;
         }
         if (events & io::SelectEvent::Error) {
-            if (error_func_) {
-                ret = error_func_(this);
+            if (ErrorFunc) {
+                ret = ErrorFunc(this);
                 if (ret != MessageRet::SUCCESS) {
                     return io::IoRet::IO_EERRCB;
                 }
@@ -63,23 +64,11 @@ public:
         return io::IoRet::SUCCESS;
     }
 
-    MessageListenerSelectItem& SetInputFunc(std::function<MessageRet(MessageListenerSelectItem*)>& func) {
-        input_func_ = func;
-        return *this;
-    }
-    MessageListenerSelectItem& SetOutputFunc(std::function<MessageRet(MessageListenerSelectItem*)>& func) {
-        output_func_ = func;
-        return *this;
-    }
-    MessageListenerSelectItem& SetErrorFunc(std::function<MessageRet(MessageListenerSelectItem*)>& func) {
-        error_func_ = func;
-        return *this;
-    }
+    std::function<MessageRet(MessageListenerSelectItem*)> InputFunc;
+    std::function<MessageRet(MessageListenerSelectItem*)> OutputFunc;
+    std::function<MessageRet(MessageListenerSelectItem*)> ErrorFunc;
 private:
     std::string name_;
-    std::function<MessageRet(MessageListenerSelectItem*)> input_func_;
-    std::function<MessageRet(MessageListenerSelectItem*)> output_func_;
-    std::function<MessageRet(MessageListenerSelectItem*)> error_func_;
 };
 
 }

@@ -10,6 +10,7 @@
 #include "sock_client.h"
 #include "sock_address.h"
 #include "io_select.h"
+#include "io_auto_select.h"
 #include "io_select_item.h"
 
 #include "message_api.h"
@@ -57,8 +58,7 @@ public:
 
     MessageRet Run();
 public:
-    static io::IoRet message_client_callback(io::SelectItem* item);
-    static int message_listener_thread();
+    static MessageRet message_client_callback(MessageListenerSelectItem* item);
     static int message_ctrl_thread(MessageAgent* mg);
     static MessageAgent* getInstance();
 
@@ -67,10 +67,10 @@ private:
     mempool::MemPool* mempool_;
     MessageAgentInfo info_;
     std::map<std::string, MessageListener*> listen_ep_map_;
-    thread::ThreadTemplate<decltype(&message_listener_thread), int> listener_thread_;
     thread::ThreadTemplate<decltype(&message_ctrl_thread), int> ctrl_thread_;
     sock::SockClient client_;
     io::Select select_;
+    io::AutoSelect auselect_;
 
     static MessageAgent* pInstance;
 };

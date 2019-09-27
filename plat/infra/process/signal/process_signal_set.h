@@ -25,6 +25,11 @@ namespace process::signal {
 class ProcessSignalCtrl;
 class ProcessSignalAction;
 
+class test {
+    test() {}
+    ~test() {}
+};
+
 /**
 * @brief - Signal set.
 */

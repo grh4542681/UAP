@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "io_log.h"
 #include "io_defines.h"
 #include "io_auto_select.h"
@@ -6,10 +8,10 @@ namespace io {
 
 AutoSelect::AutoSelect()
 {
-    fd_ = EpollFD();
+    fd_ = EpollFD(0);
     if (!fd_.Initalize()) {
         init_flag_ = false;
-        IO_ERROR("Create epoll error : %s", strerror(errno));
+        IO_ERROR("Create epoll error");
     }
     init_flag_ = true;
 }
@@ -31,39 +33,19 @@ IoRet AutoSelect::Listen(timer::Time* overtime)
 
 IoRet AutoSelect::Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* overtime)
 {
+    printf("%p %p\n", sigmask, overtime);
     if (!init_flag_) {
         return IoRet::EINIT;
     }
 
     listener_thread_ = thread::ThreadTemplate<decltype(&_select_listener_thread_handler), IoRet>(_select_listener_thread_handler);
-    thread::ThreadRet ret = listener_thread_.Run(overtime);
-    //thread::ThreadRet ret = listener_thread_.Run(this, sigmask, overtime);
+    thread::ThreadRet ret = listener_thread_.Run(this, std::forward<process::signal::ProcessSignalSet*>(sigmask), std::forward<timer::Time*>(overtime));
     if (ret != thread::ThreadRet::SUCCESS) {
         IO_ERROR("Start io auto select thread error : %s", ret.Message().c_str());
         return IoRet::ETHREAD;
     }
     listener_thread_.Detach(); 
     return IoRet::SUCCESS;
-}
-
-template <typename T, typename ... Args>
-IoRet AutoSelect::AddSelectItem(Args&& ... args)
-{
-    SelectItem* item = mempool::MemPool::getInstance()->Malloc<T>(std::forward<Args>(args)...);
-    if (!item) {
-        return IoRet::EMALLOC;
-    }
-    std::pair<std::map<int, SelectItem*>::iterator, bool> map_ret = select_item_map_.insert({item->GetSelectEvent().GetFd().GetFD(), item});
-    if (map_ret.second == false) {
-        mempool::MemPool::getInstance()->Free<T>(item);
-        return IoRet::EMAP;
-    }
-    IoRet ret = fd_.AddEvent(item->GetSelectEvent());
-    if (ret != IoRet::SUCCESS) {
-        mempool::MemPool::getInstance()->Free<T>(item);
-        return ret;
-    }
-    return ret;
 }
 
 IoRet AutoSelect::DelSelectItem(FD& fd)
@@ -86,9 +68,8 @@ IoRet AutoSelect::_select_item_traversal()
     return IoRet::SUCCESS;
 }
 
-IoRet AutoSelect::_select_listener_thread_handler(/*AutoSelect* instance,*/ /*process::signal::ProcessSignalSet* sigmask,*/ timer::Time* overtime)
+IoRet AutoSelect::_select_listener_thread_handler(AutoSelect* instance, process::signal::ProcessSignalSet* sigmask, timer::Time* overtime)
 {
-/*
     int item_size = 2048;
     struct epoll_event rep_evts[item_size];
     memset(rep_evts, 0, sizeof(epoll_event) * item_size);
@@ -120,7 +101,6 @@ IoRet AutoSelect::_select_listener_thread_handler(/*AutoSelect* instance,*/ /*pr
 
     IO_INFO("Auto select thread exit normal.");
     return IoRet::SUCCESS;
-*/
 }
 
 }

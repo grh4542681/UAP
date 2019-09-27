@@ -86,57 +86,32 @@ MessageLink MessageAgent::LookupEndpoint(std::string listener_name, std::string 
 
 MessageRet MessageAgent::Run()
 {
-    listener_thread_ = thread::ThreadTemplate<decltype(&message_listener_thread), int>(message_listener_thread);
-    listener_thread_.Run();
-    listener_thread_.Detach();
+    client_ = sock::SockClient(message::GetMessageServerAddress());
+    if (client_.Connect() != MessageRet::SUCCESS) {
+        return MessageRet::MESSAGE_AGENT_ECONN;
+    }
+    info_.state_ = MessageAgentState::ConnectServer;
+
+    client_.GetSockFD().Write("hello world", 12);
+    MessageListener msg_client_listener("MSG_CTRL", client_.GetSockFD());
+    msg_client_listener.GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
+    msg_client_listener.GetSelectItem().InputFunc = message_client_callback;
+
+    auselect_.AddSelectItem<MessageListenerSelectItem>(msg_client_listener.GetSelectItem());
+    auselect_.Listen(&timer::Time().SetTime(2, timer::Unit::Second));
 
     return MessageRet::SUCCESS;
 }
 
-int MessageAgent::message_listener_thread()
+MessageRet MessageAgent::message_client_callback(MessageListenerSelectItem* item)
 {
-    ret::Return ret = MessageRet::SUCCESS;
-    MessageAgent* msg_agent = MessageAgent::getInstance();
-    msg_agent->GetClient() = sock::SockClient(message::GetMessageServerAddress());
-    if ((ret = msg_agent->GetClient().Connect()) != MessageRet::SUCCESS) {
-        return MessageRet::MESSAGE_AGENT_ECONN;
-    }
-    msg_agent->info_.state_ = MessageAgentState::ConnectServer;
-
-    msg_agent->GetClient().GetSockFD().Write("hello world", 12);
-    MessageListener msg_client_listener("MSG_CTRL", msg_agent->client_.GetSockFD());
-    msg_client_listener.GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
-
-    msg_agent->select_.AddEvent(msg_client_listener.GetSelectItem().GetSelectEvent());
-    msg_agent->info_.state_ = MessageAgentState::Listening;
-
-    std::vector<io::SelectEvent> events;
-
-    for(;;) {
-        events = msg_agent->select_.Listen(NULL);
-        for (auto it : events) {
-            if (it.GetFd() == msg_agent->GetClient().GetSockFD()) {
-                char buff[1024];
-                memset(buff, 0, sizeof(buff));
-                msg_agent->GetClient().GetSockFD().Recv(NULL,buff,sizeof(buff));
-                printf("recv %s\n", buff);
-            }
-        }
-    }
-
-    sleep(5);
-    return 0;
-}
-
-io::IoRet MessageAgent::message_client_callback(io::SelectItem* item)
-{
-//    printf("---callback--\n");
-//    sock::SockFD* fd = dynamic_cast<sock::SockFD*>(item->GetFdPointer());
-//    char buff[1024];
-//    memset(buff, 0, sizeof(buff));
-//    fd->Recv(NULL,buff,sizeof(buff));
-//    printf("recv %s\n", buff);
-    return io::IoRet::SUCCESS;
+    printf("---callback--\n");
+    sock::SockFD* fd = dynamic_cast<sock::SockFD*>(item->GetSelectEvent().GetFdPointer());
+    char buff[1024];
+    memset(buff, 0, sizeof(buff));
+    fd->Recv(NULL,buff,sizeof(buff));
+    printf("recv %s\n", buff);
+    return MessageRet::SUCCESS;
 }
 
 MessageAgent* MessageAgent::getInstance()
