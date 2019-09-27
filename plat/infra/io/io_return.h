@@ -15,6 +15,10 @@ public:
         IO_EADDEVENT,
         IO_ENOCALLBACK,
         IO_EBADSELECTITEM,
+
+        IO_EINPUTCB,
+        IO_EOUTPUTCB,
+        IO_EERRCB,
     };
 public:
     static ECodeMapType ECodeMap;

@@ -6,10 +6,8 @@ namespace io {
 
 AutoSelect::AutoSelect()
 {
-    efd_ = -1;
-    item_size_ = SELECT_MAX_FD_SIZE;
-    efd_ = epoll_create(SELECT_MAX_FD_SIZE);
-    if (efd_ == -1) {
+    fd_ = EpollFD();
+    if (!fd_.Initalize()) {
         init_flag_ = false;
         IO_ERROR("Create epoll error : %s", strerror(errno));
     }
@@ -33,42 +31,39 @@ IoRet AutoSelect::Listen(timer::Time* overtime)
 
 IoRet AutoSelect::Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* overtime)
 {
-    if (efd_ <= 0) {
+    if (!init_flag_) {
         return IoRet::EINIT;
     }
 
-    struct epoll_event rep_evts[item_size_];
-    memset(rep_evts, 0, sizeof(epoll_event) * item_size_);
-
-    sigset_t* set = sigmask ? sigmask->GetSigset() : NULL;
-    int otime = overtime ? static_cast<int>(overtime->ToMilliseconds()) : -1;
-
-    for (;;) {
-
-        if (_select_item_traversal() != IoRet::SUCCESS) {
-            return IoRet::IO_EADDEVENT;
-        }
-
-        int fd_num = epoll_pwait(efd_, rep_evts, item_size_, otime, set);
-        if (fd_num == -1) {
-            return errno;
-        }
-
-        for (int loop = 0; loop < fd_num; ++loop) {
-            auto it = select_item_map_.find(rep_evts[loop].data.fd);
-            if (it == select_item_map_.end()) {
-                return IoRet::IO_EUNKNOWFD;
-            } else {
-                it->second->Callback();
-            }
-        }
+    listener_thread_ = thread::ThreadTemplate<decltype(&_select_listener_thread_handler), IoRet>(_select_listener_thread_handler);
+    thread::ThreadRet ret = listener_thread_.Run(overtime);
+    //thread::ThreadRet ret = listener_thread_.Run(this, sigmask, overtime);
+    if (ret != thread::ThreadRet::SUCCESS) {
+        IO_ERROR("Start io auto select thread error : %s", ret.Message().c_str());
+        return IoRet::ETHREAD;
     }
+    listener_thread_.Detach(); 
+    return IoRet::SUCCESS;
 }
 
 template <typename T, typename ... Args>
-IoRet AddSelectItem(Args&& ... args)
+IoRet AutoSelect::AddSelectItem(Args&& ... args)
 {
-
+    SelectItem* item = mempool::MemPool::getInstance()->Malloc<T>(std::forward<Args>(args)...);
+    if (!item) {
+        return IoRet::EMALLOC;
+    }
+    std::pair<std::map<int, SelectItem*>::iterator, bool> map_ret = select_item_map_.insert({item->GetSelectEvent().GetFd().GetFD(), item});
+    if (map_ret.second == false) {
+        mempool::MemPool::getInstance()->Free<T>(item);
+        return IoRet::EMAP;
+    }
+    IoRet ret = fd_.AddEvent(item->GetSelectEvent());
+    if (ret != IoRet::SUCCESS) {
+        mempool::MemPool::getInstance()->Free<T>(item);
+        return ret;
+    }
+    return ret;
 }
 
 IoRet AutoSelect::DelSelectItem(FD& fd)
@@ -91,9 +86,41 @@ IoRet AutoSelect::_select_item_traversal()
     return IoRet::SUCCESS;
 }
 
-IoRet AutoSelect::_select_listener_thread_handler()
+IoRet AutoSelect::_select_listener_thread_handler(/*AutoSelect* instance,*/ /*process::signal::ProcessSignalSet* sigmask,*/ timer::Time* overtime)
 {
+/*
+    int item_size = 2048;
+    struct epoll_event rep_evts[item_size];
+    memset(rep_evts, 0, sizeof(epoll_event) * item_size);
 
+    sigset_t* set = sigmask ? sigmask->GetSigset() : NULL;
+    int otime = overtime ? static_cast<int>(overtime->ToMilliseconds()) : -1;
+
+    for (;;) {
+        int fd_num = epoll_pwait(instance->fd_.GetFD(), rep_evts, item_size, otime, set);
+        if (fd_num == -1) {
+            return IoRet::ERROR;
+        }
+
+        for (int loop = 0; loop < fd_num; ++loop) {
+            auto it = instance->select_item_map_.find(rep_evts[loop].data.fd);
+            if (it == instance->select_item_map_.end()) {
+                IO_ERROR("Not found select item for file describetor [%d]", rep_evts[loop].data.fd);
+                continue;
+            }
+            IoRet ret = it->second->Callback(rep_evts[loop].events);
+            if (ret != IoRet::SUCCESS) {
+                IO_ERROR("Execute callback for file describetor [%d] error.", rep_evts[loop].data.fd);
+            }
+            if (it->second->GetSelectEvent().HasOneshot()) {
+                instance->select_item_map_.erase(it);
+            }
+        }
+    }
+
+    IO_INFO("Auto select thread exit normal.");
+    return IoRet::SUCCESS;
+*/
 }
 
 }

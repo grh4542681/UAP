@@ -12,10 +12,11 @@
 #include "message_raw.h"
 #include "message_endpoint.h"
 #include "message_listener_state.h"
+#include "message_listener_select_item.h"
 
 namespace message {
 class MessageAgent;
-class MessageListener : public io::SelectItem, public MessageRaw {
+class MessageListener : public MessageRaw {
 public:
     typedef struct _MessageListenerInfo {
         std::string name_;
@@ -28,12 +29,15 @@ public:
     MessageListener(std::string name, io::FD& fd);
     ~MessageListener();
 
+    MessageListenerSelectItem& GetSelectItem();
+
     MessageRet Register();
     MessageRet Unregister();
 
 private:
     MessageAgent* agent_;
     MessageListenerInfo info_;
+    MessageListenerSelectItem select_item_;
     std::map<std::string, MessageEndpoint*> tep_map_;
 };
 

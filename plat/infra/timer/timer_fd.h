@@ -30,8 +30,8 @@ public:
     ret::Return Dup(io::FD& new_fd);
     io::FD* Clone();
     void Close();
-    size_t Write(const void* data, size_t datalen);
-    size_t Read(void* data, size_t datalen);
+    ssize_t Write(const void* data, size_t datalen);
+    ssize_t Read(void* data, size_t datalen);
 
     Time& GetTriggerTime();
     Time& GetIntervalTime();

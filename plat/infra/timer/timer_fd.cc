@@ -108,13 +108,13 @@ void TimerFD::Close()
     close(fd_);
 }
 
-size_t TimerFD::Write(const void* data, size_t datalen)
+ssize_t TimerFD::Write(const void* data, size_t datalen)
 {
     TIMER_ERROR("Timer fd not support write.");
     return 0;
 }
 
-size_t TimerFD::Read(void* data, size_t datalen)
+ssize_t TimerFD::Read(void* data, size_t datalen)
 {}
 
 Time& TimerFD::GetTriggerTime()

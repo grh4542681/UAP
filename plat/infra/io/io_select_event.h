@@ -64,6 +64,7 @@ public:
     bool HasInput() { return (events_ & SelectEvent::Input); }
     bool HasOutput() { return (events_ & SelectEvent::Output); }
     bool HasError() { return (events_ & SelectEvent::Error); }
+    bool HasOneshot() { return (events_ & SelectEvent::Oneshot); }
 
 protected:
     FD* fd_ = NULL;

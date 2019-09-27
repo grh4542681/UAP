@@ -111,6 +111,10 @@ public:
         return *this;
     }
 
+    bool Initalize() {
+        return init_flag_;
+    }
+
     bool Available() {
         return true;
     }
@@ -158,10 +162,10 @@ public:
     virtual FD* Clone() {
         return mempool::MemPool::getInstance()->Malloc<FD>(*this);
     }
-    virtual size_t Write(const void* data, size_t datalen) {
+    virtual ssize_t Write(const void* data, size_t datalen) {
         return 0;
     }
-    virtual size_t Read(void* data, size_t datalen) {
+    virtual ssize_t Read(void* data, size_t datalen) {
         return 0;
     }
 protected:

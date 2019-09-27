@@ -77,14 +77,34 @@ void EventFD::Close()
     close(fd_);
 }
 
-size_t EventFD::Write(const void* data, size_t datalen)
+ssize_t EventFD::Write(const void* data, size_t datalen)
 {
-    return 0;
+    return write(fd_, data, datalen);
 }
 
-size_t EventFD::Read(void* data, size_t datalen)
+ssize_t EventFD::Read(void* data, size_t datalen)
 {
-    return 0;
+    return read(fd_, data, datalen);
+}
+
+IpcRet EventFD::Increase(unsigned int count)
+{
+    if (Write(&count, sizeof(unsigned int)) < 0) {
+        return IpcRet::EVT_EWRITE;
+    }
+}
+
+IpcRet EventFD::Decrease()
+{
+    unsigned int count;
+    return Decrease(&count);
+}
+
+IpcRet EventFD::Decrease(unsigned int* count)
+{
+    if (Read(count, sizeof(unsigned int)) < 0) {
+        return IpcRet::EVT_EREAD;
+    }
 }
 
 }

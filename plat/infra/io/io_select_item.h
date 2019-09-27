@@ -31,7 +31,7 @@ public:
 
     SelectEvent& GetSelectEvent();
 
-    virtual IoRet Callback(){
+    virtual IoRet Callback(int events){
         return IoRet::ESUBCLASS;
     }
 

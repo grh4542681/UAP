@@ -3,6 +3,7 @@ SET(LIBGIO_SRC io_return.cc
                io_select.cc
                io_auto_select.cc
                io_select_item.cc
+               io_epoll_fd.cc
 )
 
 ADD_LIBRARY(GRHio_SO SHARED ${LIBGIO_SRC})

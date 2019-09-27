@@ -33,8 +33,8 @@ public:
     ret::Return Dup(io::FD& new_fd);
     io::FD* Clone();
     void Close();
-    size_t Write(const void* data, size_t datalen);
-    size_t Read(void* data, size_t datalen);
+    ssize_t Write(const void* data, size_t datalen);
+    ssize_t Read(void* data, size_t datalen);
 
     //get & set
     SockAddress& GetOrigAddress();
@@ -59,10 +59,10 @@ public:
     bool isAcceptFD();
     bool isMulitcastFD();
 
-    size_t Send(SockAddress* dest, const void* data, size_t datalen);
-    size_t Recv(SockAddress* orig, void* data, size_t datalen);
-    size_t SendFD(unsigned int fd);
-    size_t RecvFD(unsigned int *fd);
+    ssize_t Send(SockAddress* dest, const void* data, size_t datalen);
+    ssize_t Recv(SockAddress* orig, void* data, size_t datalen);
+    ssize_t SendFD(unsigned int fd);
+    ssize_t RecvFD(unsigned int *fd);
     
 private:
     mempool::MemPool* mempool_; ///< memory pool interface.
@@ -71,8 +71,8 @@ private:
 
     int _close();
 
-    size_t _send(struct sockaddr* dest, const void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags);
-    size_t _recv(struct sockaddr* orig, void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags);
+    ssize_t _send(struct sockaddr* dest, const void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags);
+    ssize_t _recv(struct sockaddr* orig, void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags);
 };
 
 }//namespace socket end

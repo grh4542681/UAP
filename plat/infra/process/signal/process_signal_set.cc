@@ -27,7 +27,7 @@ ProcessSignalSet::~ProcessSignalSet()
     sigemptyset(&set_);
 }
 
-ProcessSignalSet& ProcessSignalSet::operator=(const ProcessSignalSet& other)
+const ProcessSignalSet& ProcessSignalSet::operator=(const ProcessSignalSet& other)
 {
     set_ = other.set_;
     return *this;

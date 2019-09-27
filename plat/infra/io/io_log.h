@@ -8,7 +8,7 @@
     printf(fmt, ##args); \
     printf("\n");
 
-#define IO_LOG(fmt, args...) \
+#define IO_INFO(fmt, args...) \
     printf("%s[%d]: ", __func__, __LINE__); \
     printf(fmt, ##args); \
     printf("\n");

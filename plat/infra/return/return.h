@@ -20,12 +20,18 @@ public:
         ERROR = -1,
 
         EBADARGS   = PUBLIC_ERROR_CODE_BASE,
+        EMAP,
+        ELIST,
+        EVECTOR,
         EMALLOC,
         EINIT,
         ETIMEOUT,
         ESUBCLASS,
         ECONSTRUCT,
         ENONSUPPORT,
+
+        ETHREAD,
+        EPROCESS,
     };
 public:
     const static int SUCCESS = 0;

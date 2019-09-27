@@ -44,7 +44,7 @@ public:
     }
     ~Time() { };
 
-    Time& operator= (const Time& other) {
+    const Time& operator= (const Time& other) {
         second_ = other.second_;
         nanosecond_ = other.nanosecond_;
         return *this;

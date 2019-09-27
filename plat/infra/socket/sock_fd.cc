@@ -640,7 +640,7 @@ void SockFD::Close()
 *
 * @returns  SockRet or send length
 */
-size_t SockFD::Write(const void* data, size_t datalen)
+ssize_t SockFD::Write(const void* data, size_t datalen)
 {
     if (!init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -673,7 +673,7 @@ size_t SockFD::Write(const void* data, size_t datalen)
 *
 * @returns  SockRet or recv length.
 */
-size_t SockFD::Read(void* data, size_t datalen)
+ssize_t SockFD::Read(void* data, size_t datalen)
 {
     if (!init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -692,7 +692,7 @@ size_t SockFD::Read(void* data, size_t datalen)
 *
 * @returns  SockRet or send length
 */
-size_t SockFD::Send(SockAddress* dest_addr, const void* data, size_t datalen)
+ssize_t SockFD::Send(SockAddress* dest_addr, const void* data, size_t datalen)
 {
     if (!init_flag_) {
         SOCK_ERROR("%s", "fd not inited");
@@ -729,7 +729,7 @@ size_t SockFD::Send(SockAddress* dest_addr, const void* data, size_t datalen)
 *
 * @returns  SockRet or recv length.
 */
-size_t SockFD::Recv(SockAddress* orig_addr, void* data, size_t datalen)
+ssize_t SockFD::Recv(SockAddress* orig_addr, void* data, size_t datalen)
 {
     int ret = 0;
     if (!init_flag_) {
@@ -783,7 +783,7 @@ size_t SockFD::Recv(SockAddress* orig_addr, void* data, size_t datalen)
 *
 * @returns  SockRet or send length
 */
-size_t SockFD::SendFD(unsigned int fd)
+ssize_t SockFD::SendFD(unsigned int fd)
 {
     char ctrlmsg[CMSG_SPACE(sizeof(int))];
 
@@ -808,7 +808,7 @@ size_t SockFD::SendFD(unsigned int fd)
 *
 * @returns  SockRet or send length
 */
-size_t SockFD::RecvFD(unsigned int* fd)
+ssize_t SockFD::RecvFD(unsigned int* fd)
 {
     int ret = 0;
     char ctrlmsg[CMSG_SPACE(sizeof(int))];
@@ -842,7 +842,7 @@ int SockFD::_close()
     return close(fd_);
 }
 
-size_t SockFD::_send(struct sockaddr* dest, const void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags)
+ssize_t SockFD::_send(struct sockaddr* dest, const void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags)
 {
     int ret = 0;
     int temp_errno;
@@ -899,19 +899,14 @@ size_t SockFD::_send(struct sockaddr* dest, const void* data, size_t datalen, vo
     }
 
     ret = sendmsg(fd_, &msg, flags);
-    if (ret == 0) {
-        ret = (int)SockRet::SOCK_LINKDOWN;
-    } else if (ret < 0) {
-        temp_errno = errno;
-        ret = (int)(temp_errno);
-    }
+
     if (buff_free_flag) {
         mempool_->Free(buff);
     }
     return ret;
 }
 
-size_t SockFD::_recv(struct sockaddr* orig, void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags)
+ssize_t SockFD::_recv(struct sockaddr* orig, void* data, size_t datalen, void* ctrldata, size_t ctrldatalen, int flags)
 {
     int ret = 0;
     int temp_errno;
@@ -956,11 +951,8 @@ size_t SockFD::_recv(struct sockaddr* orig, void* data, size_t datalen, void* ct
     }
 
     ret = recvmsg(fd_, &msg, flags);
-    if (ret == 0) {
-        return (size_t)SockRet::SOCK_LINKDOWN;
-    } else if (ret < 0) {
-        temp_errno = errno;
-        return (size_t)(temp_errno);
+    if (ret <= 0) {
+        return ret;
     }
 
     //fill data

@@ -38,7 +38,7 @@ public:
     ProcessSignalSet(const ProcessSignalSet& other);
     ~ProcessSignalSet();
 
-    ProcessSignalSet& operator= (const ProcessSignalSet& other);
+    const ProcessSignalSet& operator= (const ProcessSignalSet& other);
 
     /**
     * @brief AddSig - Add a signal.

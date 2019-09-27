@@ -30,7 +30,11 @@ public:
         SL_EBITMAP,
 
         // msg shm return val
-        MSG_ENOSPACE
+        MSG_ENOSPACE,
+
+        // event
+        EVT_EWRITE,
+        EVT_EREAD,
     };
 public:
     static ECodeMapType ECodeMap;
