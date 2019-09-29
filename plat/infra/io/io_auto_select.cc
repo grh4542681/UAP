@@ -33,7 +33,6 @@ IoRet AutoSelect::Listen(timer::Time* overtime)
 
 IoRet AutoSelect::Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* overtime)
 {
-    printf("%p %p\n", sigmask, overtime);
     if (!init_flag_) {
         return IoRet::EINIT;
     }
@@ -79,8 +78,14 @@ IoRet AutoSelect::_select_listener_thread_handler(AutoSelect* instance, process:
 
     for (;;) {
         int fd_num = epoll_pwait(instance->fd_.GetFD(), rep_evts, item_size, otime, set);
-        if (fd_num == -1) {
-            return IoRet::ERROR;
+        if (fd_num <= 0) {
+            if (errno == EINTR) {
+                IO_INFO("Epoll interrupted by a signal handler or time out");
+                continue;
+            } else {
+                IO_ERROR("Epoll error : %s", strerror(errno));
+                return errno;
+            }
         }
 
         for (int loop = 0; loop < fd_num; ++loop) {

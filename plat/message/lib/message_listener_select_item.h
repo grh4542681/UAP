@@ -6,20 +6,23 @@
 #include <functional>
 
 #include "io_select_item.h"
+#include "message_log.h"
 
 namespace message {
 
 class MessageListenerSelectItem : public io::SelectItem {
 public:
     MessageListenerSelectItem() : io::SelectItem() { }
-    MessageListenerSelectItem(std::string name, io::FD& fd) : io::SelectItem(fd) {
-        name_ = name;
+    MessageListenerSelectItem(std::string name, sock::SockServer server) : io::SelectItem(fd) {
+        listener_name_ = name;
+        server_ = server;
+        io::SelectItem(server_.GetSockFD());
     }
     ~MessageListenerSelectItem() { }
 
     const MessageListenerSelectItem& operator=(const MessageListenerSelectItem& other) {
         io::SelectItem::operator=(other);
-        name_ = other.name_;
+        listener_name_ = other.listener_name_;
         InputFunc = other.InputFunc;
         OutputFunc = other.OutputFunc;
         ErrorFunc = other.ErrorFunc;
@@ -31,11 +34,12 @@ public:
         if (events & io::SelectEvent::Input) {
             if (InputFunc) {
                 ret = InputFunc(this);
-                if (ret != MessageRet::SUCCESS) {
-                    return io::IoRet::IO_EINPUTCB;
-                }
             } else {
                 //default input event callback
+                ret = _default_input_callback_func();
+            }
+            if (ret != MessageRet::SUCCESS) {
+                return io::IoRet::IO_EINPUTCB;
             }
             events |= ~io::SelectEvent::Input;
         }
@@ -68,7 +72,27 @@ public:
     std::function<MessageRet(MessageListenerSelectItem*)> OutputFunc;
     std::function<MessageRet(MessageListenerSelectItem*)> ErrorFunc;
 private:
-    std::string name_;
+    std::string listener_name_;
+    sock::SockServer server_;
+    MessageRet _default_input_callback_func() {
+        printf("default callback\n");
+        sock::SockFD* sockfd = dynamic_cast<sock::SockFD*>(event_.GetFdPointer());
+        if (!sockfd) {
+            MESSAGE_ERROR("Listening file descriptor is NULL.");
+            return MessageRet::MESSAGE_LISTEN_EFD;
+        }
+        char buff[1024];
+        memset(buff, 0, sizeof(buff));
+        sockfd->Recv(NULL,buff,sizeof(buff));
+        printf("recv %s\n", buff);
+        return MessageRet::SUCCESS;
+    }
+    MessageRet _default_output_callback_func(MessageListenerSelectItem* select_item) {
+        return MessageRet::SUCCESS;
+    }
+    MessageRet _default_error_callback_func(MessageListenerSelectItem* select_item) {
+        return MessageRet::SUCCESS;
+    }
 };
 
 }

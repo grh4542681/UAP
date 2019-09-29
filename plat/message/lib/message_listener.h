@@ -5,6 +5,7 @@
 
 #include "timer_time.h"
 #include "thread_id.h"
+#include "sock_fd.h"
 #include "io_select_item.h"
 
 #include "message_return.h"
@@ -20,13 +21,14 @@ class MessageListener : public MessageRaw {
 public:
     typedef struct _MessageListenerInfo {
         std::string name_;
+        sock::SockAddress address_;
 
         int endpoint_num_;
         timer::Time create_time_;
         MessageListenerState state_;
     } MessageListenerInfo;
 public:
-    MessageListener(std::string name, io::FD& fd);
+    MessageListener(std::string name, sock::SockAddress& addr);
     ~MessageListener();
 
     MessageListenerSelectItem& GetSelectItem();
@@ -35,8 +37,10 @@ public:
     MessageRet Unregister();
 
 private:
+    bool init_flag_ = false;
     MessageAgent* agent_;
     MessageListenerInfo info_;
+    sock::SockServer server_;
     MessageListenerSelectItem select_item_;
     std::map<std::string, MessageEndpoint*> tep_map_;
 };

@@ -86,6 +86,7 @@ MessageLink MessageAgent::LookupEndpoint(std::string listener_name, std::string 
 
 MessageRet MessageAgent::Run()
 {
+    MessageRetmote("MSG_CTRL", "MSG_CTRL", message::GetMessageServerAddress());
     client_ = sock::SockClient(message::GetMessageServerAddress());
     if (client_.Connect() != MessageRet::SUCCESS) {
         return MessageRet::MESSAGE_AGENT_ECONN;
@@ -97,8 +98,8 @@ MessageRet MessageAgent::Run()
     msg_client_listener.GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
     msg_client_listener.GetSelectItem().InputFunc = message_client_callback;
 
-    auselect_.AddSelectItem<MessageListenerSelectItem>(msg_client_listener.GetSelectItem());
-    auselect_.Listen(&timer::Time().SetTime(2, timer::Unit::Second));
+    select_.AddSelectItem<MessageListenerSelectItem>(msg_client_listener.GetSelectItem());
+    select_.Listen(&timer::Time().SetTime(2, timer::Unit::Second));
 
     return MessageRet::SUCCESS;
 }

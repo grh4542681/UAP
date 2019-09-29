@@ -35,7 +35,7 @@ public:
         return IoRet::ESUBCLASS;
     }
 
-private:
+protected:
     SelectEvent event_;
     State state_ = State::Normal;
 };

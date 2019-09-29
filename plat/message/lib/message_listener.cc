@@ -2,13 +2,16 @@
 #include "message_listener.h"
 
 namespace message {
-MessageListener::MessageListener(std::string name, io::FD& fd)
+MessageListener::MessageListener(std::string name, sock::SockAddress& addr)
 {
     agent_ = MessageAgent::getInstance();
     info_.name_ = name;
     info_.endpoint_num_ = 0;
+    info_.address_ = addr;
     info_.state_ = MessageListenerState::Ready;
-    select_item_ = MessageListenerSelectItem(info_.name_, fd);
+    server_ = sock::SockServer(&addr);
+    server_.Bind();
+    select_item_ = MessageListenerSelectItem(info_.name_, server_);
 }
 
 MessageListener::~MessageListener()

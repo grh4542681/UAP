@@ -14,6 +14,7 @@ public:
         MESSAGE_EMSMODE,
 
         MESSAGE_AGENT_ECONN,
+        MESSAGE_LISTEN_EFD,
     };
 public:
     static ECodeMapType ECodeMap;

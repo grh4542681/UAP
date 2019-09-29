@@ -2,9 +2,11 @@
 #define __MESSAGE_ENDPOINT_H__
 
 #include "thread_id.h"
+#include "sock_fd.h"
 
 #include "message_return.h"
 #include "message_defines.h"
+#include "message_endpoint_select_item.h"
 
 namespace message {
 class MessageListener;
@@ -23,9 +25,13 @@ public:
     MessageRet Register();
     MessageRet Unregister();
 
+    MessageRet AddMessageLink(sock::SockFD& fd);
+    MessageRet DelMessageLink(sock::SockFD& fd);
 private:
     MessageListener* listener;
     MessageEndpointInfo ep_info_;
+
+    std::map<io::FD, MessageEndpointSelectItem> select_item_map_;
 };
 
 }

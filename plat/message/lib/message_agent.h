@@ -3,21 +3,18 @@
 
 #include <map>
 
-#include "timer_time.h"
 #include "mempool.h"
-#include "thread_id.h"
+#include "timer_time.h"
 #include "thread_template.h"
 #include "sock_client.h"
-#include "sock_address.h"
-#include "io_select.h"
 #include "io_auto_select.h"
-#include "io_select_item.h"
 
 #include "message_api.h"
 #include "message_defines.h"
 #include "message_raw.h"
 #include "message_endpoint.h"
 #include "message_listener.h"
+#include "message_remote.h"
 #include "message_agent_state.h"
 #include "message_link.h"
 
@@ -59,18 +56,19 @@ public:
     MessageRet Run();
 public:
     static MessageRet message_client_callback(MessageListenerSelectItem* item);
-    static int message_ctrl_thread(MessageAgent* mg);
     static MessageAgent* getInstance();
 
 private:
     bool init_flag_ = false;
     mempool::MemPool* mempool_;
     MessageAgentInfo info_;
-    std::map<std::string, MessageListener*> listen_ep_map_;
-    thread::ThreadTemplate<decltype(&message_ctrl_thread), int> ctrl_thread_;
+
+    MessageRemote agent_client_;
+    std::map<std::string, MessageListener*> listen_local_ep_map_;
+    std::map<std::string, MessageRemote*> listen_remote_ep_map_;
+
     sock::SockClient client_;
-    io::Select select_;
-    io::AutoSelect auselect_;
+    io::AutoSelect select_;
 
     static MessageAgent* pInstance;
 };
