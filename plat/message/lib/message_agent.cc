@@ -9,8 +9,7 @@ MessageAgent::MessageAgent()
 {
     mempool_ = mempool::MemPool::getInstance();
     info_.listener_num_ = 0;
-    info_.state_ = MessageAgentState::Ready;
-    init_flag_ = true;
+    info_.state_ = State::Initialize;
 }
 
 MessageAgent::~MessageAgent()
@@ -25,6 +24,16 @@ MessageRet MessageAgent::Serialization(MessageStreamBinary& bs)
 MessageRet MessageAgent::Deserialization(MessageStreamBinary& bs)
 {
 
+}
+
+bool IsReady()
+{
+    return (info_.state_ == State::Ready);
+}
+
+MessageAgent::State& GetState()
+{
+    return info_.state_;
 }
 
 MessageRemote* MessageAgent::GetRemote()

@@ -22,11 +22,18 @@ namespace message {
 
 class MessageAgent : MessageRaw {
 public:
-    typedef struct _MessageAgentInfo {
+    enum class State {
+        Initialize,
+        Listenning,
+        Ready,
+        Error,
+    };
+
+    typedef struct _Info {
         size_t listener_num_;
         timer::Time create_time_;
-        MessageAgentState state_;
-    } MessageAgentInfo;
+        State state_;
+    } Info;
 
 public:
     MessageAgent();
@@ -35,6 +42,9 @@ public:
     //from MessageRaw
     MessageRet Serialization(MessageStreamBinary& bs);
     MessageRet Deserialization(MessageStreamBinary& bs);
+
+    bool IsReady();
+    State& GetState();
 
     MessageRemote* GetRemote();
 
@@ -59,11 +69,10 @@ public:
     static MessageAgent* getInstance();
 
 private:
-    bool init_flag_ = false;
     mempool::MemPool* mempool_;
     MessageAgentInfo info_;
 
-    MessageRemote* agent_client_;
+    MessageRemote* agent_client_ = NULL;
     std::map<std::string, MessageListener*> listen_local_ep_map_;
     std::map<std::string, MessageRemote*> listen_remote_ep_map_;
 
