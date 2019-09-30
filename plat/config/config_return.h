@@ -1,7 +1,7 @@
-#ifndef __CM_RETURN_H__
-#define __CM_RETURN_H__
+#ifndef __CONFIG_RETURN_H__
+#define __CONFIG_RETURN_H__
 
-namespace cm{
+namespace config {
 
 typedef enum class _CmRet: int {
 //common return val

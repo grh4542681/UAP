@@ -26,12 +26,12 @@ MessageRet MessageAgent::Deserialization(MessageStreamBinary& bs)
 
 }
 
-bool IsReady()
+bool MessageAgent::IsReady()
 {
     return (info_.state_ == State::Ready);
 }
 
-MessageAgent::State& GetState()
+MessageAgent::State& MessageAgent::GetState()
 {
     return info_.state_;
 }
@@ -99,7 +99,7 @@ MessageRet MessageAgent::Run()
     if (!agent_client_ || !agent_client_->IsReady()) {
         return MessageRet::MESSAGE_AGENT_ECONN;
     }
-    info_.state_ = MessageAgentState::ConnectServer;
+    info_.state_ = State::Ready;
 
     agent_client_->GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
     agent_client_->GetSelectItem().InputFunc = message_client_callback;

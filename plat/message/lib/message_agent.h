@@ -70,7 +70,7 @@ public:
 
 private:
     mempool::MemPool* mempool_;
-    MessageAgentInfo info_;
+    Info info_;
 
     MessageRemote* agent_client_ = NULL;
     std::map<std::string, MessageListener*> listen_local_ep_map_;

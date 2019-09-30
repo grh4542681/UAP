@@ -19,7 +19,7 @@ public:
 private:
     mempool::MemPool* mempool_;
 
-    std::map<std::string, MessageAgent::MessageAgentInfo*> cep_map_;
+    std::map<std::string, MessageAgent::Info*> cep_map_;
 
     MessageRet _run();
     MessageRet _listen_thread();
