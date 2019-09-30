@@ -1,5 +1,6 @@
 #lib
 ADD_SUBDIRECTORY(infra)
+ADD_SUBDIRECTORY(config/lib)
 ADD_SUBDIRECTORY(message/lib)
 ADD_SUBDIRECTORY(nameserver/lib)
 

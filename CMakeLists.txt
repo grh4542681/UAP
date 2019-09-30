@@ -42,6 +42,10 @@ SET (PLAT_INFRA_HRD "${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     "${FRAM_ROOT_PATH}/plat/infra/io"
                     )
 
+SET (PLAT_CONFIG_HRD "${FRAM_ROOT_PATH}/plat/config"
+                 "${FRAM_ROOT_PATH}/plat/config/lib"
+)
+
 SET (PLAT_MESSAGE_HRD "${FRAM_ROOT_PATH}/plat/common"
                       "${FRAM_ROOT_PATH}/plat/message"
                       "${FRAM_ROOT_PATH}/plat/message/lib"
