@@ -23,16 +23,4 @@ MessageRet MessageEndpoint::Unregister()
 
 }
 
-
-MessageRet MessageEndpoint::AddMessageLink(sock::SockFD& fd)
-{
-
-}
-
-MessageRet MessageEndpoint::DelMessageLink(sock::SockFD& fd)
-{
-
-}
-
-
 }

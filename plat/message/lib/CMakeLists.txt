@@ -4,6 +4,7 @@ SET(LIBGRHMSG_SRC ../message_return.cc
                   message_agent.cc
                   message_listener.cc
                   message_endpoint.cc
+                  message_remote.cc
                   )
 INCLUDE_DIRECTORIES(${PLAT_MESSAGE_HRD}
                     "${FRAM_ROOT_PATH}/plat/common"

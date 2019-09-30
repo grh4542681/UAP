@@ -8,10 +8,17 @@ MessageListener::MessageListener(std::string name, sock::SockAddress& addr)
     info_.name_ = name;
     info_.endpoint_num_ = 0;
     info_.address_ = addr;
-    info_.state_ = MessageListenerState::Ready;
+    info_.state_ = State::Initialize;
     server_ = sock::SockServer(&addr);
-    server_.Bind();
-    select_item_ = MessageListenerSelectItem(info_.name_, server_);
+    if (server_.Bind() == sock::SockRet::SUCCESS)
+    {
+        select_item_ = SelectItem(this);
+        info_.state_ = State::Ready;
+        state_ = State::Ready;
+    } else {
+        info_.state_ = State::Error;
+        state_ = State::Error;
+    }
 }
 
 MessageListener::~MessageListener()
@@ -19,9 +26,24 @@ MessageListener::~MessageListener()
 
 }
 
-MessageListenerSelectItem& MessageListener::GetSelectItem()
+MessageListener::SelectItem& MessageListener::GetSelectItem()
 {
     return select_item_;
+}
+
+MessageListener::State& MessageListener::GetState()
+{
+    return state_;
+}
+
+sock::SockServer& MessageListener::GetSockServer()
+{
+    return server_;
+}
+
+bool MessageListener::IsReady()
+{
+    return (state_ == State::Ready);
 }
 
 MessageRet MessageListener::Register()

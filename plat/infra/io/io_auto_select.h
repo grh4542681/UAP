@@ -42,14 +42,16 @@ public:
     IoRet ModSelectItem();
     const SelectItem& GetSelectItem(FD& fd);
 
+    bool GetNonblock();
     auto& GetListenrThread();
 
-    IoRet Listen(timer::Time* overtime);
-    IoRet Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* overtime);
+    IoRet Listen(timer::Time overtime);
+    IoRet Listen(process::signal::ProcessSignalSet sigmask, timer::Time overtime);
 
-    static IoRet _select_listener_thread_handler(AutoSelect* instance, process::signal::ProcessSignalSet* sigmask, timer::Time* overtime);
+    static IoRet _select_listener_thread_handler(AutoSelect* instance, process::signal::ProcessSignalSet sigmask, timer::Time overtime);
 private:
-    bool init_flag_;
+    bool init_flag_ = false;
+    bool nonblock_flag_ = false;
     EpollFD fd_;
 
     thread::mutex::ThreadMutexLock mutex_;

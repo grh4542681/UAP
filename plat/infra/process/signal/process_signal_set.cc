@@ -15,11 +15,13 @@ namespace process::signal {
 ProcessSignalSet::ProcessSignalSet()
 {
     sigemptyset(&set_);
+    empty_flag_ = true;
 }
 
 ProcessSignalSet::ProcessSignalSet(const ProcessSignalSet& other)
 {
     set_ = other.set_;
+    empty_flag_ = other.empty_flag_;
 }
 
 ProcessSignalSet::~ProcessSignalSet()
@@ -30,7 +32,13 @@ ProcessSignalSet::~ProcessSignalSet()
 const ProcessSignalSet& ProcessSignalSet::operator=(const ProcessSignalSet& other)
 {
     set_ = other.set_;
+    empty_flag_ = other.empty_flag_;
     return *this;
+}
+
+bool ProcessSignalSet::IsEmpty()
+{
+    return empty_flag_;
 }
 
 ProcessRet ProcessSignalSet::AddSig(ProcessSignal& sig)
@@ -42,6 +50,7 @@ ProcessRet ProcessSignalSet::AddSig(ProcessSignal&& sig)
     if (!sigaddset(&set_, sig.sig_)) {
         return ProcessRet::PROCESS_ESIGINVAL;
     }
+    empty_flag_ = false;
     return ProcessRet::SUCCESS;
 }
 
@@ -50,6 +59,7 @@ ProcessRet ProcessSignalSet::AddAll()
     if (!sigfillset(&set_)) {
         return ProcessRet::PROCESS_ESIGINVAL;
     }
+    empty_flag_ = false;
     return ProcessRet::SUCCESS;
 }
 
@@ -62,6 +72,7 @@ ProcessRet ProcessSignalSet::DelSig(ProcessSignal&& sig)
     if (!sigdelset(&set_, sig.sig_)) {
         return ProcessRet::PROCESS_ESIGINVAL;
     }
+    empty_flag_ = false;
     return ProcessRet::SUCCESS;
 }
 
@@ -71,6 +82,7 @@ ProcessRet ProcessSignalSet::DelAll()
     if (!sigemptyset(&set_)) {
         return ProcessRet::PROCESS_ESIGINVAL;
     }
+    empty_flag_ = true;
     return ProcessRet::SUCCESS;
 }
 

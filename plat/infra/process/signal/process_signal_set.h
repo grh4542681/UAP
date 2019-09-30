@@ -25,11 +25,6 @@ namespace process::signal {
 class ProcessSignalCtrl;
 class ProcessSignalAction;
 
-class test {
-    test() {}
-    ~test() {}
-};
-
 /**
 * @brief - Signal set.
 */
@@ -44,6 +39,8 @@ public:
     ~ProcessSignalSet();
 
     const ProcessSignalSet& operator= (const ProcessSignalSet& other);
+
+    bool IsEmpty();
 
     /**
     * @brief AddSig - Add a signal.
@@ -89,6 +86,7 @@ public:
 
 private:
     sigset_t set_;  ///< Linux signal set.
+    bool empty_flag_;
 };
 
 }

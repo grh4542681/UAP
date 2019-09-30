@@ -21,24 +21,29 @@ AutoSelect::~AutoSelect()
 
 }
 
+bool AutoSelect::GetNonblock()
+{
+    return nonblock_flag_;
+}
+
 auto& AutoSelect::GetListenrThread()
 {
     return listener_thread_;
 }
 
-IoRet AutoSelect::Listen(timer::Time* overtime)
+IoRet AutoSelect::Listen(timer::Time overtime)
 {
-    return Listen(NULL, overtime);
+    return Listen(process::signal::ProcessSignalSet(), overtime);
 }
 
-IoRet AutoSelect::Listen(process::signal::ProcessSignalSet* sigmask, timer::Time* overtime)
+IoRet AutoSelect::Listen(process::signal::ProcessSignalSet sigmask, timer::Time overtime)
 {
     if (!init_flag_) {
         return IoRet::EINIT;
     }
 
     listener_thread_ = thread::ThreadTemplate<decltype(&_select_listener_thread_handler), IoRet>(_select_listener_thread_handler);
-    thread::ThreadRet ret = listener_thread_.Run(this, std::forward<process::signal::ProcessSignalSet*>(sigmask), std::forward<timer::Time*>(overtime));
+    thread::ThreadRet ret = listener_thread_.Run(this, std::forward<process::signal::ProcessSignalSet>(sigmask), std::forward<timer::Time>(overtime));
     if (ret != thread::ThreadRet::SUCCESS) {
         IO_ERROR("Start io auto select thread error : %s", ret.Message().c_str());
         return IoRet::ETHREAD;
@@ -67,19 +72,19 @@ IoRet AutoSelect::_select_item_traversal()
     return IoRet::SUCCESS;
 }
 
-IoRet AutoSelect::_select_listener_thread_handler(AutoSelect* instance, process::signal::ProcessSignalSet* sigmask, timer::Time* overtime)
+IoRet AutoSelect::_select_listener_thread_handler(AutoSelect* instance, process::signal::ProcessSignalSet sigmask, timer::Time overtime)
 {
     int item_size = 2048;
     struct epoll_event rep_evts[item_size];
     memset(rep_evts, 0, sizeof(epoll_event) * item_size);
 
-    sigset_t* set = sigmask ? sigmask->GetSigset() : NULL;
-    int otime = overtime ? static_cast<int>(overtime->ToMilliseconds()) : -1;
+    sigset_t* set = sigmask.IsEmpty() ? NULL : sigmask.GetSigset();
+    int otime = instance->GetNonblock() ? 0 : (static_cast<int>(overtime.ToMilliseconds()) == 0 ? -1 : static_cast<int>(overtime.ToMilliseconds()));
 
     for (;;) {
         int fd_num = epoll_pwait(instance->fd_.GetFD(), rep_evts, item_size, otime, set);
         if (fd_num <= 0) {
-            if (errno == EINTR) {
+            if (errno == EINTR || errno == 0) {
                 IO_INFO("Epoll interrupted by a signal handler or time out");
                 continue;
             } else {

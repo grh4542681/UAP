@@ -36,7 +36,7 @@ public:
     MessageRet Serialization(MessageStreamBinary& bs);
     MessageRet Deserialization(MessageStreamBinary& bs);
 
-    sock::SockClient& GetClient();
+    MessageRemote* GetRemote();
 
     MessageListener* GetLinstener(std::string l_name);
     MessageEndpoint* GetEndpoint(std::string listener_name, std::string ep_name);
@@ -55,7 +55,7 @@ public:
 
     MessageRet Run();
 public:
-    static MessageRet message_client_callback(MessageListenerSelectItem* item);
+    static MessageRet message_client_callback(MessageRemote::SelectItem* item);
     static MessageAgent* getInstance();
 
 private:
@@ -63,11 +63,10 @@ private:
     mempool::MemPool* mempool_;
     MessageAgentInfo info_;
 
-    MessageRemote agent_client_;
+    MessageRemote* agent_client_;
     std::map<std::string, MessageListener*> listen_local_ep_map_;
     std::map<std::string, MessageRemote*> listen_remote_ep_map_;
 
-    sock::SockClient client_;
     io::AutoSelect select_;
 
     static MessageAgent* pInstance;
