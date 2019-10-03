@@ -15,8 +15,6 @@
 #include "message_endpoint.h"
 #include "message_listener.h"
 #include "message_remote.h"
-#include "message_agent_state.h"
-#include "message_link.h"
 
 namespace message {
 
@@ -60,8 +58,8 @@ public:
     template < typename ... Args > MessageRet RegisterEndpoint(std::string l_name, Args&& ... args);
     MessageRet UnregisterEP(std::string l_name, std::string e_name);
 
-    MessageLink LookupLinstener(std::string l_name);
-    MessageLink LookupEndpoint(std::string listener_name, std::string ep_name);
+    MessageListener* LookupLinstener(std::string l_name);
+    MessageListener* LookupEndpoint(std::string listener_name, std::string ep_name);
 
     MessageRet Run();
 public:

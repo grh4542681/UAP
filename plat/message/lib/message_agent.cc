@@ -83,12 +83,12 @@ MessageRet MessageAgent::UnregisterEP(std::string l_name, std::string e_name)
 
 }
 
-MessageLink MessageAgent::LookupLinstener(std::string l_name)
+MessageListener* MessageAgent::LookupLinstener(std::string l_name)
 {
 
 }
 
-MessageLink MessageAgent::LookupEndpoint(std::string listener_name, std::string ep_name)
+MessageListener* MessageAgent::LookupEndpoint(std::string listener_name, std::string ep_name)
 {
 
 }

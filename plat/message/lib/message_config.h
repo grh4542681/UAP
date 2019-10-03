@@ -4,7 +4,10 @@
 namespace message {
 
 class MessageConfig {
-    
+public:
+    MessageConfig();
+    ~MessgaeConfig();
+
 };
 
 }
