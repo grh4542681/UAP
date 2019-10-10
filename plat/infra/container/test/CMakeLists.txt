@@ -10,7 +10,7 @@ ADD_EXECUTABLE(test_link_list ${TEST_LINK_LIST_SRC})
 ADD_EXECUTABLE(test_hash_table ${TEST_HASH_TABLE_SRC})
 ADD_EXECUTABLE(test_trie_tree ${TEST_TRIE_TREE_SRC})
 
-TARGET_LINK_LIBRARIES(bitmap_test libgcontainer.so librt.so libgmp.so libgret.so)
+TARGET_LINK_LIBRARIES(bitmap_test libgcontainer.so librt.so libgmp.so libgret.so libgfile.so libgutil.so)
 TARGET_LINK_LIBRARIES(test_link_list libgmp.so pthread libgthread.so libgprocess.so libgipc.so libgsocket.so libgfile.so libgutil.so libgret.so libgmsg.so libgio.so libgtime.so)
 TARGET_LINK_LIBRARIES(test_hash_table libgmp.so pthread libgthread.so libgprocess.so libgipc.so libgsocket.so libgfile.so libgutil.so libgret.so libgmsg.so libgio.so libgtime.so)
 TARGET_LINK_LIBRARIES(test_trie_tree libgmp.so pthread libgthread.so libgprocess.so libgipc.so libgsocket.so libgfile.so libgutil.so libgret.so libgmsg.so libgio.so libgtime.so)

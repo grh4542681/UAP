@@ -52,36 +52,36 @@ size_t Bitmap::GetCurBitsize()
     return bit_cur_size_;
 }
 
-BitmapRet Bitmap::Set(size_t index)
+ContainerRet Bitmap::Set(size_t index)
 {
     if (!page_head_) {
-        return BitmapRet::EINIT;
+        return ContainerRet::EINIT;
     }
     if (index == 0 || index > bit_max_size_) {
-        return BitmapRet::BM_EOUTBOUND;
+        return ContainerRet::BM_EOUTBOUND;
     }
     size_t page_index = (index + BITMAP_PAGESIZE - 1) / BITMAP_PAGESIZE;
     size_t page_offset = (index - 1 ) % BITMAP_PAGESIZE;
     char* tmp = reinterpret_cast<char*>(page_head_);
     tmp[page_index - 1] = tmp[page_index - 1] | (1 << page_offset);
     bit_cur_size_++;
-    return BitmapRet::SUCCESS;
+    return ContainerRet::SUCCESS;
 }
 
-BitmapRet Bitmap::Unset(size_t index)
+ContainerRet Bitmap::Unset(size_t index)
 {
     if (!page_head_) {
-        return BitmapRet::EINIT;
+        return ContainerRet::EINIT;
     }
     if (index == 0 || index > bit_max_size_) {
-        return BitmapRet::BM_EOUTBOUND;
+        return ContainerRet::BM_EOUTBOUND;
     }
     size_t page_index = (index + BITMAP_PAGESIZE - 1) / BITMAP_PAGESIZE;
     size_t page_offset = (index - 1 ) % BITMAP_PAGESIZE;
     char* tmp = reinterpret_cast<char*>(page_head_);
     tmp[page_index - 1] = tmp[page_index - 1] &~ (1 << page_offset);
     bit_cur_size_--;
-    return BitmapRet::SUCCESS;
+    return ContainerRet::SUCCESS;
 }
 
 void Bitmap::Print1()

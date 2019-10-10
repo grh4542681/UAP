@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "mempool_busylist.h"
+#include "file.h"
 
 namespace mempool {
 
@@ -83,7 +84,7 @@ void MemPoolBusyList::Report(file::File& fd)
                 break;
         }
         strcat(line, "\n");
-        fd.Write(line, sizeof(line));
+        fd.GetFileFD().Write(line, sizeof(line));
     }
 }
 

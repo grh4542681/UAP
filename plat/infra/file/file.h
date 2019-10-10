@@ -1,45 +1,89 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
-#include <string.h>
+#include <string>
+#include <map>
+#include <vector>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
 
+#include "file_log.h"
 #include "file_return.h"
+#include "file_fd.h"
 
 #define FILE_MAX_LINE_LEN (1024)
 
-namespace file{
+namespace file {
 
-class File{
+class File {
 public:
-    File() { };
-    virtual ~File() { };
-
-    virtual FileRet Open(unsigned int mode) { return FileRet::ESUBCLASS; };
-    virtual FileRet Close() { return FileRet::ESUBCLASS; };
-    virtual int Read(void* data, unsigned int datalen) { return 0; };
-    virtual int Write(const void* data, unsigned int datalen) { return 0; };
-
-    template <typename ... Args>
-    int ReadFmt(const char* fmt, Args&& ... args) {
-        char line[FILE_MAX_LINE_LEN];
-        memset(line, 0x00, sizeof(line));
-        int ret = Read(line, sizeof(line));
-        if (ret <= 0) {
-            return ret;
-        }
-        sscanf(line, fmt, std::forward<Args>(args)...);
-        return ret;
+    enum class Format : int {
+        Unknow = 0,
+        Ini,
+        Xml,
+        Json,
+        Txt,
     };
 
-    template <typename ... Args>
-    int WriteFmt(const char* fmt, Args&& ... args) {
-        char line[FILE_MAX_LINE_LEN];
-        memset(line, 0x00, sizeof(line));
-        sprintf(line, fmt, std::forward<Args>(args)...);
-        return Write(line, sizeof(line));
-    }
+    enum class State {
+        Invalid,
+        Opened,
+        Closed,
+    };
+
+    enum Mode {
+        READ_ONLY = 0x01,
+        WRITE_ONLY = 0x02,
+        READ_WRITE = 0x01 | 0x02,
+        CREAT = 0x08,
+        EXIST = 0x10,
+        TRUNC = 0x20,
+        APPEND = 0x40, 
+    };
+
+    class Attrbute {
+    private:
+        Attrbute();
+        Attrbute(Attrbute& other);
+        ~Attrbute();
+
+    private:
+        struct stat stat_;
+    };
+
+public:
+    static std::map<File::Format, std::vector<std::string>> SupportFormat;
+
+public:
+    File(std::string filename);
+    File(const FileFD& fd_);
+    File(const FileFD&& fd_);
+    ~File();
+
+    FileFD& GetFileFD();
+    std::string GetFileName();
+    Format GetFileFormat();
+    std::string GetFileFormatDescribe();
+
+    FileRet Open(int mode, bool auto_close = false);
+    FileRet Open(Mode mode, bool auto_close = false);
+    FileRet Close();
+
+    static FileRet ModeConvert(int mode, std::string& smode);
+
+private:
+    std::string file_name_;
+    bool auto_close_ = false;
+    FileFD fd_;
+    State state_;
+    Format format_;
+
 };
 
-}//namespace file end
+}//namespcae file end
 
 #endif

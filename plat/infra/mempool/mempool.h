@@ -10,8 +10,11 @@
 #include <sstream>
 
 #include "report.h"
-#include "file.h"
 #include "mempool_threadcache.h"
+
+namespace file {
+class File;
+}
 
 namespace mempool {
 

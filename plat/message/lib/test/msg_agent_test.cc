@@ -1,11 +1,11 @@
 #include "process_info.h"
-#include "file_c.h"
+#include "file.h"
 #include "message_agent.h"
 
 int main()
 {
     process::ProcessInfo* p = process::ProcessInfo::getInstance();
-    file::FileC fd(stdout);
+    file::File fd(stdout);
     p->Report(fd,report::ReportMode::DETAIL);
     message::MessageAgent* agent = message::MessageAgent::getInstance();
     agent->Run();

@@ -6,7 +6,7 @@
 #include "signal/process_signal_ctrl.h"
 #include "signal/process_signal_action.h"
 #include "signal/process_signal_common_callback.h"
-#include "file_c.h"
+#include "file.h"
 #include "thread.h"
 #include "report_mode.h"
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 //    p1.RunDaemon();
 
     sleep(5);
-    file::FileC fd(stdout);
+    file::File fd(stdout);
     p->Report(fd,report::ReportMode::DETAIL);
 
     sleep(25);

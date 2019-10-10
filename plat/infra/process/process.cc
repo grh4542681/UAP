@@ -1,8 +1,7 @@
 #include "process_log.h"
 #include "process.h"
 
-#include "file_c.h"
-#include "file_mode.h"
+#include "file.h"
 
 namespace process {
 
@@ -38,11 +37,11 @@ ProcessRet Process::GetProcRealName(std::string& name)
 {
     char process_name[MAX_PROCCESS_NAME_LEN];
     memset(process_name, 0x00, sizeof(process_name));
-    file::FileC cmdline("/proc/self/cmdline");
-    if (cmdline.Open(file::FileMode::READ_ONLY) != file::FileRet::SUCCESS) {
+    file::File cmdline("/proc/self/cmdline");
+    if (cmdline.Open(file::File::Mode::READ_ONLY) != file::FileRet::SUCCESS) {
         return ProcessRet::ERROR;
     }
-    cmdline.Read(process_name, sizeof(process_name));
+    cmdline.GetFileFD().Read(process_name, sizeof(process_name));
     cmdline.Close();
     name.assign(process_name);
     return ProcessRet::SUCCESS;

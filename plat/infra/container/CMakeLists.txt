@@ -1,5 +1,5 @@
-SET(LIBGCONTAINER_SRC bitmap.cc
-                      bitmap_return.cc
+SET(LIBGCONTAINER_SRC container_return.cc
+                      bitmap.cc
 )
 
 ADD_LIBRARY(GRHcontainer_SO SHARED ${LIBGCONTAINER_SRC})

@@ -8,7 +8,10 @@
 #include "mempool_log.h"
 #include "mempool_return.h"
 #include "mempool_itemori.h"
-#include "file.h"
+
+namespace file {
+class File;
+}
 
 namespace mempool {
 

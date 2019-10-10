@@ -2,6 +2,8 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#include "file.h"
+
 #include "mempool_threadcache.h"
 #include "mempool_osproxy.h"
 
@@ -100,7 +102,7 @@ void MemPoolThreadCache::Report(file::File& fd)
     char line[1024];
     memset(line, 0x00, sizeof(line));
     sprintf(line, "Thread: %d\n", tid_);
-    fd.Write(line, sizeof(line));
+    fd.GetFileFD().Write(line, sizeof(line));
     busy_list_.Report(fd);
 }
 

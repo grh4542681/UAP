@@ -6,7 +6,10 @@
 #include "mempool_center.h"
 #include "mempool_freelist.h"
 #include "mempool_busylist.h"
-#include "file.h"
+
+namespace file {
+class File;
+}
 
 namespace mempool {
 

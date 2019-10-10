@@ -11,7 +11,6 @@
 
 #include "message_log.h"
 #include "message_server.h"
-#include "message_deamon.h"
 
 static parser::ParserJson process_config;
 

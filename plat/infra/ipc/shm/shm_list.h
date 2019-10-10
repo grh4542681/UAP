@@ -239,7 +239,7 @@ private:
             return NULL;
         }
 
-        if (bm.Set(bit_index) != container::BitmapRet::SUCCESS) {
+        if (bm.Set(bit_index) != container::ContainerRet::SUCCESS) {
             ret_ = IpcRet::SL_EBITMAP;
             return NULL;
         }
@@ -298,7 +298,7 @@ private:
             return NULL;
         }
 
-        if (bm.Set(bit_index) != container::BitmapRet::SUCCESS) {
+        if (bm.Set(bit_index) != container::ContainerRet::SUCCESS) {
             ret_ = IpcRet::SL_EBITMAP;
             return NULL;
         }

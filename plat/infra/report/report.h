@@ -5,7 +5,10 @@
 #include <sstream>
 
 #include "report_mode.h"
-#include "file.h"
+
+namespace file {
+class File;
+}
 
 namespace report {
 

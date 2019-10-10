@@ -5,7 +5,7 @@
 #include "thread_template.h"
 
 #include "process_info.h"
-#include "file_c.h"
+#include "file.h"
 #include "report_mode.h"
 
 int test_thread(int i, int b)
@@ -24,7 +24,7 @@ int main()
     thread::ThreadTemplate<decltype(thread_type), int> thread3(test_thread);
 
     process::ProcessInfo* p = process::ProcessInfo::getInstance();
-    file::FileC fd(stdout);
+    file::File fd(stdout);
 
     thread1.Run(100,1);
     sleep(1);

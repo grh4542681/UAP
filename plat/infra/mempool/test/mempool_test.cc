@@ -1,5 +1,7 @@
 #include "mempool.h"
-#include "file_c.h"
+#include "file.h"
+
+#include <utility>
 
 #include <pthread.h>
 #include <unistd.h>
@@ -10,7 +12,7 @@ void* test_thread(void* args)
     void* p =mp->Malloc(100);
     p = mp->Malloc(200);
 
-    file::FileC fd(stdout);    
+    file::File fd(std::forward<file::FileFD>(stdout));    
     mp->ReportThread(fd);
     printf("-------------\n");
     mp->Free(p);
@@ -42,7 +44,7 @@ int main()
     p = mp->Malloc(200);
     printf("%p\n",p);
 
-    file::FileC fd(stdout);    
+    file::File fd(stdout);    
     mp->ReportThread(fd);
     printf("-------------\n");
     mp->Free(p);

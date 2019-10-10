@@ -301,9 +301,9 @@ ProcessRet ProcessInfo::DelThreadInfo(thread::ThreadID& tid)
 void ProcessInfo::Report(file::File& fd, report::ReportMode mode)
 {
     thread_info_rw_lock_.RLock(NULL);
-    fd.WriteFmt("pid:%u threadnum:%d processnum:%d\n", pid_.GetID(), thread_info_map_.size(), child_.size());
+    fd.GetFileFD().WriteFmt("pid:%u threadnum:%d processnum:%d\n", pid_.GetID(), thread_info_map_.size(), child_.size());
     for (auto it : thread_info_map_) {
-        fd.WriteFmt("\ttid:%d\n", it.first.GetID());
+        fd.GetFileFD().WriteFmt("\ttid:%d\n", it.first.GetID());
     }
     thread_info_rw_lock_.UnLock();
 }

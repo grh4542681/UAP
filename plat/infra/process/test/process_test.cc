@@ -1,5 +1,5 @@
 #include "process_info.h"
-#include "file_c.h"
+#include "file.h"
 #include "thread.h"
 #include "report_mode.h"
 
@@ -13,7 +13,7 @@ int main()
 
     thread::RegisterThread("grhtest");
 
-    file::FileC fd(stdout);
+    file::File fd(stdout);
     p->Report(fd,report::ReportMode::DETAIL);
     return 0;
 }

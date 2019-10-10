@@ -1,6 +1,7 @@
 SET(LIBGRHFILEOP_SRC file_return.cc
-                     file_c.cc
-                     file_mode.cc
+                     file_api.cc
+                     file_fd.cc
+                     file.cc
                      file_path.cc
                      )
 ADD_LIBRARY(GRHfileop_SO SHARED ${LIBGRHFILEOP_SRC})

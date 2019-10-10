@@ -111,7 +111,7 @@ public:
         return *this;
     }
 
-    bool Initalize() {
+    bool Initalize() const {
         return init_flag_;
     }
 

@@ -2,7 +2,7 @@
 #define __BITMAP_H__
 
 #include "mempool.h"
-#include "bitmap_return.h"
+#include "container_return.h"
 
 #define BITMAP_PAGESIZE (8)
 
@@ -19,8 +19,8 @@ public:
     size_t GetMaxBitsize();
     size_t GetCurBitsize();
 
-    BitmapRet Set(size_t index);
-    BitmapRet Unset(size_t index);
+    ContainerRet Set(size_t index);
+    ContainerRet Unset(size_t index);
     size_t Find0();
     size_t Find1();
     bool IsFull();
