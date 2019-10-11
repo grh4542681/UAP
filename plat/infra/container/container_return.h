@@ -10,6 +10,7 @@ public:
     enum ECode{
         CONTAINER_EBASE = CONTAINER_ERROR_CODE_BASE,
         BM_EOUTBOUND,
+        NT_EINDEXCROSS,
     };
 public:
     static ECodeMapType ECodeMap;
