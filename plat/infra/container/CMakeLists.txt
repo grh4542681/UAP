@@ -1,5 +1,6 @@
 SET(LIBGCONTAINER_SRC container_return.cc
                       bitmap.cc
+                      node_tree.cc
 )
 
 ADD_LIBRARY(GRHcontainer_SO SHARED ${LIBGCONTAINER_SRC})

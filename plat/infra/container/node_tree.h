@@ -1,6 +1,8 @@
 #ifndef __NODE_TREE_H__
 #define __NODE_TREE_H__
 
+#include <unistd.h>
+
 #include <string>
 #include <vector>
 #include <iterator>
@@ -21,116 +23,54 @@ public:
         Fundamental,
         Array,
         Compound,
+        Path,
     };
 
-    class ElementAny {
+    class ElementPath {
     public:
-        ElementAny(std::string ename = "") : name(ename) { }
-        ElementAny(const ElementAny& other) {
-            name = other.name;
-            next = other.next;
-            prev = other.prev;
-            parent = other.parent;
-            child = other.child;
-        }
-        virtual ~ElementAny() { };
-        virtual const std::type_info& GetTypeinfo() = 0;
-
-        ElementAny* SearchPath(std::string path) {
-            std::vector<std::string> path_vec;
-            util::String::Split(path, "/", path_vec);
-            std::reverse(std::begin(path_vec), std::end(path_vec));
-
-            ElementAny* ptr = this;
-            for (auto it : path_vec) {
-                ptr = ptr->SearchChild(it);
-                if (!ptr) return NULL;
-            }
-            return ptr;
-        }
-        ElementAny* SearchChild(std::string name) {
-            if (!child) {
-                return NULL;
-            }
-            return child->SearchBrother(name);
+        ElementPath(std::string ename = "");
+        ElementPath(const ElementPath& other);
+        virtual ~ElementPath() { };
+        virtual const std::type_info& GetTypeinfo() {
+            return typeid(ElementPath);
         }
 
-        ElementAny* SearchBrother(std::string ename) {
-            if (name == ename) {
-                return this;
-            }
-            ElementAny* ptr = prev;
-            while(ptr) {
-                if (ptr->name == ename) {
-                    return ptr;
-                }
-                ptr = ptr->prev;
-            }
-            ptr = next;
-            while(ptr) {
-                if (ptr->name == ename) {
-                    return ptr;
-                }
-                ptr = ptr->next;
-            }
-            return NULL;
-        }
+        std::string GetName();
 
-        ElementAny* InsertChild(ElementAny* element) {
-            if (!child) {
-                child = element;
-                child->parent = this;
-                return child;
-            }
-            return child->InsertNext(element);
-        }
-        ElementAny* InsertNext(ElementAny* element) {
-            if (!next) {
-                next = element;
-                next->prev = this;
-                next->parent = parent;
-                return next;
-            }
-            ElementAny* ptr = next;
-            while(!ptr->next) {
-                ptr = ptr->next;
-            }
-            ptr->next = element;
-            ptr->next->prev = ptr;
-            ptr->next->parent = parent;
+        ElementPath* SearchPath(std::string path);
+        ElementPath* SearchChild(std::string name);
+        ElementPath* SearchBrother(std::string ename);
+        ContainerRet SearchPathAll(std::string path, std::vector<ElementPath*>& vec);
+        ContainerRet SearchChildAll(std::string name, std::vector<ElementPath*>& vec);
+        ContainerRet SearchBrotherAll(std::string ename, std::vector<ElementPath*>& vec);
 
-            return ptr->next;
-        }
-        ElementAny* InsertPrev(ElementAny* element) {
-            if (!prev) {
-                prev = element;
-                prev->next = this;
-                prev->parent = parent;
-                return prev;
-            }
-            ElementAny* ptr = prev;
-            while(!ptr->prev) {
-                ptr = ptr->prev;
-            }
-            ptr->prev = element;
-            ptr->prev->next = ptr;
-            ptr->prev->parent = parent;
+        ElementPath* InsertChild(ElementPath* element);
+        ElementPath* InsertNext(ElementPath* element);
+        ElementPath* InsertPrev(ElementPath* element);
 
-            return ptr->prev;
-        }
+        ContainerRet DeletePath(std::string name);
+        ContainerRet DeleteChild(std::string name);
+        ContainerRet DeleteBrother(std::string name);
+        ContainerRet DeletePathAll(std::string name);
+        ContainerRet DeleteChildAll(std::string name);
+        ContainerRet DeleteBrotherAll(std::string name);
 
-    public:
+        void PrintBranch(int depth = 0, std::string line = "");
+
+    protected:
         std::string name;
-        ElementAny* next = nullptr;
-        ElementAny* prev = nullptr;
-        ElementAny* parent = nullptr;
-        ElementAny* child = nullptr;
+        ElementPath* next = nullptr;
+        ElementPath* prev = nullptr;
+        ElementPath* parent = nullptr;
+        ElementPath* child = nullptr;
 
+        ContainerRet SearchPathAll(std::vector<std::string> path_vec, std::vector<ElementPath*>& vec);
     };
 
-    template < typename T > class Element : public ElementAny {
+
+    template < typename T > class Element : public ElementPath {
     public:
-        Element(std::string name, ElementType type = ElementType::Fundamental) : ElementAny(name), element_type_(type) {
+        Element(std::string name, ElementType type = ElementType::Fundamental) : ElementPath(name), element_type_(type) {
             mempool_ = mempool::MemPool::getInstance();
         }
         ~Element() { }
@@ -155,8 +95,12 @@ public:
             return ContainerRet::SUCCESS;
         }
 
+        template < typename D > Element<D>* operator[](std::string path) {
+            return Search(path);
+        }
+
         template < typename D > Element<D>* Search(std::string path) {
-            ElementAny* ptr = SearchPath(path);
+            ElementPath* ptr = SearchPath(path);
             if (!ptr) {
                 return NULL;
             }
@@ -166,6 +110,23 @@ public:
                 return NULL;
             }
             return eptr;
+        }
+        template < typename D > ContainerRet Search(std::string path, std::vector<Element<D>*>& vec) {
+            std::vector<NodeTree::ElementPath*> evec;
+            SearchPathAll(path, evec);
+            if (evec.size() == 0) {
+                return ContainerRet::NT_ENOTFOUND;
+            } else {
+                for (auto it : evec) {
+                    Element<D>* eptr = dynamic_cast<Element<D>*>(it);
+                    if (!eptr) {
+                        CONTAINER_ERROR("Mismatched type \"%s\" need \"%s\"", typeid(D).name(), it->GetTypeinfo().name());
+                        return ContainerRet::NT_ENOTFOUND;
+                    }
+                    vec.push_back(eptr);
+                }
+            }
+            return ContainerRet::SUCCESS;
         }
 
         template < typename D > ContainerRet Insert(std::string name, const D& data) {
@@ -187,8 +148,17 @@ public:
             }
             return Insert(element);
         }
+
         template < typename D > ContainerRet Insert(const Element<D>& element) {
             Element<D>* p_element = mempool_->Malloc<Element<D>>(element);
+            if (p_element == NULL) {
+                return ContainerRet::EMALLOC;
+            }
+            InsertChild(p_element);
+            return ContainerRet::SUCCESS;
+        }
+        ContainerRet Insert(ElementPath& element) {
+            ElementPath* p_element = mempool_->Malloc<ElementPath>(element);
             if (p_element == NULL) {
                 return ContainerRet::EMALLOC;
             }
@@ -209,10 +179,14 @@ public:
 
     }
 
+//    virtual Load(std::string str);
+//    virtual Load(file::File& file);
+//    virtual Store(std::string str);
+//    virtual Store(file::File& file);
 
 private:
 
-//    ElementAny root_;
+//    ElementPath root_;
 };
 
 } //namespace end

@@ -11,6 +11,7 @@ public:
         CONTAINER_EBASE = CONTAINER_ERROR_CODE_BASE,
         BM_EOUTBOUND,
         NT_EINDEXCROSS,
+        NT_ENOTFOUND,
     };
 public:
     static ECodeMapType ECodeMap;
