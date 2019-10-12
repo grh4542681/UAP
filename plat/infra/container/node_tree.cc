@@ -10,7 +10,8 @@ NodeTree::ElementPath::ElementPath(std::string ename) : name(ename)
     child = NULL;
 }
 
-NodeTree::ElementPath::ElementPath(const NodeTree::ElementPath& other) {
+NodeTree::ElementPath::ElementPath(const NodeTree::ElementPath& other)
+{
     name = other.name;
     next = other.next;
     prev = other.prev;
@@ -18,7 +19,8 @@ NodeTree::ElementPath::ElementPath(const NodeTree::ElementPath& other) {
     child = other.child;
 }
 
-std::string NodeTree::ElementPath::GetName() {
+std::string NodeTree::ElementPath::GetName()
+{
     return name;
 }
 
@@ -35,6 +37,7 @@ NodeTree::ElementPath* NodeTree::ElementPath::SearchPath(std::string path)
     }
     return ptr;
 }
+
 NodeTree::ElementPath* NodeTree::ElementPath::SearchChild(std::string name)
 {
     if (!child) {
@@ -42,6 +45,7 @@ NodeTree::ElementPath* NodeTree::ElementPath::SearchChild(std::string name)
     }
     return child->SearchBrother(name);
 }
+
 NodeTree::ElementPath* NodeTree::ElementPath::SearchBrother(std::string ename)
 {
     if (name == ename) {
@@ -72,6 +76,7 @@ ContainerRet NodeTree::ElementPath::SearchPathAll(std::string path, std::vector<
 
     return SearchPathAll(path_vec, vec);
 }
+
 ContainerRet NodeTree::ElementPath::SearchPathAll(std::vector<std::string> path_vec, std::vector<NodeTree::ElementPath*>& vec)
 {
     if (path_vec.size() == 0) {
@@ -91,6 +96,7 @@ ContainerRet NodeTree::ElementPath::SearchPathAll(std::vector<std::string> path_
         return ContainerRet::SUCCESS;
     }
 }
+
 ContainerRet NodeTree::ElementPath::SearchChildAll(std::string name, std::vector<NodeTree::ElementPath*>& vec)
 {
     if (!child) {
@@ -98,6 +104,7 @@ ContainerRet NodeTree::ElementPath::SearchChildAll(std::string name, std::vector
     }
     return child->SearchBrotherAll(name, vec);
 }
+
 ContainerRet NodeTree::ElementPath::SearchBrotherAll(std::string ename, std::vector<NodeTree::ElementPath*>& vec)
 {
     if (name == ename) {
@@ -120,7 +127,8 @@ ContainerRet NodeTree::ElementPath::SearchBrotherAll(std::string ename, std::vec
     return vec.size() ? ContainerRet::SUCCESS : ContainerRet::NT_ENOTFOUND;
 }
 
-NodeTree::ElementPath* NodeTree::ElementPath::InsertChild(NodeTree::ElementPath* element) {
+NodeTree::ElementPath* NodeTree::ElementPath::InsertChild(NodeTree::ElementPath* element)
+{
     if (!child) {
         child = element;
         child->parent = this;
@@ -128,7 +136,9 @@ NodeTree::ElementPath* NodeTree::ElementPath::InsertChild(NodeTree::ElementPath*
     }
     return child->InsertNext(element);
 }
-NodeTree::ElementPath* NodeTree::ElementPath::InsertNext(NodeTree::ElementPath* element) {
+
+NodeTree::ElementPath* NodeTree::ElementPath::InsertNext(NodeTree::ElementPath* element)
+{
     if (!next) {
         next = element;
         next->prev = this;
@@ -145,7 +155,9 @@ NodeTree::ElementPath* NodeTree::ElementPath::InsertNext(NodeTree::ElementPath* 
 
     return ptr->next;
 }
-NodeTree::ElementPath* NodeTree::ElementPath::InsertPrev(NodeTree::ElementPath* element) {
+
+NodeTree::ElementPath* NodeTree::ElementPath::InsertPrev(NodeTree::ElementPath* element)
+{
     if (!prev) {
         prev = element;
         prev->next = this;
@@ -163,15 +175,32 @@ NodeTree::ElementPath* NodeTree::ElementPath::InsertPrev(NodeTree::ElementPath* 
     return ptr->prev;
 }
 
-void NodeTree::ElementPath::PrintBranch(int depth, std::string line) {
+ContainerRet NodeTree::ElementPath::DeletePath(std::string name)
+{}
 
+ContainerRet NodeTree::ElementPath::DeleteChild(std::string name)
+{}
+
+ContainerRet NodeTree::ElementPath::DeleteBrother(std::string name)
+{}
+
+ContainerRet NodeTree::ElementPath::DeletePathAll(std::string name)
+{}
+
+ContainerRet NodeTree::ElementPath::DeleteChildAll(std::string name)
+{}
+
+ContainerRet NodeTree::ElementPath::DeleteBrotherAll(std::string name)
+{}
+
+void NodeTree::ElementPath::PrintBranch(int depth, std::string line)
+{
 #define SINGLE_CHILD_LINE "---"
 #define FIRST_CHILD_LINE "-+-"
 #define NEXT_CHILD_LINE " |-"
 #define LAST_CHILD_LINE " `-"
 #define INDENT_CHAR '|'
 #define EXTEN_CHAR '+'
-
     std::string raw_line = line;
     for (auto& c : raw_line) {
         if (c != EXTEN_CHAR && c != INDENT_CHAR) {
