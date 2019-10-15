@@ -1,0 +1,5 @@
+#SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+SET(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH}/test)
+INCLUDE_DIRECTORIES(${PLAT_CONFIG_HRD})
+ADD_EXECUTABLE(static_config_test static_config_test.cc)
+TARGET_LINK_LIBRARIES(static_config_test libgmp.so -lrt libgret.so libgfile.so libgio.so libgutil.so libgcontainer.so)

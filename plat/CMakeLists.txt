@@ -25,3 +25,4 @@ ADD_SUBDIRECTORY(infra/ipc/msg/test)
 ADD_SUBDIRECTORY(infra/timer/test)
 
 ADD_SUBDIRECTORY(message/lib/test)
+ADD_SUBDIRECTORY(config/lib/test)

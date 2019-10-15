@@ -1,8 +1,18 @@
+#include <sstream>
 #include "node_tree.h"
 
 namespace container {
 
-NodeTree::ElementPath::ElementPath(std::string ename) : name(ename)
+NodeTree::ElementAny::ElementAny()
+{
+    name = "";
+    next = NULL;
+    prev = NULL;
+    parent = NULL;
+    child = NULL;
+}
+
+NodeTree::ElementAny::ElementAny(std::string ename) : name(ename)
 {
     next = NULL;
     prev = NULL;
@@ -10,7 +20,7 @@ NodeTree::ElementPath::ElementPath(std::string ename) : name(ename)
     child = NULL;
 }
 
-NodeTree::ElementPath::ElementPath(const NodeTree::ElementPath& other)
+NodeTree::ElementAny::ElementAny(const NodeTree::ElementAny& other)
 {
     name = other.name;
     next = other.next;
@@ -19,18 +29,83 @@ NodeTree::ElementPath::ElementPath(const NodeTree::ElementPath& other)
     child = other.child;
 }
 
-std::string NodeTree::ElementPath::GetName()
+std::string NodeTree::ElementAny::GetName()
 {
     return name;
 }
+NodeTree::ElementAny*& NodeTree::ElementAny::GetParent()
+{
+    return parent;
+}
+NodeTree::ElementAny*& NodeTree::ElementAny::GetChild()
+{
+    return child;
+}
+NodeTree::ElementAny*& NodeTree::ElementAny::GetNext()
+{
+    return next;
+}
+NodeTree::ElementAny*& NodeTree::ElementAny::GetPrev()
+{
+    return prev;
+}
 
-NodeTree::ElementPath* NodeTree::ElementPath::SearchPath(std::string path)
+void NodeTree::ElementAny::Erase(int depth)
+{
+    if (depth == 0) {
+        if (child) {
+            child->Erase(depth + 1);
+        }
+        if (parent->child == this) {
+            parent->child = next;
+        }
+        if (next) {
+            next->prev = prev;
+        }
+        if (prev) {
+            prev->next = next;
+        }
+    } else {
+        if (child) {
+            child->Erase(depth + 1);
+        }
+        if (next) {
+            next->Erase(depth);
+        }
+    }
+    mempool::MemPool::getInstance()->Free<ElementAny>(this);
+}
+
+NodeTree::ElementAny* NodeTree::ElementAny::Clone(int depth)
+{
+    NodeTree::ElementAny* self = mempool::MemPool::getInstance()->Malloc<NodeTree::ElementAny>(*this);
+    if (depth == 0) {
+        self->parent = nullptr;
+        self->next = nullptr;
+        self->prev = nullptr;
+        if (self->child) {
+            self->child = self->child->Clone(depth + 1);
+            self->child->parent = this;
+        }
+    } else {
+        if (self->next) {
+            self->next = self->next->Clone(depth);
+            self->next->prev = this;
+        }
+        if (self->child) {
+            self->child = self->child->Clone(depth + 1);
+            self->child->parent = this;
+        }
+    }
+    return self;
+}
+
+NodeTree::ElementAny* NodeTree::ElementAny::Search(std::string path)
 {
     std::vector<std::string> path_vec;
     util::String::Split(path, "/", path_vec);
-    std::reverse(std::begin(path_vec), std::end(path_vec));
 
-    NodeTree::ElementPath* ptr = this;
+    NodeTree::ElementAny* ptr = this;
     for (auto it : path_vec) {
         ptr = ptr->SearchChild(it);
         if (!ptr) return NULL;
@@ -38,7 +113,7 @@ NodeTree::ElementPath* NodeTree::ElementPath::SearchPath(std::string path)
     return ptr;
 }
 
-NodeTree::ElementPath* NodeTree::ElementPath::SearchChild(std::string name)
+NodeTree::ElementAny* NodeTree::ElementAny::SearchChild(std::string name)
 {
     if (!child) {
         return NULL;
@@ -46,12 +121,12 @@ NodeTree::ElementPath* NodeTree::ElementPath::SearchChild(std::string name)
     return child->SearchBrother(name);
 }
 
-NodeTree::ElementPath* NodeTree::ElementPath::SearchBrother(std::string ename)
+NodeTree::ElementAny* NodeTree::ElementAny::SearchBrother(std::string ename)
 {
     if (name == ename) {
         return this;
     }
-    NodeTree::ElementPath* ptr = prev;
+    NodeTree::ElementAny* ptr = prev;
     while(ptr) {
         if (ptr->name == ename) {
             return ptr;
@@ -68,49 +143,49 @@ NodeTree::ElementPath* NodeTree::ElementPath::SearchBrother(std::string ename)
     return NULL;
 }
 
-ContainerRet NodeTree::ElementPath::SearchPathAll(std::string path, std::vector<NodeTree::ElementPath*>& vec)
+ContainerRet NodeTree::ElementAny::Search(std::string path, std::vector<NodeTree::ElementAny*>& vec)
 {
     std::vector<std::string> path_vec;
     util::String::Split(path, "/", path_vec);
     std::reverse(std::begin(path_vec), std::end(path_vec));
 
-    return SearchPathAll(path_vec, vec);
+    return Search(path_vec, vec);
 }
 
-ContainerRet NodeTree::ElementPath::SearchPathAll(std::vector<std::string> path_vec, std::vector<NodeTree::ElementPath*>& vec)
+ContainerRet NodeTree::ElementAny::Search(std::vector<std::string> path_vec, std::vector<NodeTree::ElementAny*>& vec)
 {
     if (path_vec.size() == 0) {
         return ContainerRet::SUCCESS;
     } else if (path_vec.size() == 1) {
         std::string path = path_vec.back();
         path_vec.pop_back();
-        return SearchChildAll(path, vec);
+        return SearchChild(path, vec);
     } else {
         std::string path = path_vec.back();
         path_vec.pop_back();
-        std::vector<NodeTree::ElementPath*> path_vec_tmp;
-        SearchChildAll(path, path_vec_tmp);
+        std::vector<NodeTree::ElementAny*> path_vec_tmp;
+        SearchChild(path, path_vec_tmp);
         for (auto it : path_vec_tmp) {
-            it->SearchPathAll(path_vec, vec);
+            it->Search(path_vec, vec);
         }
         return ContainerRet::SUCCESS;
     }
 }
 
-ContainerRet NodeTree::ElementPath::SearchChildAll(std::string name, std::vector<NodeTree::ElementPath*>& vec)
+ContainerRet NodeTree::ElementAny::SearchChild(std::string name, std::vector<NodeTree::ElementAny*>& vec)
 {
     if (!child) {
         return ContainerRet::NT_ENOTFOUND;
     }
-    return child->SearchBrotherAll(name, vec);
+    return child->SearchBrother(name, vec);
 }
 
-ContainerRet NodeTree::ElementPath::SearchBrotherAll(std::string ename, std::vector<NodeTree::ElementPath*>& vec)
+ContainerRet NodeTree::ElementAny::SearchBrother(std::string ename, std::vector<NodeTree::ElementAny*>& vec)
 {
     if (name == ename) {
         vec.push_back(this);
     }
-    NodeTree::ElementPath* ptr = prev;
+    NodeTree::ElementAny* ptr = prev;
     while(ptr) {
         if (ptr->name == ename) {
             vec.push_back(ptr);
@@ -127,7 +202,46 @@ ContainerRet NodeTree::ElementPath::SearchBrotherAll(std::string ename, std::vec
     return vec.size() ? ContainerRet::SUCCESS : ContainerRet::NT_ENOTFOUND;
 }
 
-NodeTree::ElementPath* NodeTree::ElementPath::InsertChild(NodeTree::ElementPath* element)
+NodeTree::ElementAny* NodeTree::ElementAny::Insert(std::string path) {
+    std::vector<std::string> path_vec;
+    util::String::Split(path, "/", path_vec);
+
+    ElementAny* ptr = this;
+    bool new_path = false;
+    for (auto it : path_vec) {
+        if (!new_path) {
+            ElementAny* search = ptr->Search(it);
+            if (!search) {
+                ElementAny element(it);
+                ptr = ptr->Insert(element);
+                new_path = true;
+            } else {
+                ptr = search;
+            }
+        } else {
+            ElementAny element(it);
+            ptr = ptr->Insert(element);
+        }
+    }
+    return ptr;
+}
+
+NodeTree::ElementAny* NodeTree::ElementAny::Insert(NodeTree::ElementAny& element) {
+    ElementAny* p_element = element.Clone();
+    if (p_element == NULL) {
+        return NULL;
+    }
+    return Insert(p_element);
+}
+
+NodeTree::ElementAny* NodeTree::ElementAny::Insert(NodeTree::ElementAny* element) {
+    if (element == NULL) {
+        return NULL;
+    }
+    return InsertChild(element);
+}
+
+NodeTree::ElementAny* NodeTree::ElementAny::InsertChild(NodeTree::ElementAny* element)
 {
     if (!child) {
         child = element;
@@ -137,7 +251,7 @@ NodeTree::ElementPath* NodeTree::ElementPath::InsertChild(NodeTree::ElementPath*
     return child->InsertNext(element);
 }
 
-NodeTree::ElementPath* NodeTree::ElementPath::InsertNext(NodeTree::ElementPath* element)
+NodeTree::ElementAny* NodeTree::ElementAny::InsertNext(NodeTree::ElementAny* element)
 {
     if (!next) {
         next = element;
@@ -145,7 +259,7 @@ NodeTree::ElementPath* NodeTree::ElementPath::InsertNext(NodeTree::ElementPath* 
         next->parent = parent;
         return next;
     }
-    NodeTree::ElementPath* ptr = next;
+    NodeTree::ElementAny* ptr = next;
     while(ptr->next) {
         ptr = ptr->next;
     }
@@ -156,7 +270,7 @@ NodeTree::ElementPath* NodeTree::ElementPath::InsertNext(NodeTree::ElementPath* 
     return ptr->next;
 }
 
-NodeTree::ElementPath* NodeTree::ElementPath::InsertPrev(NodeTree::ElementPath* element)
+NodeTree::ElementAny* NodeTree::ElementAny::InsertPrev(NodeTree::ElementAny* element)
 {
     if (!prev) {
         prev = element;
@@ -164,7 +278,7 @@ NodeTree::ElementPath* NodeTree::ElementPath::InsertPrev(NodeTree::ElementPath* 
         prev->parent = parent;
         return prev;
     }
-    NodeTree::ElementPath* ptr = prev;
+    NodeTree::ElementAny* ptr = prev;
     while(!ptr->prev) {
         ptr = ptr->prev;
     }
@@ -175,25 +289,8 @@ NodeTree::ElementPath* NodeTree::ElementPath::InsertPrev(NodeTree::ElementPath* 
     return ptr->prev;
 }
 
-ContainerRet NodeTree::ElementPath::DeletePath(std::string name)
-{}
 
-ContainerRet NodeTree::ElementPath::DeleteChild(std::string name)
-{}
-
-ContainerRet NodeTree::ElementPath::DeleteBrother(std::string name)
-{}
-
-ContainerRet NodeTree::ElementPath::DeletePathAll(std::string name)
-{}
-
-ContainerRet NodeTree::ElementPath::DeleteChildAll(std::string name)
-{}
-
-ContainerRet NodeTree::ElementPath::DeleteBrotherAll(std::string name)
-{}
-
-void NodeTree::ElementPath::PrintBranch(int depth, std::string line)
+void NodeTree::ElementAny::PrintBranch(int depth, std::string line)
 {
 #define SINGLE_CHILD_LINE "---"
 #define FIRST_CHILD_LINE "-+-"
@@ -210,8 +307,12 @@ void NodeTree::ElementPath::PrintBranch(int depth, std::string line)
         }
     }
 
+    std::stringstream test;
+    test << name << "(" << this << ")";
+    std::string tt;
+    test >> tt;
     if (depth == 0) {
-        line += name;
+        line += tt;
     } else {
         if (!next && !prev) {
             line += SINGLE_CHILD_LINE;
@@ -222,17 +323,17 @@ void NodeTree::ElementPath::PrintBranch(int depth, std::string line)
         } else {
             line += NEXT_CHILD_LINE;
         }
-        line += name;
+        line += tt;
     }
 
     if (!child) {
         std::cout << line << std::endl;
-        if (next) {
+        if (next && depth) {
             next->PrintBranch(depth, raw_line);
         }
     } else {
         child->PrintBranch(depth+1, line);
-        if (next) {
+        if (next && depth) {
             next->PrintBranch(depth, raw_line);
         }
     }

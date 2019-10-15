@@ -37,4 +37,13 @@ std::string GetFileExtension(std::string filename)
     return vec.back();
 }
 
+bool IsExist(std::string filename)
+{
+    if (!access(filename.c_str(), F_OK)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 }

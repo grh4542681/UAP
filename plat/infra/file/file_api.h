@@ -8,6 +8,7 @@ namespace file {
 FileRet GetFileName(int fd, std::string& filename);
 FileRet GetFileName(FILE* ffd, std::string& filename);
 std::string GetFileExtension(std::string filename);
+bool IsExist(std::string filename);
 
 }
 

@@ -43,7 +43,7 @@ SET (PLAT_INFRA_HRD "${FRAM_ROOT_PATH}/plat/infra/ds/cpp"
                     )
 
 SET (PLAT_CONFIG_HRD "${FRAM_ROOT_PATH}/plat/config"
-                 "${FRAM_ROOT_PATH}/plat/config/lib"
+                     "${FRAM_ROOT_PATH}/plat/config/lib"
 )
 
 SET (PLAT_MESSAGE_HRD "${FRAM_ROOT_PATH}/plat/common"
