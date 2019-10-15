@@ -15,10 +15,10 @@ namespace config {
 
 class ConfigStatic {
 public:
-    ConfigStatic();
+    ConfigStatic() : config_tree_("config") { };
     ~ConfigStatic() { }
 
-    template < typename T > ConfigRet Load(std::string str) {
+    template < typename T > ConfigRet Load(std::string& str) {
         T parser;
         parser.LoadString(str);
         return Load(parser);
@@ -33,16 +33,25 @@ public:
         return ConfigRet::CONFIG_EPARSER;
     }
 
-    template < typename D > ConfigRet Get(std::string path, D* data) {
-        
+    virtual ConfigRet LoadJson(parser::ParserJson& parser) {
+        CONFIG_ERROR("Not support json format config file.");
+        return ConfigRet::ESUBCLASS;
     }
 
-private:
+    virtual ConfigRet LoadIni(parser::ParserIni& parser) {
+        CONFIG_ERROR("Not support ini format config file.");
+        return ConfigRet::ESUBCLASS;
+    }
+
+    auto GetRoot();
+
+protected:
     container::NodeTree config_tree_;
     
 };
 
 template <> ConfigRet ConfigStatic::Load<parser::ParserJson>(parser::ParserJson& parser);
+template <> ConfigRet ConfigStatic::Load<parser::ParserIni>(parser::ParserIni& parser);
 
 }
 

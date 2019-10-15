@@ -1,4 +1,5 @@
 SET(LIBGRHCONF_SRC ../config_return.cc
+                    config_static.cc
                     )
 INCLUDE_DIRECTORIES(${PLAT_CONFIG_HRD}
                     )

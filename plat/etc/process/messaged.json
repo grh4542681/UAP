@@ -2,15 +2,6 @@
     "message" : {
         "name" : "PLAT_MESSAGE_DEAMON",
         "file" : "/plat/tmp/messaged.sock",
-        "listener_size" : 100,
-    },
-    "mempool" : {
-        "size" : 102400
-    },
-    "process" : {
-        "worker_size" : 10
-    },
-    "file" ： {
-    
-    },
+        "listener_size" : 100
+    }
 }

@@ -1695,6 +1695,16 @@ ParserJson::~ParserJson()
 
 }
 
+ParserRet ParserJson::LoadString(std::string str)
+{
+    return ParserJsonString(str.c_str());
+}
+
+ParserRet ParserJson::LoadFile(file::File& file)
+{
+    return ParserJsonFile(file.GetFileName().c_str());
+}
+
 /**
 * @brief ParserJsonFile - Parser a json file.
 *

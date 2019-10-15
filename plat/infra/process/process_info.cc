@@ -95,6 +95,11 @@ ProcessInfo& ProcessInfo::GetCmdLine(char*** raw_cmdline, unsigned int* raw_cmdl
     return *this;
 }
 
+ProcessConfig& ProcessInfo::GetConfig()
+{
+    return config_;
+}
+
 signal::ProcessSignalCtrl* ProcessInfo::GetSignalCtrl()
 {
     return sig_ctrl_;

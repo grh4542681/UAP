@@ -7,6 +7,7 @@ SET(LIBGRHMSG_SRC ../message_return.cc
                   message_remote.cc
                   )
 INCLUDE_DIRECTORIES(${PLAT_MESSAGE_HRD}
+                    ${PLAT_CONFIG_HRD}
                     "${FRAM_ROOT_PATH}/plat/common"
                     "${FRAM_ROOT_PATH}/plat/infra/ipc"
                     "${FRAM_ROOT_PATH}/plat/infra/socket"

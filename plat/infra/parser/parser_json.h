@@ -16,6 +16,7 @@
 #include <time.h>
 
 #include "parser_return.h"
+#include "parser.h"
 #include "mempool.h"
 #include "mutex/thread_rw_lock.h"
 #include "rapidjson/document.h"
@@ -131,7 +132,7 @@ private:
 /**
 * @brief - Main class of parser json.
 */
-class ParserJson {
+class ParserJson : public Parser {
 public:
     friend class ParserJsonObject;
 
@@ -141,6 +142,9 @@ public:
 public:
     ParserJson();
     ~ParserJson();
+
+    ParserRet LoadString(std::string str);
+    ParserRet LoadFile(file::File& file);
 
     ParserRet ParserJsonFile(const char* filename);
     ParserRet ParserJsonString(const char* jsonstring);

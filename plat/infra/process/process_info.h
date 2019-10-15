@@ -19,6 +19,7 @@
 
 #include "process_log.h"
 #include "process_return.h"
+#include "process_config.h"
 #include "process_state.h"
 #include "process_role.h"
 #include "process_id.h"
@@ -43,6 +44,7 @@ public:
     std::string& GetProcessPoolName();
     const char* GetCmdLine(unsigned int index);
     ProcessInfo& GetCmdLine(char*** raw_cmdline, unsigned int* raw_cmdline_size);
+    ProcessConfig& GetConfig();
     signal::ProcessSignalCtrl* GetSignalCtrl();
     message::MessageAgent* GetMessageAgent();
 
@@ -100,6 +102,9 @@ private:
     unsigned int        raw_cmdline_size_;  ///< Size of original command line.
     std::vector<char*>  cmdline_;           ///< Command line arguments vector.
     std::vector<char*>  environ_;           ///< Environment arguments vector.
+
+    // process static config
+    ProcessConfig config_;
 
     // process relationship
     ProcessParent*                      parent_;    ///< Parent process info.

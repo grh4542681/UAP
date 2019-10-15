@@ -5,6 +5,7 @@ SET(LIBGPROCESS_SRC process_return.cc
                     process_id.cc
                     process_parent.cc
                     process_child.cc
+                    process_config.cc
                     signal/process_signal.cc
                     signal/process_signal_ctrl.cc
                     signal/process_signal_set.cc

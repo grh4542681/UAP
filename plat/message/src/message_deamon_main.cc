@@ -92,24 +92,29 @@ int main(int argc, char** argv)
         MESSAGE_FATAL("Parser process config file [%s] error.", process_config_file.c_str());
         exit(9);
     }
+    process_info->GetConfig().Load<parser::ParserJson>(process_config_file);
+
+    auto message_config = process_info->GetConfig().GetMessageConfig();
+    std::string message_name;
+    message_config->Search("name")->GetData<std::string>(message_name);
 
     //3.Initlize mempool.
-    parser::ParserJsonObject mempool_obj = process_config.find("/mempool");
+//    parser::ParserJsonObject mempool_obj = process_config.find("/mempool");
 
     //4.Initlize message handler.
-    if (process_info->GetProcessRole().HasRole(process::ProcessRole::PoolWorker)) {
-        if (!file_describe) {
-            MESSAGE_FATAL("Process run as pool worker need file describe communition with pool keeper.");
-            exit(9);
-        } else {
+ //   if (process_info->GetProcessRole().HasRole(process::ProcessRole::PoolWorker)) {
+ //       if (!file_describe) {
+ //           MESSAGE_FATAL("Process run as pool worker need file describe communition with pool keeper.");
+ //           exit(9);
+ //       } else {
 
-        }
-    } else {
-        parser::ParserJsonObject ipc_obj = process_config.find("/ipc");
-        int size;
-        ipc_obj["size"].getInt(&size);
-        printf("%d\n",size);
-    }
+ //       }
+ //   } else {
+ //       parser::ParserJsonObject ipc_obj = process_config.find("/ipc");
+ //       int size;
+ //       ipc_obj["size"].getInt(&size);
+ //       printf("%d\n",size);
+ //   }
 
 
     std::cout<<process_config_file<<std::endl;

@@ -18,7 +18,7 @@
 namespace container {
 
 class NodeTree {
-private:
+public:
     class ElementAny {
     public:
         friend class mempool::MemPool;
