@@ -43,7 +43,7 @@ public:
         return ConfigRet::ESUBCLASS;
     }
 
-    auto GetRoot();
+    container::NodeTree::ElementPath* GetRoot();
 
 protected:
     container::NodeTree config_tree_;

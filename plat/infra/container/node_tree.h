@@ -69,7 +69,7 @@ public:
         ElementAny* InsertPrev(ElementAny* element);
     };
 
-private:
+public:
     template < typename T > class ElementData;
     class ElementPath : public ElementAny {
     public:
@@ -243,7 +243,7 @@ private:
     private:
         mempool::MemPool* mempool_ = nullptr;
     };
-private:
+public:
     template < typename T > class ElementData : public ElementAny {
     public:
         friend class mempool::MemPool;

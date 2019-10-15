@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 
+#include "file.h"
 #include "process_info.h"
 #include "parser_json.h"
 
@@ -92,11 +93,14 @@ int main(int argc, char** argv)
         MESSAGE_FATAL("Parser process config file [%s] error.", process_config_file.c_str());
         exit(9);
     }
-    process_info->GetConfig().Load<parser::ParserJson>(process_config_file);
 
-    auto message_config = process_info->GetConfig().GetMessageConfig();
-    std::string message_name;
-    message_config->Search("name")->GetData<std::string>(message_name);
+    file::File config_file(process_config_file);
+    process_info->GetConfig().Load<parser::ParserJson>(config_file);
+
+    process::ProcessConfig& process_config = process_info->GetConfig();
+    auto message_config = process_config.GetRoot()->Search("message");
+    std::string message_name = message_config->Search<std::string>("name")->GetData();
+    printf("EP name %s\n", message_name.c_str());
 
     //3.Initlize mempool.
 //    parser::ParserJsonObject mempool_obj = process_config.find("/mempool");

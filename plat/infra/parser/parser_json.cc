@@ -98,7 +98,7 @@ bool ParserJsonObject::isAvailable()
 */
 bool ParserJsonObject::hasError()
 {
-    return (this->last_ret_ == ParserRet::SUCCESS);
+    return (this->last_ret_ != ParserRet::SUCCESS);
 }
 
 /**

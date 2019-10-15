@@ -16,8 +16,6 @@ public:
 
     config::ConfigRet LoadJson(parser::ParserJson& parser);
 
-    container::NodeTree::ElementAny* GetMessageConfig();
-
 };
 
 }

@@ -2,7 +2,7 @@
 
 namespace config {
 
-auto ConfigStatic::GetRoot()
+container::NodeTree::ElementPath* ConfigStatic::GetRoot()
 {
     return config_tree_.GetRoot();
 }
