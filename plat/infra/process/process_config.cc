@@ -6,6 +6,8 @@ namespace process {
 config::ConfigRet ProcessConfig::LoadJson(parser::ParserJson& parser)
 {
     printf("process config load\n");
+    char json_message_string[1024];
+    
     auto json_root = parser.find("/");
 
     // message config
@@ -16,12 +18,28 @@ config::ConfigRet ProcessConfig::LoadJson(parser::ParserJson& parser)
     }
     auto config_message = config_tree_.GetRoot()->Insert("message");
 
+    // message - name
     auto json_message_name = json_message.Vfind("/name");
-    char json_message_name_string[1024];
-    memset(json_message_name_string, 0, sizeof(json_message_name_string));
-    json_message_name.getString(json_message_name_string, sizeof(json_message_name_string));
-    printf("----name %s\n", json_message_name_string);
-    config_message->Insert<std::string>("name", json_message_name_string);
+    if (json_message.hasError()) {
+        PROCESS_ERROR("Not found config : name");
+        return config::ConfigRet::ERROR;
+    }
+    memset(json_message_string, 0, sizeof(json_message_string));
+    json_message_name.getString(json_message_string, sizeof(json_message_string));
+    config_message->Insert<std::string>("name", json_message_string);
+
+    // message - sockfile
+    auto json_message_sockfile = json_message.Vfind("/sockfile");
+    if (json_message.hasError()) {
+        PROCESS_ERROR("Not found config : sockfile");
+        return config::ConfigRet::ERROR;
+    }
+    memset(json_message_string, 0, sizeof(json_message_string));
+    json_message_sockfile.getString(json_message_string, sizeof(json_message_string));
+    config_message->Insert<std::string>("sockfile", json_message_string);
+    printf("--------%s\n",json_message_string);
+
+
 
 
     return config::ConfigRet::SUCCESS;

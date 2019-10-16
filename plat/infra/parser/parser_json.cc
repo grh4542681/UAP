@@ -30,7 +30,7 @@ ParserJsonObject::ParserJsonObject()
 {
     this->rpj_value_ = NULL;
     this->pj_center_ = NULL;
-    this->init_flag_ = true;
+    this->init_flag_ = false;
     this->last_ret_ = ParserRet::SUCCESS;
 }
 
@@ -1548,7 +1548,7 @@ ParserJsonObject& ParserJsonObject::objectClear(struct timespec* overtime)
 *
 * @returns  Self reference.
 */
-ParserJsonObject& ParserJsonObject::Vfind(const char* path)
+ParserJsonObject ParserJsonObject::Vfind(const char* path)
 {
     if (!this->init_flag_) {
         PARSER_ERROR("This object has not init");
@@ -1556,13 +1556,12 @@ ParserJsonObject& ParserJsonObject::Vfind(const char* path)
         return *this;
     }
     if (rapidjson::Value* data = rapidjson::Pointer(path).Get(*(this->rpj_value_))) {
-        this->rpj_value_ = data;
         _setret(ParserRet::SUCCESS);
-        return *this;
+        return ParserJsonObject(pj_center_, data);
     } else {
         PARSER_ERROR("Can not find path[%s]", path);
         _setret(ParserRet::PARSER_ENOTFOUND);
-        return *this;
+        return ParserJsonObject();
     }
 }
 

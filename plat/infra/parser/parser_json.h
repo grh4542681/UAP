@@ -110,7 +110,7 @@ public:
     ParserJsonObject& objectDel(const char* key, struct timespec* overtime = NULL);
     ParserJsonObject& objectClear(struct timespec* overtime = NULL);
 
-    ParserJsonObject& Vfind(const char* path);
+    ParserJsonObject Vfind(const char* path);
     ParserJsonObject& Hfind(const char* path);
 
     ParserJsonObject operator[](int index);
