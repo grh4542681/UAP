@@ -4,6 +4,8 @@
 #include <string>
 #include "file.h"
 
+#include "parser_return.h"
+
 namespace parser {
 
 class Parser {
@@ -13,6 +15,7 @@ public:
 
     virtual ParserRet LoadString(std::string str) = 0;
     virtual ParserRet LoadFile(file::File& file) = 0;
+    virtual ParserRet LoadFile(std::string str) = 0;
 };
 
 }

@@ -11,12 +11,11 @@ SET(FRAM_3PP_PATH ${FRAM_ROOT_PATH}/plat/3pp)
 
 SET(LIBRARY_OUTPUT_PATH ${FRAM_LIB_PATH})
 SET(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH})
+
 SET(CMAKE_C_COMPILER "/home/ezgaoro/workspace/gcc-8.2/bin/gcc")
 SET(CMAKE_CXX_COMPILER "/home/ezgaoro/workspace/gcc-8.2/bin/g++")
 
 include(BuildYaml)
-
-
 
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 SET(COMPILE_WARNINGS "-Wall")
@@ -84,7 +83,8 @@ SET (PLAT_INFRA_LIB libgret.so
                     libgutil.so
                     )
 
-INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/3pp/rapidjson-1.1.0/include")
+INCLUDE_DIRECTORIES("${FRAM_3PP_PATH}/rapidjson/include")
+INCLUDE_DIRECTORIES("${FRAM_3PP_PATH}/yaml-cpp/include")
 INCLUDE_DIRECTORIES(${PLAT_INFRA_HRD})
 INCLUDE_DIRECTORIES(${PLAT_MESSAGE_HRD})
 INCLUDE_DIRECTORIES(${PLAT_CONFIG_HRD})

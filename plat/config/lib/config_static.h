@@ -7,6 +7,7 @@
 #include "node_tree.h"
 #include "parser_ini.h"
 #include "parser_json.h"
+#include "parser_yaml.h"
 
 #include "config_log.h"
 #include "config_return.h"
@@ -43,6 +44,11 @@ public:
         return ConfigRet::ESUBCLASS;
     }
 
+    virtual ConfigRet LoadYaml(parser::ParserYaml& parser) {
+        CONFIG_ERROR("Not support YAML format config file.");
+        return ConfigRet::ESUBCLASS;
+    }
+
     container::NodeTree::ElementPath* GetRoot();
 
 protected:
@@ -52,6 +58,7 @@ protected:
 
 template <> ConfigRet ConfigStatic::Load<parser::ParserJson>(parser::ParserJson& parser);
 template <> ConfigRet ConfigStatic::Load<parser::ParserIni>(parser::ParserIni& parser);
+template <> ConfigRet ConfigStatic::Load<parser::ParserYaml>(parser::ParserYaml& parser);
 
 }
 

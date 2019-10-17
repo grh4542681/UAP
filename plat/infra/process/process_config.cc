@@ -44,5 +44,41 @@ config::ConfigRet ProcessConfig::LoadJson(parser::ParserJson& parser)
 
     return config::ConfigRet::SUCCESS;
 }
+config::ConfigRet ProcessConfig::LoadYaml(parser::ParserYaml& parser)
+{
+    printf("process config load\n");
+
+    std::string tmp_string;
+
+    auto yaml_root = parser.GetDoc();
+
+    // message config
+    auto config_message = config_tree_.GetRoot()->Insert("message");
+
+    // message - name
+    auto yaml_message_name = yaml_root.Find("/message/name");
+    if (yaml_root.HasError()) {
+        PROCESS_ERROR("Not found config : name");
+        return config::ConfigRet::ERROR;
+    }
+    tmp_string.clear();
+    yaml_message_name.GetData<std::string>(&tmp_string);
+    config_message->Insert<std::string>("name", tmp_string);
+
+    // message - sockfile
+    auto yaml_message_sockfile = yaml_root.Find("/message/sockfile");
+    if (yaml_root.HasError()) {
+        PROCESS_ERROR("Not found config : sockfile");
+        return config::ConfigRet::ERROR;
+    }
+    tmp_string.clear();
+    yaml_message_sockfile.GetData<std::string>(&tmp_string);
+    config_message->Insert<std::string>("sockfile", tmp_string);
+    printf("--------%s\n",tmp_string.c_str());
+
+
+
+    return config::ConfigRet::SUCCESS;
+}
 
 }

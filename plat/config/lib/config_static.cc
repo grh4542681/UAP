@@ -15,6 +15,10 @@ template <> ConfigRet ConfigStatic::Load<parser::ParserIni>(parser::ParserIni& p
 {
     return LoadIni(parser);
 }
+template <> ConfigRet ConfigStatic::Load<parser::ParserYaml>(parser::ParserYaml& parser)
+{
+    return LoadYaml(parser);
+}
 
 
 }

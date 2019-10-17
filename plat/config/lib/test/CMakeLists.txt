@@ -2,4 +2,4 @@
 SET(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH}/test)
 INCLUDE_DIRECTORIES(${PLAT_CONFIG_HRD})
 ADD_EXECUTABLE(static_config_test static_config_test.cc)
-TARGET_LINK_LIBRARIES(static_config_test libgconf.so libgmp.so -lrt libgret.so libgfile.so libgio.so libgutil.so libgcontainer.so libgparser.so libgthread.so libgprocess.so libgsocket.so libgmsg.so libgio.so)
+TARGET_LINK_LIBRARIES(static_config_test libgconf.so libgmp.so -lrt libgret.so libgfile.so libgio.so libgutil.so libgcontainer.so libgparser.so libgthread.so libgprocess.so libgsocket.so libgmsg.so libgio.so libyaml-cpp.so)

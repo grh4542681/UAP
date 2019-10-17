@@ -15,6 +15,7 @@ public:
     }
 
     config::ConfigRet LoadJson(parser::ParserJson& parser);
+    config::ConfigRet LoadYaml(parser::ParserYaml& parser);
 
 };
 

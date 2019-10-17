@@ -10,6 +10,7 @@ std::map<File::Format, std::vector<std::string>> File::SupportFormat = {
     {File::Format::Ini, {"ini", "Initialization File"}},
     {File::Format::Xml, {"xml", "Extensible Markup Language"}},
     {File::Format::Json, {"json", "JavaScript Object Notation"}},
+    {File::Format::Yaml, {"yaml", "YAML Ain\'t a Markup Language"}},
     {File::Format::Txt, {"txt", "Text file"}},
     {File::Format::Unknow, {"", "Unknow file format"}},
 };

@@ -7,8 +7,10 @@
 #include <map>
 
 #include "file.h"
+#include "file_api.h"
 #include "process_info.h"
 #include "parser_json.h"
+#include "parser_yaml.h"
 
 #include "message_log.h"
 #include "message_server.h"
@@ -85,17 +87,23 @@ int main(int argc, char** argv)
     }
 
     //2.Get process config.
-    if (process_config_file.empty() || access(process_config_file.c_str(), R_OK) == -1) {
+    if (process_config_file.empty() || !file::IsExist(process_config_file)) {
         MESSAGE_FATAL("Con't access process config file [%s].", process_config_file.c_str());
-        exit(9);
-    }
-    if (process_config.ParserJsonFile(process_config_file.c_str()) != parser::ParserRet::SUCCESS) {
-        MESSAGE_FATAL("Parser process config file [%s] error.", process_config_file.c_str());
         exit(9);
     }
 
     file::File config_file(process_config_file);
-    process_info->GetConfig().Load<parser::ParserJson>(config_file);
+    switch(config_file.GetFileFormat()) {
+        case file::File::Format::Json:
+            process_info->GetConfig().Load<parser::ParserJson>(config_file);
+            break;
+        case file::File::Format::Yaml:
+            process_info->GetConfig().Load<parser::ParserYaml>(config_file);
+            break;
+        default:
+            MESSAGE_FATAL("Not support config file format [%s]", file::GetFileExtension(process_config_file).c_str());
+            exit(9);
+    }
 
     process::ProcessConfig& process_config = process_info->GetConfig();
     auto message_config = process_config.GetRoot()->Search("message");

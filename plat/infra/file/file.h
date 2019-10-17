@@ -26,6 +26,7 @@ public:
         Ini,
         Xml,
         Json,
+        Yaml,
         Txt,
     };
 

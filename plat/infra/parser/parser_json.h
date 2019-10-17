@@ -145,6 +145,7 @@ public:
 
     ParserRet LoadString(std::string str);
     ParserRet LoadFile(file::File& file);
+    ParserRet LoadFile(std::string str);
 
     ParserRet ParserJsonFile(const char* filename);
     ParserRet ParserJsonString(const char* jsonstring);
