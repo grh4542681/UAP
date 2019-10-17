@@ -3,6 +3,6 @@ process :
     mode : pool
 
 message :
-    name : "PLAT_MESSAGE_DEAMON"
-    sockfile : "/plat/tmp/messaged.sock"
-    listener_size : 100
+    name : PLAT_MESSAGE_DEAMON
+    sockfile : /plat/tmp/messaged.sock
+    listener_size : "100"

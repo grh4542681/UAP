@@ -11,7 +11,7 @@ namespace parser {
 class ParserYamlObject {
 public:
     ParserYamlObject();
-    ParserYamlObject(YAML::Node& node);
+    ParserYamlObject(const YAML::Node& node);
     ParserYamlObject(const ParserYamlObject& other);
     ~ParserYamlObject();
 

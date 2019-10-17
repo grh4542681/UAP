@@ -9,7 +9,7 @@ ParserYamlObject::ParserYamlObject()
 {
     ret_ = ParserRet::SUCCESS;
 }
-ParserYamlObject::ParserYamlObject(YAML::Node& node)
+ParserYamlObject::ParserYamlObject(const YAML::Node& node)
 {
     node_ = node;
     ret_ = ParserRet::SUCCESS;
@@ -31,25 +31,37 @@ ParserYamlObject& ParserYamlObject::operator=(const ParserYamlObject& other)
 
 ParserYamlObject ParserYamlObject::operator[](const std::string index)
 {
-    std::string path = index;
-    std::vector<std::string> path_vec;
-    util::String::Split(path, path_vec);
-
-    YAML::Node empty_node;
-    YAML::Node tmp_node = node_;
-    for (auto it : path_vec) {
-        try {
-            tmp_node = tmp_node[it];
-        } catch (YAML::InvalidNode& e) {
-            PARSER_ERROR("Find object %s error : %s", it.c_str(), e.what());
-            _set_ret(ParserRet::PARSER_ENOTFOUND);
-            return ParserYamlObject(empty_node);
-        } catch (...) {
-            _set_ret(ParserRet::ERROR);
-            return ParserYamlObject(empty_node);
-        }
+//    std::string path = index;
+//    std::vector<std::string> path_vec;
+//    util::String::Split(path, path_vec);
+//
+//    YAML::Node empty_node;
+//    YAML::Node tmp_node = node_;
+//    for (auto it : path_vec) {
+//        try {
+//            tmp_node = tmp_node[it];
+//        } catch (YAML::InvalidNode& e) {
+//            PARSER_ERROR("Find object %s error : %s", it.c_str(), e.what());
+//            _set_ret(ParserRet::PARSER_ENOTFOUND);
+//            return ParserYamlObject(empty_node);
+//        } catch (...) {
+//            _set_ret(ParserRet::ERROR);
+//            return ParserYamlObject(empty_node);
+//        }
+//    }
+//    return ParserYamlObject(tmp_node);
+    YAML::Node tmp_node;
+    try {
+        tmp_node = node_[index];
+    } catch (YAML::Exception& e) {
+        PARSER_ERROR("Find object %s error : %s", index.c_str(), e.what());
+        _set_ret(ParserRet::PARSER_ENOTFOUND);
+        return ParserYamlObject(tmp_node);
+    } catch (...) {
+        _set_ret(ParserRet::ERROR);
+        return ParserYamlObject(tmp_node);
     }
-    return tmp_node;
+    return ParserYamlObject(tmp_node);
 }
 
 ParserYamlObject ParserYamlObject::operator[](const int index)
@@ -76,26 +88,38 @@ bool ParserYamlObject::HasError()
 
 ParserYamlObject ParserYamlObject::Find(std::string index)
 {
-    std::string path = index;
-    std::vector<std::string> path_vec;
-    util::String::Split(path, "/", path_vec);
+ //   std::string path = index;
+ //   std::vector<std::string> path_vec;
+ //   util::String::Split(path, "/", path_vec);
 
-    YAML::Node empty_node;
-    YAML::Node tmp_node = node_;
-    for (auto it : path_vec) {
-        printf("--find %s \n",it.c_str());
-        try {
-            tmp_node = tmp_node[it];
-        } catch (YAML::Exception& e) {
-            PARSER_ERROR("Find object %s error : %s", it.c_str(), e.what());
-            _set_ret(ParserRet::PARSER_ENOTFOUND);
-            return ParserYamlObject(empty_node);
-        } catch (...) {
-            _set_ret(ParserRet::ERROR);
-            return ParserYamlObject(empty_node);
-        }
+ //   YAML::Node empty_node;
+ //   YAML::Node tmp_node = node_;
+ //   for (auto it : path_vec) {
+ //       try {
+ //           tmp_node = tmp_node[it];
+ //       } catch (YAML::Exception& e) {
+ //           PARSER_ERROR("Find object %s error : %s", it.c_str(), e.what());
+ //           _set_ret(ParserRet::PARSER_ENOTFOUND);
+ //           return ParserYamlObject(empty_node);
+ //       } catch (...) {
+ //           _set_ret(ParserRet::ERROR);
+ //           return ParserYamlObject(empty_node);
+ //       }
+ //   }
+ //           printf("aa %s\n", tmp_node.as<std::string>().c_str());
+ //   return ParserYamlObject(tmp_node);
+    YAML::Node tmp_node;
+    try {
+        tmp_node = node_[index];
+    } catch (YAML::Exception& e) {
+        PARSER_ERROR("Find object %s error : %s", index.c_str(), e.what());
+        _set_ret(ParserRet::PARSER_ENOTFOUND);
+        return ParserYamlObject(tmp_node);
+    } catch (...) {
+        _set_ret(ParserRet::ERROR);
+        return ParserYamlObject(tmp_node);
     }
-    return tmp_node;
+    return ParserYamlObject(tmp_node);
 }
 
 void ParserYamlObject::_set_ret(const ParserRet& ret)
