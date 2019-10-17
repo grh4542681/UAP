@@ -1,3 +1,6 @@
 [submodule "plat/3pp/yaml-cpp"]
 	path = plat/3pp/yaml-cpp
 	url = https://github.com/grh4542681/yaml-cpp.git
+[submodule "plat/3pp/rapidjson"]
+	path = plat/3pp/rapidjson
+	url = https://github.com/grh4542681/rapidjson.git

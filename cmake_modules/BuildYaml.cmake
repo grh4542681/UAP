@@ -2,7 +2,7 @@ message("Build ymal-cpp 3pp")
 
 include(ExternalProject)
 
-SET(YAML_DIR ${FRAM_3PP_PATH}/yaml-cpp-yaml-cpp-0.6.2)
+SET(YAML_DIR ${FRAM_3PP_PATH}/yaml-cpp)
 
 set(YAML_CMAKE_ARGS)
 list(APPEND YAML_CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}")
