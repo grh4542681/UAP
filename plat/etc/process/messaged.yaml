@@ -1,6 +1,7 @@
 --- #message deamon process config
 process :
     mode : pool
+    message : enable
 
 message :
     name : PLAT_MESSAGE_DEAMON
