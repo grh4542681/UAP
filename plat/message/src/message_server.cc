@@ -33,4 +33,10 @@ MessageRet MessageServer::Run()
     }
 }
 
+void MessageServer::Main()
+{
+    MessageServer server;
+    server.Run();
+}
+
 }

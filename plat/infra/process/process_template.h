@@ -17,6 +17,7 @@
 #include <iostream>
 #include <string>
 #include <functional>
+#include <tuple>
 
 #include "mempool.h"
 
@@ -34,6 +35,9 @@ namespace process {
 template < typename F >
 class ProcessTemplate {
 public:
+    ProcessTemplate() {
+
+    }
     /**
     * @brief ProcessTemplate - Constructor
     *
@@ -82,14 +86,14 @@ public:
     * @returns  ProcessRet.
     */
     template <typename ... Args>
-    ProcessRet Run(Args&& ... args) {
+    std::tuple<const ProcessRet, const ProcessID> Run(Args&& ... args) {
         PROCESS_INFO("Starting create process.");
         //Create socket pair
         ipc::sock::SockPair pair;
         if (auto_create_sockpair_) {
             if (pair.Open() != ret::Return::SUCCESS) {
                 PROCESS_ERROR("SockPair Open error.");
-                return ProcessRet::PROCESS_EFIFOPAIR;
+                return {ProcessRet::PROCESS_EFIFOPAIR, ProcessID(0)};
             }
             pair.SetAutoClose(false);
         }
@@ -100,7 +104,7 @@ public:
                 pair.Close();
             }
             PROCESS_ERROR("Fork error.");
-            return ProcessRet::PROCESS_EFORK;
+            return {ProcessRet::PROCESS_EFORK, ProcessID(0)};
         } else if (pid == 0) {
             //cache parent process data.
             ProcessParent parent_cache(parent->GetName(), parent->GetPid());
@@ -133,7 +137,8 @@ public:
             if (child_name.empty()) {
                 child_name = parent->GetName() + "_" + std::to_string(pid);
             }
-            ProcessChild child(child_name, ProcessID(pid));
+            ProcessID child_pid(pid);
+            ProcessChild child(child_name, std::move(child_pid));
             if (auto_create_sockpair_) {
                 pair[0].Close();
                 child.SetFD(pair[1]);
@@ -144,9 +149,9 @@ public:
 
             PROCESS_INFO("Register child [%d] into current process.", pid);
             parent->AddChildProcess(child);
-            return ProcessRet::SUCCESS;
+            return {ProcessRet::SUCCESS, child_pid};
         }
-        return ProcessRet::SUCCESS;
+        return {ProcessRet::SUCCESS, ProcessID(0)};
     }
 #if 0
     /**

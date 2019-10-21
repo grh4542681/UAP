@@ -27,7 +27,6 @@ ProcessInfo::ProcessInfo()
     parent_ = NULL;
 
     sig_ctrl_ = signal::ProcessSignalCtrl::getInstance();
-    msg_agent_ = message::MessageAgent::getInstance();
 }
 
 ProcessInfo::ProcessInfo(ProcessInfo& other)
@@ -43,7 +42,6 @@ ProcessInfo::ProcessInfo(ProcessInfo& other)
     raw_cmdline_size_ = other.raw_cmdline_size_;
 
     sig_ctrl_ = other.sig_ctrl_;
-    msg_agent_ = other.msg_agent_;
 }
 
 ProcessInfo::~ProcessInfo()
@@ -103,11 +101,6 @@ ProcessConfig& ProcessInfo::GetConfig()
 signal::ProcessSignalCtrl* ProcessInfo::GetSignalCtrl()
 {
     return sig_ctrl_;
-}
-
-message::MessageAgent* ProcessInfo::GetMessageAgent()
-{
-    return msg_agent_;
 }
 
 ProcessInfo& ProcessInfo::SetPid(ProcessID&& pid)

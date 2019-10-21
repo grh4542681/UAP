@@ -18,7 +18,7 @@ public:
     ProcessID(const ProcessID& other);
     ~ProcessID();
 
-    ProcessID& operator=(ProcessID other);
+    const ProcessID& operator=(ProcessID other);
 
     bool operator==(ProcessID& other);
     bool operator==(const ProcessID& other);

@@ -16,7 +16,7 @@ void test_process()
 {
     printf("child [%d]\n",getpid());
     process::ProcessInfo* p = process::ProcessInfo::getInstance();
-    printf("child [%d] name [%s]\n", p->GetPid(), p->GetName().c_str());
+    printf("child [%d] name [%s]\n", p->GetPid().GetID(), p->GetName().c_str());
     sleep(20);
 }
 
@@ -41,7 +41,10 @@ int main(int argc, char** argv)
     auto process_type = test_process;
     process::ProcessTemplate<decltype(process_type)> p1("process_test_single:child1", test_process);
     p1.SetDeadCallback(dead);
-    p1.Run();
+    process::ProcessID child;
+    auto runret = p1.Run();
+    child = std::get<const process::ProcessID>(runret);
+    printf("--%d--\n", child.GetID());
 //    p1.RunDaemon();
 
     sleep(5);

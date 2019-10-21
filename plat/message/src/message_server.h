@@ -15,6 +15,8 @@ public:
     ~MessageServer();
 
     MessageRet Run();
+
+    static void Main();
 private:
     sock::SockServer server_;
 };

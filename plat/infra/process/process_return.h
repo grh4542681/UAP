@@ -42,6 +42,9 @@ public:
         PROCESS_ECALLABLE,
         PROCESS_EFORK,
         PROCESS_EFIFOPAIR,
+
+    //process config
+        PROCESS_ECONFIG,
     };
 public:
     static ECodeMapType ECodeMap;
@@ -49,7 +52,7 @@ public:
     ProcessRet(int err_code = 0) : ret::Return(err_code) {
         err_code_vec_.push_back(&ProcessRet::ECodeMap);
     }
-    ProcessRet(ProcessRet& other) : ret::Return(other) { }
+    ProcessRet(const ProcessRet& other) : ret::Return(other) { }
     ~ProcessRet() { };
 public:
     ProcessRet& operator=(const int err_code) {

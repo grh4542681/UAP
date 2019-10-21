@@ -49,50 +49,78 @@ config::ConfigRet ProcessConfig::LoadYaml(parser::ParserYaml& parser)
     printf("process config load\n");
 
     std::string tmp_string;
-    int tmp_int;
+    int tmp_int = 0;
+    bool tmp_bool = false;
 
     auto yaml_root = parser.GetDoc();
 
-    // message config
-    auto yaml_message =  yaml_root.Find("message");
+    // process config
+    auto yaml_process = yaml_root.Find("process");
     if (yaml_root.HasError()) {
-        PROCESS_ERROR("Not found config : message");
+        PROCESS_FATAL("Not found config : process");
         return config::ConfigRet::ERROR;
     }
-    auto config_message = config_tree_.GetRoot()->Insert("message");
+    auto config_process = config_tree_.GetRoot()->Insert("process");
 
-    // message - name
-    auto yaml_message_name = yaml_message.Find("name");
-    if (yaml_message.HasError()) {
-        PROCESS_ERROR("Not found config : name");
+    //process pool
+    auto yaml_process_pool = yaml_process.Find("pool");
+    if (yaml_process.HasError()) {
+        PROCESS_FATAL("Not found config : process/pool");
         return config::ConfigRet::ERROR;
     }
-    tmp_string.clear();
-    yaml_message_name.GetData<std::string>(&tmp_string);
-    config_message->Insert<std::string>("name", tmp_string);
-    printf("--------%s\n",tmp_string.c_str());
+    auto config_process_pool = config_process->Insert("pool");
 
-    // message - sockfile
-    auto yaml_message_sockfile = yaml_message.Find("sockfile");
-    if (yaml_message.HasError()) {
-        PROCESS_ERROR("Not found config : sockfile");
+    if (yaml_process_pool.Find("switch").GetData<bool>(&tmp_bool) != parser::ParserRet::SUCCESS) {
+        PROCESS_FATAL("Not found config : process/pool/switch");
         return config::ConfigRet::ERROR;
     }
-    tmp_string.clear();
-    yaml_message_sockfile.GetData<std::string>(&tmp_string);
-    config_message->Insert<std::string>("sockfile", tmp_string);
-    printf("--------%s\n",tmp_string.c_str());
+    config_process_pool->Insert<bool>("switch", tmp_bool);
+    if (tmp_bool) {
+        if (yaml_process_pool.Find("minsize").GetData<int>(&tmp_int) != parser::ParserRet::SUCCESS) {
+            PROCESS_FATAL("Not found config : process/pool/minsize");
+            return config::ConfigRet::ERROR;
+        }
+        config_process_pool->Insert<int>("minsize", tmp_int);
 
-    // message - linster_size
-    auto yaml_message_linster_size = yaml_message.Find("listener_size");
-    if (yaml_message.HasError()) {
-        PROCESS_ERROR("Not found config : listener_size");
+        if (yaml_process_pool.Find("maxsize").GetData<int>(&tmp_int) != parser::ParserRet::SUCCESS) {
+            PROCESS_FATAL("Not found config : process/pool/maxsize");
+            return config::ConfigRet::ERROR;
+        }
+        config_process_pool->Insert<int>("maxsize", tmp_int);
+    }
+
+    // message agent
+    auto yaml_process_message =  yaml_process.Find("message");
+    if (yaml_root.HasError()) {
+        PROCESS_ERROR("Not found config : process/message");
         return config::ConfigRet::ERROR;
     }
-    tmp_int = 0;
-    yaml_message_linster_size.GetData<int>(&tmp_int);
-    config_message->Insert<int>("linster_size", tmp_int);
-    printf("--------%d\n",tmp_int);
+    auto config_process_message = config_process->Insert("message");
+
+    if (yaml_process_message.Find("switch").GetData<bool>(&tmp_bool) != parser::ParserRet::SUCCESS) {
+        PROCESS_FATAL("Not found config : process/message/switch");
+        return config::ConfigRet::ERROR;
+    }
+    config_process_message->Insert<bool>("switch", tmp_bool);
+    if (tmp_bool) {
+        if (yaml_process_message.Find("name").GetData<std::string>(&tmp_string) != parser::ParserRet::SUCCESS) {
+            PROCESS_FATAL("Not found config : process/message/name");
+            return config::ConfigRet::ERROR;
+        }
+        config_process_message->Insert<std::string>("name", tmp_string);
+
+        if (yaml_process_message.Find("address").GetData<std::string>(&tmp_string) != parser::ParserRet::SUCCESS) {
+            PROCESS_FATAL("Not found config : process/message/address");
+            return config::ConfigRet::ERROR;
+        }
+        config_process_message->Insert<std::string>("address", tmp_string);
+
+        if (yaml_process_message.Find("linksize").GetData<int>(&tmp_int) != parser::ParserRet::SUCCESS) {
+            PROCESS_FATAL("Not found config : process/message/linksize");
+            return config::ConfigRet::ERROR;
+        }
+        config_process_message->Insert<int>("linksize", tmp_int);
+    }
 
     config_tree_.Print();
 

@@ -40,7 +40,7 @@ public:
     Return(int err_code) : err_code_(err_code) {
         err_code_vec_.push_back(&Return::ECodeMap);
     }
-    Return(Return& other) {
+    Return(const Return& other) {
         err_code_ = other.err_code_;
     }
     virtual ~Return() { }

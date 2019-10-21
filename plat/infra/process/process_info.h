@@ -15,7 +15,6 @@
 #include "thread_info.h"
 #include "mutex/thread_rw_lock.h"
 #include "socket/sock_pair.h"
-#include "message_agent.h"
 
 #include "process_log.h"
 #include "process_return.h"
@@ -46,7 +45,6 @@ public:
     ProcessInfo& GetCmdLine(char*** raw_cmdline, unsigned int* raw_cmdline_size);
     ProcessConfig& GetConfig();
     signal::ProcessSignalCtrl* GetSignalCtrl();
-    message::MessageAgent* GetMessageAgent();
 
     ProcessInfo& SetPid(ProcessID&& pid);
     ProcessInfo& SetName(std::string name);
@@ -116,9 +114,6 @@ private:
 
     // signal
     signal::ProcessSignalCtrl* sig_ctrl_;
-
-    // message agent
-    message::MessageAgent* msg_agent_;
 
     static ProcessInfo* pInstance;
 };

@@ -25,7 +25,7 @@ ProcessID::~ProcessID()
 
 }
 
-ProcessID& ProcessID::operator=(ProcessID other)
+const ProcessID& ProcessID::operator=(ProcessID other)
 {
     pid_ = other.pid_;
     return *this;

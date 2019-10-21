@@ -1,9 +1,20 @@
 --- #message deamon process config
 process :
-    mode : pool
-    message : enable
+    pool :
+        switch : true
+        minsize : 2
+        maxsize : 10
+    message :
+        switch : true
+        name : PLAT_MESSAGE_DEAMON
+        address : /plat/tmp/messaged.sock
+        linksize : "100"
+    issu :
+        switch : false
 
 message :
     name : PLAT_MESSAGE_DEAMON
     sockfile : /plat/tmp/messaged.sock
     listener_size : "100"
+
+mempool :

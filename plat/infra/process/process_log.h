@@ -18,4 +18,9 @@
     printf(fmt, ##args); \
     printf("\n");
 
+#define PROCESS_FATAL(fmt, args...) \
+    printf("%s[%d]: ", __func__, __LINE__); \
+    printf(fmt, ##args); \
+    printf("\n");
+
 #endif
