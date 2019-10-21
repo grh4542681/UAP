@@ -12,19 +12,19 @@ namespace process::pool {
 template < typename F, typename ... Args >
 class SpecificPool {
 public:
-    SpecificPool(std::string name, F worker, Args&& ... args) {
+    SpecificPool(std::string name, F worker, Args&& ... args) : tuple_args(std::forward_as_tuple(std::forward<Args>(args)...)){
         name_ = name;
         ptemp_ = ProcessTemplate<F>(name_ + ":worker", worker);
-        tuple_args = std::make_tuple(std::forward<Args>(args)...);
     }
     ~SpecificPool() {
 
     }
 
     ProcessRet Run() {
-//        std::apply(ptemp_.Run, tuple_args);
-        std::index_sequence<std::size_t...> num = std::make_index_sequence<std::tuple_size<std::tuple<Args...>::value>();
-        ptemp_.Run(std::get<num>(tuple_args)...);
+        _apply(std::make_index_sequence<std::tuple_size<std::tuple<Args...>>::value>());
+        _apply(std::make_index_sequence<std::tuple_size<std::tuple<Args...>>::value>());
+        sleep(20);
+        return ProcessRet::SUCCESS;
     }
 
 private:
@@ -39,6 +39,11 @@ private:
     std::tuple<Args...> tuple_args;
 
     ProcessTemplate<F> ptemp_;
+
+    template <std::size_t... I>
+    void _apply(std::index_sequence<I...>) {
+        ptemp_.Run(std::get<I>(tuple_args)...);
+    }
 };
 
 }

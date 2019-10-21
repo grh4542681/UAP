@@ -33,8 +33,9 @@ MessageRet MessageServer::Run()
     }
 }
 
-void MessageServer::Main()
+void MessageServer::Main(int i, std::string str)
 {
+    printf("%d  -  %s\n", i, str.c_str());
     MessageServer server;
     server.Run();
 }

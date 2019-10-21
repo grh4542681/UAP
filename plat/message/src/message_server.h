@@ -16,7 +16,7 @@ public:
 
     MessageRet Run();
 
-    static void Main();
+    static void Main(int i,std::string str);
 private:
     sock::SockServer server_;
 };

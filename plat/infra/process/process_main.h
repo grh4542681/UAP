@@ -1,6 +1,8 @@
 #ifndef __PROCESS_MAIN_H__
 #define __PROCESS_MAIN_H__
 
+#include <utility>
+
 #include "file.h"
 
 #include "process_log.h"
@@ -26,7 +28,7 @@ public:
             PROCESS_FATAL("Load process config file [%s] error", config_filename_.c_str());
             return ret;
         }
-        pool::SpecificPool<F, Args...> pool_("test", main_, std::forward<Args>(args)...);
+        pool::SpecificPool<F, Args&& ...> pool_("test", main_, std::forward<Args>(args)...);
         pool_.Run();
 //        main_(std::forward<Args>(args)...);
         return ProcessRet::SUCCESS;
