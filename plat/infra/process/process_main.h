@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "file.h"
+#include "message_agent.h"
 
 #include "process_log.h"
 #include "process_return.h"
@@ -22,14 +23,17 @@ public:
     ~ProcessMain() { }
 
     template <typename ... Args>
-    ProcessRet Run(Args&& ... args) {
+    ProcessRet Run(int argc, char** argv, Args&& ... args) {
         ProcessRet ret;
+        ProcessInfo::getInstance()->SetCmdLine(argc, argv, environ);
         if ((ret = _load_config()) != ProcessRet::SUCCESS) {
             PROCESS_FATAL("Load process config file [%s] error", config_filename_.c_str());
             return ret;
         }
-        pool::SpecificPool<F, Args&& ...> pool_("test", main_, std::forward<Args>(args)...);
+        pool::SpecificPool<F, Args&& ...> pool_(process::ProcessInfo::getInstance()->GetRealName(), main_, std::forward<Args>(args)...);
         pool_.Run();
+        message::MessageAgent::getInstance()->Run();
+        sleep(20);
 //        main_(std::forward<Args>(args)...);
         return ProcessRet::SUCCESS;
     }

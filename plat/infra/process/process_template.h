@@ -121,12 +121,12 @@ public:
             mempool::MemPool::freeInstance();
             ProcessInfo::setInstance(NULL);
 
-            if (!name_.empty()) {
-                Process::SetProcName(name_);
-            }
             ProcessInfo* child = ProcessInfo::getInstance();
             child->SetName(name_);
             child->SetCmdLine(raw_cmdline, raw_cmdline_size);
+            if (!name_.empty()) {
+                Process::SetProcName(name_);
+            }
             child->AddParentProcess(parent_cache);
 
             PROCESS_INFO("Execute child main function.");

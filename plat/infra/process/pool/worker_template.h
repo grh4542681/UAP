@@ -1,15 +1,5 @@
-/*******************************************************
- * Copyright (C) For free.
- * All rights reserved.
- *******************************************************
- * @author   : Ronghua Gao
- * @date     : 2019-04-17 10:46
- * @file     : process_template.h
- * @brief    : Create process by template.
- * @note     : Email - grh4542681@163.com
- * ******************************************************/
-#ifndef _PROCESS_TEMPLATE_H__
-#define _PROCESS_TEMPLATE_H__
+#ifndef _WORKER_TEMPLATE_H__
+#define _WORKER_TEMPLATE_H__
 
 #include <unistd.h>
 #include <type_traits>
@@ -25,7 +15,7 @@
 #include "process_info.h"
 #include "signal/process_signal_ctrl.h"
 
-namespace process {
+namespace process::pool {
 
 template < typename F >
 class WorkerTemplate {
@@ -82,7 +72,7 @@ public:
     */
     template <typename ... Args>
     std::tuple<const ProcessRet, const ProcessID> Run(Args&& ... args) {
-        PROCESS_INFO("Starting create process.");
+        PROCESS_INFO("Starting create worker");
         //Create socket pair
         ipc::sock::SockPair pair;
         if (auto_create_sockpair_) {
@@ -111,18 +101,19 @@ public:
             char** raw_cmdline = NULL;
             unsigned int raw_cmdline_size = 0;
             parent->GetCmdLine(&raw_cmdline, &raw_cmdline_size);
-
+ 
             //destory parent mempool
             mempool::MemPool::freeInstance();
             ProcessInfo::setInstance(NULL);
 
-            if (!name_.empty()) {
-                Process::SetProcName(name_);
-            }
             ProcessInfo* child = ProcessInfo::getInstance();
             child->SetName(name_);
             child->SetCmdLine(raw_cmdline, raw_cmdline_size);
+            if (!name_.empty()) {
+                Process::SetProcName(name_);
+            }
             child->AddParentProcess(parent_cache);
+            child->GetProcessRole().AddRole(ProcessRole::PoolWorker);
 
             PROCESS_INFO("Execute child main function.");
             _run_main(std::forward<Args>(args)...);

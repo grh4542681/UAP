@@ -32,7 +32,7 @@ public:
     class SelectItem : public io::SelectItem {
     public:
         SelectItem() : io::SelectItem() { }
-        SelectItem(MessageRemote* remote) : io::SelectItem(remote->GetSockClient().GetSockFD()) {
+        SelectItem(MessageRemote* remote) : io::SelectItem(remote->GetRemoteFD()) {
             remote_ = remote;
         }
         SelectItem(SelectItem& other): io::SelectItem(other) {
@@ -116,10 +116,11 @@ public:
 
 public:
     MessageRemote();
+    MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, sock::SockFD& remote_fd);
     MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, sock::SockAddress& remote_address);
     ~MessageRemote();
 
-    sock::SockClient& GetSockClient();
+    sock::SockFD& GetRemoteFD();
     SelectItem& GetSelectItem();
     State& GetState();
 
@@ -128,7 +129,7 @@ private:
     Info info_;
     State state_;
     std::string remote_uri_;
-    sock::SockClient client_;
+    sock::SockFD remote_fd_;
     SelectItem select_item_;
 private:
     MessageRemote(MessageRemote& other);

@@ -9,8 +9,9 @@ MessageRemote::MessageRemote(std::string remote_machine, std::string remote_list
     info_.remote_endpoint_ = remote_endpoint;
     info_.remote_address_ = remote_address;
     remote_uri_ = info_.remote_machine_ + "/" + info_.remote_listener_ + "/" + info_.remote_endpoint_;
-    client_ = sock::SockClient(&info_.remote_address_);
-    if (client_.Connect() == sock::SockRet::SUCCESS) {
+    sock::SockClient client(&info_.remote_address_);
+    if (client.Connect() == sock::SockRet::SUCCESS) {
+        remote_fd_ = client.GetSockFD();
         select_item_ = SelectItem(this);
         state_ = State::Ready;
     } else {
@@ -18,14 +19,25 @@ MessageRemote::MessageRemote(std::string remote_machine, std::string remote_list
     }
 }
 
+MessageRemote::MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, sock::SockFD& remote_fd)
+{
+    info_.remote_machine_ = remote_machine.empty() ? "LOCAL" : remote_machine;
+    info_.remote_listener_ = remote_listener;
+    info_.remote_endpoint_ = remote_endpoint;
+    info_.remote_address_ = remote_fd.GetDestAddress();
+    remote_uri_ = info_.remote_machine_ + "/" + info_.remote_listener_ + "/" + info_.remote_endpoint_;
+    remote_fd_ = remote_fd;
+    state_ = State::Ready;
+}
+
 MessageRemote::~MessageRemote()
 {
 
 }
 
-sock::SockClient& MessageRemote::GetSockClient()
+sock::SockFD& MessageRemote::GetRemoteFD()
 {
-    return client_;
+    return remote_fd_;
 }
 
 MessageRemote::SelectItem& MessageRemote::GetSelectItem()

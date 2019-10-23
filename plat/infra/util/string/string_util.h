@@ -19,9 +19,9 @@ public:
     static void Distinct(std::string& str, char target);
     static void Distinct(std::string& str, std::string& target);
 
-    static void Split(std::string& str, std::vector<std::string>& vec);
-    static void Split(std::string& str, std::string& sep, std::vector<std::string>& vec);
-    static void Split(std::string& str, std::string&& sep, std::vector<std::string>& vec);
+    static void Split(const std::string& str, std::vector<std::string>& vec);
+    static void Split(const std::string& str, std::string& sep, std::vector<std::string>& vec);
+    static void Split(const std::string& str, std::string&& sep, std::vector<std::string>& vec);
 
 private:
     String();

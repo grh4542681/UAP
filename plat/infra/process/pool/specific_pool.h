@@ -5,7 +5,7 @@
 #include <utility>
 #include <tuple>
 
-#include "process_template.h"
+#include "worker_template.h"
 
 namespace process::pool {
 
@@ -14,7 +14,7 @@ class SpecificPool {
 public:
     SpecificPool(std::string name, F worker, Args&& ... args) : tuple_args(std::forward_as_tuple(std::forward<Args>(args)...)){
         name_ = name;
-        ptemp_ = ProcessTemplate<F>(name_ + ":worker", worker);
+        ptemp_ = WorkerTemplate<F>(name_ + ":worker", worker);
     }
     ~SpecificPool() {
 
@@ -22,8 +22,6 @@ public:
 
     ProcessRet Run() {
         _apply(std::make_index_sequence<std::tuple_size<std::tuple<Args...>>::value>());
-        _apply(std::make_index_sequence<std::tuple_size<std::tuple<Args...>>::value>());
-        sleep(20);
         return ProcessRet::SUCCESS;
     }
 
@@ -38,7 +36,7 @@ private:
 
     std::tuple<Args...> tuple_args;
 
-    ProcessTemplate<F> ptemp_;
+    WorkerTemplate<F> ptemp_;
 
     template <std::size_t... I>
     void _apply(std::index_sequence<I...>) {

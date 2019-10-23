@@ -50,6 +50,7 @@ public:
     }
 
     container::NodeTree::ElementPath* GetRoot();
+    void Print();
 
 protected:
     container::NodeTree config_tree_;

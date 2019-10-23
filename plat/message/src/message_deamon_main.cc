@@ -72,7 +72,7 @@ int main(int argc, char** argv)
     process::ProcessMain<decltype(&message::MessageServer::Main)> pmain(process_config_file, message::MessageServer::Main);
     int i = 10;
     std::string str = "test args";
-    pmain.Run(i, str);
+    pmain.Run(argc, argv, i, str);
 
     return 0;
 }

@@ -17,6 +17,10 @@ public:
     config::ConfigRet LoadJson(parser::ParserJson& parser);
     config::ConfigRet LoadYaml(parser::ParserYaml& parser);
 
+private:
+    config::ConfigRet _load_yaml_process(parser::ParserYaml& parser);
+    config::ConfigRet _load_yaml_message(parser::ParserYaml& parser);
+
 };
 
 }

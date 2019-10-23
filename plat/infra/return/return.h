@@ -25,6 +25,7 @@ public:
         EVECTOR,
         EMALLOC,
         EINIT,
+        ECONFIG,
         ETIMEOUT,
         ESUBCLASS,
         ECONSTRUCT,

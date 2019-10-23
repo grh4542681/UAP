@@ -73,17 +73,17 @@ void String::Distinct(std::string& str, std::string& target)
 
 }
 
-void String::Split(std::string& str, std::vector<std::string>& vec)
+void String::Split(const std::string& str, std::vector<std::string>& vec)
 {
     std::string sep = " ";
     Split(str, sep, vec);
 }
 
-void String::Split(std::string& str, std::string& sep, std::vector<std::string>& vec)
+void String::Split(const std::string& str, std::string& sep, std::vector<std::string>& vec)
 {
     Split(str, std::move(sep), vec);
 }
-void String::Split(std::string& str, std::string&& sep, std::vector<std::string>& vec)
+void String::Split(const std::string& str, std::string&& sep, std::vector<std::string>& vec)
 {
     std::string expr = "[^" + sep + "]+";
     std::regex word_regex(expr);

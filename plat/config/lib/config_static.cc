@@ -7,6 +7,11 @@ container::NodeTree::ElementPath* ConfigStatic::GetRoot()
     return config_tree_.GetRoot();
 }
 
+void ConfigStatic::Print()
+{
+    config_tree_.Print();
+}
+
 template <> ConfigRet ConfigStatic::Load<parser::ParserJson>(parser::ParserJson& parser)
 {
     return LoadJson(parser);

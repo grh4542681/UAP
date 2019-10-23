@@ -1,3 +1,5 @@
+#include "process_info.h"
+
 #include "message_defines.h"
 #include "message_agent.h"
 
@@ -38,7 +40,7 @@ MessageAgent::State& MessageAgent::GetState()
 
 MessageRemote* MessageAgent::GetRemote()
 {
-    return agent_client_;
+    return remote_manager_;
 }
 
 MessageListener* MessageAgent::GetLinstener(std::string l_name)
@@ -95,18 +97,38 @@ MessageListener* MessageAgent::LookupEndpoint(std::string listener_name, std::st
 
 MessageRet MessageAgent::Run()
 {
-    agent_client_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", *(message::GetMessageServerAddress()));
-    if (!agent_client_ || !agent_client_->IsReady()) {
+    process::ProcessInfo* proc = process::ProcessInfo::getInstance();
+
+    if (proc->GetProcessRole().HasRole(process::ProcessRole::PoolWorker)) {
+        remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", proc->GetParentProcess()->GetFD());
+    } else {
+        auto config_message_enable = proc->GetConfig().GetRoot()->Search<bool>("message/switch");
+        if (!config_message_enable) {
+            MESSAGE_FATAL("Get message config from process error.");
+            return MessageRet::ECONFIG;
+        }
+        bool message_enable = config_message_enable->GetData();
+        if (message_enable) {
+            std::string protocol = proc->GetConfig().GetRoot()->Search<std::string>("message/manager/address/protocol")->GetData();
+            std::string device = proc->GetConfig().GetRoot()->Search<std::string>("message/manager/address/device")->GetData();
+            MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+            return MessageRet::SUCCESS;
+//    agent_client_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", *(message::GetMessageServerAddress()));
+        } else {
+            MESSAGE_INFO("Function message was disabled.");
+        }
+    }
+    if (!remote_manager_ || !remote_manager_->IsReady()) {
         return MessageRet::MESSAGE_AGENT_ECONN;
     }
     info_.state_ = State::Ready;
 
-    agent_client_->GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
-    agent_client_->GetSelectItem().InputFunc = message_client_callback;
+    remote_manager_->GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
+    remote_manager_->GetSelectItem().InputFunc = message_client_callback;
 
-    agent_client_->GetSockClient().GetSockFD().Write("hello world", 12);
+    remote_manager_->GetRemoteFD().Write("hello world", 12);
 
-    select_.AddSelectItem<MessageRemote::SelectItem>(agent_client_->GetSelectItem());
+    select_.AddSelectItem<MessageRemote::SelectItem>(remote_manager_->GetSelectItem());
     timer::Time t;
     t.SetTime(2, timer::Unit::Second);
     printf("----%d---\n",t.GetSecond());
