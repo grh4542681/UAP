@@ -9,6 +9,8 @@ class ConfigRet : public ret::Return {
 public:
     enum ECode{
         CONFIG_EBASE = CONFIG_ERROR_CODE_BASE,
+        CONFIG_ECONFFILE,
+        CONFIG_ECONFFILEFORMAT,
         CONFIG_EPARSER,
         CONFIG_EGET,
     };

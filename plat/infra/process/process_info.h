@@ -43,7 +43,7 @@ public:
     std::string& GetProcessPoolName();
     const char* GetCmdLine(unsigned int index);
     ProcessInfo& GetCmdLine(char*** raw_cmdline, unsigned int* raw_cmdline_size);
-    ProcessConfig& GetConfig();
+    ProcessConfig& GetProcessConfig();
     signal::ProcessSignalCtrl* GetSignalCtrl();
 
     ProcessInfo& SetPid(ProcessID&& pid);

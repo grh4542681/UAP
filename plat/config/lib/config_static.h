@@ -19,14 +19,18 @@ public:
     ConfigStatic() : config_tree_("config") { };
     ~ConfigStatic() { }
 
+    ConfigRet LoadFile(std::string filename);
+
     template < typename T > ConfigRet Load(std::string& str) {
         T parser;
         parser.LoadString(str);
+        config_filename_.clear();
         return Load(parser);
     }
     template < typename T > ConfigRet Load(file::File& file) {
         T parser;
         parser.LoadFile(file);
+        config_filename_ = file.GetFileName();
         return Load(parser);
     }
     template < typename T > ConfigRet Load(T& parser) {
@@ -49,10 +53,12 @@ public:
         return ConfigRet::ESUBCLASS;
     }
 
+    std::string GetConfigFileName();
     container::NodeTree::ElementPath* GetRoot();
     void Print();
 
 protected:
+    std::string config_filename_ = "";
     container::NodeTree config_tree_;
     
 };

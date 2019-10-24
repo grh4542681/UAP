@@ -10,6 +10,7 @@ SET(LIBGPROCESS_SRC process_return.cc
                     signal/process_signal_ctrl.cc
                     signal/process_signal_set.cc
                     signal/process_signal_action.cc
+                    pool/process_pool_worker.cc
                     )
 ADD_LIBRARY(GRHprocess_SO SHARED ${LIBGPROCESS_SRC})
 ADD_LIBRARY(GRHprocess_A STATIC ${LIBGPROCESS_SRC})

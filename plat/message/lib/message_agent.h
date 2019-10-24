@@ -24,6 +24,7 @@ public:
         Initialize,
         Listenning,
         Ready,
+        Disable,
         Error,
     };
 

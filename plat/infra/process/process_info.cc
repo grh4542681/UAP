@@ -93,7 +93,7 @@ ProcessInfo& ProcessInfo::GetCmdLine(char*** raw_cmdline, unsigned int* raw_cmdl
     return *this;
 }
 
-ProcessConfig& ProcessInfo::GetConfig()
+ProcessConfig& ProcessInfo::GetProcessConfig()
 {
     return config_;
 }

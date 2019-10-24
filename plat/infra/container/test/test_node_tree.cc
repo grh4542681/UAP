@@ -72,6 +72,15 @@ int main() {
     tree.GetRoot()->Insert<int>("path1",4)->Insert<int>("int", 5)->Insert("path")->Insert<std::string>("name","name");
     tree.GetRoot()->Search<int>("path1")->Insert<char>("char", 5);
     tree.Print();
+    container::NodeTree tree1("test1");
+    printf("------\n");
+    tree1.GetRoot()->Insert<int>("path1231",4)->Insert<int>("i123nt", 5)->Insert("p23ath")->Insert<std::string>("name","name");
+    tree1.GetRoot()->Search<int>("path1231")->Insert<char>("czzhar", 5);
+    tree1.Print();
+
+    tree = tree1;
+    tree.Print();
+
     tree.GetRoot()->Erase();
 
     return 0;

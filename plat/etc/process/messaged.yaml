@@ -4,8 +4,6 @@ process :
         switch : true
         minsize : 2
         maxsize : 10
-    issu :
-        switch : false
 
 message :
     switch : true

@@ -433,11 +433,39 @@ public:
     NodeTree(std::string name) : root_(name) {
         root_.Insert("root");
     }
+
+    NodeTree(NodeTree& other) {
+        ElementPath* root = GetRoot();
+        if (root) {
+            printf("---%d---\n",__LINE__);
+            root->Erase();
+        }
+        root = other.GetRoot();
+        if (root) {
+            printf("---%d---\n",__LINE__);
+            root_.Insert(root->Clone());
+        }
+    }
     ~NodeTree(){
         ElementPath* root = GetRoot();
         if (root) {
             root->Erase();
         }
+    }
+
+    NodeTree& operator=(NodeTree& other) {
+        printf("---%d---\n",__LINE__);
+        ElementPath* root = GetRoot();
+        if (root) {
+            printf("---%d---\n",__LINE__);
+            root->Erase();
+        }
+        root = other.GetRoot();
+        if (root) {
+            printf("---%d---\n",__LINE__);
+            root_.Insert(root->Clone());
+        }
+        return *this;
     }
 
     ElementPath* GetRoot() {

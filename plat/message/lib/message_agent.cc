@@ -99,25 +99,38 @@ MessageRet MessageAgent::Run()
 {
     process::ProcessInfo* proc = process::ProcessInfo::getInstance();
 
-    if (proc->GetProcessRole().HasRole(process::ProcessRole::PoolWorker)) {
-        remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", proc->GetParentProcess()->GetFD());
-    } else {
-        auto config_message_enable = proc->GetConfig().GetRoot()->Search<bool>("message/switch");
-        if (!config_message_enable) {
-            MESSAGE_FATAL("Get message config from process error.");
-            return MessageRet::ECONFIG;
-        }
-        bool message_enable = config_message_enable->GetData();
-        if (message_enable) {
-            std::string protocol = proc->GetConfig().GetRoot()->Search<std::string>("message/manager/address/protocol")->GetData();
-            std::string device = proc->GetConfig().GetRoot()->Search<std::string>("message/manager/address/device")->GetData();
-            MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
-            return MessageRet::SUCCESS;
-//    agent_client_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", *(message::GetMessageServerAddress()));
-        } else {
-            MESSAGE_INFO("Function message was disabled.");
-        }
+    auto config_message_enable = proc->GetProcessConfig().GetRoot()->Search<bool>("message/switch");
+    if (!config_message_enable) {
+        info_.state_ = State::Error;
+        MESSAGE_FATAL("Get message config from process error.");
+        return MessageRet::ECONFIG;
     }
+    bool message_enable = config_message_enable->GetData();
+    if (message_enable) {
+        std::string protocol = proc->GetProcessConfig().GetRoot()->Search<std::string>("message/manager/address/protocol")->GetData();
+        if (protocol == "Father-son") {
+            remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", proc->GetParentProcess()->GetFD());
+            MESSAGE_INFO("Create a proxy for communication between father and son");
+        } else {
+            if (protocol == "local") {
+                std::string device = proc->GetProcessConfig().GetRoot()->Search<std::string>("message/manager/address/device")->GetData();
+                MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+            } else if (protocol == "ipv4") {
+                std::string device = proc->GetProcessConfig().GetRoot()->Search<std::string>("message/manager/address/device")->GetData();
+                MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+            } else if (protocol == "ipv6") {
+                std::string device = proc->GetProcessConfig().GetRoot()->Search<std::string>("message/manager/address/device")->GetData();
+                MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+            }
+//    agent_client_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", *(message::GetMessageServerAddress()));
+        }
+    } else {
+        info_.state_ = State::Disable;
+        MESSAGE_INFO("Function message was disabled.");
+        return MessageRet::SUCCESS;
+    }
+    return MessageRet::SUCCESS;
+
     if (!remote_manager_ || !remote_manager_->IsReady()) {
         return MessageRet::MESSAGE_AGENT_ECONN;
     }
