@@ -28,7 +28,9 @@ public:
     }
 
     ProcessRet Run() {
-        timer::Timer keep_timer(timer::TimerFD::Flag::Monotonic, timer::Time().SetTime(2, timer::Unit::Second), timer::Time().SetTime(2, timer::Unit::Second));
+        timer::Timer keep_timer(timer::TimerFD::Flag::Monotonic|timer::TimerFD::Flag::Nonblock,
+                        timer::Time().SetTime(1, timer::Unit::Second),
+                        timer::Time().SetTime(5, timer::Unit::Second));
 
         keep_timer.GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
         keep_timer.GetSelectItem().InputFunc = keep_timer_callback;
@@ -69,7 +71,9 @@ private:
     io::AutoSelect select_;
 
     ProcessRet _group_init() {
-        timer::Timer keep_timer(timer::TimerFD::Flag::Monotonic, timer::Time().SetTime(2, timer::Unit::Second), timer::Time().SetTime(2, timer::Unit::Second));
+        timer::Timer keep_timer(timer::TimerFD::Flag::Monotonic|timer::TimerFD::Flag::Nonblock,
+                        timer::Time().SetTime(0, timer::Unit::Second),
+                        timer::Time().SetTime(10, timer::Unit::Second));
 
         keep_timer.GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
         keep_timer.GetSelectItem().InputFunc = keep_timer_callback;
@@ -84,9 +88,9 @@ private:
 
     static timer::TimerRet keep_timer_callback(timer::Timer::SelectItem* item) {
         printf("wowowowwowowowowwo\n");
-        int i;
-        item->GetTimer()->GetTimerFD().Read(&i, sizeof(int));
-        printf("read %d\n",i);
+        uint64_t count;
+        item->GetTimer()->GetTimerFD().Read(&count, sizeof(uint64_t));
+        printf("%d read size  --  %d\n",sizeof(uint64_t),count);
         return timer::TimerRet::SUCCESS;
     }
 
