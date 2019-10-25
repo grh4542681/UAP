@@ -27,6 +27,7 @@ MessageRemote::MessageRemote(std::string remote_machine, std::string remote_list
     info_.remote_address_ = remote_fd.GetDestAddress();
     remote_uri_ = info_.remote_machine_ + "/" + info_.remote_listener_ + "/" + info_.remote_endpoint_;
     remote_fd_ = remote_fd;
+    select_item_ = SelectItem(this);
     state_ = State::Ready;
 }
 

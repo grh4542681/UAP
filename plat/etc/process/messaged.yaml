@@ -1,9 +1,8 @@
 --- #process config
 process :
-    pool :
+    group :
         switch : true
-        minsize : 2
-        maxsize : 10
+        size : 2
 
 message :
     switch : true

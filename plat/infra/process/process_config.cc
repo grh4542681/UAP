@@ -82,30 +82,24 @@ config::ConfigRet ProcessConfig::_load_yaml_process(parser::ParserYaml& parser)
     auto config_process = config_tree_.GetRoot()->Insert("process");
 
     //process pool
-    auto yaml_process_pool = yaml_process.Find("pool");
+    auto yaml_process_pool = yaml_process.Find("group");
     if (yaml_process.HasError()) {
-        PROCESS_FATAL("Not found config : process/pool");
+        PROCESS_FATAL("Not found config : process/group");
         return config::ConfigRet::ERROR;
     }
-    auto config_process_pool = config_process->Insert("pool");
+    auto config_process_pool = config_process->Insert("group");
 
     if (yaml_process_pool.Find("switch").GetData<bool>(&tmp_bool) != parser::ParserRet::SUCCESS) {
-        PROCESS_FATAL("Not found config : process/pool/switch");
+        PROCESS_FATAL("Not found config : process/group/switch");
         return config::ConfigRet::ERROR;
     }
     config_process_pool->Insert<bool>("switch", tmp_bool);
     if (tmp_bool) {
-        if (yaml_process_pool.Find("minsize").GetData<int>(&tmp_int) != parser::ParserRet::SUCCESS) {
-            PROCESS_FATAL("Not found config : process/pool/minsize");
+        if (yaml_process_pool.Find("size").GetData<int>(&tmp_int) != parser::ParserRet::SUCCESS) {
+            PROCESS_FATAL("Not found config : process/group/size");
             return config::ConfigRet::ERROR;
         }
-        config_process_pool->Insert<int>("minsize", tmp_int);
-
-        if (yaml_process_pool.Find("maxsize").GetData<int>(&tmp_int) != parser::ParserRet::SUCCESS) {
-            PROCESS_FATAL("Not found config : process/pool/maxsize");
-            return config::ConfigRet::ERROR;
-        }
-        config_process_pool->Insert<int>("maxsize", tmp_int);
+        config_process_pool->Insert<int>("size", tmp_int);
     }
     return config::ConfigRet::SUCCESS;
 }

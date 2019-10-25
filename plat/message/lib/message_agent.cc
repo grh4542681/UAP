@@ -145,7 +145,7 @@ MessageRet MessageAgent::Run()
     timer::Time t;
     t.SetTime(2, timer::Unit::Second);
     printf("----%d---\n",t.GetSecond());
-    select_.Listen(t);
+    select_.ListenThread(t);
     //select_.Listen(&timer::Time().SetTime(2, timer::Unit::Second));
 
     return MessageRet::SUCCESS;

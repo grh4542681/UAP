@@ -9,7 +9,7 @@
 #include "process_log.h"
 #include "process_return.h"
 #include "process_info.h"
-#include "pool/process_pool_keeper.h"
+#include "group/process_group_keeper.h"
 
 namespace process {
 
@@ -34,10 +34,14 @@ public:
         message::MessageAgent::getInstance()->Run();
 
         // exec main func
-        auto config_pool = process_info->GetProcessConfig().GetRoot()->Search<bool>("process/pool/switch");
+        auto config_pool = process_info->GetProcessConfig().GetRoot()->Search<bool>("process/group/switch");
         if (config_pool && config_pool->GetData()) {
-            pool::ProcessPoolKeeper<F, Args&& ...> pool_(process_info->GetRealName(), process_info->GetProcessConfig().GetConfigFileName(), main_, std::forward<Args>(args)...);
-            pool_.Run();
+            int group_size = process_info->GetProcessConfig().GetRoot()->Search<int>("process/group/size")->GetData();
+            group::ProcessGroupKeeper<F, Args&& ...> group_(process_info->GetRealName(),
+                            group_size,
+                            process_info->GetProcessConfig().GetConfigFileName(),
+                            main_, std::forward<Args>(args)...);
+            group_.Run();
         } else {
             main_(std::forward<Args>(args)...);
         }

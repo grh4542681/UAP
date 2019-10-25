@@ -47,6 +47,8 @@ public:
 
     IoRet Listen(timer::Time overtime);
     IoRet Listen(process::signal::ProcessSignalSet sigmask, timer::Time overtime);
+    IoRet ListenThread(timer::Time overtime);
+    IoRet ListenThread(process::signal::ProcessSignalSet sigmask, timer::Time overtime);
 
     static IoRet _select_listener_thread_handler(AutoSelect* instance, process::signal::ProcessSignalSet sigmask, timer::Time overtime);
 private:

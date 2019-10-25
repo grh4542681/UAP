@@ -10,6 +10,36 @@ TimerFD::TimerFD() : FD()
 
 }
 
+TimerFD::TimerFD(int flag)
+{
+    first_start_ = true;
+    auto_close_ = false;
+    flag_ = flag;
+
+    int clockid = 0;
+    int flags = 0;
+
+    if (flag_ & Flag::Realtime) {
+        clockid |= CLOCK_REALTIME;
+    }
+    if (flag_ & Flag::Monotonic) {
+        clockid |= CLOCK_MONOTONIC;
+    }
+    if (flag_ & Flag::CloseExec) {
+        flags |= TFD_CLOEXEC;
+    }
+    if (flag_ & Flag::Nonblock) {
+        flags |= TFD_NONBLOCK;
+    }
+
+    fd_ = timerfd_create(clockid, flags);
+    if (fd_ <= 0) {
+        TIMER_ERROR("Create timer fd error: %s", strerror(errno));
+        init_flag_ = false;
+    }
+    init_flag_ = true;
+}
+
 TimerFD::TimerFD(int flag, Time& trigger_time, Time& interval_time)
 {
     first_start_ = true;
@@ -34,7 +64,7 @@ TimerFD::TimerFD(int flag, Time& trigger_time, Time& interval_time)
         flags |= TFD_NONBLOCK;
     }
 
-    fd_ = timerfd_create(clockid, flag_);
+    fd_ = timerfd_create(clockid, flags);
     if (fd_ <= 0) {
         TIMER_ERROR("Create timer fd error: %s", strerror(errno));
         init_flag_ = false;
@@ -115,7 +145,9 @@ ssize_t TimerFD::Write(const void* data, size_t datalen)
 }
 
 ssize_t TimerFD::Read(void* data, size_t datalen)
-{}
+{
+    return read(fd_, data, datalen);
+}
 
 Time& TimerFD::GetTriggerTime()
 {
@@ -153,9 +185,10 @@ TimerRet TimerFD::Start()
 
     if (first_start_) {
         first_start_ = false;
-        trigger_time_.To(&itime.it_interval);
+        trigger_time_.To(&itime.it_value);
     }
-    interval_time_.To(&itime.it_value);
+    interval_time_.To(&itime.it_interval);
+    printf("%d--%d\n",itime.it_value.tv_sec, itime.it_interval.tv_sec);
 
     if (timerfd_settime(fd_, flags, &itime, NULL) < 0) {
         int tmp_errno = errno;

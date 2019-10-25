@@ -11,15 +11,16 @@ namespace timer {
 class TimerFD : public io::FD {
 public:
     enum Flag {
-        Realtime,
-        Monotonic,
-        CloseExec,
-        Nonblock,
-        Relative,
-        Absolute,
+        Realtime = 0x0001,
+        Monotonic = 0x0002,
+        CloseExec = 0x0004,
+        Nonblock = 0x0008,
+        Relative = 0x0010,
+        Absolute = 0x0020,
     };
 public:
     TimerFD();
+    TimerFD(int flag);
     TimerFD(int flag, Time& trigger_time, Time& interval_time);
     TimerFD(unsigned int fd, bool auto_close = false);
     TimerFD(TimerFD& other);
