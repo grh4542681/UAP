@@ -28,24 +28,10 @@ public:
     }
 
     ProcessRet Run() {
-        timer::Timer keep_timer(timer::TimerFD::Flag::Monotonic|timer::TimerFD::Flag::Nonblock,
-                        timer::Time().SetTime(1, timer::Unit::Second),
-                        timer::Time().SetTime(5, timer::Unit::Second));
-
-        keep_timer.GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
-        keep_timer.GetSelectItem().InputFunc = keep_timer_callback;
-        select_.AddSelectItem<timer::Timer::SelectItem>(keep_timer.GetSelectItem());
-        keep_timer.GetTimerFD().Start();
-
-        for (int loop = 0; loop < size_; loop++){
-            ptemp_.Run();
+        ProcessRet ret;
+        if ((ret = _group_init()) != ProcessRet::SUCCESS) {
+            return ret;
         }
-        //return ProcessRet::SUCCESS;
-
-        //ProcessRet ret;
-        //if ((ret = _group_init()) != ProcessRet::SUCCESS) {
-        //    return ret;
-        //}
         select_.Listen(timer::Time());
         return ProcessRet::SUCCESS;
     }
@@ -61,24 +47,29 @@ public:
 
 private:
     std::string name_;
-    int size_;
-    bool init_flag_;
-    bool auto_size_flag_;
+    int size_ = 0;
+    int cursize = 0;
+    bool init_flag_ = false;
+    bool auto_size_flag_ = false;
 
     ProcessGroupWorkerTemplate<F, Args...> ptemp_;
     std::map<ProcessID, ProcessGroupWorker*> worker_;
+    timer::Timer* keep_timer_ = NULL;
 
     io::AutoSelect select_;
 
+private:
+    ProcessGroupKeeper(ProcessGroupKeeper& other);
     ProcessRet _group_init() {
-        timer::Timer keep_timer(timer::TimerFD::Flag::Monotonic|timer::TimerFD::Flag::Nonblock,
+        timer::Timer keep_timer_ = mempool::MemPool::getInstance()->Malloc<timer::Timer>(
+                        timer::TimerFD::Flag::Monotonic|timer::TimerFD::Flag::Nonblock,
                         timer::Time().SetTime(0, timer::Unit::Second),
                         timer::Time().SetTime(10, timer::Unit::Second));
 
-        keep_timer.GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
-        keep_timer.GetSelectItem().InputFunc = keep_timer_callback;
-        select_.AddSelectItem<timer::Timer::SelectItem>(keep_timer.GetSelectItem());
-        keep_timer.GetTimerFD().Start();
+        keep_timer_->GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
+        keep_timer_->GetSelectItem().InputFunc = keep_timer_callback;
+        select_.AddSelectItem<timer::Timer::SelectItem>(keep_timer_->GetSelectItem());
+        keep_timer_->GetTimerFD().Start();
 
         for (int loop = 0; loop < size_; loop++){
             ptemp_.Run();
