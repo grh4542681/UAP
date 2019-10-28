@@ -12,13 +12,13 @@
 
 namespace process::group {
 
-template < typename K >
+template < typename HOST >
 class ProcessGroupTimer {
 public:
     class SelectItem : public io::SelectItem {
     public:
         SelectItem() : io::SelectItem() { } 
-        SelectItem(ProcessGroupTimer* timerr) : io::SelectItem(timerr->GetTimerFD()) {
+        SelectItem(ProcessGroupTimer<HOST>* timerr) : io::SelectItem(timerr->GetTimerFD()) {
             timerr_ = timerr;
         }   
         SelectItem(SelectItem& other): io::SelectItem(other) {
@@ -42,7 +42,7 @@ public:
             ProcessRet ret = ProcessRet::SUCCESS;
             if (events & io::SelectEvent::Input) {
                 if (InputFunc) {
-                    ret = InputFunc(this);
+                    ret = InputFunc(*(timerr_->GetRaw()), this);
                 } else {
                     ret = _default_input_callback_func();
                 }
@@ -54,7 +54,7 @@ public:
             }
             if (events & io::SelectEvent::Output) {
                 if (OutputFunc) {
-                    ret = OutputFunc(this);
+                    ret = OutputFunc(*(timerr_->GetRaw()), this);
                     if (ret != ProcessRet::SUCCESS) {
                         return io::IoRet::IO_EOUTPUTCB;
                     }
@@ -64,7 +64,7 @@ public:
             }
             if (events & io::SelectEvent::Error) {
                 if (ErrorFunc) {
-                    ret = ErrorFunc(this);
+                    ret = ErrorFunc(*(timerr_->GetRaw()), this);
                     if (ret != ProcessRet::SUCCESS) {
                         return io::IoRet::IO_EERRCB;
                     }
@@ -75,9 +75,9 @@ public:
             return io::IoRet::SUCCESS;
         }
 
-        std::function<ProcessRet(const K&, SelectItem*)> InputFunc;
-        std::function<ProcessRet(const K&, SelectItem*)> OutputFunc;
-        std::function<ProcessRet(const K&, SelectItem*)> ErrorFunc;
+        std::function<ProcessRet(HOST&, SelectItem*)> InputFunc;
+        std::function<ProcessRet(HOST&, SelectItem*)> OutputFunc;
+        std::function<ProcessRet(HOST&, SelectItem*)> ErrorFunc;
 
         ProcessGroupTimer* GetProcessGroupTimer() {
             return timerr_;
@@ -99,17 +99,37 @@ public:
     };
 
 public:
-    ProcessGroupTimer();
-    ProcessGroupTimer(timer::TimerFD& timer_fd);
-    ProcessGroupTimer(int flag);
-    ProcessGroupTimer(int flag, timer::Time& trigger_time, timer::Time& interval_time);
-    ~ProcessGroupTimer();
+    ProcessGroupTimer() {};
+    ProcessGroupTimer(HOST* raw, timer::TimerFD& timer_fd) {
+        raw_instance_ = raw;
+        timer_fd_ = timer_fd;
+        select_item_ = SelectItem(this);
+    }
+    ProcessGroupTimer(HOST* raw, int flag) {
+        raw_instance_ = raw;
+        timer_fd_ = timer::TimerFD(flag);
+        select_item_ = SelectItem(this);
+    }
+    ProcessGroupTimer(HOST* raw, int flag, timer::Time& trigger_time, timer::Time& interval_time) {
+        raw_instance_ = raw;
+        timer_fd_ = timer::TimerFD(flag, trigger_time, interval_time);
+        select_item_ = SelectItem(this);
+    }
+    ~ProcessGroupTimer() {}
 
-    timer::TimerFD& GetTimerFD();
-    SelectItem& GetSelectItem();
+    timer::TimerFD& GetTimerFD() {
+        return timer_fd_;
+    }
+    SelectItem& GetSelectItem() {
+        return select_item_;
+    }
+    HOST* GetRaw() {
+        return raw_instance_;
+    }
 private:
     timer::TimerFD timer_fd_;
     SelectItem select_item_;
+    HOST* raw_instance_ = NULL;
 private:
     ProcessGroupTimer(ProcessGroupTimer& other);
     const ProcessGroupTimer& operator=(const ProcessGroupTimer& other);

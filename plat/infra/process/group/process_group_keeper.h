@@ -66,14 +66,15 @@ private:
 private:
     ProcessGroupKeeper(ProcessGroupKeeper& other);
     ProcessRet _group_init() {
-        keep_timer_ = mempool::MemPool::getInstance()->Malloc<ProcessGroupTimer<decltype(*this)>>(
+        keep_timer_ = mempool::MemPool::getInstance()->Malloc<ProcessGroupTimer<ProcessGroupKeeper<F, Args...>>>(
+                        this,
                         timer::TimerFD::Flag::Monotonic|timer::TimerFD::Flag::Nonblock,
                         timer::Time().SetTime(1, timer::Unit::Second),
                         timer::Time().SetTime(5, timer::Unit::Second));
 
         keep_timer_->GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
-        keep_timer_->GetSelectItem().InputFunc = keep_timer_callback;
-        select_.AddSelectItem<timer::Timer::SelectItem>(keep_timer_->GetSelectItem());
+        keep_timer_->GetSelectItem().InputFunc = &ProcessGroupKeeper<F, Args...>::keep_timer_callback;
+        select_.AddSelectItem<typename ProcessGroupTimer<ProcessGroupKeeper<F, Args...>>::SelectItem>(keep_timer_->GetSelectItem());
         keep_timer_->GetTimerFD().Start();
 
         for (int loop = 0; loop < size_; loop++){
@@ -82,10 +83,10 @@ private:
         return ProcessRet::SUCCESS;
     }
 
-    ProcessRet keep_timer_callback(ProcessGroupTimer<ProcessGroupKeeper<F, Args...>>::SelectItem* item) {
+    ProcessRet keep_timer_callback(typename ProcessGroupTimer<ProcessGroupKeeper<F, Args...>>::SelectItem* item) {
         printf("wowowowwowowowowwo\n");
         uint64_t count;
-        item->GetTimer()->GetTimerFD().Read(&count, sizeof(uint64_t));
+        item->GetProcessGroupTimer()->GetTimerFD().Read(&count, sizeof(uint64_t));
         printf("%d read size  --  %d\n",sizeof(uint64_t),count);
         printf("worker size [%d]\n", worker_.size());
         return ProcessRet::SUCCESS;
