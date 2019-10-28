@@ -29,6 +29,7 @@ public:
         PROCESS_EPROCADD,
         PROCESS_EPROCNOTFOUND,
         PROCESS_ECMDLINE,
+        PROCESS_ENOCHILD,
 
     //process signal
         PROCESS_ESIGINVAL,

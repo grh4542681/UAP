@@ -1,0 +1,29 @@
+#ifndef __PROCESS_GROUP_TIMER_H__
+#define __PROCESS_GROUP_TIMER_H__
+
+#include "timer_time.h"
+#include "timer_timer.h"
+
+namespace process::group {
+template < typename F, typename ... Args > class ProcessGroupKeeper;
+template < typename F, typename ... Args >
+class ProcessGroupTimer : public timer::Timer {
+public:
+    ProcessGroupTimer() : timer::Timer() { }
+    ProcessGroupTimer(ProcessGroupKeeper<F, Args...>* keeper, int flag) : keeper_(keeper), timer::Timer(flag) { }
+    ProcessGroupTimer(ProcessGroupKeeper<F, Args...>* keeper, int flag,
+                    timer::Time& trigger_time,
+                    timer::Time& interval_time) : keeper_(keeper), timer::Timer(flag, trigger_time, interval_time) { }
+    ~ProcessGroupTimer() { }
+
+    ProcessGroupKeeper<F, Args...>* GetGroupKeeper() {
+        return keeper_;
+    }
+
+private:
+    ProcessGroupKeeper<F, Args...>* keeper_ = NULL;
+};
+
+}
+
+#endif

@@ -11,6 +11,7 @@
 
 #include "process_id.h"
 #include "process_group_worker.h"
+#include "process_group_timer.h"
 #include "process_group_worker_template.h"
 
 namespace process::group {
@@ -25,6 +26,10 @@ public:
     }
     ~ProcessGroupKeeper() {
 
+    }
+
+    std::map<ProcessID, ProcessGroupWorker*>& GetGroupWorkers() {
+        return worker_;
     }
 
     ProcessRet Run() {
@@ -54,17 +59,17 @@ private:
 
     ProcessGroupWorkerTemplate<F, Args...> ptemp_;
     std::map<ProcessID, ProcessGroupWorker*> worker_;
-    timer::Timer* keep_timer_ = NULL;
+    ProcessGroupTimer<ProcessGroupKeeper<F, Args...>>* keep_timer_ = NULL;
 
     io::AutoSelect select_;
 
 private:
     ProcessGroupKeeper(ProcessGroupKeeper& other);
     ProcessRet _group_init() {
-        timer::Timer keep_timer_ = mempool::MemPool::getInstance()->Malloc<timer::Timer>(
+        keep_timer_ = mempool::MemPool::getInstance()->Malloc<ProcessGroupTimer<decltype(*this)>>(
                         timer::TimerFD::Flag::Monotonic|timer::TimerFD::Flag::Nonblock,
-                        timer::Time().SetTime(0, timer::Unit::Second),
-                        timer::Time().SetTime(10, timer::Unit::Second));
+                        timer::Time().SetTime(1, timer::Unit::Second),
+                        timer::Time().SetTime(5, timer::Unit::Second));
 
         keep_timer_->GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
         keep_timer_->GetSelectItem().InputFunc = keep_timer_callback;
@@ -72,17 +77,37 @@ private:
         keep_timer_->GetTimerFD().Start();
 
         for (int loop = 0; loop < size_; loop++){
-            ptemp_.Run();
+            _create_worker();
         }
         return ProcessRet::SUCCESS;
     }
 
-    static timer::TimerRet keep_timer_callback(timer::Timer::SelectItem* item) {
+    ProcessRet keep_timer_callback(ProcessGroupTimer<ProcessGroupKeeper<F, Args...>>::SelectItem* item) {
         printf("wowowowwowowowowwo\n");
         uint64_t count;
         item->GetTimer()->GetTimerFD().Read(&count, sizeof(uint64_t));
         printf("%d read size  --  %d\n",sizeof(uint64_t),count);
-        return timer::TimerRet::SUCCESS;
+        printf("worker size [%d]\n", worker_.size());
+        return ProcessRet::SUCCESS;
+    }
+
+    ProcessRet _create_worker() {
+        auto child_ret = ptemp_.Run();
+        ProcessRet ret = std::get<const ProcessRet>(child_ret);
+        if (ret != ProcessRet::SUCCESS) {
+            return ret;
+        }
+        ProcessID pid = std::get<const ProcessID>(child_ret);
+        ProcessChild* child = ProcessInfo::getInstance()->GetChildProcess(pid);
+        if (!child) {
+            return ProcessRet::PROCESS_ENOCHILD;
+        }
+        ProcessGroupWorker* worker = mempool::MemPool::getInstance()->Malloc<ProcessGroupWorker>(pid, child->GetFD());
+        if (!worker) {
+            return ProcessRet::EMALLOC;
+        }
+        worker_.insert({pid, worker});
+        return ProcessRet::SUCCESS;
     }
 
 };
