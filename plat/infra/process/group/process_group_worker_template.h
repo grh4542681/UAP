@@ -84,7 +84,7 @@ public:
         } else if (pid == 0) {
             //cache parent process data.
             ProcessParent parent_cache(parent->GetName(), parent->GetPid());
-            pair[1].Close();
+            //pair[1].Close();
             parent_cache.SetFD(pair[0]);
 
             char** raw_cmdline = NULL;
@@ -148,7 +148,7 @@ public:
             }
             ProcessID child_pid(pid);
             ProcessChild child(child_name, std::move(child_pid));
-            pair[0].Close();
+            //pair[0].Close();
             child.SetFD(pair[1]);
             child.SetDeadCallback(dead_callback_);
             child.GetRole().AddRole(ProcessRole::Child);

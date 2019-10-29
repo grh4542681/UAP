@@ -9,7 +9,7 @@ SelectItem::SelectItem()
 
 }
 
-SelectItem::SelectItem(FD& fd)
+SelectItem::SelectItem(const FD& fd)
 {
     event_ = SelectEvent(fd);
     state_ = State::Normal;

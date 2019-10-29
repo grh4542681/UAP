@@ -2,7 +2,7 @@
 process :
     group :
         switch : true
-        size : 2
+        size : 3
 
 message :
     switch : true

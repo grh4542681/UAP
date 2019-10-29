@@ -185,7 +185,6 @@ ProcessRet ProcessInfo::AddParentProcess(ProcessParent&& parent)
     } else {
         parent_ = mempool_->Malloc<ProcessParent>(parent);
     }
-    parent_->GetFD().SetAutoClose(true);
     return parent_ ? ProcessRet::SUCCESS : ProcessRet::EMALLOC;
 }
 
@@ -222,7 +221,6 @@ ProcessRet ProcessInfo::AddChildProcess(ProcessChild&& child)
     if (ret.second == false) {
         return ProcessRet::PROCESS_EPROCADD;
     }
-    p->GetFD().SetAutoClose(true);
     return ProcessRet::SUCCESS;
 }
 

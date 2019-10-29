@@ -94,7 +94,7 @@ IoRet EpollFD::AddEvent(FD& fd, int events)
     ep_event.data.fd = fd.GetFD();
     if (epoll_ctl(fd_, EPOLL_CTL_ADD, fd.GetFD(), &ep_event) == -1) {
         int tmp_errno = errno;
-        IO_ERROR("Epoll add fd error %s", strerror(tmp_errno));
+        IO_ERROR("Epoll add fd[%d] error %s", ep_event.data.fd, strerror(tmp_errno));
         return tmp_errno;
     }
     return IoRet::SUCCESS;

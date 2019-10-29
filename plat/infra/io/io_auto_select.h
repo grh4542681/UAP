@@ -33,6 +33,7 @@ public:
         }
         IoRet ret = fd_.AddEvent(item->GetSelectEvent());
         if (ret != IoRet::SUCCESS) {
+            select_item_map_.erase(item->GetSelectEvent().GetFd().GetFD());
             mempool::MemPool::getInstance()->Free<T>(dynamic_cast<T*>(item));
             return ret;
         }

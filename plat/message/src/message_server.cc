@@ -1,3 +1,5 @@
+#include "process_info.h"
+
 #include "message_server.h"
 
 namespace message {
@@ -31,6 +33,10 @@ MessageRet MessageServer::Run()
 //        sleep(2);
 //        afd.Close();
 //    }
+    auto pinfo = process::ProcessInfo::getInstance();
+    auto parent = pinfo->GetParentProcess();
+    sleep(10);
+    parent->GetFD().Write("hello parent", 12);
     sleep(100);
 }
 

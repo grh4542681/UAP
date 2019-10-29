@@ -20,7 +20,7 @@ public:
     };
 public:
     SelectItem();
-    SelectItem(FD& fd);
+    SelectItem(const FD& fd);
     SelectItem(const SelectItem& other);
     virtual ~SelectItem();
 

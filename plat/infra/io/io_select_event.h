@@ -14,11 +14,11 @@ public:
     const static int Oneshot = EPOLLONESHOT;
 public:
     SelectEvent() : events_(0) { }
-    SelectEvent(FD& fd, int events = 0) : events_(events) {
-        fd_ = fd.Clone();
+    SelectEvent(const FD& fd, int events = 0) : events_(events) {
+        fd_ = const_cast<FD&>(fd).Clone();
     }
-    SelectEvent(FD&& fd, int events = 0) : events_(events) {
-        fd_ = fd.Clone();
+    SelectEvent(const FD&& fd, int events = 0) : events_(events) {
+        fd_ = const_cast<FD&>(fd).Clone();
     }
     SelectEvent(const SelectEvent& other) {
         if (other.fd_) {

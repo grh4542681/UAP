@@ -7,12 +7,13 @@
 #include <map>
 
 #include "io_auto_select.h"
+#include "io_select_item_template.h"
 #include "timer_timer.h"
 
 #include "process_id.h"
 #include "process_group_worker.h"
-#include "process_group_timer.h"
 #include "process_group_worker_template.h"
+#include "process_group_worker_selectitem.h"
 
 namespace process::group {
 
@@ -20,7 +21,7 @@ template < typename F, typename ... Args >
 class ProcessGroupKeeper {
 public:
     ProcessGroupKeeper(std::string name, int size, std::string config_filename, F worker, Args&& ... args) :
-                    ptemp_(name + ":worker", config_filename, worker, std::forward<Args>(args)...) {
+                    worker_temp_(name + ":worker", config_filename, worker, std::forward<Args>(args)...) {
         name_ = name;
         size_ = size;
     }
@@ -28,7 +29,7 @@ public:
 
     }
 
-    std::map<ProcessID, ProcessGroupWorker*>& GetGroupWorkers() {
+    std::map<ProcessID, ProcessGroupWorker>& GetGroupWorkers() {
         return worker_;
     }
 
@@ -57,25 +58,23 @@ private:
     bool init_flag_ = false;
     bool auto_size_flag_ = false;
 
-    ProcessGroupWorkerTemplate<F, Args...> ptemp_;
-    std::map<ProcessID, ProcessGroupWorker*> worker_;
-    ProcessGroupTimer<ProcessGroupKeeper<F, Args...>>* keep_timer_ = NULL;
-
+    ProcessGroupWorkerTemplate<F, Args...> worker_temp_;
+    std::map<ProcessID, ProcessGroupWorker> worker_;
     io::AutoSelect select_;
 
 private:
     ProcessGroupKeeper(ProcessGroupKeeper& other);
     ProcessRet _group_init() {
-        keep_timer_ = mempool::MemPool::getInstance()->Malloc<ProcessGroupTimer<ProcessGroupKeeper<F, Args...>>>(
-                        this,
+        io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>> keep_timer(
+                        this, timer::TimerFD(
                         timer::TimerFD::Flag::Monotonic|timer::TimerFD::Flag::Nonblock,
                         timer::Time().SetTime(1, timer::Unit::Second),
-                        timer::Time().SetTime(5, timer::Unit::Second));
+                        timer::Time().SetTime(5, timer::Unit::Second)));
 
-        keep_timer_->GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
-        keep_timer_->GetSelectItem().InputFunc = &ProcessGroupKeeper<F, Args...>::keep_timer_callback;
-        select_.AddSelectItem<typename ProcessGroupTimer<ProcessGroupKeeper<F, Args...>>::SelectItem>(keep_timer_->GetSelectItem());
-        keep_timer_->GetTimerFD().Start();
+        keep_timer.GetSelectEvent().SetEvent(io::SelectEvent::Input);
+        keep_timer.InputFunc = &ProcessGroupKeeper<F, Args...>::keep_timer_callback;
+        select_.AddSelectItem<io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>>>(keep_timer);
+        keep_timer.template GetFd<timer::TimerFD>().Start();
 
         for (int loop = 0; loop < size_; loop++){
             _create_worker();
@@ -83,17 +82,8 @@ private:
         return ProcessRet::SUCCESS;
     }
 
-    ProcessRet keep_timer_callback(typename ProcessGroupTimer<ProcessGroupKeeper<F, Args...>>::SelectItem* item) {
-        printf("wowowowwowowowowwo\n");
-        uint64_t count;
-        item->GetProcessGroupTimer()->GetTimerFD().Read(&count, sizeof(uint64_t));
-        printf("%d read size  --  %d\n",sizeof(uint64_t),count);
-        printf("worker size [%d]\n", worker_.size());
-        return ProcessRet::SUCCESS;
-    }
-
     ProcessRet _create_worker() {
-        auto child_ret = ptemp_.Run();
+        auto child_ret = worker_temp_.Run();
         ProcessRet ret = std::get<const ProcessRet>(child_ret);
         if (ret != ProcessRet::SUCCESS) {
             return ret;
@@ -103,13 +93,38 @@ private:
         if (!child) {
             return ProcessRet::PROCESS_ENOCHILD;
         }
-        ProcessGroupWorker* worker = mempool::MemPool::getInstance()->Malloc<ProcessGroupWorker>(pid, child->GetFD());
-        if (!worker) {
-            return ProcessRet::EMALLOC;
-        }
+
+        ProcessGroupWorkerSelectItem<ProcessGroupKeeper<F, Args...>> worker_selectitem(
+                        this, pid, child->GetFD());
+        worker_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
+        worker_selectitem.InputFunc = &ProcessGroupKeeper<F, Args...>::worker_input_callback;
+        select_.AddSelectItem<ProcessGroupWorkerSelectItem<ProcessGroupKeeper<F, Args...>>>(worker_selectitem);
+
+        ProcessGroupWorker worker(pid, child->GetFD());
         worker_.insert({pid, worker});
         return ProcessRet::SUCCESS;
     }
+
+    io::IoRet keep_timer_callback(io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>>* item) {
+        printf("wowowowwowowowowwo\n");
+        uint64_t count;
+        item->template GetFd<timer::TimerFD>().Read(&count, sizeof(uint64_t));
+        printf("%lu read size  --  %lu\n",sizeof(uint64_t),count);
+        printf("worker size [%ld]\n", worker_.size());
+        return io::IoRet::SUCCESS;
+    }
+
+    io::IoRet worker_input_callback(io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>>* item) {
+        printf("asasasasasasasasas\n");
+        auto worker_item = dynamic_cast<ProcessGroupWorkerSelectItem<ProcessGroupKeeper<F, Args...>>*>(item);
+        ProcessID& pid = worker_item->GetPid();
+        char buf[1024];
+        memset(buf, 0, sizeof(buf));
+        worker_item->template GetFd<sock::SockFD>().Read(buf,sizeof(buf));
+        printf("pid:%d recv:%s\n",pid.GetID(),buf);
+        return io::IoRet::SUCCESS;
+    }
+
 
 };
 
