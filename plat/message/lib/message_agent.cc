@@ -134,7 +134,7 @@ MessageRet MessageAgent::Run()
         auto config_message_agent = config_message->Search("agent");
         if (config_message_agent) {
             // has message agent will listen.
-            std::string default_ep_name = config_message_agent->Search<std::string>("name")->GetDate();
+            std::string default_ep_name = config_message_agent->Search<std::string>("name")->GetData();
             std::string protocol = config_message_agent->Search<std::string>("address/protocol")->GetData();
             if (protocol == "Father-son") {
                 //remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", proc->GetParentProcess()->GetFD());

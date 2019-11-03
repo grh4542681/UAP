@@ -12,7 +12,6 @@ MessageListener::MessageListener(std::string name, sock::SockAddress& addr)
     server_ = sock::SockServer(&addr);
     if (server_.Bind() == sock::SockRet::SUCCESS)
     {
-        select_item_ = SelectItem(this);
         info_.state_ = State::Ready;
         state_ = State::Ready;
     } else {
@@ -24,11 +23,6 @@ MessageListener::MessageListener(std::string name, sock::SockAddress& addr)
 MessageListener::~MessageListener()
 {
 
-}
-
-MessageListener::SelectItem& MessageListener::GetSelectItem()
-{
-    return select_item_;
 }
 
 MessageListener::State& MessageListener::GetState()

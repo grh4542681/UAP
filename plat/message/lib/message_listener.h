@@ -52,7 +52,6 @@ private:
     Info info_;
     State state_;
     sock::SockServer server_;
-    SelectItem select_item_;
     std::map<std::string, MessageEndpoint*> tep_map_;
 private:
     MessageListener(MessageListener& other);
