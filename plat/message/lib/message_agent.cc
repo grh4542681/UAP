@@ -98,8 +98,8 @@ MessageListener* MessageAgent::LookupEndpoint(std::string listener_name, std::st
 MessageRet MessageAgent::Run()
 {
     process::ProcessInfo* proc = process::ProcessInfo::getInstance();
-
-    auto config_message_enable = proc->GetProcessConfig().GetRoot()->Search<bool>("message/switch");
+    auto config_message = proc->GetProcessConfig().GetRoot()->Search("message");
+    auto config_message_enable = config_message->Search<bool>("switch");
     if (!config_message_enable) {
         info_.state_ = State::Error;
         MESSAGE_FATAL("Get message config from process error.");
@@ -107,22 +107,53 @@ MessageRet MessageAgent::Run()
     }
     bool message_enable = config_message_enable->GetData();
     if (message_enable) {
-        std::string protocol = proc->GetProcessConfig().GetRoot()->Search<std::string>("message/manager/address/protocol")->GetData();
-        if (protocol == "Father-son") {
-            remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", proc->GetParentProcess()->GetFD());
-            MESSAGE_INFO("Create a proxy for communication between father and son");
-        } else {
-            if (protocol == "local") {
-                std::string device = proc->GetProcessConfig().GetRoot()->Search<std::string>("message/manager/address/device")->GetData();
-                MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
-            } else if (protocol == "ipv4") {
-                std::string device = proc->GetProcessConfig().GetRoot()->Search<std::string>("message/manager/address/device")->GetData();
-                MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
-            } else if (protocol == "ipv6") {
-                std::string device = proc->GetProcessConfig().GetRoot()->Search<std::string>("message/manager/address/device")->GetData();
-                MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+        auto config_message_manager = config_message->Search("manager");
+        if (config_message_manager) {
+            // has message manager will connect.
+            std::string protocol = config_message_manager->Search<std::string>("address/protocol")->GetData();
+            if (protocol == "Father-son") {
+                remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", proc->GetParentProcess()->GetFD());
+                MESSAGE_INFO("Create a proxy for communication between father and son");
+            } else {
+                if (protocol == "local") {
+                    std::string device = config_message_manager->Search<std::string>("address/device")->GetData();
+                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+                } else if (protocol == "ipv4") {
+                    std::string device = config_message_manager->Search<std::string>("address/device")->GetData();
+                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+                } else if (protocol == "ipv6") {
+                    std::string device = config_message_manager->Search<std::string>("address/device")->GetData();
+                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+                }
+    //    agent_client_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", *(message::GetMessageServerAddress()));
             }
-//    agent_client_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", *(message::GetMessageServerAddress()));
+        } else {
+            // no message manager.
+        }
+
+        auto config_message_agent = config_message->Search("agent");
+        if (config_message_agent) {
+            // has message agent will listen.
+            std::string default_ep_name = config_message_agent->Search<std::string>("name")->GetDate();
+            std::string protocol = config_message_agent->Search<std::string>("address/protocol")->GetData();
+            if (protocol == "Father-son") {
+                //remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", proc->GetParentProcess()->GetFD());
+                //MESSAGE_INFO("Create a proxy for communication between father and son");
+            } else {
+                if (protocol == "local") {
+                    std::string device = config_message_agent->Search<std::string>("address/device")->GetData();
+                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+                } else if (protocol == "ipv4") {
+                    std::string device = config_message_agent->Search<std::string>("address/device")->GetData();
+                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+                } else if (protocol == "ipv6") {
+                    std::string device = config_message_agent->Search<std::string>("address/device")->GetData();
+                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+                }
+    //    agent_client_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", *(message::GetMessageServerAddress()));
+            }
+        } else {
+            // no message agent.
         }
     } else {
         info_.state_ = State::Disable;
@@ -134,7 +165,7 @@ MessageRet MessageAgent::Run()
     if (!remote_manager_ || !remote_manager_->IsReady()) {
         return MessageRet::MESSAGE_AGENT_ECONN;
     }
-    info_.state_ = State::Ready;
+    info_.state_ = State::Listenning;
 
     remote_manager_->GetSelectItem().GetSelectEvent().SetEvent(io::SelectEvent::Input);
     remote_manager_->GetSelectItem().InputFunc = message_client_callback;

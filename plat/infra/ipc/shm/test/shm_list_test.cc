@@ -13,7 +13,7 @@ public:
 int main()
 {
     int* i ;
-    ipc::shm::ShmList<int> shmlist("shm_list_test");
+    ipc::shm::ShmList<shm::ShmPosix, int> shmlist("shm_list_test");
     shmlist.Create(5, 0666);
     shmlist.Open(ipc::IpcMode::READ_WRITE);
     printf("%s---%d----%d--%d\n",shmlist.GetObjectName().c_str(),shmlist.GetObjectSize(),shmlist.GetObjectMaxNumber(),shmlist.GetObjectCurNumber());

@@ -29,7 +29,7 @@ namespace ipc::shm {
 *
 * @tparam [T] - Element type.
 */
-template < typename T >
+template < typename S, typename T >
 class ShmList {
 public:
     typedef struct _ShmListNode {
@@ -89,11 +89,12 @@ public:
         ShmListNode* ptr;
     };
 public:
-    ShmList(std::string path) {
-        shm_ = ShmPosix(path);
+    ShmList(std::string path) : shm_(path) {
+        static_assert(std::is_base_of<Shm, S>::value, "Must be a subclass that inherits from Shm.");
         p_shm_head_ = NULL;
     }
     ~ShmList() {
+        Close();
         p_shm_head_ = NULL;
     }
 
@@ -365,7 +366,7 @@ private:
 
 private:
     ShmListHead* p_shm_head_;
-    ShmPosix shm_;
+    S shm_;
     IpcRet ret_;
 };
 
