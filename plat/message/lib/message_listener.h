@@ -46,9 +46,6 @@ public:
 
     bool IsReady();
 
-    MessageRet Register();
-    MessageRet Unregister();
-
 private:
     MessageAgent* agent_;
     Info info_;
@@ -56,34 +53,9 @@ private:
     sock::SockServer server_;
     std::map<std::string, MessageEndpoint*> tep_map_;
 private:
-    MessageListener(std::string name, sock::SockFD& listen_fd);
     MessageListener(MessageListener& other);
     const MessageListener& operator=(const MessageListener& other);
 };
-
-#if 0
-template < typename HOST >
-class SelectItem : public io::SelectItemTemplate<HOST> {
-public:
-    SelectItem() : io::SelectItemTemplate<HOST>() { }
-    SelectItem(HOST* host, const sock::SockFD& fd) : io::SelectItemTemplate<HOST>(host, fd) {
-        pid_ = pid;
-    }
-    SelectItem(SelectItem& other) : io::SelectItemTemplate<HOST>(other) {
-        pid_ = other.pid_;
-    }
-    ~SelectItem() { }
-
-    SelectItem& operator=(SelectItem& other) {
-        io::SelectItemTemplate<HOST>::operator=(other);
-        pid_ = other.pid_;
-        return *this;
-    }
-
-private:
-
-};
-#endif
 
 }
 

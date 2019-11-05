@@ -6,6 +6,7 @@
 namespace message {
 
 MessageAgent* MessageAgent::pInstance = NULL;
+std::string MessageAgent::DefaultName = "";
 
 MessageAgent::MessageAgent()
 {
@@ -38,7 +39,12 @@ MessageAgent::State& MessageAgent::GetState()
     return info_.state_;
 }
 
-MessageRemote* MessageAgent::GetRemote()
+bool MessageAgent::HasManager()
+{
+    return (remote_manager_ ? true , false);
+}
+
+MessageRemote* MessageAgent::GetManager()
 {
     return remote_manager_;
 }
@@ -133,8 +139,15 @@ MessageRet MessageAgent::Run()
                     std::string device = config_message_manager->Search<std::string>("address/device")->GetData();
                     MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
                 }
-    //    agent_client_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", *(message::GetMessageServerAddress()));
             }
+            if (!remote_manager_->IsReady()) {
+                return MessageRet::MESSAGE_AGENT_ECONN;
+            }
+            io::SelectItemTemplate<MessageRemote> manager_selectitem(remote_manager_, remote_manager_->GetRemoteFD());
+            manager_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
+            manager_selectitem.InputFunc = &MessageRemote::_manager_remote_callback;
+            remote_manager_->GetRemoteFD().Write("hello world", 12);
+            select_.AddSelectItem<io::SelectItemTemplate<MessageRemote>>(manager_selectitem);
         } else {
             // no message manager.
             remote_manager_ = NULL;
@@ -147,6 +160,7 @@ MessageRet MessageAgent::Run()
             if (LookupLinstener(default_ep_name)) {
                 return MessageRet::MESSAGE_ELISREPEAT;
             }
+            
             std::string protocol = config_message_agent->Search<std::string>("address/protocol")->GetData();
             if (protocol == "Father-son") {
                 /* if this process is child process, sock-pair is used for ctrl ep and listened 
@@ -158,9 +172,7 @@ MessageRet MessageAgent::Run()
             } else {
                 if (protocol == "local") {
                     std::string device_file = config_message_agent->Search<std::string>("address/device")->GetData();
-                    MessageListener* default_listener = mempool_->Malloc<MessageListener>(
-                                    "LOCAL", "MSG_CTRL", "MSG_CTRL", sock::SockAddress(sock::SockFamily::TCP_LOCAL, device.c_str()));
-                    RegisterListener(default_listener);
+                    RegisterListener(default_ep_name, sock::SockAddress(sock::SockFamily::TCP_LOCAL, device.c_str()));
                     MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
                 } else if (protocol == "ipv4") {
                     std::string device = config_message_agent->Search<std::string>("address/device")->GetData();
@@ -169,8 +181,8 @@ MessageRet MessageAgent::Run()
                     std::string device = config_message_agent->Search<std::string>("address/device")->GetData();
                     MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
                 }
-    //    agent_client_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", *(message::GetMessageServerAddress()));
             }
+            DefaultName = default_ep_name;
         } else {
             // no message agent.
         }
@@ -179,30 +191,11 @@ MessageRet MessageAgent::Run()
         MESSAGE_INFO("Function message was disabled.");
         return MessageRet::SUCCESS;
     }
-    return MessageRet::SUCCESS;
-
-    if (remote_manager_) {
-        if (!remote_manager_->IsReady()) {
-            return MessageRet::MESSAGE_AGENT_ECONN;
-        }
-        info_.state_ = State::Listenning;
-
-        io::SelectItemTemplate<MessageRemote> manager_selectitem(remote_manager_, remote_manager_->GetRemoteFD());
-
-        manager_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
-        manager_selectitem.InputFunc = &MessageRemote::_manager_remote_callback;
-
-        remote_manager_->GetRemoteFD().Write("hello world", 12);
-
-        select_.AddSelectItem<io::SelectItemTemplate<MessageRemote>>(manager_selectitem);
-
+    auto select_ret = select_.ListenThread(t);
+    if (select_ret != io::IoRet::SUCCESS) {
+        return MessageRet::MESSAGE_ESELECT;
     }
-    timer::Time t;
-    t.SetTime(2, timer::Unit::Second);
-    printf("----%d---\n",t.GetSecond());
-    select_.ListenThread(t);
-    //select_.Listen(&timer::Time().SetTime(2, timer::Unit::Second));
-
+    info_.state_ = State::Ready;
     return MessageRet::SUCCESS;
 }
 

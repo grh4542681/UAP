@@ -45,7 +45,8 @@ public:
     bool IsReady();
     State& GetState();
 
-    MessageRemote* GetRemote();
+    bool HasManager();
+    MessageRemote* GetManager();
 
     MessageListener* GetLinstener(std::string l_name);
     MessageEndpoint* GetEndpoint(std::string listener_name, std::string ep_name);
@@ -64,6 +65,7 @@ public:
 
     MessageRet Run();
 public:
+    static std::string DefaultName;
     static MessageAgent* getInstance();
 
 private:

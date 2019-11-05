@@ -14,7 +14,9 @@ public:
         IO_EMATCHEVENT,
         IO_EADDEVENT,
         IO_ENOCALLBACK,
+
         IO_EBADSELECTITEM,
+        IO_ENOSELECTITEM,
 
         IO_EINPUTCB,
         IO_EOUTPUTCB,

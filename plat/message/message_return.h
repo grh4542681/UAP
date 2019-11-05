@@ -16,6 +16,7 @@ public:
 
         MESSAGE_AGENT_ECONN,
         MESSAGE_LISTEN_EFD,
+        MESSAGE_ESELECT,
     };
 public:
     static ECodeMapType ECodeMap;

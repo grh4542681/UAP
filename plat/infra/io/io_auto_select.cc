@@ -41,6 +41,9 @@ IoRet AutoSelect::Listen(process::signal::ProcessSignalSet sigmask, timer::Time 
     if (!init_flag_) {
         return IoRet::EINIT;
     }
+    if (select_item_map_.empty()) {
+        return IoRet::IO_ENOSELECTITEM;
+    }
     return _select_listener_thread_handler(this, std::forward<process::signal::ProcessSignalSet>(sigmask), std::forward<timer::Time>(overtime));
 }
 
@@ -54,7 +57,9 @@ IoRet AutoSelect::ListenThread(process::signal::ProcessSignalSet sigmask, timer:
     if (!init_flag_) {
         return IoRet::EINIT;
     }
-
+    if (select_item_map_.empty()) {
+        return IoRet::IO_ENOSELECTITEM;
+    }
     listener_thread_ = thread::ThreadTemplate<decltype(&_select_listener_thread_handler), IoRet>(_select_listener_thread_handler);
     thread::ThreadRet ret = listener_thread_.Run(this, std::forward<process::signal::ProcessSignalSet>(sigmask), std::forward<timer::Time>(overtime));
     if (ret != thread::ThreadRet::SUCCESS) {

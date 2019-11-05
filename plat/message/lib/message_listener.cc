@@ -40,13 +40,4 @@ bool MessageListener::IsReady()
     return (state_ == State::Ready);
 }
 
-MessageRet MessageListener::Register()
-{
-
-}
-MessageRet MessageListener::Unregister()
-{
-
-}
-
 }
