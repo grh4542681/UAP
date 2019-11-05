@@ -13,6 +13,7 @@ message :
             device : /plat/tmp/messaged.sock
         linksize : 100
     manager :
+        switch : false
         address :
             protocol : local
             device : /plat/tmp/messaged.sock

@@ -163,17 +163,25 @@ config::ConfigRet ProcessConfig::_load_yaml_message(parser::ParserYaml& parser)
             PROCESS_ERROR("Not found config : message/manager");
             return config::ConfigRet::ERROR;
         }
-        auto config_process_message_manager_address = config_process_message->Insert("manager")->Insert("address");
-        if (yaml_process_message_manager.Find("address").Find("protocol").GetData<std::string>(&tmp_string) != parser::ParserRet::SUCCESS) {
-            PROCESS_FATAL("Not found config : message/agent/address/protocol");
+        auto config_process_message_manager = config_process_message->Insert("manager");
+        if (yaml_process_message_manager.Find("switch").GetData<bool>(&tmp_bool) != parser::ParserRet::SUCCESS) {
+            PROCESS_FATAL("Not found config : message/manager/switch");
             return config::ConfigRet::ERROR;
         }
-        config_process_message_manager_address->Insert<std::string>("protocol", tmp_string);
-        if (yaml_process_message_manager.Find("address").Find("device").GetData<std::string>(&tmp_string) != parser::ParserRet::SUCCESS) {
-            PROCESS_FATAL("Not found config : message/agent/address/device");
-            return config::ConfigRet::ERROR;
+        config_process_message_manager->Insert<bool>("switch", tmp_bool);
+        if (tmp_bool) {
+            auto config_process_message_manager_address = config_process_message->Insert("manager")->Insert("address");
+            if (yaml_process_message_manager.Find("address").Find("protocol").GetData<std::string>(&tmp_string) != parser::ParserRet::SUCCESS) {
+                PROCESS_FATAL("Not found config : message/agent/address/protocol");
+                return config::ConfigRet::ERROR;
+            }
+            config_process_message_manager_address->Insert<std::string>("protocol", tmp_string);
+            if (yaml_process_message_manager.Find("address").Find("device").GetData<std::string>(&tmp_string) != parser::ParserRet::SUCCESS) {
+                PROCESS_FATAL("Not found config : message/agent/address/device");
+                return config::ConfigRet::ERROR;
+            }
+            config_process_message_manager_address->Insert<std::string>("device", tmp_string);
         }
-        config_process_message_manager_address->Insert<std::string>("device", tmp_string);
     }
     return config::ConfigRet::SUCCESS;
 }

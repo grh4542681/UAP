@@ -19,6 +19,8 @@ namespace message {
 class MessageAgent;
 class MessageListener : public MessageRaw {
 public:
+    friend class MessageAgent;
+public:
     enum class State : int {
         Initialize,
         Ready,
@@ -36,7 +38,7 @@ public:
     } Info;
 
 public:
-    MessageListener(std::string name, sock::SockAddress& addr);
+    MessageListener(std::string name, const sock::SockAddress& addr);
     ~MessageListener();
 
     State& GetState();
@@ -54,6 +56,7 @@ private:
     sock::SockServer server_;
     std::map<std::string, MessageEndpoint*> tep_map_;
 private:
+    MessageListener(std::string name, sock::SockFD& listen_fd);
     MessageListener(MessageListener& other);
     const MessageListener& operator=(const MessageListener& other);
 };

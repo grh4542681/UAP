@@ -64,7 +64,6 @@ public:
 
     MessageRet Run();
 public:
-    static MessageRet message_client_callback(MessageRemote::SelectItem* item);
     static MessageAgent* getInstance();
 
 private:
