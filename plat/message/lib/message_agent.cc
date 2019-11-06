@@ -41,7 +41,7 @@ MessageAgent::State& MessageAgent::GetState()
 
 bool MessageAgent::HasManager()
 {
-    return (remote_manager_ ? true , false);
+    return (remote_manager_ ? true : false);
 }
 
 MessageRemote* MessageAgent::GetManager()
@@ -69,10 +69,27 @@ MessageRet MessageAgent::UnregisterAgent()
 
 }
 
-template < typename ... Args >
-MessageRet MessageAgent::RegisterListener(Args&& ... args)
+MessageRet MessageAgent::RegisterListener(std::string name, const sock::SockAddress& addr)
 {
-    MessageListener* listener = mempool_->Malloc<MessageListener>(std::forward<Args>(args)...);
+    if (LookupLinstener(name)) {
+        return MessageRet::MESSAGE_LISTENER_EREPEAT;
+    }
+    MessageListener* listener = mempool_->Malloc<MessageListener>(name, addr);
+    if (!listener) {
+        return MessageRet::EMALLOC;
+    }
+    if (!(listener->IsReady())) {
+        mempool_->Free<MessageListener>(listener);
+        return MessageRet::MESSAGE_LISTENER_ESTATE;
+    }
+
+    io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD());
+    listener_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
+    listener_selectitem.InputFunc = &MessageListener::_common_listener_callback;
+    select_.AddSelectItem<io::SelectItemTemplate<MessageListener>>(listener_selectitem);
+
+    listen_local_ep_map_.insert({name, listener});
+    return MessageRet::SUCCESS;
 }
 
 MessageRet MessageAgent::UnregisterListener(std::string name)
@@ -91,9 +108,13 @@ MessageRet MessageAgent::UnregisterEP(std::string l_name, std::string e_name)
 
 }
 
-MessageListener* MessageAgent::LookupLinstener(std::string l_name)
+MessageListener* MessageAgent::LookupLinstener(std::string listener_name)
 {
-
+    auto it = listen_local_ep_map_.find(listener_name);
+    if (it == listen_local_ep_map_.end()) {
+        return NULL;
+    }
+    return it->second;
 }
 
 MessageListener* MessageAgent::LookupEndpoint(std::string listener_name, std::string ep_name)
@@ -158,7 +179,7 @@ MessageRet MessageAgent::Run()
             // has message agent will listen.
             std::string default_ep_name = config_message_agent->Search<std::string>("name")->GetData();
             if (LookupLinstener(default_ep_name)) {
-                return MessageRet::MESSAGE_ELISREPEAT;
+                return MessageRet::MESSAGE_LISTENER_EREPEAT;
             }
             
             std::string protocol = config_message_agent->Search<std::string>("address/protocol")->GetData();
@@ -172,8 +193,8 @@ MessageRet MessageAgent::Run()
             } else {
                 if (protocol == "local") {
                     std::string device_file = config_message_agent->Search<std::string>("address/device")->GetData();
-                    RegisterListener(default_ep_name, sock::SockAddress(sock::SockFamily::TCP_LOCAL, device.c_str()));
-                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+                    RegisterListener(default_ep_name, sock::SockAddress(sock::SockFamily::TCP_LOCAL, device_file.c_str()));
+                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device_file.c_str());
                 } else if (protocol == "ipv4") {
                     std::string device = config_message_agent->Search<std::string>("address/device")->GetData();
                     MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
@@ -191,7 +212,7 @@ MessageRet MessageAgent::Run()
         MESSAGE_INFO("Function message was disabled.");
         return MessageRet::SUCCESS;
     }
-    auto select_ret = select_.ListenThread(t);
+    auto select_ret = select_.ListenThread(timer::Time());
     if (select_ret != io::IoRet::SUCCESS) {
         return MessageRet::MESSAGE_ESELECT;
     }

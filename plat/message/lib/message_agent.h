@@ -54,7 +54,7 @@ public:
     MessageRet RegisterAgent();
     MessageRet UnregisterAgent();
 
-    template < typename ... Args > MessageRet RegisterListener(Args&& ... args);
+    MessageRet RegisterListener(std::string name, const sock::SockAddress& addr);
     MessageRet UnregisterListener(std::string name);
 
     template < typename ... Args > MessageRet RegisterEndpoint(std::string l_name, Args&& ... args);

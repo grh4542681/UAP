@@ -3,11 +3,12 @@
 
 #include <map>
 
+#include "mempool.h"
 #include "timer_time.h"
 #include "thread_id.h"
 #include "sock_address.h"
 #include "sock_server.h"
-#include "io_select_item.h"
+#include "io_select_item_template.h"
 
 #include "message_return.h"
 #include "message_log.h"
@@ -19,6 +20,7 @@ namespace message {
 class MessageAgent;
 class MessageListener : public MessageRaw {
 public:
+    friend class mempool::MemPool;
     friend class MessageAgent;
 public:
     enum class State : int {
@@ -38,9 +40,9 @@ public:
     } Info;
 
 public:
-    MessageListener(std::string name, const sock::SockAddress& addr);
     ~MessageListener();
 
+    std::string GetName();
     State& GetState();
     sock::SockServer& GetSockServer();
 
@@ -53,8 +55,11 @@ private:
     sock::SockServer server_;
     std::map<std::string, MessageEndpoint*> tep_map_;
 private:
+    MessageListener(std::string name, const sock::SockAddress& addr);
     MessageListener(MessageListener& other);
     const MessageListener& operator=(const MessageListener& other);
+
+    io::IoRet _common_listener_callback(io::SelectItemTemplate<MessageListener>* item);
 };
 
 }

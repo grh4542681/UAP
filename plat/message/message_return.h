@@ -12,11 +12,13 @@ public:
         MESSAGE_EMSNOSPACE,
         MESSAGE_EMSNOMESSG,
         MESSAGE_EMSMODE,
-        MESSAGE_ELISREPEAT,
+        MESSAGE_ESELECT,
+
+        MESSAGE_LISTENER_EREPEAT,
+        MESSAGE_LISTENER_EFD,
+        MESSAGE_LISTENER_ESTATE,
 
         MESSAGE_AGENT_ECONN,
-        MESSAGE_LISTEN_EFD,
-        MESSAGE_ESELECT,
     };
 public:
     static ECodeMapType ECodeMap;

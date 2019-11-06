@@ -106,7 +106,6 @@ private:
     }
 
     io::IoRet keep_timer_callback(io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>>* item) {
-        printf("wowowowwowowowowwo\n");
         uint64_t count;
         item->template GetFd<timer::TimerFD>().Read(&count, sizeof(uint64_t));
         printf("%lu read size  --  %lu\n",sizeof(uint64_t),count);
@@ -115,7 +114,6 @@ private:
     }
 
     io::IoRet worker_input_callback(io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>>* item) {
-        printf("asasasasasasasasas\n");
         auto worker_item = dynamic_cast<ProcessGroupWorkerSelectItem<ProcessGroupKeeper<F, Args...>>*>(item);
         ProcessID& pid = worker_item->GetPid();
         char buf[1024];

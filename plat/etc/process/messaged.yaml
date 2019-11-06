@@ -10,7 +10,8 @@ message :
         name : PLAT_MESSAGE_DEAMON
         address : 
             protocol : local
-            device : /plat/tmp/messaged.sock
+            #device : /tmp/messaged.sock
+            device : ${PLATTOP}
         linksize : 100
     manager :
         switch : false
