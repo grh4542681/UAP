@@ -1,26 +1,8 @@
-/*******************************************************
- * Copyright (C) For free.
- * All rights reserved.
- *******************************************************
- * @author   : Ronghua Gao
- * @date     : 2019-02-28 10:36
- * @file     : trie_tree.h
- * @brief    : Trie tree header file. It need libgmp.so for 
- *             alloc memory.
- * @note     : Email - grh4542681@163.com
- * ******************************************************/
-#ifndef __TRIE_TREE_H__
-#define __TRIE_TREE_H__
+#ifndef __SHM_TRIE_TREE_H__
+#define __SHM_TRIE_TREE_H__
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string>
-#include "mempool.h"
+#include "shm.h"
 
-#include "container_return.h"
-
-namespace container{
 /*
  * Dictionary supported characters (ASCII code)
  * 
@@ -63,52 +45,147 @@ namespace container{
  * 67 0x43    C   |   103 0x67    g
  */
 
-#define TT_DEFAULT_MAX_KEY_LENGTH (128) ///< Default max tire tree key lengtn.
-#define TT_DICT_SIZE (95)               ///< Tire tree dictionary size.
-#define TT_DICT_INDEX(c) (c & (~0x20))  ///< Calculate the offset of a character.
-#define TT_DICT_CHAR(c) (c | (0x20))    ///< Calculate characters by offset.
+#define SHM_TT_DEFAULT_MAX_KEY_LENGTH (128) ///< Default max tire tree key lengtn.
+#define SHM_TT_DICT_SIZE (95)               ///< Tire tree dictionary size.
+#define SHM_TT_DICT_INDEX(c) (c & (~0x20))  ///< Calculate the offset of a character.
+#define SHM_TT_DICT_CHAR(c) (c | (0x20))    ///< Calculate characters by offset.
 
-/**
-* @brief - Tire Tree class.
-*
-* @tparam [T] - Element type.
-*/
-template < typename T >
-class TrieTree {
+namespace ipc::shm {
+
+template < typename S, typename T >
+class ShmTrieTree {
 public:
-    /**
-    * @brief - Data struct of tire tree elements.
-    */
-    struct TTNode {
-        int level_;                             ///< current node level(length of the current key).
-        unsigned int offset_;                   ///< offset in parent node word slots.
+    typedef struct _ShmTTNode {
+        int level_ : 2;                         ///< current node level(length of the current key).
+        unsigned int offset_ : 1;               ///< offset in parent node word slots.
         T* data_;                               ///< element data.
-        TTNode* parent_;                        ///< parent node pointer.
-        struct TTNode* slots_[TT_DICT_SIZE];    ///< next word slots.
-    };
+        ShmTTNode* parent_;                     ///< parent node pointer.
+        ShmTTNode* slots_[SHM_TT_DICT_SIZE];    ///< next word slots.
+    } ShmTTNode;
+
+    typedef struct _ShmTTHead {
+        std::string object_name_;
+        size_t object_size_;
+        size_t object_max_num_;
+        size_t object_cur_num_;
+
+        void* object_bitmap_;
+        void* object_data_area_;
+
+        ShmTTNode* root_;
+
+        bool rw_lock_enable_;
+        bool mutex_lock_enable_;
+
+        timer::Time create_time_;
+        timer::Time last_access_time_;
+    } ShmTTHead;
 
 public:
-    /**
-    * @brief TrieTree - Default construct function.
-    */
+    ShmTrieTree(std::string path) : shm_(path) {
+        static_assert(std::is_base_of<Shm, S>::value, "Must be a subclass that inherits from Shm.");
+    }
+
+    Shm& GetShm() {
+        return shm_;
+    }
+
+    std::string GetObjectName() {
+        std::string name = "";
+        if (p_shm_head_) {
+            name = p_shm_head_->object_name_;
+        }
+        return name;
+    }
+
+    size_t GetObjectSize() {
+        if (p_shm_head_) {
+            return p_shm_head_->object_size_;
+        }
+        return 0;
+    }
+
+    size_t GetObjectMaxNumber() {
+        if (p_shm_head_) {
+            return p_shm_head_->object_max_num_;
+        }
+        return 0;
+    }
+
+    size_t GetObjectCurNumber() {
+        if (p_shm_head_) {
+            return p_shm_head_->object_cur_num_;
+        }
+        return 0;
+    }
+
+    IpcRet Create(size_t minlen, size_t maxlen, mode_t mode) {
+        size_t shm_size = sizeof(ShmListHead) + ((obj_num + 8 - 1) / 8)  + obj_num * (sizeof(T) + sizeof(ShmListNode));
+        IpcRet ret = shm_.Create(shm_size, mode);
+        if (ret != IpcRet::SUCCESS) {
+            return ret;
+        }
+        ret = shm_.Open(IpcMode::READ_WRITE);
+        if (ret == IpcRet::SUCCESS) {
+            p_shm_head_ = reinterpret_cast<ShmListHead*>(shm_.GetHeadPtr());
+
+            p_shm_head_->object_name_.assign(typeid(T).name());
+            p_shm_head_->object_size_ = sizeof(T);
+            p_shm_head_->object_max_num_ = obj_num;
+            p_shm_head_->object_cur_num_ = 0;
+            p_shm_head_->object_bitmap_ = reinterpret_cast<void*>(reinterpret_cast<char*>(shm_.GetHeadPtr()) + sizeof(ShmListHead));
+            p_shm_head_->object_data_area_ = reinterpret_cast<char*>(shm_.GetHeadPtr()) + sizeof(ShmListHead) + (((obj_num + 64 - 1) / 64) * sizeof(long));
+            p_shm_head_->object_head_ = NULL;
+            p_shm_head_->object_tail_ = NULL;
+
+            p_shm_head_->create_time_ = timer::Time::Now();
+        }
+        ret = shm_.Close();
+        if (ret == IpcRet::SUCCESS) {
+            p_shm_head_ = NULL;
+        }
+
+        return ret;
+    }
+    IpcRet Destroy() {
+        IpcRet ret = shm_.Destroy();
+        if (ret == IpcRet::SUCCESS) {
+            p_shm_head_ = NULL;
+        }
+        return ret;
+    }
+    IpcRet Open(IpcMode mode) {
+        IpcRet ret = shm_.Open(mode);
+        if (ret == IpcRet::SUCCESS) {
+            p_shm_head_ = reinterpret_cast<ShmListHead*>(shm_.GetHeadPtr());
+
+            p_shm_head_->last_access_time_ = timer::Time::Now();
+        }
+        return ret;
+    }
+    IpcRet Close() {
+        IpcRet ret = shm_.Close();
+        if (ret == IpcRet::SUCCESS) {
+            p_shm_head_ = NULL;
+        }
+        return ret;
+    }
+
+
     TrieTree() {
         count_ = 0;
-        TT_max_key_length = TT_DEFAULT_MAX_KEY_LENGTH;
+        SHM_TT_max_key_length = SHM_TT_DEFAULT_MAX_KEY_LENGTH;
         mp_ = mempool::MemPool::getInstance();        
-        root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
-        _TTNode_init(root_);
+        root_ = reinterpret_cast<ShmTTNode*>(mp_->Malloc(sizeof(ShmTTNode)));
+        _ShmTTNode_init(root_);
     }
-    /**
-    * @brief TrieTree - Construct function.
-    *
-    * @param [max_len] - Key maximum length limit.
-    */
+
     TrieTree(unsigned int max_len) {
         count_ = 0;
-        TT_max_key_length = max_len;
+        SHM_TT_max_key_length = max_len;
         mp_ = mempool::MemPool::getInstance();        
-        root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
-        _TTNode_init(root_);
+        root_ = reinterpret_cast<ShmTTNode*>(mp_->Malloc(sizeof(ShmTTNode)));
+        _ShmTTNode_init(root_);
     }
     /**
     * @brief TrieTree - Copy construct function.
@@ -117,17 +194,17 @@ public:
     */
     TrieTree(TrieTree& other) {
         count_ = 0;
-        TT_max_key_length = other.TT_max_key_length;
+        SHM_TT_max_key_length = other.SHM_TT_max_key_length;
         mp_ = mempool::MemPool::getInstance();
-        root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
-        _TTNode_init(root_);
-        _TTNode_insert_tree(other.getRoot());
+        root_ = reinterpret_cast<ShmTTNode*>(mp_->Malloc(sizeof(ShmTTNode)));
+        _ShmTTNode_init(root_);
+        _ShmTTNode_insert_tree(other.getRoot());
     }
     /**
     * @brief ~TrieTree - Destruct function.
     */
     ~TrieTree() {
-        _TTNode_delete_tree(root_);
+        _ShmTTNode_delete_tree(root_);
     }
 
     /**
@@ -135,7 +212,7 @@ public:
     *
     * @returns  Key maximum length limit.
     */
-    unsigned int getMaxKeyLen() { return TT_max_key_length; }
+    unsigned int getMaxKeyLen() { return SHM_TT_max_key_length; }
     /**
     * @brief getCount -Get count of elements int this TrieTree now. 
     *
@@ -143,7 +220,7 @@ public:
     */
     unsigned int getCount() { return count_; }
 
-    TTNode* getRoot() { return root_; }
+    ShmTTNode* getRoot() { return root_; }
 
     /**
     * @brief getLastRet - Get last return value.
@@ -162,20 +239,20 @@ public:
     */
     T* find(std::string key) {
         _setret(ContainerRet::SUCCESS);
-        if (key.empty() || key.size() > TT_max_key_length) {
-            _setret(ContainerRet::TT_EKEY);
+        if (key.empty() || key.size() > SHM_TT_max_key_length) {
+            _setret(ContainerRet::SHM_TT_EKEY);
             return NULL;
         }
-        TTNode* curnode = root_;
+        ShmTTNode* curnode = root_;
         unsigned int curoffset = 0;
         for (auto it : key) {
-            curoffset = TT_DICT_INDEX(it);
-            if (curoffset > TT_DICT_SIZE) {
-                _setret(ContainerRet::TT_EINDEX);
+            curoffset = SHM_TT_DICT_INDEX(it);
+            if (curoffset > SHM_TT_DICT_SIZE) {
+                _setret(ContainerRet::SHM_TT_EINDEX);
                 return NULL;
             }
             if (!curnode->slots_[curoffset]) {
-                _setret(ContainerRet::TT_ENOTFOUND);
+                _setret(ContainerRet::SHM_TT_ENOTFOUND);
                 return NULL;
             }
             curnode = curnode->slots_[curoffset];
@@ -197,29 +274,29 @@ public:
     template<typename ... Args>
     T* insert(std::string key, Args&& ... args) {
         _setret(ContainerRet::SUCCESS);
-        if (key.empty() || key.size() > TT_max_key_length) {
-            _setret(ContainerRet::TT_EKEY);
+        if (key.empty() || key.size() > SHM_TT_max_key_length) {
+            _setret(ContainerRet::SHM_TT_EKEY);
             return NULL;
         }
-        TTNode* curnode = root_;
+        ShmTTNode* curnode = root_;
         unsigned int curlevel = 0;
         unsigned int curoffset = 0;
         for (auto it : key) {
             curlevel++;
-            curoffset = TT_DICT_INDEX(it);
-            if (curoffset > TT_DICT_SIZE) {
-                _setret(ContainerRet::TT_EINDEX);
+            curoffset = SHM_TT_DICT_INDEX(it);
+            if (curoffset > SHM_TT_DICT_SIZE) {
+                _setret(ContainerRet::SHM_TT_EINDEX);
                 return NULL;
             }
             if (!curnode->slots_[curoffset]) {
-                curnode->slots_[curoffset] = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
+                curnode->slots_[curoffset] = reinterpret_cast<ShmTTNode*>(mp_->Malloc(sizeof(ShmTTNode)));
                 if (!(curnode->slots_[curoffset])) {
                     //Clean up empty nodes on the path
-                    _TTNode_clean_reverse(curnode);
+                    _ShmTTNode_clean_reverse(curnode);
                     _setret(ContainerRet::EMALLOC);
                     return NULL;
                 }
-                _TTNode_init(curnode->slots_[curoffset]);
+                _ShmTTNode_init(curnode->slots_[curoffset]);
                 curnode->slots_[curoffset]->level_ = curlevel;
                 curnode->slots_[curoffset]->offset_ = curoffset;
                 curnode->slots_[curoffset]->data_ = NULL;
@@ -238,7 +315,7 @@ public:
 
         if (!(curnode->data_)) {
             //Clean up empty nodes on the path
-            _TTNode_clean_reverse(curnode);
+            _ShmTTNode_clean_reverse(curnode);
             _setret(ContainerRet::EMALLOC);
         }
         count_++;
@@ -254,29 +331,29 @@ public:
     */
     ContainerRet remove(std::string key) {
         _setret(ContainerRet::SUCCESS);
-        if (key.empty() || key.size() > TT_max_key_length) {
-            _setret(ContainerRet::TT_EKEY);
-            return ContainerRet::TT_EKEY;
+        if (key.empty() || key.size() > SHM_TT_max_key_length) {
+            _setret(ContainerRet::SHM_TT_EKEY);
+            return ContainerRet::SHM_TT_EKEY;
         }
-        TTNode* curnode = root_;
+        ShmTTNode* curnode = root_;
         unsigned int curoffset = 0;
         for (auto it : key) {
-            curoffset = TT_DICT_INDEX(it);
-            if (curoffset > TT_DICT_SIZE) {
-            _setret(ContainerRet::TT_EINDEX);
-                return ContainerRet::TT_EINDEX;
+            curoffset = SHM_TT_DICT_INDEX(it);
+            if (curoffset > SHM_TT_DICT_SIZE) {
+            _setret(ContainerRet::SHM_TT_EINDEX);
+                return ContainerRet::SHM_TT_EINDEX;
             }
             if (!curnode->slots_[curoffset]) {
-            _setret(ContainerRet::TT_ENOTFOUND);
-                return ContainerRet::TT_ENOTFOUND;
+            _setret(ContainerRet::SHM_TT_ENOTFOUND);
+                return ContainerRet::SHM_TT_ENOTFOUND;
             }
             curnode = curnode->slots_[curoffset];
         }
         if (!curnode->data_) {
-            _setret(ContainerRet::TT_ENOTFOUND);
-            return ContainerRet::TT_ENOTFOUND;
+            _setret(ContainerRet::SHM_TT_ENOTFOUND);
+            return ContainerRet::SHM_TT_ENOTFOUND;
         } else {
-            _TTNode_delete_data(curnode);
+            _ShmTTNode_delete_data(curnode);
         }
         _setret(ContainerRet::SUCCESS);
         return ContainerRet::SUCCESS;
@@ -287,7 +364,7 @@ public:
     */
     void empty() {
         for (auto it : root_->slots_) {
-            _TTNode_delete_tree(it);
+            _ShmTTNode_delete_tree(it);
         }
     }
 
@@ -295,16 +372,16 @@ public:
     * @brief display - Display TrieTree like "key --- data address".
     */
     void display() {
-        _TTNode_print_tree(root_);
+        _ShmTTNode_print_tree(root_);
     }
 
 private:
     //limmit
-    unsigned int TT_max_key_length; ///< Key maximum length limit.
+    unsigned int SHM_TT_max_key_length; ///< Key maximum length limit.
 
     mempool::MemPool* mp_;              ///< Mempool interface class pointer.
     unsigned int count_;            ///< Current count of elements.
-    struct TTNode* root_;           ///< Root node pointer.
+    ShmTTNode* root_;           ///< Root node pointer.
     ContainerRet last_return_;       ///< Last return value.
 
     /**
@@ -314,7 +391,7 @@ private:
     */
     void _setret(ContainerRet ret) { last_return_ = ret; }
 
-    void _TTNode_init(struct TTNode* node) {
+    void _ShmTTNode_init(ShmTTNode* node) {
         node->level_ = -1;
         node->offset_ = 0;
         node->data_ = NULL;
@@ -325,32 +402,32 @@ private:
     }
 
     /**
-    * @brief _TTNode_delete_data - Delete current node element data.
+    * @brief _ShmTTNode_delete_data - Delete current node element data.
     *
     * @param [node] - Node pointer.
     */
-    void _TTNode_delete_data(struct TTNode* node) {
+    void _ShmTTNode_delete_data(ShmTTNode* node) {
         if (!node) {
             return;
         }
         mempool::MemPool::Destruct<T>(node->data_);
         mp_->Free(node->data_);
         node->data_ = NULL;
-        _TTNode_clean_reverse(node);
+        _ShmTTNode_clean_reverse(node);
         count_--;
     }
 
     /**
-    * @brief _TTNode_delete_tree - Delete current node tree.
+    * @brief _ShmTTNode_delete_tree - Delete current node tree.
     *
     * @param [node] - Node pointer.
     */
-    void _TTNode_delete_tree(struct TTNode* node) {
+    void _ShmTTNode_delete_tree(ShmTTNode* node) {
         if (!node) {
             return;
         }
         for (auto it : node->slots_) {
-            _TTNode_delete_tree(it);
+            _ShmTTNode_delete_tree(it);
         }
         if (node->data_) {
             mempool::MemPool::Destruct<T>(node->data_);
@@ -365,16 +442,16 @@ private:
     }
 
     /**
-    * @brief _TTNode_clean_reverse - Reverse clean unuse slots memory
+    * @brief _ShmTTNode_clean_reverse - Reverse clean unuse slots memory
     *                                marked by current node.
     *
     * @param [node] - Node pointer.
     */
-    void _TTNode_clean_reverse(struct TTNode* node) {
+    void _ShmTTNode_clean_reverse(ShmTTNode* node) {
         if (!node) {
             return;
         }
-        struct TTNode* curnode = node;
+        ShmTTNode* curnode = node;
         while (curnode->parent_) {
             bool emptyflag = false;
             if (!curnode->data_) {
@@ -387,7 +464,7 @@ private:
                 }
             }
             if (emptyflag) {
-                struct TTNode* tmp = curnode;
+                ShmTTNode* tmp = curnode;
                 curnode->parent_->slots_[curnode->offset_] = NULL;
                 curnode = curnode->parent_;
                 mp_->Free(tmp);
@@ -398,69 +475,73 @@ private:
     }
 
     /**
-    * @brief _TTNode_print_tree - Print all elements of node tree.
+    * @brief _ShmTTNode_print_tree - Print all elements of node tree.
     *
     * @param [node] - Node pointer.
     */
-    void _TTNode_print_tree(struct TTNode* node) {
+    void _ShmTTNode_print_tree(ShmTTNode* node) {
         if (!node) {
             return;
         }
         if (node->data_) {
-            std::string key = _TTNode_get_key(node);
+            std::string key = _ShmTTNode_get_key(node);
             printf("%s -- %p\n", key.c_str(), node->data_);
         }
-        struct TTNode* curnode = node;
-        for (int loop = 0; loop < TT_DICT_SIZE; loop++) {
+        ShmTTNode* curnode = node;
+        for (int loop = 0; loop < SHM_TT_DICT_SIZE; loop++) {
             if (curnode->slots_[loop]) {
-                _TTNode_print_tree(curnode->slots_[loop]);
+                _ShmTTNode_print_tree(curnode->slots_[loop]);
             }
         }
     }
 
     /**
-    * @brief _TTNode_insert_tree - Insert a TT tree.
+    * @brief _ShmTTNode_insert_tree - Insert a TT tree.
     *
     * @param [node] - Node pointer.
     */
-    void _TTNode_insert_tree(struct TTNode* node) {
+    void _ShmTTNode_insert_tree(ShmTTNode* node) {
         if (!node) {
             return;
         }
         if (node->data_) {
-            std::string key = _TTNode_get_key(node);
+            std::string key = _ShmTTNode_get_key(node);
             insert(key, *(node->data_));
         }
-        struct TTNode* curnode = node;
-        for (int loop = 0; loop < TT_DICT_SIZE; loop++) {
+        ShmTTNode* curnode = node;
+        for (int loop = 0; loop < SHM_TT_DICT_SIZE; loop++) {
             if (curnode->slots_[loop]) {
-                _TTNode_insert_tree(curnode->slots_[loop]);
+                _ShmTTNode_insert_tree(curnode->slots_[loop]);
             }
         }
     }
 
     /**
-    * @brief _TTNode_get_key - Get current node' key.
+    * @brief _ShmTTNode_get_key - Get current node' key.
     *
     * @param [node] - Node pointer.
     *
     * @returns  Key.
     */
-    std::string _TTNode_get_key(struct TTNode* node) {
+    std::string _ShmTTNode_get_key(ShmTTNode* node) {
         std::string key;
         key.clear();
         if (!node) {
             return key;
         }
-        struct TTNode* curnode = node;
+        ShmTTNode* curnode = node;
         while (curnode->parent_) {
-            key.append(1, (static_cast<char>(TT_DICT_CHAR(curnode->offset_))));
+            key.append(1, (static_cast<char>(SHM_TT_DICT_CHAR(curnode->offset_))));
             curnode = curnode->parent_;
         }
         return std::string(key.rbegin(), key.rend());
     }
+             
+private:
+    S shm_;
+    ShmTTHead* p_shm_head_;
 };
 
-}// namespace end
+}
 
 #endif
