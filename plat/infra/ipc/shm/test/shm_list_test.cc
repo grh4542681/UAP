@@ -28,7 +28,10 @@ int main()
     printf("--%d--\n",*i);
     i = shmlist.PushHead(10);
     printf("%s---%d----%d--%d\n",shmlist.GetObjectName().c_str(),shmlist.GetObjectSize(),shmlist.GetObjectMaxNumber(),shmlist.GetObjectCurNumber());
+    printf("--%d--\n",*i);
     printf("--%p--\n",i);
+
+    printf("***%d**%d*%d*%d\n", *shmlist.begin(),shmlist.begin().ptr->next,shmlist.begin().ptr->prev,shmlist.begin().ptr->index);
 
     for(auto n : shmlist) {
         printf("**%d**\n", n);
@@ -51,9 +54,19 @@ int main()
     }
     printf("%s---%d----%d--%d\n",shmlist.GetObjectName().c_str(),shmlist.GetObjectSize(),shmlist.GetObjectMaxNumber(),shmlist.GetObjectCurNumber());
     printf("=============================\n");
+    shmlist.Close();
+    printf("%s---%d----%d--%d\n",shmlist.GetObjectName().c_str(),shmlist.GetObjectSize(),shmlist.GetObjectMaxNumber(),shmlist.GetObjectCurNumber());
+    shmlist.Open(ipc::IpcMode::READ_WRITE);
+    printf("%s---%d----%d--%d\n",shmlist.GetObjectName().c_str(),shmlist.GetObjectSize(),shmlist.GetObjectMaxNumber(),shmlist.GetObjectCurNumber());
+    printf("***%d**%d*%d*%d\n", *shmlist.begin(),shmlist.begin().ptr->next,shmlist.begin().ptr->prev,shmlist.begin().ptr->index);
+    for(auto n : shmlist) {
+        printf("**%d**\n", n);
+    }
+    printf("=============================\n");
 
     sleep(10);
     shmlist.Close();
+    printf("=============================\n");
     shmlist.Destroy();
     return 0;
 }

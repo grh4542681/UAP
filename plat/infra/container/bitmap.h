@@ -25,6 +25,8 @@ public:
     size_t Find1();
     bool IsFull();
 
+    static size_t GetBitmapSize(size_t bit_size);
+
     void Print1();
     void Print0();
     void Print();

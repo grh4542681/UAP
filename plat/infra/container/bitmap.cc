@@ -181,6 +181,11 @@ bool Bitmap::IsFull()
     }
 }
 
+size_t Bitmap::GetBitmapSize(size_t bit_size)
+{
+    return (bit_size + (BITMAP_PAGESIZE-1)) & ~(BITMAP_PAGESIZE-1);
+}
+
 void Bitmap::Print()
 {
     std::string str;
