@@ -13,6 +13,7 @@ MessageAgent::MessageAgent()
     mempool_ = mempool::MemPool::getInstance();
     info_.listener_num_ = 0;
     info_.state_ = State::Initialize;
+    type_ = Type::NormalAgent;
 }
 
 MessageAgent::~MessageAgent()
@@ -37,6 +38,17 @@ bool MessageAgent::IsReady()
 MessageAgent::State& MessageAgent::GetState()
 {
     return info_.state_;
+}
+
+MessageAgent::Type& MessageAgent::GetType()
+{
+    return type_;
+}
+
+MessageAgent& MessageAgent::SetType(MessageAgent::Type& type)
+{
+    type_ = type;
+    return *this;
 }
 
 bool MessageAgent::HasManager()
@@ -145,7 +157,8 @@ MessageRet MessageAgent::Run()
         if (message_manager_enable) {
             // has message manager will connect.
             std::string protocol = config_message_manager->Search<std::string>("address/protocol")->GetData();
-            if (protocol == "Father-son") {
+            if (protocol == "Keeper-Worker") {
+                type_ = Type::WorkerAgent;
                 remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", proc->GetParentProcess()->GetFD());
                 MESSAGE_INFO("Create a proxy for communication between father and son");
             } else {
@@ -183,7 +196,7 @@ MessageRet MessageAgent::Run()
             }
             
             std::string protocol = config_message_agent->Search<std::string>("address/protocol")->GetData();
-            if (protocol == "Father-son") {
+            if (protocol == "Keeper-Worker") {
                 /* if this process is child process, sock-pair is used for ctrl ep and listened 
                  * like a remote ep. No need listen again.
                  */

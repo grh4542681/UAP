@@ -20,6 +20,12 @@ namespace message {
 
 class MessageAgent : MessageRaw {
 public:
+    enum class Type : int {
+        WorkerAgent,
+        KeeperAgent,
+        NormalAgent,
+    };
+
     enum class State {
         Initialize,
         Listenning,
@@ -44,6 +50,8 @@ public:
 
     bool IsReady();
     State& GetState();
+    Type& GetType();
+    MessageAgent& SetType(Type&);
 
     bool HasManager();
     MessageRemote* GetManager();
@@ -70,6 +78,7 @@ public:
 
 private:
     mempool::MemPool* mempool_;
+    Type type_;
     Info info_;
 
     MessageRemote* remote_manager_ = NULL;

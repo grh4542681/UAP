@@ -31,7 +31,6 @@ public:
             PROCESS_FATAL("Load process config file [%s] error", config_filename_.c_str());
             return ProcessRet::PROCESS_ECONFIG;
         }
-        message::MessageAgent::getInstance()->Run();
 
         // exec main func
         auto config_pool = process_info->GetProcessConfig().GetRoot()->Search<bool>("process/group/switch");
@@ -42,7 +41,10 @@ public:
                             process_info->GetProcessConfig().GetConfigFileName(),
                             main_, std::forward<Args>(args)...);
             group_.Run();
+            message::MessageAgent::getInstance()->SetType(MessageAgent::KeeperAgent);
+            message::MessageAgent::getInstance()->Run();
         } else {
+            message::MessageAgent::getInstance()->Run();
             main_(std::forward<Args>(args)...);
         }
         return ProcessRet::SUCCESS;

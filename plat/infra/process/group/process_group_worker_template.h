@@ -111,10 +111,10 @@ public:
                 config_message->Insert<bool>("switch", true);
                 auto config_message_agent = config_message->Insert("agent");
                 config_message_agent->Insert<std::string>("name", "GROUP_WORKER");
-                config_message_agent->Insert("address")->Insert<std::string>("protocol", "Father-son");
+                config_message_agent->Insert("address")->Insert<std::string>("protocol", "Keeper-Worker");
                 auto config_message_manager = config_message->Insert("manager");
                 config_message_manager->Insert<bool>("switch", true);
-                config_message_manager->Insert("address")->Insert<std::string>("protocol", "Father-son");
+                config_message_manager->Insert("address")->Insert<std::string>("protocol", "Keeper-Worker");
             } else {
                 child->GetProcessConfig().LoadFile(config_filename_);
                 auto config_root = child->GetProcessConfig().GetRoot();
@@ -131,10 +131,10 @@ public:
                 config_message->Insert<bool>("switch", true);
                 auto config_message_agent = config_message->Insert("agent");
                 config_message_agent->Insert<std::string>("name", "GROUP_WORKER");
-                config_message_agent->Insert("address")->Insert<std::string>("protocol", "Father-son");
+                config_message_agent->Insert("address")->Insert<std::string>("protocol", "Keeper-Worker");
                 auto config_message_manager = config_message->Insert("manager");
                 config_message_manager->Insert<bool>("switch", true);
-                config_message_manager->Insert("address")->Insert<std::string>("protocol", "Father-son");
+                config_message_manager->Insert("address")->Insert<std::string>("protocol", "Keeper-Worker");
             }
             child->GetProcessConfig().Print();
 
