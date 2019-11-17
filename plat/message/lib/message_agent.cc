@@ -86,19 +86,45 @@ MessageRet MessageAgent::RegisterListener(std::string name, const sock::SockAddr
     if (LookupLinstener(name)) {
         return MessageRet::MESSAGE_LISTENER_EREPEAT;
     }
-    MessageListener* listener = mempool_->Malloc<MessageListener>(name, addr);
-    if (!listener) {
-        return MessageRet::EMALLOC;
+    MessageListener* listener = NULL;
+    switch (type_) {
+        case Type::NormalAgent:
+            listener = mempool_->Malloc<MessageListener>(name, addr, MessageListener::Type::NormalListener);
+            if (!listener) {
+                return MessageRet::EMALLOC;
+            }
+            if (!(listener->IsReady())) {
+                mempool_->Free<MessageListener>(listener);
+                return MessageRet::MESSAGE_LISTENER_ESTATE;
+            }
+            io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD());
+            listener_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
+            listener_selectitem.InputFunc = &MessageListener::_common_listener_callback;
+            select_.AddSelectItem<io::SelectItemTemplate<MessageListener>>(listener_selectitem);
+            break;
+        case Type::KeeperAgent:
+            listener = mempool_->Malloc<MessageListener>(name, addr, MessageListener::Type::KeeperListener);
+            if (!listener) {
+                return MessageRet::EMALLOC;
+            }
+            if (!(listener->IsReady())) {
+                mempool_->Free<MessageListener>(listener);
+                return MessageRet::MESSAGE_LISTENER_ESTATE;
+            }
+            break;
+        case Type::WorkerAgent:
+            listener = mempool_->Malloc<MessageListener>(name, addr, MessageListener::Type::WorkerListener);
+            if (!listener) {
+                return MessageRet::EMALLOC;
+            }
+            if (!(listener->IsReady())) {
+                mempool_->Free<MessageListener>(listener);
+                return MessageRet::MESSAGE_LISTENER_ESTATE;
+            }
+            break;
+        default:
+            return MessageRet::ERROR;
     }
-    if (!(listener->IsReady())) {
-        mempool_->Free<MessageListener>(listener);
-        return MessageRet::MESSAGE_LISTENER_ESTATE;
-    }
-
-    io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD());
-    listener_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
-    listener_selectitem.InputFunc = &MessageListener::_common_listener_callback;
-    select_.AddSelectItem<io::SelectItemTemplate<MessageListener>>(listener_selectitem);
 
     listen_local_ep_map_.insert({name, listener});
     return MessageRet::SUCCESS;

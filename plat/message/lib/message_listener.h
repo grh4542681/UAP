@@ -23,6 +23,12 @@ public:
     friend class mempool::MemPool;
     friend class MessageAgent;
 public:
+    enum class Type : int {
+        WorkerListener,
+        KeeperListener,
+        NormalListener,
+    };
+
     enum class State : int {
         Initialize,
         Ready,
@@ -44,18 +50,22 @@ public:
 
     std::string GetName();
     State& GetState();
+    Type& GetType();
+    MessageAgent& SetType(Type&);
+
     sock::SockServer& GetSockServer();
 
     bool IsReady();
 
 private:
     MessageAgent* agent_;
+    Type type_;
     Info info_;
     State state_;
     sock::SockServer server_;
     std::map<std::string, MessageEndpoint*> tep_map_;
 private:
-    MessageListener(std::string name, const sock::SockAddress& addr);
+    MessageListener(std::string name, const sock::SockAddress& addr, Type& type = Type::NormalListener);
     MessageListener(MessageListener& other);
     const MessageListener& operator=(const MessageListener& other);
 
