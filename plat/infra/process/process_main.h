@@ -41,7 +41,7 @@ public:
                             process_info->GetProcessConfig().GetConfigFileName(),
                             main_, std::forward<Args>(args)...);
             group_.Run();
-            message::MessageAgent::getInstance()->SetType(MessageAgent::KeeperAgent);
+            message::MessageAgent::getInstance()->SetType(message::MessageAgent::Type::KeeperAgent);
             message::MessageAgent::getInstance()->Run();
         } else {
             message::MessageAgent::getInstance()->Run();

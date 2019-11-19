@@ -2,7 +2,7 @@
 #include "message_listener.h"
 
 namespace message {
-MessageListener::MessageListener(std::string name, const sock::SockAddress& addr, Type& type)
+MessageListener::MessageListener(std::string name, const sock::SockAddress& addr, const MessageListener::Type& type)
 {
     agent_ = MessageAgent::getInstance();
     type_ = type;
@@ -47,6 +47,17 @@ MessageListener::State& MessageListener::GetState()
 sock::SockServer& MessageListener::GetSockServer()
 {
     return server_;
+}
+
+MessageListener::Type& MessageListener::GetType()
+{
+    return type_;
+}
+
+MessageListener& MessageListener::SetType(Type& type)
+{
+    type_ = type;
+    return *this;
 }
 
 bool MessageListener::IsReady()

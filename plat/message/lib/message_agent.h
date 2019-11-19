@@ -51,7 +51,7 @@ public:
     bool IsReady();
     State& GetState();
     Type& GetType();
-    MessageAgent& SetType(Type&);
+    MessageAgent& SetType(const Type&);
 
     bool HasManager();
     MessageRemote* GetManager();
@@ -70,6 +70,7 @@ public:
 
     MessageListener* LookupLinstener(std::string l_name);
     MessageListener* LookupEndpoint(std::string listener_name, std::string ep_name);
+    MessageRet SendManager();
 
     MessageRet Run();
 public:
@@ -88,6 +89,7 @@ private:
     io::AutoSelect select_;
 
     static MessageAgent* pInstance;
+
 };
 
 }

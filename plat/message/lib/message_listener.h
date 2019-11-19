@@ -51,7 +51,7 @@ public:
     std::string GetName();
     State& GetState();
     Type& GetType();
-    MessageAgent& SetType(Type&);
+    MessageListener& SetType(Type&);
 
     sock::SockServer& GetSockServer();
 
@@ -65,7 +65,7 @@ private:
     sock::SockServer server_;
     std::map<std::string, MessageEndpoint*> tep_map_;
 private:
-    MessageListener(std::string name, const sock::SockAddress& addr, Type& type = Type::NormalListener);
+    MessageListener(std::string name, const sock::SockAddress& addr, const MessageListener::Type& type = Type::NormalListener);
     MessageListener(MessageListener& other);
     const MessageListener& operator=(const MessageListener& other);
 

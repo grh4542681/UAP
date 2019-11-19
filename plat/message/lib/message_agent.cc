@@ -45,7 +45,7 @@ MessageAgent::Type& MessageAgent::GetType()
     return type_;
 }
 
-MessageAgent& MessageAgent::SetType(MessageAgent::Type& type)
+MessageAgent& MessageAgent::SetType(const MessageAgent::Type& type)
 {
     type_ = type;
     return *this;
@@ -97,10 +97,12 @@ MessageRet MessageAgent::RegisterListener(std::string name, const sock::SockAddr
                 mempool_->Free<MessageListener>(listener);
                 return MessageRet::MESSAGE_LISTENER_ESTATE;
             }
-            io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD());
-            listener_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
-            listener_selectitem.InputFunc = &MessageListener::_common_listener_callback;
-            select_.AddSelectItem<io::SelectItemTemplate<MessageListener>>(listener_selectitem);
+            {
+                io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD());
+                listener_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
+                listener_selectitem.InputFunc = &MessageListener::_common_listener_callback;
+                select_.AddSelectItem<io::SelectItemTemplate<MessageListener>>(listener_selectitem);
+            }
             break;
         case Type::KeeperAgent:
             listener = mempool_->Malloc<MessageListener>(name, addr, MessageListener::Type::KeeperListener);
