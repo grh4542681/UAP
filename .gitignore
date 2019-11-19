@@ -6,7 +6,7 @@
 *.a
 *.so
 bin/
-lib/
+/lib/
 /3pp/
 build/
 doc/
