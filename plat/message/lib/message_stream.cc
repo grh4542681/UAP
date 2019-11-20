@@ -59,33 +59,17 @@ MessageStream& MessageStream::operator<<(char& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(char& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(char& value) {
     _read(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator>>(char& value, size_t size) {
-    _read(&value, size);
-    return *this;
-}
 
 MessageStream& MessageStream::operator<<(std::string& value) {
-    _write(value.c_str(), value.size());
-    return *this;
-}
-MessageStream& MessageStream::operator<<(std::string& value, size_t size) {
-    _write(value.c_str(), size);
+    _write(const_cast<char*>(value.c_str()), value.size());
     return *this;
 }
 MessageStream& MessageStream::operator>>(std::string& value) {
-    _read(value.c_str(), value.size());
-    return *this;
-}
-MessageStream& MessageStream::operator>>(std::string& value, size_t size) {
-    _read(value.c_str(), size);
+    _read(const_cast<char*>(value.c_str()), value.size());
     return *this;
 }
 
@@ -93,16 +77,8 @@ MessageStream& MessageStream::operator<<(short& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(short& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(short& value) {
     _read(&value, sizeof(value));
-    return *this;
-}
-MessageStream& MessageStream::operator>>(short& value, size_t size) {
-    _read(&value, size);
     return *this;
 }
 
@@ -110,16 +86,8 @@ MessageStream& MessageStream::operator<<(unsigned short& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(unsigned short& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(unsigned short& value) {
     _read(&value, sizeof(value));
-    return *this;
-}
-MessageStream& MessageStream::operator>>(unsigned short& value, size_t size) {
-    _read(&value, size);
     return *this;
 }
 
@@ -127,33 +95,17 @@ MessageStream& MessageStream::operator<<(int& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(int& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(int& value) {
     _read(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator>>(int& value, size_t size) {
-    _read(&value, size);
-    return *this;
-}
 
-MessageStream& MessageStream::operator<<(unsigned& int value) {
+MessageStream& MessageStream::operator<<(unsigned int& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(unsigned& int value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
-MessageStream& MessageStream::operator>>(unsigned& int value) {
+MessageStream& MessageStream::operator>>(unsigned int& value) {
     _read(&value, sizeof(value));
-    return *this;
-}
-MessageStream& MessageStream::operator>>(unsigned& int value, size_t size) {
-    _read(&value, size);
     return *this;
 }
 
@@ -161,16 +113,8 @@ MessageStream& MessageStream::operator<<(long& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(long& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(long& value) {
     _read(&value, sizeof(value));
-    return *this;
-}
-MessageStream& MessageStream::operator>>(long& value, size_t size) {
-    _read(&value, size);
     return *this;
 }
 
@@ -178,16 +122,8 @@ MessageStream& MessageStream::operator<<(long long& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(long long& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(long long& value) {
     _read(&value, sizeof(value));
-    return *this;
-}
-MessageStream& MessageStream::operator>>(long long& value, size_t size) {
-    _read(&value, size);
     return *this;
 }
 
@@ -195,16 +131,8 @@ MessageStream& MessageStream::operator<<(unsigned long long& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(unsigned long long& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(unsigned long long& value) {
     _read(&value, sizeof(value));
-    return *this;
-}
-MessageStream& MessageStream::operator>>(unsigned long long& value, size_t size) {
-    _read(&value, size);
     return *this;
 }
 
@@ -212,16 +140,8 @@ MessageStream& MessageStream::operator<<(float& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(float& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(float& value) {
     _read(&value, sizeof(value));
-    return *this;
-}
-MessageStream& MessageStream::operator>>(float& value, size_t size) {
-    _read(&value, size);
     return *this;
 }
 
@@ -229,16 +149,8 @@ MessageStream& MessageStream::operator<<(double& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(double& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(double& value) {
     _read(&value, sizeof(value));
-    return *this;
-}
-MessageStream& MessageStream::operator>>(double& value, size_t size) {
-    _read(&value, size);
     return *this;
 }
 
@@ -246,16 +158,8 @@ MessageStream& MessageStream::operator<<(long double& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(long double& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(long double& value) {
     _read(&value, sizeof(value));
-    return *this;
-}
-MessageStream& MessageStream::operator>>(long double& value, size_t size) {
-    _read(&value, size);
     return *this;
 }
 
@@ -263,39 +167,21 @@ MessageStream& MessageStream::operator<<(bool& value) {
     _write(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator<<(bool& value, size_t size) {
-    _write(&value, size);
-    return *this;
-}
 MessageStream& MessageStream::operator>>(bool& value) {
     _read(&value, sizeof(value));
     return *this;
 }
-MessageStream& MessageStream::operator>>(bool& value, size_t size) {
-    _read(&value, size);
-    return *this;
-}
 
 MessageStream& MessageStream::operator<<(MessageRaw& value) {
-    std::string str = value.Serialization();
-    MessageStream::operator<<(str);
-    return *this;
-}
-MessageStream& MessageStream::operator<<(MessageRaw& value, size_t size) {
-    std::string str = value.Serialization();
-    MessageStream::operator<<(str, size);
-    return *this;
-}
-//MessageStream& MessageStream::operator>>(MessageRaw& value) {
 //    std::string str = value.Serialization();
 //    MessageStream::operator<<(str);
-//    return *this;
-//}
-//MessageStream& MessageStream::operator>>(MessageRaw& value, size_t size) {
+    return *this;
+}
+MessageStream& MessageStream::operator>>(MessageRaw& value) {
 //    std::string str = value.Serialization();
-//    MessageStream::operator<<(str, size);
-//    return *this;
-//}
+//    MessageStream::operator<<(str);
+    return *this;
+}
 
 size_t MessageStream::_write(void* pdata, size_t size) {
     if (ret_ == MessageRet::EINIT || ret_ == MessageRet::EMALLOC) {

@@ -19,8 +19,8 @@ public:
 
     }
 
-    std::string Serialization();
-    MesageRet Deserialization(std::string msg);
+    MessageRet Serialization(void* ptr, size_t* size);
+    MessageRet Deserialization(void* ptr, size_t* size);
     
 private:
     MessageId mid_;

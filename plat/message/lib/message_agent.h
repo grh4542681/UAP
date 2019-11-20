@@ -18,7 +18,7 @@
 
 namespace message {
 
-class MessageAgent : MessageRaw {
+class MessageAgent : public MessageRaw {
 public:
     enum class Type : int {
         WorkerAgent,
@@ -45,8 +45,8 @@ public:
     ~MessageAgent();
 
     //from MessageRaw
-    MessageRet Serialization(MessageStreamBinary& bs);
-    MessageRet Deserialization(MessageStreamBinary& bs);
+    MessageRet Serialization(void* ptr, size_t* size);
+    MessageRet Deserialization(void* ptr, size_t* size);
 
     bool IsReady();
     State& GetState();

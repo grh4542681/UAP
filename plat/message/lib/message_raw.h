@@ -10,8 +10,8 @@ public:
     MessageRaw() {}
     virtual ~MessageRaw() { }
 
-    virtual std::string Serialization() { return ""; }
-    virtual MesageRet Deserialization(std::string msg) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet Serialization(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet Deserialization(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
 };
 
 }

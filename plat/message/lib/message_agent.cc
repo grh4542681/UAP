@@ -21,11 +21,11 @@ MessageAgent::~MessageAgent()
 
 }
 
-MessageRet MessageAgent::Serialization(MessageStreamBinary& bs)
+MessageRet MessageAgent::Serialization(void* ptr, size_t* size)
 {
 
 }
-MessageRet MessageAgent::Deserialization(MessageStreamBinary& bs)
+MessageRet MessageAgent::Deserialization(void* ptr, size_t* size)
 {
 
 }
