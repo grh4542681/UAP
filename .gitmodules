@@ -4,3 +4,6 @@
 [submodule "plat/3pp/rapidjson"]
 	path = plat/3pp/rapidjson
 	url = https://github.com/grh4542681/rapidjson.git
+[submodule "plat/3pp/protobuf"]
+	path = plat/3pp/protobuf
+	url = https://github.com/grh4542681/protobuf.git

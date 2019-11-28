@@ -18,7 +18,7 @@ list(APPEND YAML_CMAKE_ARGS "-DBUILD_SHARED_LIBS=ON")
 ExternalProject_Add(yaml-cpp
                     PREFIX ${FRAM_ROOT_PATH}/build
                     SOURCE_DIR ${YAML_DIR}
-                    CONFIGURE_COMMAND cmake ${YAML_CMAKE_ARGS} ${YAML_DIR}
+                    CONFIGURE_COMMAND ${CMAKE} ${YAML_CMAKE_ARGS} ${YAML_DIR}
                     BUILD_COMMAND $(MAKE)
                     INSTALL_COMMAND ""
                     )

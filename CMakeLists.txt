@@ -9,12 +9,15 @@ SET(FRAM_LIB_PATH ${FRAM_ROOT_PATH}/lib)
 SET(FRAM_BIN_PATH ${FRAM_ROOT_PATH}/bin)
 SET(FRAM_3PP_PATH ${FRAM_ROOT_PATH}/plat/3pp)
 
+SET(CMAKE ${FRAM_ROOT_PATH}/tools/cmake/cmake-3.16.0-Linux-x86_64/bin/cmake)
+
 SET(LIBRARY_OUTPUT_PATH ${FRAM_LIB_PATH})
 SET(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH})
 
 SET(CMAKE_C_COMPILER "/home/ezgaoro/workspace/gcc-8.2/bin/gcc")
 SET(CMAKE_CXX_COMPILER "/home/ezgaoro/workspace/gcc-8.2/bin/g++")
 
+include(BuildProtobuf)
 include(BuildYaml)
 
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
