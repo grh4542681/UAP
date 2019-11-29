@@ -1,0 +1,8 @@
+syntax = "proto3";
+package message.package;
+message Example {
+    string stringVal = 1;
+    bytes bytesVal = 2;
+    repeated int32 repeatedInt32Val = 4;
+    repeated string repeatedStringVal = 5;
+}

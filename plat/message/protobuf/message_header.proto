@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package message.protobuf;
+
+import "message_id.proto";
+
+message MessageHeaderProtobuf {
+    MessageIdProtobuf mid = 1;
+}

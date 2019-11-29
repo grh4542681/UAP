@@ -5,13 +5,33 @@
 
 namespace message {
 
+class enum MessageProto {
+    Json,
+    Xml,
+    Protobuf,
+};
+
 class MessageRaw {
 public:
     MessageRaw() {}
     virtual ~MessageRaw() { }
 
-    virtual MessageRet Serialization(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
-    virtual MessageRet Deserialization(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+    MessageRet Serialization(MessageProto&) { return MessageRet::ESUBCLASS; }
+    MessageRet Deserialization(MessageProto&, void* data, size_t size) { return MessageRet::ESUBCLASS; }
+
+    virtual MessageRet SerializationJson(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet DeserializationJson(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+
+    virtual MessageRet SerializationXml(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet DeserializationXml(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+
+    virtual MessageRet SerializationProtobuf(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet DeserializationProtobuf(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+
+private:
+    void* p_json_;
+    void* p_xml_;
+    void* p_protobuf_;
 };
 
 }
