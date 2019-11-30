@@ -5,7 +5,7 @@
 
 namespace message {
 
-class enum MessageProto {
+enum class MessageProto {
     Json,
     Xml,
     Protobuf,
