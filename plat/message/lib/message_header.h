@@ -11,16 +11,17 @@ namespace message {
 
 class MessageHeader : public MessageRaw {
 public:
-    MessageHeader(MessageType type) {
-        mid_ = MessageId::GenMessageIdByTime();
-        type_ = type;
-    }
-    ~MessageHeader() {
+    MessageHeader(MessageType type);
+    ~MessageHeader();
 
-    }
+    MessageRet SerializationJson(void* ptr, size_t* size);
+    MessageRet DeserializationJson(void* ptr, size_t* size);
 
-    MessageRet Serialization(void* ptr, size_t* size);
-    MessageRet Deserialization(void* ptr, size_t* size);
+    MessageRet SerializationXml(void* ptr, size_t* size);
+    MessageRet DeserializationXml(void* ptr, size_t* size);
+
+    MessageRet SerializationProtobuf(void* ptr, size_t* size);
+    MessageRet DeserializationProtobuf(void* ptr, size_t* size);
     
 private:
     MessageId mid_;

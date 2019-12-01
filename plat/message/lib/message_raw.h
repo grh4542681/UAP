@@ -27,11 +27,6 @@ public:
 
     virtual MessageRet SerializationProtobuf(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
     virtual MessageRet DeserializationProtobuf(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
-
-private:
-    void* p_json_;
-    void* p_xml_;
-    void* p_protobuf_;
 };
 
 }

@@ -2,37 +2,35 @@
 #define __MESSAGE_ID_H__
 
 #include <time.h>
+#include "message_raw.h"
 
 namespace message {
 
-class MessageId {
+class MessageId : public MessageRaw{
 public:
-    MessageId() {
-        id_ = 0;
-    }
-    MessageId(MessageId& other) {
-        id_ = other.id_;
-    }
-    ~MessageId() { }
+    MessageId();
+    MessageId(MessageId& other);
+    ~MessageId();
 
-    MessageId& operator=(MessageId& other) {
-        id_ = other.id_;
-        return *this;
-    }
+    MessageId& operator=(MessageId& other);
 
-    long GetId() {
-        return id_;
-    }
+    long GetId();
 
-    static MessageId GenMessageIdByTime() {
-       return MessageId((long)time(NULL));
-    }
+    static MessageId GenMessageIdByTime();
+    MessageRet SerializationJson(void* ptr, size_t* size);
+    MessageRet DeserializationJson(void* ptr, size_t* size);
+
+    MessageRet SerializationXml(void* ptr, size_t* size);
+    MessageRet DeserializationXml(void* ptr, size_t* size);
+
+    MessageRet SerializationProtobuf(void* ptr, size_t* size);
+    MessageRet DeserializationProtobuf(void* ptr, size_t* size);
 private:
     MessageId(long id) {
         id_ = id;
     }
 
-    long id_;
+    long id_ = 0;
 };
 
 }
