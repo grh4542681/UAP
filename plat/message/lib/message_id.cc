@@ -12,7 +12,7 @@ MessageId::MessageId(MessageId& other) {
 
 MessageId::~MessageId() { }
 
-MessageId& MessageId::operator=(MessageId& other) {
+MessageId& MessageId::operator=(const MessageId& other) {
     id_ = other.id_;
     return *this;
 }

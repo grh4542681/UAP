@@ -12,7 +12,7 @@ public:
     MessageId(MessageId& other);
     ~MessageId();
 
-    MessageId& operator=(MessageId& other);
+    MessageId& operator=(const MessageId& other);
 
     long GetId();
 

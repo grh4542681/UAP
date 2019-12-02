@@ -59,6 +59,7 @@ public:
                 auto it = vit->find(err_code_);
                 if (it != vit->end()) {
                     emgs = it->second;
+                    break;
                 }
             }
         }
