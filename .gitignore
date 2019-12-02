@@ -5,7 +5,7 @@
 *.swp
 *.a
 *.so
-bin/
+/bin/
 /lib/
 /3pp/
 build/
