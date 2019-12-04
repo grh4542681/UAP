@@ -1,0 +1,6 @@
+syntax = "proto3";
+package message.protobuf;
+
+message MessageAppidProtobuf {
+    int64 id = 1;
+}

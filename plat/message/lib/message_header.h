@@ -5,13 +5,13 @@
 
 #include "message_raw.h"
 #include "message_id.h"
-#include "message_type.h"
+#include "message_appid.h"
 
 namespace message {
 
 class MessageHeader : public MessageRaw {
 public:
-    MessageHeader(MessageType type);
+    MessageHeader();
     ~MessageHeader();
 
     MessageRet SerializationJson(void* ptr, size_t* size);
@@ -25,7 +25,8 @@ public:
     
 private:
     MessageId mid_;
-    MessageType type_;
+    MessageAppid appid_;
+    uint32_t body_len_;
 };
 
 }

@@ -33,6 +33,7 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
 #include "message_id.pb.h"
+#include "message_appid.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_message_5fheader_2eproto
@@ -177,6 +178,8 @@ class MessageHeaderProtobuf :
 
   enum : int {
     kMidFieldNumber = 1,
+    kAppidFieldNumber = 2,
+    kBodyLenFieldNumber = 3,
   };
   // .message.protobuf.MessageIdProtobuf mid = 1;
   bool has_mid() const;
@@ -193,12 +196,38 @@ class MessageHeaderProtobuf :
   ::message::protobuf::MessageIdProtobuf* _internal_mutable_mid();
   public:
 
+  // .message.protobuf.MessageAppidProtobuf appid = 2;
+  bool has_appid() const;
+  private:
+  bool _internal_has_appid() const;
+  public:
+  void clear_appid();
+  const ::message::protobuf::MessageAppidProtobuf& appid() const;
+  ::message::protobuf::MessageAppidProtobuf* release_appid();
+  ::message::protobuf::MessageAppidProtobuf* mutable_appid();
+  void set_allocated_appid(::message::protobuf::MessageAppidProtobuf* appid);
+  private:
+  const ::message::protobuf::MessageAppidProtobuf& _internal_appid() const;
+  ::message::protobuf::MessageAppidProtobuf* _internal_mutable_appid();
+  public:
+
+  // uint32 body_len = 3;
+  void clear_body_len();
+  ::PROTOBUF_NAMESPACE_ID::uint32 body_len() const;
+  void set_body_len(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_body_len() const;
+  void _internal_set_body_len(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:message.protobuf.MessageHeaderProtobuf)
  private:
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::message::protobuf::MessageIdProtobuf* mid_;
+  ::message::protobuf::MessageAppidProtobuf* appid_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 body_len_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_message_5fheader_2eproto;
 };
@@ -265,6 +294,80 @@ inline void MessageHeaderProtobuf::set_allocated_mid(::message::protobuf::Messag
   }
   mid_ = mid;
   // @@protoc_insertion_point(field_set_allocated:message.protobuf.MessageHeaderProtobuf.mid)
+}
+
+// .message.protobuf.MessageAppidProtobuf appid = 2;
+inline bool MessageHeaderProtobuf::_internal_has_appid() const {
+  return this != internal_default_instance() && appid_ != nullptr;
+}
+inline bool MessageHeaderProtobuf::has_appid() const {
+  return _internal_has_appid();
+}
+inline const ::message::protobuf::MessageAppidProtobuf& MessageHeaderProtobuf::_internal_appid() const {
+  const ::message::protobuf::MessageAppidProtobuf* p = appid_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::message::protobuf::MessageAppidProtobuf*>(
+      &::message::protobuf::_MessageAppidProtobuf_default_instance_);
+}
+inline const ::message::protobuf::MessageAppidProtobuf& MessageHeaderProtobuf::appid() const {
+  // @@protoc_insertion_point(field_get:message.protobuf.MessageHeaderProtobuf.appid)
+  return _internal_appid();
+}
+inline ::message::protobuf::MessageAppidProtobuf* MessageHeaderProtobuf::release_appid() {
+  // @@protoc_insertion_point(field_release:message.protobuf.MessageHeaderProtobuf.appid)
+  
+  ::message::protobuf::MessageAppidProtobuf* temp = appid_;
+  appid_ = nullptr;
+  return temp;
+}
+inline ::message::protobuf::MessageAppidProtobuf* MessageHeaderProtobuf::_internal_mutable_appid() {
+  
+  if (appid_ == nullptr) {
+    auto* p = CreateMaybeMessage<::message::protobuf::MessageAppidProtobuf>(GetArenaNoVirtual());
+    appid_ = p;
+  }
+  return appid_;
+}
+inline ::message::protobuf::MessageAppidProtobuf* MessageHeaderProtobuf::mutable_appid() {
+  // @@protoc_insertion_point(field_mutable:message.protobuf.MessageHeaderProtobuf.appid)
+  return _internal_mutable_appid();
+}
+inline void MessageHeaderProtobuf::set_allocated_appid(::message::protobuf::MessageAppidProtobuf* appid) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(appid_);
+  }
+  if (appid) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      appid = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, appid, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  appid_ = appid;
+  // @@protoc_insertion_point(field_set_allocated:message.protobuf.MessageHeaderProtobuf.appid)
+}
+
+// uint32 body_len = 3;
+inline void MessageHeaderProtobuf::clear_body_len() {
+  body_len_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 MessageHeaderProtobuf::_internal_body_len() const {
+  return body_len_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 MessageHeaderProtobuf::body_len() const {
+  // @@protoc_insertion_point(field_get:message.protobuf.MessageHeaderProtobuf.body_len)
+  return _internal_body_len();
+}
+inline void MessageHeaderProtobuf::_internal_set_body_len(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  body_len_ = value;
+}
+inline void MessageHeaderProtobuf::set_body_len(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_body_len(value);
+  // @@protoc_insertion_point(field_set:message.protobuf.MessageHeaderProtobuf.body_len)
 }
 
 #ifdef __GNUC__

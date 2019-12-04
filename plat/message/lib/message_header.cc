@@ -2,9 +2,8 @@
 
 namespace message {
 
-MessageHeader::MessageHeader(MessageType type) {
+MessageHeader::MessageHeader() {
     mid_ = MessageId::GenMessageIdByTime();
-    type_ = type;
 }
 MessageHeader::~MessageHeader() {
 

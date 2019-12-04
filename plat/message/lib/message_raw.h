@@ -25,8 +25,8 @@ public:
     virtual MessageRet SerializationXml(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
     virtual MessageRet DeserializationXml(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
 
-    virtual MessageRet SerializationProtobuf(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
-    virtual MessageRet DeserializationProtobuf(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet SerializationTvl(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet DeserializationTvl(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
 };
 
 }

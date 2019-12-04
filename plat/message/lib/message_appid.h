@@ -8,21 +8,26 @@
 #include <errno.h>
 #include <string.h>
 
+#include "message_return.h"
+#include "message_raw.h"
 #include "message_appid_define.h"
 
 namespace message {
 
-class MesageAppid {
+class MessageAppid : public MessageRaw {
 public:
     typedef std::map<const int, const std::string> AppidMapType;
     enum Appid{
-        Internal,
+        Unknow = 0,
+
+        MessageBase = MESSAGE_APPID_BASE,
+        MessageInternal,
     };
 public:
     static AppidMapType AppidMap;
 public:
-    MessageAppid(int appid) : appid_(appid) {
-        appid_vec_.push_back(&MessageAppid::ECodeMap);
+    MessageAppid(int appid = Appid::Unknow) : appid_(appid) {
+        appid_map_vec_.push_back(&MessageAppid::AppidMap);
     }
     MessageAppid(const MessageAppid& other) {
         appid_ = other.appid_;
@@ -62,22 +67,35 @@ public:
     bool operator==(int appid) {
         return (appid_ == appid);
     }
-    bool operator==(MessageAppid& ret) {
+    bool operator==(MessageAppid& appid) {
         return (appid_ == appid.GetId());
     }
-    bool operator==(MessageAppid&& ret) {
+    bool operator==(MessageAppid&& appid) {
         return (appid_ == appid.GetId());
     }
 
     bool operator!=(int appid) {
         return (appid_ != appid);
     }
-    bool operator!=(MessageAppid& ret) {
+    bool operator!=(MessageAppid& appid) {
         return (appid_ != appid.GetId());
     }
-    bool operator!=(MessageAppid&& ret) {
+    bool operator!=(MessageAppid&& appid) {
         return (appid_ != appid.GetId());
     }
+
+    int GetId() const {
+        return appid_;
+    }
+
+    MessageRet SerializationJson(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+    MessageRet DeserializationJson(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+
+    MessageRet SerializationXml(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+    MessageRet DeserializationXml(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+
+    MessageRet SerializationProtobuf(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
+    MessageRet DeserializationProtobuf(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
 
 protected:
     int appid_;

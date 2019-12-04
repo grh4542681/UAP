@@ -14,6 +14,7 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
+extern PROTOBUF_INTERNAL_EXPORT_message_5fappid_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_MessageAppidProtobuf_message_5fappid_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_message_5fid_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_MessageIdProtobuf_message_5fid_2eproto;
 namespace message {
 namespace protobuf {
@@ -34,9 +35,10 @@ static void InitDefaultsscc_info_MessageHeaderProtobuf_message_5fheader_2eproto(
   ::message::protobuf::MessageHeaderProtobuf::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_MessageHeaderProtobuf_message_5fheader_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_MessageHeaderProtobuf_message_5fheader_2eproto}, {
-      &scc_info_MessageIdProtobuf_message_5fid_2eproto.base,}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_MessageHeaderProtobuf_message_5fheader_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_MessageHeaderProtobuf_message_5fheader_2eproto}, {
+      &scc_info_MessageIdProtobuf_message_5fid_2eproto.base,
+      &scc_info_MessageAppidProtobuf_message_5fappid_2eproto.base,}};
 
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_message_5fheader_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_message_5fheader_2eproto = nullptr;
@@ -49,6 +51,8 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_message_5fheader_2eproto::offs
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::message::protobuf::MessageHeaderProtobuf, mid_),
+  PROTOBUF_FIELD_OFFSET(::message::protobuf::MessageHeaderProtobuf, appid_),
+  PROTOBUF_FIELD_OFFSET(::message::protobuf::MessageHeaderProtobuf, body_len_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::message::protobuf::MessageHeaderProtobuf)},
@@ -60,11 +64,14 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_message_5fheader_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\024message_header.proto\022\020message.protobuf"
-  "\032\020message_id.proto\"I\n\025MessageHeaderProto"
-  "buf\0220\n\003mid\030\001 \001(\0132#.message.protobuf.Mess"
-  "ageIdProtobufb\006proto3"
+  "\032\020message_id.proto\032\023message_appid.proto\""
+  "\222\001\n\025MessageHeaderProtobuf\0220\n\003mid\030\001 \001(\0132#"
+  ".message.protobuf.MessageIdProtobuf\0225\n\005a"
+  "ppid\030\002 \001(\0132&.message.protobuf.MessageApp"
+  "idProtobuf\022\020\n\010body_len\030\003 \001(\rb\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_message_5fheader_2eproto_deps[1] = {
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_message_5fheader_2eproto_deps[2] = {
+  &::descriptor_table_message_5fappid_2eproto,
   &::descriptor_table_message_5fid_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_message_5fheader_2eproto_sccs[1] = {
@@ -73,8 +80,8 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_mes
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_message_5fheader_2eproto_once;
 static bool descriptor_table_message_5fheader_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_message_5fheader_2eproto = {
-  &descriptor_table_message_5fheader_2eproto_initialized, descriptor_table_protodef_message_5fheader_2eproto, "message_header.proto", 141,
-  &descriptor_table_message_5fheader_2eproto_once, descriptor_table_message_5fheader_2eproto_sccs, descriptor_table_message_5fheader_2eproto_deps, 1, 1,
+  &descriptor_table_message_5fheader_2eproto_initialized, descriptor_table_protodef_message_5fheader_2eproto, "message_header.proto", 236,
+  &descriptor_table_message_5fheader_2eproto_once, descriptor_table_message_5fheader_2eproto_sccs, descriptor_table_message_5fheader_2eproto_deps, 1, 2,
   schemas, file_default_instances, TableStruct_message_5fheader_2eproto::offsets,
   file_level_metadata_message_5fheader_2eproto, 1, file_level_enum_descriptors_message_5fheader_2eproto, file_level_service_descriptors_message_5fheader_2eproto,
 };
@@ -89,21 +96,34 @@ namespace protobuf {
 void MessageHeaderProtobuf::InitAsDefaultInstance() {
   ::message::protobuf::_MessageHeaderProtobuf_default_instance_._instance.get_mutable()->mid_ = const_cast< ::message::protobuf::MessageIdProtobuf*>(
       ::message::protobuf::MessageIdProtobuf::internal_default_instance());
+  ::message::protobuf::_MessageHeaderProtobuf_default_instance_._instance.get_mutable()->appid_ = const_cast< ::message::protobuf::MessageAppidProtobuf*>(
+      ::message::protobuf::MessageAppidProtobuf::internal_default_instance());
 }
 class MessageHeaderProtobuf::_Internal {
  public:
   static const ::message::protobuf::MessageIdProtobuf& mid(const MessageHeaderProtobuf* msg);
+  static const ::message::protobuf::MessageAppidProtobuf& appid(const MessageHeaderProtobuf* msg);
 };
 
 const ::message::protobuf::MessageIdProtobuf&
 MessageHeaderProtobuf::_Internal::mid(const MessageHeaderProtobuf* msg) {
   return *msg->mid_;
 }
+const ::message::protobuf::MessageAppidProtobuf&
+MessageHeaderProtobuf::_Internal::appid(const MessageHeaderProtobuf* msg) {
+  return *msg->appid_;
+}
 void MessageHeaderProtobuf::clear_mid() {
   if (GetArenaNoVirtual() == nullptr && mid_ != nullptr) {
     delete mid_;
   }
   mid_ = nullptr;
+}
+void MessageHeaderProtobuf::clear_appid() {
+  if (GetArenaNoVirtual() == nullptr && appid_ != nullptr) {
+    delete appid_;
+  }
+  appid_ = nullptr;
 }
 MessageHeaderProtobuf::MessageHeaderProtobuf()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
@@ -119,12 +139,20 @@ MessageHeaderProtobuf::MessageHeaderProtobuf(const MessageHeaderProtobuf& from)
   } else {
     mid_ = nullptr;
   }
+  if (from._internal_has_appid()) {
+    appid_ = new ::message::protobuf::MessageAppidProtobuf(*from.appid_);
+  } else {
+    appid_ = nullptr;
+  }
+  body_len_ = from.body_len_;
   // @@protoc_insertion_point(copy_constructor:message.protobuf.MessageHeaderProtobuf)
 }
 
 void MessageHeaderProtobuf::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_MessageHeaderProtobuf_message_5fheader_2eproto.base);
-  mid_ = nullptr;
+  ::memset(&mid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&body_len_) -
+      reinterpret_cast<char*>(&mid_)) + sizeof(body_len_));
 }
 
 MessageHeaderProtobuf::~MessageHeaderProtobuf() {
@@ -134,6 +162,7 @@ MessageHeaderProtobuf::~MessageHeaderProtobuf() {
 
 void MessageHeaderProtobuf::SharedDtor() {
   if (this != internal_default_instance()) delete mid_;
+  if (this != internal_default_instance()) delete appid_;
 }
 
 void MessageHeaderProtobuf::SetCachedSize(int size) const {
@@ -155,6 +184,11 @@ void MessageHeaderProtobuf::Clear() {
     delete mid_;
   }
   mid_ = nullptr;
+  if (GetArenaNoVirtual() == nullptr && appid_ != nullptr) {
+    delete appid_;
+  }
+  appid_ = nullptr;
+  body_len_ = 0u;
   _internal_metadata_.Clear();
 }
 
@@ -169,6 +203,20 @@ const char* MessageHeaderProtobuf::_InternalParse(const char* ptr, ::PROTOBUF_NA
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_mid(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .message.protobuf.MessageAppidProtobuf appid = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ctx->ParseMessage(_internal_mutable_appid(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 body_len = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          body_len_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -206,6 +254,20 @@ failure:
         1, _Internal::mid(this), target, stream);
   }
 
+  // .message.protobuf.MessageAppidProtobuf appid = 2;
+  if (this->has_appid()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        2, _Internal::appid(this), target, stream);
+  }
+
+  // uint32 body_len = 3;
+  if (this->body_len() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_body_len(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
@@ -227,6 +289,20 @@ size_t MessageHeaderProtobuf::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *mid_);
+  }
+
+  // .message.protobuf.MessageAppidProtobuf appid = 2;
+  if (this->has_appid()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *appid_);
+  }
+
+  // uint32 body_len = 3;
+  if (this->body_len() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_body_len());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -263,6 +339,12 @@ void MessageHeaderProtobuf::MergeFrom(const MessageHeaderProtobuf& from) {
   if (from.has_mid()) {
     _internal_mutable_mid()->::message::protobuf::MessageIdProtobuf::MergeFrom(from._internal_mid());
   }
+  if (from.has_appid()) {
+    _internal_mutable_appid()->::message::protobuf::MessageAppidProtobuf::MergeFrom(from._internal_appid());
+  }
+  if (from.body_len() != 0) {
+    _internal_set_body_len(from._internal_body_len());
+  }
 }
 
 void MessageHeaderProtobuf::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -287,6 +369,8 @@ void MessageHeaderProtobuf::InternalSwap(MessageHeaderProtobuf* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(mid_, other->mid_);
+  swap(appid_, other->appid_);
+  swap(body_len_, other->body_len_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MessageHeaderProtobuf::GetMetadata() const {

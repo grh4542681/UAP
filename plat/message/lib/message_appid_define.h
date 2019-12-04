@@ -1,25 +1,9 @@
-#ifndef __ERROR_CODE_SPACE_DEFINE_H__
-#define __ERROR_CODE_SPACE_DEFINE_H__
+#ifndef __MESSAGE_APPID_DEFINE_H__
+#define __MESSAGE_APPID_DEFINE_H__
 
-// 0 ~ 0x00001000 is system errno
-#define ERROR_CODE_BASE (0x00001000)
-#define ERROR_CODE_SPACE (0x00000100)                                                                                                                                                    
+#define APPID_BASE  (0x00000100)                                                                                                                                                    
+#define APPID_SPACE (0x00000100)
 
-//infra
-#define PUBLIC_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 1))
-#define SOCK_ERROR_CODE_BASE    (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 2))
-#define IO_ERROR_CODE_BASE      (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 3))
-#define IPC_ERROR_CODE_BASE     (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 4))
-#define FILE_ERROR_CODE_BASE    (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 5))
-#define PARSER_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 6))
-#define PROCESS_ERROR_CODE_BASE (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 7))
-#define THREAD_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 8))
-#define REPORT_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 9))
-#define CONTAINER_ERROR_CODE_BASE (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 10))
-#define TIMER_ERROR_CODE_BASE   (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 11))
-#define CONFIG_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 12))
-
-//platfrom
-#define MESSAGE_ERROR_CODE_BASE  (ERROR_CODE_BASE + (ERROR_CODE_SPACE * 100))
+#define MESSAGE_APPID_BASE  (APPID_BASE + (APPID_SPACE * 0))
 
 #endif

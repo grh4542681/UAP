@@ -23,8 +23,8 @@ public:
     MessageRet SerializationXml(void* ptr, size_t* size);
     MessageRet DeserializationXml(void* ptr, size_t* size);
 
-    MessageRet SerializationProtobuf(void* ptr, size_t* size);
-    MessageRet DeserializationProtobuf(void* ptr, size_t* size);
+    MessageRet SerializationTvl(void* ptr, size_t* size);
+    MessageRet DeserializationTvl(void* ptr, size_t* size);
 private:
     MessageId(long id) {
         id_ = id;

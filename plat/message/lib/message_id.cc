@@ -25,11 +25,11 @@ MessageId MessageId::GenMessageIdByTime() {
    return MessageId((long)time(NULL));
 }
 
-MessageRet MessageId::SerializationJson(void* ptr, size_t* size) {
+MessageRet MessageId::SerializationJson(std::string* str) {
     return MessageRet::ESUBCLASS;
 }
 
-MessageRet MessageId::DeserializationJson(void* ptr, size_t* size) {
+MessageRet MessageId::DeserializationJson(std::string* str) {
     return MessageRet::ESUBCLASS;
 }
 
@@ -41,11 +41,11 @@ MessageRet MessageId::DeserializationXml(void* ptr, size_t* size) {
     return MessageRet::ESUBCLASS;
 }
 
-MessageRet MessageId::SerializationProtobuf(void* ptr, size_t* size) {
+MessageRet MessageId::SerializationTvl(void* ptr, size_t* size) {
     return MessageRet::ESUBCLASS;
 }
 
-MessageRet MessageId::DeserializationProtobuf(void* ptr, size_t* size) {
+MessageRet MessageId::DeserializationTvl(void* ptr, size_t* size) {
     return MessageRet::ESUBCLASS;
 }
 
