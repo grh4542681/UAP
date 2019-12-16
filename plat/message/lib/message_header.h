@@ -4,7 +4,6 @@
 #include "message_return.h"
 
 #include "message_raw.h"
-#include "message_id.h"
 #include "message_appid.h"
 
 namespace message {
@@ -14,19 +13,31 @@ public:
     MessageHeader();
     ~MessageHeader();
 
-    MessageRet SerializationJson(void* ptr, size_t* size);
-    MessageRet DeserializationJson(void* ptr, size_t* size);
+    long& GetMessageId();
+    MessageAppid& GetMessageAppid();
+    MessageFormat& GetMessageBodyFormat();
+    uint32_t GetMessageBodyLen();
 
-    MessageRet SerializationXml(void* ptr, size_t* size);
-    MessageRet DeserializationXml(void* ptr, size_t* size);
+    MessageHeader& SetMessageAppid(const MessageAppid& appid);
+    MessageHeader& SetMessageBodyFormat(const MessageFormat& format);
+    MessageHeader& SetMessageBodyLen(uint32_t len);
 
-    MessageRet SerializationProtobuf(void* ptr, size_t* size);
-    MessageRet DeserializationProtobuf(void* ptr, size_t* size);
+    MessageRet SerializationJson(parser::ParserJson& parser);
+    MessageRet DeserializationJson(parser::ParserJson& parser);
+
+    MessageRet SerializationXml(parser::ParserXml& parser);
+    MessageRet DeserializationXml(parser::ParserXml& parser);
+
+    MessageRet SerializationTvl(parser::ParserTvl& parser);
+    MessageRet DeserializationTvl(parser::ParserTvl& parser);
     
 private:
-    MessageId mid_;
+    long mid_;
     MessageAppid appid_;
+    MessageFormat body_format_;
     uint32_t body_len_;
+
+    static long GenMessageIdByTime();
 };
 
 }

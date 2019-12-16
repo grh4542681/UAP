@@ -28,6 +28,7 @@ public:
         PARSER_EGETWLOCK,
         PARSER_EUNLOCK,
         PARSER_ETYPE,
+        PARSER_ESPACE,
     };
 public:
     static ECodeMapType ECodeMap;

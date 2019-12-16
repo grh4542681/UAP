@@ -17,6 +17,7 @@
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/filewritestream.h"
+#include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/prettywriter.h"
 
@@ -1684,9 +1685,8 @@ ParserJsonObject& ParserJsonObject::operator=(const ParserJsonObject&& other)
 //ParserJson class
 ParserJson::ParserJson()
 {
-    this->init_flag_ = false;
     this->thread_safe_flag_ = false;
-    this->root = ParserJsonObject(this, &(this->doc_));
+    this->root = ParserJsonObject(this, &(this->doc_)).setObject();
 }
 
 ParserJson::~ParserJson()
@@ -1707,6 +1707,21 @@ ParserRet ParserJson::LoadFile(file::File& file)
 ParserRet ParserJson::LoadFile(std::string str)
 {
     return ParserJsonFile(str.c_str());
+}
+
+ParserRet ParserJson::StoreString(std::string& str)
+{
+    return StorageJsonString(str);
+}
+
+ParserRet ParserJson::StoreFile(file::File& file)
+{
+    return StorageJsonFile(file.GetFileName().c_str());
+}
+
+ParserRet ParserJson::StoreFile(std::string str)
+{
+    return StorageJsonFile(str.c_str());
 }
 
 /**
@@ -1780,6 +1795,27 @@ ParserRet ParserJson::StorageJsonFile(const char* filename)
     rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(fws);
     this->doc_.Accept(writer);
     fclose(fp);
+    return ParserRet::SUCCESS;
+}
+
+ParserRet ParserJson::StorageJsonString(std::string& jsonstring)
+{
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    this->doc_.Accept(writer);
+    jsonstring = buffer.GetString();
+    return ParserRet::SUCCESS;
+}
+
+ParserRet ParserJson::StorageJsonString(char* jsonstring, unsigned int len)
+{
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    this->doc_.Accept(writer);
+    if (len < buffer.GetSize()) {
+        return ParserRet::PARSER_ESPACE;
+    }
+    memcpy(jsonstring, buffer.GetString(), buffer.GetSize());
     return ParserRet::SUCCESS;
 }
 

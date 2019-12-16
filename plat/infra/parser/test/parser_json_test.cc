@@ -49,6 +49,9 @@ int main()
     o1.find("/").setObject().objectAdd("id1",1).objectAdd("o2",o2.root);
     pj.find("/testobj2/testarray3").arrayPush(o1.find("/")).arrayPush(o2.find("/"));
     pj.StorageJsonFile("test_json3.json");
+    std::string str1;
+    pj.StorageJsonString(str1);
+    printf("%s\n",str1.c_str());
 
     return 0;
 }

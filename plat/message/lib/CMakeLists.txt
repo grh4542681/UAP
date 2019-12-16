@@ -1,5 +1,5 @@
 SET(LIBGRHMSG_SRC ../message_return.cc
-                  message_id.cc
+                  message_raw.cc
                   message_appid.cc
                   message_header.cc
                   message_stream.cc

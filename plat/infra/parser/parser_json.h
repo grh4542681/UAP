@@ -147,10 +147,15 @@ public:
     ParserRet LoadFile(file::File& file);
     ParserRet LoadFile(std::string str);
 
+    ParserRet StoreString(std::string& str);
+    ParserRet StoreFile(file::File& file);
+    ParserRet StoreFile(std::string str);
+
     ParserRet ParserJsonFile(const char* filename);
     ParserRet ParserJsonString(const char* jsonstring);
     ParserRet StorageJsonFile(const char* filename);
-    ParserRet StorageJsonString(const char* jsonstring, unsigned int len);
+    ParserRet StorageJsonString(std::string& jsonstring);
+    ParserRet StorageJsonString(char* jsonstring, unsigned int len);
 
     void setThreadSafe(bool flag);
     bool getThreadSafe();
@@ -164,7 +169,6 @@ public:
 
     ParserJsonObject find(const char* path);
 private:
-    bool init_flag_;
     bool thread_safe_flag_;
     mempool::MemPool* mempool_;
     thread::mutex::ThreadRWLock rwlock_;
