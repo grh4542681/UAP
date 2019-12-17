@@ -51,11 +51,10 @@ MessageHeader& MessageHeader::SetMessageBodyLen(uint32_t len)
 
 MessageRet MessageHeader::SerializationJson(parser::ParserJson& parser)
 {
-    auto header = parser.find("/").objectAdd("header", parser::JsonType::OBJECT).Vfind("header");
-    if (header.isAvailable()) {
+    auto header = parser.find("/").objectAdd("header", parser::JsonType::OBJECT).Vfind("/header");
+    if (!header.isAvailable()) {
         return MessageRet::MESSAGE_EPARSER;
     }
-    header.setObject();
     header.objectAdd("id", mid_);
     if (header.hasError()) {
         return MessageRet::MESSAGE_EPARSER;
@@ -73,8 +72,8 @@ MessageRet MessageHeader::SerializationJson(parser::ParserJson& parser)
 
 MessageRet MessageHeader::DeserializationJson(parser::ParserJson& parser)
 {
-    auto header = parser.find("/").objectAdd("header", parser::JsonType::OBJECT);
-    if (header.isAvailable()) {
+    auto header = parser.find("/header");
+    if (!header.isAvailable()) {
         return MessageRet::MESSAGE_EPARSER;
     }
     header.Vfind("id").getLong(&mid_);
