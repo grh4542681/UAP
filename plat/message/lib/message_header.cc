@@ -55,7 +55,8 @@ MessageRet MessageHeader::SerializationJson(parser::ParserJson& parser)
     if (header.isAvailable()) {
         return MessageRet::MESSAGE_EPARSER;
     }
-    header.setObject().objectAdd("id", mid_);
+    header.setObject();
+    header.objectAdd("id", mid_);
     if (header.hasError()) {
         return MessageRet::MESSAGE_EPARSER;
     }

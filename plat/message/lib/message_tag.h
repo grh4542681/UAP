@@ -1,8 +1,7 @@
 #ifndef __MESSAGE_TAG_H__
 #define __MESSAGE_TAG_H__
 
-#include "message_format.h"
-
+#include "message_raw.h"
 namespace message {
 
 class MessageTag {
@@ -16,7 +15,7 @@ public:
     long BuildTag();
     MessageTag& ParseTag(long tag);
 private:
-    MessageFormat format_;
+    long tag_;
 }
 
 }
