@@ -10,8 +10,8 @@
 
 namespace message {
 
-enum class MessageFormat : int {
-    Json,
+enum MessageFormat : int {
+    Json = 1,
     Xml,
     Tvl,
 };

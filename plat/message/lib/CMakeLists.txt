@@ -1,7 +1,8 @@
 SET(LIBGRHMSG_SRC ../message_return.cc
                   message_raw.cc
+                  message_tag.cc
                   message_appid.cc
-                  message_header.cc
+                  message_head.cc
                   message_stream.cc
                   message_api.cc
                   message_agent.cc

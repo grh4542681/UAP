@@ -1,5 +1,5 @@
-#ifndef __MESSAGE_HEADER_H__
-#define __MESSAGE_HEADER_H__
+#ifndef __MESSAGE_HEAD_H__
+#define __MESSAGE_HEAD_H__
 
 #include "message_return.h"
 
@@ -8,19 +8,19 @@
 
 namespace message {
 
-class MessageHeader : public MessageRaw {
+class MessageHead : public MessageRaw {
 public:
-    MessageHeader();
-    ~MessageHeader();
+    MessageHead();
+    ~MessageHead();
 
     long& GetMessageId();
     MessageAppid& GetMessageAppid();
     MessageFormat& GetMessageBodyFormat();
     uint32_t GetMessageBodyLen();
 
-    MessageHeader& SetMessageAppid(const MessageAppid& appid);
-    MessageHeader& SetMessageBodyFormat(const MessageFormat& format);
-    MessageHeader& SetMessageBodyLen(uint32_t len);
+    MessageHead& SetMessageAppid(const MessageAppid& appid);
+    MessageHead& SetMessageBodyFormat(const MessageFormat& format);
+    MessageHead& SetMessageBodyLen(uint32_t len);
 
     MessageRet SerializationJson(parser::ParserJson& parser);
     MessageRet DeserializationJson(parser::ParserJson& parser);
