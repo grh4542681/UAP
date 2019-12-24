@@ -7,6 +7,11 @@ template<> MessageRet MessageRaw::Serialization<parser::ParserJson>(parser::Pars
     return SerializationJson(parser);
 }
 
+template<> MessageRet MessageRaw::Serialization<parser::ParserJsonObject>(parser::ParserJsonObject& parser)
+{
+    return SerializationJson(const_cast<parser::ParserJsonObject&>(parser));
+}
+
 template<> MessageRet MessageRaw::Serialization<parser::ParserXml>(parser::ParserXml& parser)
 {
     return SerializationXml(parser);
@@ -20,6 +25,11 @@ template<> MessageRet MessageRaw::Serialization<parser::ParserTvl>(parser::Parse
 template<> MessageRet MessageRaw::Deserialization<parser::ParserJson>(parser::ParserJson& parser)
 {
     return DeserializationJson(parser);
+}
+
+template<> MessageRet MessageRaw::Deserialization<parser::ParserJsonObject>(parser::ParserJsonObject& parser)
+{
+    return DeserializationJson(const_cast<parser::ParserJsonObject&>(parser));
 }
 
 template<> MessageRet MessageRaw::Deserialization<parser::ParserXml>(parser::ParserXml& parser)

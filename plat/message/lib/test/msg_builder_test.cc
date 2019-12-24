@@ -18,7 +18,8 @@ int main()
     head.SetMessageBodyLen(100);
 
     parser::ParserJson parser;
-    head.Serialization(parser);
+    auto rootobj = parser.find("/");
+    head.Serialization(rootobj);
     std::string str;
     parser.StoreString(str);
 

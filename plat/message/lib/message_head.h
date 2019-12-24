@@ -22,8 +22,8 @@ public:
     MessageHead& SetMessageBodyFormat(const MessageFormat& format);
     MessageHead& SetMessageBodyLen(uint32_t len);
 
-    MessageRet SerializationJson(parser::ParserJson& parser);
-    MessageRet DeserializationJson(parser::ParserJson& parser);
+    MessageRet SerializationJson(parser::ParserJsonObject& parser);
+    MessageRet DeserializationJson(parser::ParserJsonObject& parser);
 
     MessageRet SerializationXml(parser::ParserXml& parser);
     MessageRet DeserializationXml(parser::ParserXml& parser);

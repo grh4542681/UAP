@@ -21,10 +21,11 @@ public:
 
     MessageRet SerializationTvl(parser::ParserTvl& parser);
     MessageRet DeserializationTvl(parser::ParserTvl& parser);
-    
+
 private:
-    MessageHead head_;
     MessageTag tag_;
+    MessageHead head_;
+    MessageBody body_;
 };
 
 }

@@ -1541,6 +1541,10 @@ ParserJsonObject& ParserJsonObject::objectClear(struct timespec* overtime)
     }
 }
 
+ParserJsonObject ParserJsonObject::Vfind(const std::string& path)
+{
+    return Vfind(path.c_str());
+}
 /**
 * @brief Vfind - Longitudinally find the node of the specified path.
 *                If find new node, it will change self point to new node.
@@ -1878,6 +1882,10 @@ ParserRet ParserJson::UnLock()
     return ParserRet::SUCCESS;
 }
 
+ParserJsonObject ParserJson::find(const std::string& path)
+{
+    return find(path.c_str());
+}
 /**
 * @brief find - Find an object by path
 *

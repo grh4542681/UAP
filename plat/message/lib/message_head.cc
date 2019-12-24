@@ -5,6 +5,7 @@
 namespace message {
 
 MessageHead::MessageHead() {
+    name_ = "head";
     mid_ = GenMessageIdByTime();
 }
 MessageHead::~MessageHead() {
@@ -49,9 +50,9 @@ MessageHead& MessageHead::SetMessageBodyLen(uint32_t len)
     return *this;
 }
 
-MessageRet MessageHead::SerializationJson(parser::ParserJson& parser)
+MessageRet MessageHead::SerializationJson(parser::ParserJsonObject& parser)
 {
-    auto head = parser.find("/").objectAdd("head", parser::JsonType::OBJECT).Vfind("/head");
+    auto head = parser.objectAdd(name_.c_str(), parser::JsonType::OBJECT).Vfind("/" + name_);
     if (!head.isAvailable()) {
         return MessageRet::MESSAGE_EPARSER;
     }
@@ -70,9 +71,9 @@ MessageRet MessageHead::SerializationJson(parser::ParserJson& parser)
     return MessageRet::SUCCESS;
 }
 
-MessageRet MessageHead::DeserializationJson(parser::ParserJson& parser)
+MessageRet MessageHead::DeserializationJson(parser::ParserJsonObject& parser)
 {
-    auto head = parser.find("/head");
+    auto head = parser.Vfind("/" + name_);
     if (!head.isAvailable()) {
         return MessageRet::MESSAGE_EPARSER;
     }

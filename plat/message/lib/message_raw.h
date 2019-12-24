@@ -33,18 +33,25 @@ public:
 
     virtual MessageRet SerializationJson(parser::ParserJson& parser) { return MessageRet::ESUBCLASS; }
     virtual MessageRet DeserializationJson(parser::ParserJson& parser) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet SerializationJson(parser::ParserJsonObject& parser) { return MessageRet::ESUBCLASS; }
+    virtual MessageRet DeserializationJson(parser::ParserJsonObject& parser) { return MessageRet::ESUBCLASS; }
 
     virtual MessageRet SerializationXml(parser::ParserXml& parser) { return MessageRet::ESUBCLASS; }
     virtual MessageRet DeserializationXml(parser::ParserXml& parser) { return MessageRet::ESUBCLASS; }
 
     virtual MessageRet SerializationTvl(parser::ParserTvl& parser) { return MessageRet::ESUBCLASS; }
     virtual MessageRet DeserializationTvl(parser::ParserTvl& parser) { return MessageRet::ESUBCLASS; }
+
+public:
+    std::string name_ = "";
 };
 
 template<> MessageRet MessageRaw::Serialization<parser::ParserJson>(parser::ParserJson& parser);
+template<> MessageRet MessageRaw::Serialization<parser::ParserJsonObject>(parser::ParserJsonObject& parser);
 template<> MessageRet MessageRaw::Serialization<parser::ParserXml>(parser::ParserXml& parser);
 template<> MessageRet MessageRaw::Serialization<parser::ParserTvl>(parser::ParserTvl& parser);
 template<> MessageRet MessageRaw::Deserialization<parser::ParserJson>(parser::ParserJson& parser);
+template<> MessageRet MessageRaw::Deserialization<parser::ParserJsonObject>(parser::ParserJsonObject& parser);
 template<> MessageRet MessageRaw::Deserialization<parser::ParserXml>(parser::ParserXml& parser);
 template<> MessageRet MessageRaw::Deserialization<parser::ParserTvl>(parser::ParserTvl& parser);
 

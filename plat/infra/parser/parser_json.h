@@ -110,6 +110,7 @@ public:
     ParserJsonObject& objectDel(const char* key, struct timespec* overtime = NULL);
     ParserJsonObject& objectClear(struct timespec* overtime = NULL);
 
+    ParserJsonObject Vfind(const std::string& path);
     ParserJsonObject Vfind(const char* path);
     ParserJsonObject& Hfind(const char* path);
 
@@ -167,6 +168,7 @@ public:
     ParserRet WLock(struct timespec* overtime);
     ParserRet UnLock();
 
+    ParserJsonObject find(const std::string& path);
     ParserJsonObject find(const char* path);
 private:
     bool thread_safe_flag_;
