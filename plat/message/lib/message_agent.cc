@@ -61,6 +61,15 @@ MessageRemote* MessageAgent::GetManager()
     return remote_manager_;
 }
 
+MessageRet MessageAgent::SetManager(MessageRemote* manager)
+{
+    if (!remote_manager_) {
+        remote_manager_ = manager;
+        return MessageRet::SUCCESS;
+    }
+    return MessageRet::MessageRet::MESSAGE_MANAGER_EEXIST;
+}
+
 MessageListener* MessageAgent::GetLinstener(std::string l_name)
 {
 
@@ -79,57 +88,6 @@ MessageRet MessageAgent::RegisterAgent()
 MessageRet MessageAgent::UnregisterAgent()
 {
 
-}
-
-MessageRet MessageAgent::RegisterListener(std::string name, const sock::SockAddress& addr)
-{
-    if (LookupLinstener(name)) {
-        return MessageRet::MESSAGE_LISTENER_EREPEAT;
-    }
-    MessageListener* listener = NULL;
-    switch (type_) {
-        case Type::NormalAgent:
-            listener = mempool_->Malloc<MessageListener>(name, addr, MessageListener::Type::NormalListener);
-            if (!listener) {
-                return MessageRet::EMALLOC;
-            }
-            if (!(listener->IsReady())) {
-                mempool_->Free<MessageListener>(listener);
-                return MessageRet::MESSAGE_LISTENER_ESTATE;
-            }
-            {
-                io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD());
-                listener_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
-                listener_selectitem.InputFunc = &MessageListener::_common_listener_callback;
-                select_.AddSelectItem<io::SelectItemTemplate<MessageListener>>(listener_selectitem);
-            }
-            break;
-        case Type::KeeperAgent:
-            listener = mempool_->Malloc<MessageListener>(name, addr, MessageListener::Type::KeeperListener);
-            if (!listener) {
-                return MessageRet::EMALLOC;
-            }
-            if (!(listener->IsReady())) {
-                mempool_->Free<MessageListener>(listener);
-                return MessageRet::MESSAGE_LISTENER_ESTATE;
-            }
-            break;
-        case Type::WorkerAgent:
-            listener = mempool_->Malloc<MessageListener>(name, addr, MessageListener::Type::WorkerListener);
-            if (!listener) {
-                return MessageRet::EMALLOC;
-            }
-            if (!(listener->IsReady())) {
-                mempool_->Free<MessageListener>(listener);
-                return MessageRet::MESSAGE_LISTENER_ESTATE;
-            }
-            break;
-        default:
-            return MessageRet::ERROR;
-    }
-
-    listen_local_ep_map_.insert({name, listener});
-    return MessageRet::SUCCESS;
 }
 
 MessageRet MessageAgent::UnregisterListener(std::string name)
@@ -187,12 +145,12 @@ MessageRet MessageAgent::Run()
             std::string protocol = config_message_manager->Search<std::string>("address/protocol")->GetData();
             if (protocol == "Keeper-Worker") {
                 type_ = Type::WorkerAgent;
-                remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", proc->GetParentProcess()->GetFD());
+                RegisterManager(proc->GetParentProcess()->GetFD());
                 MESSAGE_INFO("Create a proxy for communication between father and son");
             } else {
                 if (protocol == "local") {
                     std::string device = config_message_manager->Search<std::string>("address/device")->GetData();
-                    remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", sock::SockAddress(sock::SockFamily::TCP_LOCAL, device.c_str()));
+                    RegisterManager(sock::SockAddress(sock::SockFamily::TCP_LOCAL, device.c_str()));
                     MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
                 } else if (protocol == "ipv4") {
                     std::string device = config_message_manager->Search<std::string>("address/device")->GetData();
@@ -202,17 +160,11 @@ MessageRet MessageAgent::Run()
                     MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
                 }
             }
-            if (!remote_manager_->IsReady()) {
-                return MessageRet::MESSAGE_AGENT_ECONN;
-            }
-            io::SelectItemTemplate<MessageRemote> manager_selectitem(remote_manager_, remote_manager_->GetRemoteFD());
-            manager_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
-            manager_selectitem.InputFunc = &MessageRemote::_manager_remote_callback;
-            remote_manager_->GetRemoteFD().Write("hello world", 12);
-            select_.AddSelectItem<io::SelectItemTemplate<MessageRemote>>(manager_selectitem);
         } else {
             // no message manager.
-            remote_manager_ = NULL;
+            if(remote_manager_) {
+                mempool_->Free<MessageRemote>(remote_manager_);
+            }
         }
 
         auto config_message_agent = config_message->Search("agent");

@@ -138,6 +138,8 @@ public:
             }
             child->GetProcessConfig().Print();
 
+            message::MessageRemote* manager = mempool::MemPool::getInstance()->Malloc<message::MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", child->GetParentProcess()->GetFD());
+            message::MessageAgent::getInstance()->SetManager(manager);
             message::MessageAgent::getInstance()->Run();
 
             PROCESS_INFO("Execute child main function.");

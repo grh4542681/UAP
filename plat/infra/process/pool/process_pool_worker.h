@@ -123,6 +123,7 @@ public:
     State& GetState();
 
     bool IsReady();
+    static io::Ret WorkerMessageListenerCallback(message::MessageListener* listener, io::SelectItemTemplate<MessageListener>* item);
 private:
     Info info_;
     State state_;

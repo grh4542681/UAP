@@ -16,6 +16,7 @@ namespace message {
 class MessageAgent;
 class MessageRemote {
 public:
+    typedef std::function<io::IoRet(MessageRemote*,io::SelectItemTemplate<MessageRemote>*)> Callback;
     friend class MessageAgent;
 public:
     typedef struct _Info {
@@ -34,12 +35,15 @@ public:
 
 public:
     MessageRemote();
-    MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, sock::SockFD& remote_fd);
-    MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, const sock::SockAddress& remote_address);
+    MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint,
+                        sock::SockFD& remote_fd, Callback callback = &MessageRemote::_common_remote_callback);
+    MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint,
+                        const sock::SockAddress& remote_address, Callback callback = &MessageRemote::_common_remote_callback);
     ~MessageRemote();
 
     sock::SockFD& GetRemoteFD();
     State& GetState();
+    Callback& GetCallback();
 
     bool IsReady();
 private:
@@ -47,6 +51,7 @@ private:
     State state_;
     std::string remote_uri_;
     sock::SockFD remote_fd_;
+    Callback callback_;
 private:
     MessageRemote(MessageRemote& other);
     const MessageRemote& operator=(const MessageRemote& other);

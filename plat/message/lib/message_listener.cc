@@ -2,36 +2,37 @@
 #include "message_listener.h"
 
 namespace message {
-MessageListener::MessageListener(std::string name, const sock::SockAddress& addr, const MessageListener::Type& type)
+MessageListener::MessageListener(std::string name, const sock::SockAddress& addr, Callback callback)
 {
     agent_ = MessageAgent::getInstance();
-    type_ = type;
+    callback_ = callback;
     info_.name_ = name;
     info_.endpoint_num_ = 0;
     info_.address_ = addr;
     info_.state_ = State::Initialize;
     server_ = sock::SockServer(&const_cast<sock::SockAddress&>(addr));
-    switch (type_) {
-        case Type::NormalListener:
-        case Type::KeeperListener:
-            if (server_.Bind() == sock::SockRet::SUCCESS)
-            {
-                printf("------- %s %d\n",__FILE__,__LINE__);
-                info_.state_ = State::Ready;
-                state_ = State::Ready;
-            } else {
-                printf("------- %s %d\n",__FILE__,__LINE__);
-                info_.state_ = State::Error;
-                state_ = State::Error;
-            }
-            break;
-        case Type::WorkerListener:
-            info_.state_ = State::Ready;
-            break;
-        default:
-            info_.state_ = State::Error;
-            break;
+    if (server_.Bind() == sock::SockRet::SUCCESS)
+    {
+        printf("------- %s %d\n",__FILE__,__LINE__);
+        info_.state_ = State::Ready;
+        state_ = State::Ready;
+    } else {
+        printf("------- %s %d\n",__FILE__,__LINE__);
+        info_.state_ = State::Error;
+        state_ = State::Error;
     }
+    sfd_ = server_.GetSockFD();
+}
+
+MessageListener::MessageListener(std::string name, const sock::SockFD& sfd, Callback callback)
+{
+    agent_ = MessageAgent::getInstance();
+    callback_ = callback;
+    info_.name_ = name;
+    info_.endpoint_num_ = 0;
+    info_.state_ = State::Initialize;
+    info_.state_ = State::Ready;
+    sfd_ = sfd;
 }
 
 MessageListener::~MessageListener()
@@ -49,15 +50,9 @@ sock::SockServer& MessageListener::GetSockServer()
     return server_;
 }
 
-MessageListener::Type& MessageListener::GetType()
+MessageListener::Callback& MessageListener::GetCallback()
 {
-    return type_;
-}
-
-MessageListener& MessageListener::SetType(Type& type)
-{
-    type_ = type;
-    return *this;
+    return callback_;
 }
 
 bool MessageListener::IsReady()

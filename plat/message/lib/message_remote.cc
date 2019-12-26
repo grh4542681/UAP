@@ -2,7 +2,7 @@
 
 namespace message {
 
-MessageRemote::MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, const sock::SockAddress& remote_address)
+MessageRemote::MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, const sock::SockAddress& remote_address, Callback callback)
 {
     info_.remote_machine_ = remote_machine.empty() ? "LOCAL" : remote_machine;
     info_.remote_listener_ = remote_listener;
@@ -17,9 +17,10 @@ MessageRemote::MessageRemote(std::string remote_machine, std::string remote_list
         MESSAGE_ERROR("Con't connect remote [%s]", remote_uri_.c_str());
         state_ = State::Error;
     }
+    callback_ = callback;
 }
 
-MessageRemote::MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, sock::SockFD& remote_fd)
+MessageRemote::MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, sock::SockFD& remote_fd, Callback callback)
 {
     info_.remote_machine_ = remote_machine.empty() ? "LOCAL" : remote_machine;
     info_.remote_listener_ = remote_listener;
@@ -28,6 +29,7 @@ MessageRemote::MessageRemote(std::string remote_machine, std::string remote_list
     remote_uri_ = info_.remote_machine_ + "/" + info_.remote_listener_ + "/" + info_.remote_endpoint_;
     remote_fd_ = remote_fd;
     state_ = State::Ready;
+    callback_ = callback;
 }
 
 MessageRemote::~MessageRemote()
@@ -43,6 +45,11 @@ sock::SockFD& MessageRemote::GetRemoteFD()
 MessageRemote::State& MessageRemote::GetState()
 {
     return state_;
+}
+
+MessageRemote::Callback& MessageRemote::GetCallback()
+{
+    return callback_;
 }
 
 bool MessageRemote::IsReady()
