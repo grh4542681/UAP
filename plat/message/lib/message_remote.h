@@ -16,7 +16,7 @@ namespace message {
 class MessageAgent;
 class MessageRemote {
 public:
-    typedef std::function<io::IoRet(MessageRemote*,io::SelectItemTemplate<MessageRemote>*)> Callback;
+    typedef std::function<io::IoRet(MessageRemote*,io::SelectItemTemplate<MessageRemote>*,int)> Callback;
     friend class MessageAgent;
 public:
     typedef struct _Info {
@@ -57,7 +57,7 @@ private:
     const MessageRemote& operator=(const MessageRemote& other);
 
     io::IoRet _manager_remote_callback(io::SelectItemTemplate<MessageRemote>* item);
-    io::IoRet _common_remote_callback(io::SelectItemTemplate<MessageRemote>* item);
+    io::IoRet _common_remote_callback(io::SelectItemTemplate<MessageRemote>* item, int events);
 
 };
 

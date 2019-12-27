@@ -11,7 +11,8 @@ template < typename HOST >
 class ProcessGroupWorkerSelectItem : public io::SelectItemTemplate<HOST> {
 public:
     ProcessGroupWorkerSelectItem() : io::SelectItemTemplate<HOST>() { }
-    ProcessGroupWorkerSelectItem(HOST* host, const ProcessID& pid, const sock::SockFD& fd) : io::SelectItemTemplate<HOST>(host, fd) {
+    ProcessGroupWorkerSelectItem(HOST* host, const ProcessID& pid, const sock::SockFD& fd,
+                        typename io::SelectItemTemplate<HOST>::CallbackFunc callback = nullptr) : io::SelectItemTemplate<HOST>(host, fd, callback) {
         pid_ = pid;
     }
     ProcessGroupWorkerSelectItem(ProcessGroupWorkerSelectItem& other) : io::SelectItemTemplate<HOST>(other) {

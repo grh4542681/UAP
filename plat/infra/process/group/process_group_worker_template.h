@@ -136,9 +136,10 @@ public:
                 config_message_manager->Insert<bool>("switch", true);
                 config_message_manager->Insert("address")->Insert<std::string>("protocol", "Keeper-Worker");
             }
-            child->GetProcessConfig().Print();
+    //        child->GetProcessConfig().Print();
 
-            message::MessageRemote* manager = mempool::MemPool::getInstance()->Malloc<message::MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", child->GetParentProcess()->GetFD());
+            message::MessageRemote* manager = mempool::MemPool::getInstance()->Malloc<message::MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL",
+                                child->GetParentProcess()->GetFD(), MessageManagerCallback);
             message::MessageAgent::getInstance()->SetManager(manager);
             message::MessageAgent::getInstance()->Run();
 
@@ -164,6 +165,17 @@ public:
         }
         return {ProcessRet::SUCCESS, ProcessID(0)};
     }
+
+    static io::IoRet MessageManagerCallback(message::MessageRemote* remote, io::SelectItemTemplate<message::MessageRemote>* item, int events) {
+        printf("%s : %d ---callback--\n", __FILE__, __LINE__);
+        auto fd = item->template GetFd<sock::SockFD>();
+        char buff[1024];
+        memset(buff, 0, sizeof(buff));
+        fd.Recv(NULL,buff,sizeof(buff));
+        printf("recv %s\n", buff);
+        return ProcessRet::SUCCESS;
+    }
+
 private:
     mempool::MemPool* mempool_;         ///< Mempool pointer.
     std::string name_;                  ///< Process Name.

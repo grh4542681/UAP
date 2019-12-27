@@ -12,13 +12,25 @@
 
 namespace io {
 
+/**
+* @brief - Base file descriptor class
+*/
 class FD {
 public:
+    /**
+    * @brief FD - Default consturctor
+    */
     FD() {
         fd_ = 0;
         init_flag_ = false;
         auto_close_ = false;
     }
+    /**
+    * @brief FD - Consturctor
+    *
+    * @param [fd] - Linux file descriptor
+    * @param [auto_close] - Auto close flag
+    */
     FD(unsigned int fd, bool auto_close = false) : fd_(fd), auto_close_(auto_close){
         struct stat fd_stat;
         if (fstat(fd, &fd_stat)) {
@@ -28,6 +40,11 @@ public:
         auto_close_ = false;
         init_flag_ = false;
     }
+    /**
+    * @brief FD - Copy constructor
+    *
+    * @param [other] -  Other instance
+    */
     FD(FD& other) {
         if (fd_ > 0 && init_flag_ && auto_close_) {
             Close();
@@ -37,6 +54,11 @@ public:
         auto_close_ = other.auto_close_;
         init_flag_ = other.init_flag_;
     }
+    /**
+    * @brief FD - Copy constructor
+    *
+    * @param [other] -  Other instance
+    */
     FD(FD&& other) {
         if (fd_ > 0 && init_flag_ && auto_close_) {
             Close();
@@ -46,6 +68,11 @@ public:
         auto_close_ = other.auto_close_;
         init_flag_ = other.init_flag_;
     }
+    /**
+    * @brief FD - Copy constructor
+    *
+    * @param [other] -  Other instance
+    */
     FD(const FD& other) {
         if (fd_ > 0 && init_flag_ && auto_close_) {
             Close();
@@ -55,6 +82,11 @@ public:
         auto_close_ = other.auto_close_;
         init_flag_ = other.init_flag_;
     }
+    /**
+    * @brief FD - Copy constructor
+    *
+    * @param [other] -  Other instance
+    */
     FD(const FD&& other) {
         if (fd_ > 0 && init_flag_ && auto_close_) {
             Close();
@@ -64,6 +96,9 @@ public:
         auto_close_ = other.auto_close_;
         init_flag_ = other.init_flag_;
     }
+    /**
+    * @brief ~FD - Destructor
+    */
     virtual ~FD() {}
 
     const FD& operator=(const FD& other) {

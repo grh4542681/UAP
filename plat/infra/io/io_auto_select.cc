@@ -80,9 +80,16 @@ IoRet AutoSelect::ModSelectItem()
 
 }
 
-const SelectItem& AutoSelect::GetSelectItem(FD& fd)
+const SelectItem* AutoSelect::GetSelectItem(FD& fd)
 {
+    auto it = select_item_map_.find(fd.GetFD());
+    return (it == select_item_map_.end() ? nullptr : it->second);
+}
 
+bool AutoSelect::HasSelectItem(FD& fd)
+{
+    auto it = select_item_map_.find(fd.GetFD());
+    return (it == select_item_map_.end() ? false : true);
 }
 
 IoRet AutoSelect::_select_item_traversal()

@@ -68,7 +68,7 @@ io::IoRet MessageRemote::_manager_remote_callback(io::SelectItemTemplate<Message
     return MessageRet::SUCCESS;
 }
 
-io::IoRet MessageRemote::_common_remote_callback(io::SelectItemTemplate<MessageRemote>* item)
+io::IoRet MessageRemote::_common_remote_callback(io::SelectItemTemplate<MessageRemote>* item, int events)
 {
     printf("---callback--\n");
     auto fd = item->template GetFd<sock::SockFD>();

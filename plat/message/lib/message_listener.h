@@ -22,7 +22,7 @@ class MessageAgent;
 class MessageListener : public MessageRaw {
 public:
     //typedef io::IoRet (*Callback)(io::SelectItemTemplate<MessageListener>* item);
-    typedef std::function<io::IoRet(MessageListener*,io::SelectItemTemplate<MessageListener>*)> Callback;
+    typedef std::function<io::IoRet(MessageListener*,io::SelectItemTemplate<MessageListener>*, int)> Callback;
     friend class mempool::MemPool;
     friend class MessageAgent;
 public:
@@ -75,7 +75,7 @@ private:
     MessageListener(MessageListener& other);
     const MessageListener& operator=(const MessageListener& other);
 
-    io::IoRet _common_listener_callback(io::SelectItemTemplate<MessageListener>* item);
+    io::IoRet _common_listener_callback(io::SelectItemTemplate<MessageListener>* item, int events);
 };
 
 

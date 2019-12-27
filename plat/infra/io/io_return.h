@@ -5,8 +5,14 @@
 
 namespace io {
 
+/**
+* @brief - IO return value.
+*/
 class IoRet : public ret::Return {
 public:
+    /**
+    * @brief - Io return value.
+    */
     enum ECode{
         IO_EFDTYPE = IO_ERROR_CODE_BASE,
         IO_EUNKNOWFD,

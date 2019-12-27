@@ -64,19 +64,18 @@ public:
     MessageRet UnregisterAgent();
 
     template < typename ... Args > MessageRet RegisterManager(Args&& ... args) {
-        if (remote_manager_) {
+        if (remote_manager_ && select_.HasSelectItem(remote_manager_->GetRemoteFD())) {
             return MessageRet::MESSAGE_MANAGER_EEXIST;
         }
-        remote_manager_ = mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", std::forward<Args>(args)...);
+        remote_manager_ = remote_manager_ ? remote_manager_ : mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", std::forward<Args>(args)...);
         if (!remote_manager_) {
             return MessageRet::EMALLOC;
         }
         if (!remote_manager_->IsReady()) {
             return MessageRet::MESSAGE_AGENT_ECONN;
         }
-        io::SelectItemTemplate<MessageRemote> manager_selectitem(remote_manager_, remote_manager_->GetRemoteFD());
+        io::SelectItemTemplate<MessageRemote> manager_selectitem(remote_manager_, remote_manager_->GetRemoteFD(), remote_manager_->GetCallback());
         manager_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
-        manager_selectitem.InputFunc = remote_manager_->GetCallback();
         remote_manager_->GetRemoteFD().Write("hello world", 12);
         select_.AddSelectItem<io::SelectItemTemplate<MessageRemote>>(manager_selectitem);
         return MessageRet::SUCCESS;
@@ -94,9 +93,8 @@ public:
             mempool_->Free<MessageListener>(listener);
             return MessageRet::MESSAGE_LISTENER_ESTATE;
         }
-        io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD());
+        io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD(), listener->GetCallback());
         listener_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
-        listener_selectitem.InputFunc = listener->GetCallback();
         select_.AddSelectItem<io::SelectItemTemplate<MessageListener>>(listener_selectitem);
         listen_local_ep_map_.insert({name, listener});
         return MessageRet::SUCCESS;

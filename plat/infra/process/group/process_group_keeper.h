@@ -69,10 +69,10 @@ private:
                         this, timer::TimerFD(
                         timer::TimerFD::Flag::Monotonic|timer::TimerFD::Flag::Nonblock,
                         timer::Time().SetTime(1, timer::Unit::Second),
-                        timer::Time().SetTime(5, timer::Unit::Second)));
+                        timer::Time().SetTime(5, timer::Unit::Second)),
+                        &ProcessGroupKeeper<F, Args...>::keep_timer_callback);
 
         keep_timer.GetSelectEvent().SetEvent(io::SelectEvent::Input);
-        keep_timer.InputFunc = &ProcessGroupKeeper<F, Args...>::keep_timer_callback;
         select_.AddSelectItem<io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>>>(keep_timer);
         keep_timer.template GetFd<timer::TimerFD>().Start();
 
@@ -95,17 +95,18 @@ private:
         }
 
         ProcessGroupWorkerSelectItem<ProcessGroupKeeper<F, Args...>> worker_selectitem(
-                        this, pid, child->GetFD());
+                        this, pid, child->GetFD(),
+                        &ProcessGroupKeeper<F, Args...>::worker_event_callback);
         worker_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
-        worker_selectitem.InputFunc = &ProcessGroupKeeper<F, Args...>::worker_input_callback;
         select_.AddSelectItem<ProcessGroupWorkerSelectItem<ProcessGroupKeeper<F, Args...>>>(worker_selectitem);
 
         ProcessGroupWorker worker(pid, child->GetFD());
         worker_.insert({pid, worker});
+        child->GetFD().Send(NULL, "parent create worker", 20);
         return ProcessRet::SUCCESS;
     }
 
-    io::IoRet keep_timer_callback(io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>>* item) {
+    io::IoRet keep_timer_callback(io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>>* item, int events) {
         uint64_t count;
         item->template GetFd<timer::TimerFD>().Read(&count, sizeof(uint64_t));
         printf("%lu read size  --  %lu\n",sizeof(uint64_t),count);
@@ -113,7 +114,7 @@ private:
         return io::IoRet::SUCCESS;
     }
 
-    io::IoRet worker_input_callback(io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>>* item) {
+    io::IoRet worker_event_callback(io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>>* item, int events) {
         auto worker_item = dynamic_cast<ProcessGroupWorkerSelectItem<ProcessGroupKeeper<F, Args...>>*>(item);
         ProcessID& pid = worker_item->GetPid();
         char buf[1024];

@@ -60,7 +60,7 @@ bool MessageListener::IsReady()
     return (state_ == State::Ready);
 }
 
-io::IoRet MessageListener::_common_listener_callback(io::SelectItemTemplate<MessageListener>* item)
+io::IoRet MessageListener::_common_listener_callback(io::SelectItemTemplate<MessageListener>* item, int events)
 {
 
 }
