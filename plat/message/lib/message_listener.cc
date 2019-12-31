@@ -62,7 +62,8 @@ bool MessageListener::IsReady()
 
 io::IoRet MessageListener::_common_listener_callback(io::SelectItemTemplate<MessageListener>* item, int events)
 {
-
+    MESSAGE_INFO("An endpoint is connected");
+    return io::IoRet::SUCCESS;
 }
 
 }

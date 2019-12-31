@@ -97,6 +97,7 @@ public:
 
     bool hasObject(const char* key, struct timespec* overtime = NULL);
     ParserRet objectSize(unsigned int* size, struct timespec* overtime = NULL);
+    ParserJsonObject& objectAdd(const char* key, const std::string& value, struct timespec* overtime = NULL);
     ParserJsonObject& objectAdd(const char* key, const char* value, struct timespec* overtime = NULL);
     ParserJsonObject& objectAdd(const char* key, const char* value, unsigned int len, struct timespec* overtime = NULL);
     ParserJsonObject& objectAdd(const char* key, int value, struct timespec* overtime = NULL);

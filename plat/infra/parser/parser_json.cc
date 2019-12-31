@@ -1135,6 +1135,10 @@ ParserRet ParserJsonObject::objectSize(unsigned int* size, struct timespec* over
     }
 }
 
+ParserJsonObject& ParserJsonObject::objectAdd(const char* key, const std::string& value, struct timespec* overtime)
+{
+    return objectAdd(key, value.c_str(), value.size(), overtime);
+}
 /**
 * @brief objectAdd - If the current object is of type object, then add a child object.
 *                    This function add a string object.

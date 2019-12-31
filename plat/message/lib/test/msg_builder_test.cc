@@ -1,5 +1,5 @@
-#include "message_head.h"
-#include "message_tag.h"
+#include "message_raw.h"
+#include "message_internal.h"
 
 int main()
 {
@@ -12,18 +12,15 @@ int main()
     printf("format %d\n", tag.GetFormat());
     printf("length %d\n", tag.GetLength());
 
-    printf("----------message head test-----------\n");
-    message::MessageHead head;
-    head.SetMessageBodyFormat(message::MessageFormat::Json);
-    head.SetMessageBodyLen(100);
-
-    parser::ParserJson parser;
-    auto rootobj = parser.find("/");
-    head.Serialization(rootobj);
-    std::string str;
-    parser.StoreString(str);
-
-    printf("%s\n", str.c_str());
+    printf("----------MessageReqConnect--------\n");
+    message::MessageReqConnect msgreqcon("LOCAL","LOCAL","LOCAL");
+    parser::ParserJson pj;
+    msgreqcon.Serialization(pj);
+    std::string jsonstr;
+    pj.StoreString(jsonstr);
+    printf("%s\n",jsonstr.c_str());
+    message::MessageReqConnect msgreqcon2;
+    msgreqcon2.Deserialization(pj);
 
     return 0;
 }

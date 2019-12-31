@@ -10,11 +10,12 @@
 
 #include "message_return.h"
 #include "message_log.h"
+#include "message_io.h"
 
 namespace message {
 
 class MessageAgent;
-class MessageRemote {
+class MessageRemote : public MessageIO {
 public:
     typedef std::function<io::IoRet(MessageRemote*,io::SelectItemTemplate<MessageRemote>*,int)> Callback;
     friend class MessageAgent;
@@ -46,6 +47,10 @@ public:
     Callback& GetCallback();
 
     bool IsReady();
+
+    //Inherited from MessageIO
+    MessageRet Recv(MessageRaw* raw);
+    MessageRet Send(MessageRaw* raw);
 private:
     Info info_;
     State state_;
@@ -56,7 +61,6 @@ private:
     MessageRemote(MessageRemote& other);
     const MessageRemote& operator=(const MessageRemote& other);
 
-    io::IoRet _manager_remote_callback(io::SelectItemTemplate<MessageRemote>* item);
     io::IoRet _common_remote_callback(io::SelectItemTemplate<MessageRemote>* item, int events);
 
 };

@@ -3,6 +3,7 @@
 namespace message {
 
 MessageRemote::MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, const sock::SockAddress& remote_address, Callback callback)
+        : MessageIO()
 {
     info_.remote_machine_ = remote_machine.empty() ? "LOCAL" : remote_machine;
     info_.remote_listener_ = remote_listener;
@@ -21,6 +22,7 @@ MessageRemote::MessageRemote(std::string remote_machine, std::string remote_list
 }
 
 MessageRemote::MessageRemote(std::string remote_machine, std::string remote_listener, std::string remote_endpoint, sock::SockFD& remote_fd, Callback callback)
+        : MessageIO()
 {
     info_.remote_machine_ = remote_machine.empty() ? "LOCAL" : remote_machine;
     info_.remote_listener_ = remote_listener;
@@ -57,14 +59,13 @@ bool MessageRemote::IsReady()
     return (state_ == State::Ready);
 }
 
-io::IoRet MessageRemote::_manager_remote_callback(io::SelectItemTemplate<MessageRemote>* item)
+MessageRet MessageRemote::Recv(MessageRaw* raw)
 {
-    printf("---callback--\n");
-    auto fd = item->template GetFd<sock::SockFD>();
-    char buff[1024];
-    memset(buff, 0, sizeof(buff));
-    fd.Recv(NULL,buff,sizeof(buff));
-    printf("recv %s\n", buff);
+    return MessageRet::SUCCESS;
+}
+
+MessageRet MessageRemote::Send(MessageRaw* raw)
+{
     return MessageRet::SUCCESS;
 }
 

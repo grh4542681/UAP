@@ -9,12 +9,11 @@
 #include <string.h>
 
 #include "message_return.h"
-#include "message_raw.h"
 #include "message_appid_define.h"
 
 namespace message {
 
-class MessageAppid : public MessageRaw {
+class MessageAppid {
 public:
     typedef std::map<const int, const std::string> AppidMapType;
     enum Appid{
@@ -22,6 +21,10 @@ public:
 
         MessageBase = MESSAGE_APPID_BASE,
         MessageInternal,
+        MessageAgentRegister,
+        MessageAgentUnregister,
+        MessageReqConnect,
+        MessageRepConnect,
     };
 public:
     static AppidMapType AppidMap;
@@ -87,15 +90,6 @@ public:
     int GetId() const {
         return appid_;
     }
-
-    MessageRet SerializationJson(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
-    MessageRet DeserializationJson(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
-
-    MessageRet SerializationXml(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
-    MessageRet DeserializationXml(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
-
-    MessageRet SerializationProtobuf(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
-    MessageRet DeserializationProtobuf(void* ptr, size_t* size) { return MessageRet::ESUBCLASS; }
 
 protected:
     int appid_;

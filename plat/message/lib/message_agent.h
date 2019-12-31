@@ -15,6 +15,7 @@
 #include "message_endpoint.h"
 #include "message_listener.h"
 #include "message_remote.h"
+#include "message_local.h"
 
 namespace message {
 
@@ -43,10 +44,6 @@ public:
 public:
     MessageAgent();
     ~MessageAgent();
-
-    //from MessageRaw
-    MessageRet Serialization(void* ptr, size_t* size);
-    MessageRet Deserialization(void* ptr, size_t* size);
 
     bool IsReady();
     State& GetState();
@@ -96,7 +93,7 @@ public:
         io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD(), listener->GetCallback());
         listener_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
         select_.AddSelectItem<io::SelectItemTemplate<MessageListener>>(listener_selectitem);
-        listen_local_ep_map_.insert({name, listener});
+        listener_map_.insert({name, listener});
         return MessageRet::SUCCESS;
     }
     MessageRet UnregisterListener(std::string name);
@@ -105,7 +102,7 @@ public:
     MessageRet UnregisterEP(std::string l_name, std::string e_name);
 
     MessageListener* LookupLinstener(std::string l_name);
-    MessageListener* LookupEndpoint(std::string listener_name, std::string ep_name);
+    MessageIO* LookupEndpoint(std::string listener_name, std::string ep_name);
     MessageRet SendManager();
 
     MessageRet Run();
@@ -119,7 +116,9 @@ private:
     Info info_;
 
     MessageRemote* remote_manager_ = NULL;
-    std::map<std::string, MessageListener*> listen_local_ep_map_;
+    std::map<std::string, MessageListener*> listener_map_;
+    std::map<std::string, MessageRemote*> listen_remote_ep_map_;
+    std::map<std::string, MessageLocal*> listen_local_ep_map_;
 
     io::AutoSelect select_;
 

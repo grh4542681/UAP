@@ -3,12 +3,26 @@
 
 #include "message_return.h"
 #include "message_log.h"
+#include "message_appid.h"
 
 #include "parser_json.h"
 #include "parser_tvl.h"
 #include "parser_xml.h"
 
+/*
+ * tag:
+ *  0xFFFFFFFF FFFFFFFF
+ *  | save  || | len  |
+ *           T
+ */
+
+#define MESSAGE_LEN_BIT (0x00000000FFFFFFFF)
+
+#define MESSAGE_CTRL_BIT (0xFFFFFFFF00000000)
+#define MESSAGE_CTRL_FORMAT_BIT (0x0000000F)
+
 namespace message {
+class MessageRaw;
 
 enum MessageFormat : int {
     Json = 1,
@@ -16,10 +30,53 @@ enum MessageFormat : int {
     Tvl,
 };
 
+class MessageTag {
+public:
+    friend class MessageRaw;
+public:
+    MessageTag();
+    ~MessageTag();
+
+    MessageFormat GetFormat();
+    int GetLength();
+
+    MessageTag& SetFormat(const MessageFormat& format);
+    MessageTag& SetLength(const int& len);
+
+    long BuildTag();
+    MessageTag& ParseTag(long tag);
+private:
+    long tag_ = 0;
+};
+
+class MessageHead {
+public:
+    friend class MessageRaw;
+public:
+    MessageHead();
+    ~MessageHead();
+
+    long& GetMessageId();
+    MessageAppid& GetMessageAppid();
+    uint32_t GetMessageBodyLen();
+
+    MessageHead& SetMessageAppid(const MessageAppid& appid);
+    MessageHead& SetMessageBodyLen(uint32_t len);
+
+private:
+    long mid_;
+    MessageAppid appid_;
+    uint32_t body_len_;
+
+    static long GenMessageIdByTime();
+};
+
 class MessageRaw {
 public:
-    MessageRaw() {}
-    virtual ~MessageRaw() { }
+    MessageRaw(const MessageAppid& appid = MessageAppid::Unknow);
+    virtual ~MessageRaw() { };
+
+    MessageHead& GetMessageHead();
 
     template <typename P> MessageRet Serialization(P& parser) {
         MESSAGE_ERROR("Unsupport parser type %s", typeid(P).name());
@@ -42,8 +99,7 @@ public:
     virtual MessageRet SerializationTvl(parser::ParserTvl& parser) { return MessageRet::ESUBCLASS; }
     virtual MessageRet DeserializationTvl(parser::ParserTvl& parser) { return MessageRet::ESUBCLASS; }
 
-public:
-    std::string name_ = "";
+    MessageHead Head;
 };
 
 template<> MessageRet MessageRaw::Serialization<parser::ParserJson>(parser::ParserJson& parser);

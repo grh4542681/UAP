@@ -8,7 +8,7 @@ namespace message {
 MessageAgent* MessageAgent::pInstance = NULL;
 std::string MessageAgent::DefaultName = "";
 
-MessageAgent::MessageAgent()
+MessageAgent::MessageAgent() : MessageRaw()
 {
     mempool_ = mempool::MemPool::getInstance();
     info_.listener_num_ = 0;
@@ -17,15 +17,6 @@ MessageAgent::MessageAgent()
 }
 
 MessageAgent::~MessageAgent()
-{
-
-}
-
-MessageRet MessageAgent::Serialization(void* ptr, size_t* size)
-{
-
-}
-MessageRet MessageAgent::Deserialization(void* ptr, size_t* size)
 {
 
 }
@@ -108,16 +99,18 @@ MessageRet MessageAgent::UnregisterEP(std::string l_name, std::string e_name)
 
 MessageListener* MessageAgent::LookupLinstener(std::string listener_name)
 {
-    auto it = listen_local_ep_map_.find(listener_name);
-    if (it == listen_local_ep_map_.end()) {
+    auto it = listener_map_.find(listener_name);
+    if (it == listener_map_.end()) {
         return NULL;
     }
     return it->second;
 }
 
-MessageListener* MessageAgent::LookupEndpoint(std::string listener_name, std::string ep_name)
+MessageIO* MessageAgent::LookupEndpoint(std::string listener_name, std::string ep_name)
 {
+    //check local ep
 
+    //check remote ep
 }
 
 MessageRet MessageAgent::Run()
@@ -181,7 +174,7 @@ MessageRet MessageAgent::Run()
                  * like a remote ep. No need listen again.
                  */
                 //MessageListener* default_listener = mempool_->Malloc<MessageListener>(default_ep_name, proc->GetParentProcess()->GetFD());
-                //listen_local_ep_map_.insert(default_ep_name, default_listener);
+                //listener_map_.insert(default_ep_name, default_listener);
                 MESSAGE_INFO("Child process no need listen agent EP, just use MSG_CTRL EP.");
             } else {
                 if (protocol == "local") {
