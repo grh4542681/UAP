@@ -3,6 +3,7 @@ message("Build Protobuf 3pp")
 include(ExternalProject)
 
 SET(PB_DIR ${FRAM_3PP_PATH}/protobuf)
+SET(PROTOBUF_SRC_PATH ${PB_DIR}/src)
 
 set(PB_CMAKE_ARGS)
 list(APPEND PB_CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}")

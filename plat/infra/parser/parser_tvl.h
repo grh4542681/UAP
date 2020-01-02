@@ -1,15 +1,28 @@
 #ifndef __PARSER_TVL_H__
 #define __PARSER_TVL_H__
 
+#include <vector>
+#include "parser_log.h"
+#include "parser_return.h"
 #include "parser.h"
 
 namespace parser {
+
+class ParserTvlObject {
+public:
+    ParserTvlObject() { }
+    virtual ~ParserTvlObject() { }
+    virtual ParserTvlObject* Clone() = 0;
+    virtual ParserRet SerializeTvlString(std::string* str) = 0;
+    virtual ParserRet DeserializationTvlString(const std::string& str) = 0;
+};
 
 class ParserTvl : public Parser {
 public:
     ParserTvl();
     ~ParserTvl();
 
+    //Inherited from class Parser
     ParserRet LoadString(std::string str);
     ParserRet LoadFile(file::File& file);
     ParserRet LoadFile(std::string str);
@@ -17,8 +30,12 @@ public:
     ParserRet StoreString(std::string& str);
     ParserRet StoreFile(file::File& file);
     ParserRet StoreFile(std::string str);
-private:
 
+    ParserTvl& PushBack(ParserTvl& other);
+    ParserTvl& PushBack(ParserTvlObject& other);
+    ParserTvl& PopBack();
+private:
+    std::vector<ParserTvlObject*> tvl_vec_;
 };
 
 }

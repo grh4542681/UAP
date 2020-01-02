@@ -2,11 +2,8 @@ syntax = "proto3";
 
 package message.protobuf;
 
-import "message_id.proto";
-import "message_appid.proto";
-
 message MessageHeaderProtobuf {
-    MessageIdProtobuf mid = 1;
-    MessageAppidProtobuf appid = 2;
-    uint32 body_len = 3;
+    uint64 mid = 1;
+    uint32 comid = 2;
+    uint32 appid = 3;
 }

@@ -49,22 +49,31 @@ private:
     long tag_ = 0;
 };
 
-class MessageHead {
+class MessageHead : public parser::ParserTvlObject {
 public:
     friend class MessageRaw;
 public:
     MessageHead();
+    MessageHead(const MessageHead& other);
     ~MessageHead();
 
+    const MessageHead& operator=(const MessageHead& other);
+
     long& GetMessageId();
+    MessageAppid& GetMessageComid();
     MessageAppid& GetMessageAppid();
     uint32_t GetMessageBodyLen();
 
+    MessageHead& SetMessageComid(const MessageAppid& comid);
     MessageHead& SetMessageAppid(const MessageAppid& appid);
     MessageHead& SetMessageBodyLen(uint32_t len);
 
+    parser::ParserTvlObject* Clone();
+    parser::ParserRet SerializeTvlString(std::string* str);
+    parser::ParserRet DeserializationTvlString(const std::string& str);
 private:
     long mid_;
+    MessageAppid comid_;
     MessageAppid appid_;
     uint32_t body_len_;
 
@@ -73,7 +82,8 @@ private:
 
 class MessageRaw {
 public:
-    MessageRaw(const MessageAppid& appid = MessageAppid::Unknow);
+    MessageRaw();
+    MessageRaw(const MessageAppid& comid, const MessageAppid& appid);
     virtual ~MessageRaw() { };
 
     MessageHead& GetMessageHead();

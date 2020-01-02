@@ -1787,7 +1787,7 @@ ParserRet ParserJson::ParserJsonString(const char* jsonstring)
 *
 * @returns  ParserRet.
 */
-ParserRet ParserJson::StorageJsonFile(const char* filename)
+ParserRet ParserJson::StorageJsonFile(const char* filename, bool pretty)
 {
     unlink(filename);
 
@@ -1800,26 +1800,41 @@ ParserRet ParserJson::StorageJsonFile(const char* filename)
     char jsoncache[MAXJSONFILESIZE];
     memset(jsoncache, 0x00, sizeof(jsoncache));
     rapidjson::FileWriteStream fws(fp, jsoncache, sizeof(jsoncache));
-    rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(fws);
-    this->doc_.Accept(writer);
+    if (pretty) {
+        rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(fws);
+        this->doc_.Accept(writer);
+    } else {
+        rapidjson::Writer<rapidjson::FileWriteStream> writer(fws);
+        this->doc_.Accept(writer);
+    }
     fclose(fp);
     return ParserRet::SUCCESS;
 }
 
-ParserRet ParserJson::StorageJsonString(std::string& jsonstring)
+ParserRet ParserJson::StorageJsonString(std::string& jsonstring, bool pretty)
 {
     rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    this->doc_.Accept(writer);
+    if (pretty) {
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        this->doc_.Accept(writer);
+    } else {
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        this->doc_.Accept(writer);
+    }
     jsonstring = buffer.GetString();
     return ParserRet::SUCCESS;
 }
 
-ParserRet ParserJson::StorageJsonString(char* jsonstring, unsigned int len)
+ParserRet ParserJson::StorageJsonString(char* jsonstring, unsigned int len, bool pretty)
 {
     rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    this->doc_.Accept(writer);
+    if (pretty) {
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        this->doc_.Accept(writer);
+    } else {
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        this->doc_.Accept(writer);
+    }
     if (len < buffer.GetSize()) {
         return ParserRet::PARSER_ESPACE;
     }

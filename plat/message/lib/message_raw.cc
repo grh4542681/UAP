@@ -1,5 +1,7 @@
 #include "message_raw.h"
 
+#include "protobuf/message_header.pb.h"
+
 namespace message {
 
 //MessageTag
@@ -41,16 +43,38 @@ MessageTag& MessageTag::ParseTag(long tag)
 }
 
 //MessageHead
-MessageHead::MessageHead() {
+MessageHead::MessageHead()
+{
     mid_ = GenMessageIdByTime();
+}
+MessageHead::MessageHead(const MessageHead& other)
+{
+    mid_ = other.mid_;
+    comid_ = other.comid_;
+    appid_ = other.appid_;
+    body_len_ = other.body_len_;
 }
 MessageHead::~MessageHead() {
 
 }
 
+const MessageHead& MessageHead::operator=(const MessageHead& other)
+{
+    mid_ = other.mid_;
+    comid_ = other.comid_;
+    appid_ = other.appid_;
+    body_len_ = other.body_len_;
+    return *this;
+}
+
 long& MessageHead::GetMessageId()
 {
     return mid_;
+}
+
+MessageAppid& MessageHead::GetMessageComid()
+{
+    return comid_;
 }
 
 MessageAppid& MessageHead::GetMessageAppid()
@@ -61,6 +85,12 @@ MessageAppid& MessageHead::GetMessageAppid()
 uint32_t MessageHead::GetMessageBodyLen()
 {
     return body_len_;
+}
+
+MessageHead& MessageHead::SetMessageComid(const MessageAppid& comid)
+{
+    comid_ = comid;
+    return *this;
 }
 
 MessageHead& MessageHead::SetMessageAppid(const MessageAppid& appid)
@@ -80,8 +110,30 @@ long MessageHead::GenMessageIdByTime()
     return time(NULL);
 }
 
-MessageRaw::MessageRaw(const MessageAppid& appid)
+parser::ParserTvlObject* MessageHead::Clone()
 {
+    return (mempool::MemPool::getInstance()->Malloc<MessageHead>(*this));
+}
+
+parser::ParserRet MessageHead::SerializeTvlString(std::string* str)
+{
+
+}
+
+parser::ParserRet MessageHead::DeserializationTvlString(const std::string& str)
+{
+
+}
+
+MessageRaw::MessageRaw()
+{
+    Head.SetMessageComid(MessageAppid::Unknow);
+    Head.SetMessageAppid(MessageAppid::Unknow);
+}
+
+MessageRaw::MessageRaw(const MessageAppid& comid, const MessageAppid& appid)
+{
+    Head.SetMessageComid(comid);
     Head.SetMessageAppid(appid);
 }
 
@@ -91,8 +143,11 @@ template<> MessageRet MessageRaw::Serialization<parser::ParserJson>(parser::Pars
     if (!head.isAvailable()) {
         return MessageRet::MESSAGE_EPARSER;
     }
-    printf("%s : %d\n", __FILE__, __LINE__);
     head.objectAdd("id", Head.mid_);
+    if (head.hasError()) {
+        return MessageRet::MESSAGE_EPARSER;
+    }
+    head.objectAdd("comid", Head.comid_.Code());
     if (head.hasError()) {
         return MessageRet::MESSAGE_EPARSER;
     }
@@ -123,6 +178,7 @@ template<> MessageRet MessageRaw::Serialization<parser::ParserXml>(parser::Parse
 
 template<> MessageRet MessageRaw::Serialization<parser::ParserTvl>(parser::ParserTvl& parser)
 {
+    parser.PushBack(Head);
     return SerializationTvl(parser);
 }
 
@@ -137,6 +193,12 @@ template<> MessageRet MessageRaw::Deserialization<parser::ParserJson>(parser::Pa
         return MessageRet::MESSAGE_EPARSER;
     }
     int appid = 0;
+    head.Vfind("/comid").getInt(&appid);
+    if (head.hasError()) {
+        return MessageRet::MESSAGE_EPARSER;
+    }
+    Head.comid_ = appid;
+    appid = 0;
     head.Vfind("/appid").getInt(&appid);
     if (head.hasError()) {
         return MessageRet::MESSAGE_EPARSER;

@@ -7,4 +7,4 @@ TARGET_LINK_LIBRARIES(msg_agent_test libgmsg.so libgmp.so libgsocket.so libgproc
 
 
 ADD_EXECUTABLE(msg_builder_test msg_builder_test.cc)
-TARGET_LINK_LIBRARIES(msg_builder_test libgmsg.so libgmp.so libgsocket.so libgprocess.so libgthread.so libgtime.so -lrt libgret.so libgfile.so libgio.so libgutil.so libgipc.so libgcontainer.so libgconf.so libgparser.so libyaml-cpp.so)
+TARGET_LINK_LIBRARIES(msg_builder_test libgmsg.so libgmp.so libgsocket.so libgprocess.so libgthread.so libgtime.so -lrt libgret.so libgfile.so libgio.so libgutil.so libgipc.so libgcontainer.so libgconf.so libgparser.so libyaml-cpp.so libprotobuf.so libprotoc.so)

@@ -145,6 +145,7 @@ public:
     ParserJson();
     ~ParserJson();
 
+    //Inherited from class Parser.
     ParserRet LoadString(std::string str);
     ParserRet LoadFile(file::File& file);
     ParserRet LoadFile(std::string str);
@@ -155,9 +156,9 @@ public:
 
     ParserRet ParserJsonFile(const char* filename);
     ParserRet ParserJsonString(const char* jsonstring);
-    ParserRet StorageJsonFile(const char* filename);
-    ParserRet StorageJsonString(std::string& jsonstring);
-    ParserRet StorageJsonString(char* jsonstring, unsigned int len);
+    ParserRet StorageJsonFile(const char* filename, bool pretty = false);
+    ParserRet StorageJsonString(std::string& jsonstring, bool pretty = false);
+    ParserRet StorageJsonString(char* jsonstring, unsigned int len, bool pretty = false);
 
     void setThreadSafe(bool flag);
     bool getThreadSafe();

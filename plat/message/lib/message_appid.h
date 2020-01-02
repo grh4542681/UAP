@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include "message_return.h"
-#include "message_appid_define.h"
+#include "message_comid_define.h"
 
 namespace message {
 
@@ -19,12 +19,11 @@ public:
     enum Appid{
         Unknow = 0,
 
-        MessageBase = MESSAGE_APPID_BASE,
-        MessageInternal,
-        MessageAgentRegister,
-        MessageAgentUnregister,
+        MessageInternal = MESSAGE_INTERNAL_COMID,
         MessageReqConnect,
         MessageRepConnect,
+        MessageAgentRegister,
+        MessageAgentUnregister,
     };
 public:
     static AppidMapType AppidMap;

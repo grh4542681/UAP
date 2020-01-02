@@ -17,7 +17,7 @@ int main()
     parser::ParserJson pj;
     msgreqcon.Serialization(pj);
     std::string jsonstr;
-    pj.StoreString(jsonstr);
+    pj.StorageJsonString(jsonstr,true);
     printf("%s\n",jsonstr.c_str());
     message::MessageReqConnect msgreqcon2;
     msgreqcon2.Deserialization(pj);

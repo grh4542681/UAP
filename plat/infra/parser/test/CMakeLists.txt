@@ -13,3 +13,8 @@ SET(PARSER_YAML_TEST_SRC parser_yaml_test.cc)
 ADD_EXECUTABLE(parser_yaml_test ${PARSER_YAML_TEST_SRC})
 INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/3pp")
 TARGET_LINK_LIBRARIES(parser_yaml_test libgparser.so libgthread.so libgprocess.so libgsocket.so libgfile.so libgmp.so libgret.so libgtime.so libgutil.so libgmsg.so libgio.so libgcontainer.so libgconf.so libgparser.so libyaml-cpp.so)
+
+SET(PARSER_TVL_TEST_SRC parser_tvl_test.cc)
+ADD_EXECUTABLE(parser_tvl_test ${PARSER_TVL_TEST_SRC})
+INCLUDE_DIRECTORIES("${FRAM_ROOT_PATH}/3pp")
+TARGET_LINK_LIBRARIES(parser_tvl_test libgparser.so libprotobuf.so libprotoc.so)

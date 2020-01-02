@@ -1,4 +1,4 @@
-SET(LIBGRHMSG_SRC ../message_return.cc
+SET(LIBGRHMSGPROTO_SRC message_header.pb.cc
                   message_raw.cc
                   message_appid.cc
                   message_stream.cc
@@ -7,12 +7,9 @@ SET(LIBGRHMSG_SRC ../message_return.cc
                   message_listener.cc
                   message_endpoint.cc
                   message_remote.cc
-                  ../protobuf/message_header.pb.cc
                   )
-INCLUDE_DIRECTORIES(${PROTOBUF_SRC_PATH}
-                    ${PLAT_MESSAGE_HRD}
+INCLUDE_DIRECTORIES(${PLAT_MESSAGE_HRD}
                     ${PLAT_CONFIG_HRD}
-                    ${PROTOBUF_SRC_PATH}
                     "${FRAM_ROOT_PATH}/plat/common"
                     "${FRAM_ROOT_PATH}/plat/infra/ipc"
                     "${FRAM_ROOT_PATH}/plat/infra/socket"
