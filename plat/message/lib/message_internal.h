@@ -6,6 +6,7 @@
 #include "message_raw.h"
 #include "message_uri.h"
 #include "message_appid.h"
+#include "protobuf/message_req_connect.pb.h"
 
 namespace message {
 
@@ -30,11 +31,20 @@ public:
     parser::ParserTvlObject* Clone() {
         return mempool::MemPool::getInstance()->Malloc<MessageReqConnect>(*this);
     }
-    parser::ParserRet SerializeTvlString(std::string* str)
+    parser::ParserRet BuildTvlString(std::string* str)
     {
-
+        protobuf::MessageReqConnectProtobuf proto;
+        proto.set_orig_uri(orig_uri_.GetURI());
+        proto.set_dest_uri(dest_uri_.GetURI());
+        if (!proto.IsInitialized()) {
+            return parser::ParserRet::EINIT;
+        }
+        if (!proto.SerializeToString(str)) {
+            return parser::ParserRet::PARSER_ESERIAL;
+        }
+        return parser::ParserRet::SUCCESS;
     }
-    parser::ParserRet DeserializationTvlString(const std::string& str)
+    parser::ParserRet ParseTvlString(const std::string& str)
     {
 
     }
@@ -67,7 +77,10 @@ public:
         return MessageRet::SUCCESS;
     }
 
-    MessageRet SerializationTvl(parser::ParserTvl& parser) { return MessageRet::ESUBCLASS; }
+    MessageRet SerializationTvl(parser::ParserTvl& parser) {
+        parser.PushBack(*this);
+        return MessageRet::SUCCESS;
+    }
     MessageRet DeserializationTvl(parser::ParserTvl& parser) { return MessageRet::ESUBCLASS; }
 private:
     MessageURI orig_uri_;

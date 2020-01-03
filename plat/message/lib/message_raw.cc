@@ -115,12 +115,22 @@ parser::ParserTvlObject* MessageHead::Clone()
     return (mempool::MemPool::getInstance()->Malloc<MessageHead>(*this));
 }
 
-parser::ParserRet MessageHead::SerializeTvlString(std::string* str)
+parser::ParserRet MessageHead::BuildTvlString(std::string* str)
 {
-
+    protobuf::MessageHeaderProtobuf proto;
+    proto.set_mid(mid_);
+    proto.set_comid(comid_.Code());
+    proto.set_appid(appid_.Code());
+    if (!proto.IsInitialized()) {
+        return parser::ParserRet::EINIT;
+    }
+    if (!proto.SerializeToString(str)) {
+        return parser::ParserRet::PARSER_ESERIAL;
+    }
+    return parser::ParserRet::SUCCESS;
 }
 
-parser::ParserRet MessageHead::DeserializationTvlString(const std::string& str)
+parser::ParserRet MessageHead::ParseTvlString(const std::string& str)
 {
 
 }
@@ -152,10 +162,6 @@ template<> MessageRet MessageRaw::Serialization<parser::ParserJson>(parser::Pars
         return MessageRet::MESSAGE_EPARSER;
     }
     head.objectAdd("appid", Head.appid_.Code());
-    if (head.hasError()) {
-        return MessageRet::MESSAGE_EPARSER;
-    }
-    head.objectAdd("bodylen", static_cast<int>(Head.body_len_));
     if (head.hasError()) {
         return MessageRet::MESSAGE_EPARSER;
     }
@@ -204,10 +210,6 @@ template<> MessageRet MessageRaw::Deserialization<parser::ParserJson>(parser::Pa
         return MessageRet::MESSAGE_EPARSER;
     }
     Head.appid_ = appid;
-    head.Vfind("/bodylen").getInt(reinterpret_cast<int*>(&(Head.body_len_)));
-    if (head.hasError()) {
-        return MessageRet::MESSAGE_EPARSER;
-    }
     auto body = parser.find("/body");
     if (!body.isAvailable()) {
         return MessageRet::MESSAGE_EPARSER;

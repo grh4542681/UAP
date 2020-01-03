@@ -13,8 +13,8 @@ public:
     ParserTvlObject() { }
     virtual ~ParserTvlObject() { }
     virtual ParserTvlObject* Clone() = 0;
-    virtual ParserRet SerializeTvlString(std::string* str) = 0;
-    virtual ParserRet DeserializationTvlString(const std::string& str) = 0;
+    virtual ParserRet BuildTvlString(std::string* str) = 0;
+    virtual ParserRet ParseTvlString(const std::string& str) = 0;
 };
 
 class ParserTvl : public Parser {

@@ -29,6 +29,7 @@ public:
         PARSER_EUNLOCK,
         PARSER_ETYPE,
         PARSER_ESPACE,
+        PARSER_ESERIAL,
     };
 public:
     static ECodeMapType ECodeMap;

@@ -1,4 +1,22 @@
-SET(LIBGPROCESS_SRC process_return.cc
+set(LIBGPROCESS_HRD "${PLAT_INFRA_PATH}/return"
+                    "${PLAT_INFRA_PATH}/process"
+                    "${PLAT_INFRA_PATH}/file"
+                    "${PLAT_INFRA_PATH}/io"
+                    "${PLAT_INFRA_PATH}/mempool"
+                    "${PLAT_INFRA_PATH}/report"
+                    "${PLAT_INFRA_PATH}/thread"
+                    "${PLAT_INFRA_PATH}/ipc"
+                    "${PLAT_INFRA_PATH}/socket"
+                    "${PLAT_INFRA_PATH}/timer"
+                    "${PLAT_INFRA_PATH}/container"
+                    "${PLAT_INFRA_PATH}/util"
+                    "${PLAT_INFRA_PATH}/parser"
+                    "${FRAM_PLAT_PATH}/config/lib"
+                    "${3PP_RAPIDJSON_HRD}"
+                    "${3PP_YAML_HRD}"
+                    "${3PP_PROTOBUF_HRD}"
+                    )
+set(LIBGPROCESS_SRC process_return.cc
                     process_info.cc
                     process.cc
                     process_role.cc
@@ -12,7 +30,13 @@ SET(LIBGPROCESS_SRC process_return.cc
                     signal/process_signal_action.cc
                     group/process_group_worker.cc
                     )
-ADD_LIBRARY(GRHprocess_SO SHARED ${LIBGPROCESS_SRC})
-ADD_LIBRARY(GRHprocess_A STATIC ${LIBGPROCESS_SRC})
-SET_TARGET_PROPERTIES(GRHprocess_SO PROPERTIES OUTPUT_NAME "gprocess" CLEAN_DIRECT_OUTPUT 1)
-SET_TARGET_PROPERTIES(GRHprocess_A PROPERTIES OUTPUT_NAME "gprocess" CLEAN_DIRECT_OUTPUT 1)
+
+add_library(GRHprocess_SO SHARED ${LIBGPROCESS_SRC})
+target_include_directories(GRHprocess_SO PRIVATE ${LIBGPROCESS_HRD})
+set_target_properties(GRHprocess_SO PROPERTIES OUTPUT_NAME "gprocess" CLEAN_DIRECT_OUTPUT 1)
+
+if(BUILD_STATIC_LIBS)
+    add_library(GRHprocess_A STATIC ${LIBGPROCESS_SRC})
+    target_include_directories(GRHprocess_A PRIVATE ${LIBGPROCESS_HRD})
+    set_target_properties(GRHprocess_A PROPERTIES OUTPUT_NAME "gprocess" CLEAN_DIRECT_OUTPUT 1)
+endif()

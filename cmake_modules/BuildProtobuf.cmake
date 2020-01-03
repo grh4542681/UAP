@@ -2,8 +2,7 @@ message("Build Protobuf 3pp")
 
 include(ExternalProject)
 
-SET(PB_DIR ${FRAM_3PP_PATH}/protobuf)
-SET(PROTOBUF_SRC_PATH ${PB_DIR}/src)
+set(PB_DIR ${FRAM_3PP_PATH}/protobuf)
 
 set(PB_CMAKE_ARGS)
 list(APPEND PB_CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}")
@@ -22,5 +21,12 @@ ExternalProject_Add(protobuf
                     BUILD_COMMAND $(MAKE)
                     INSTALL_COMMAND ""
                     )
+
+set(3PP_PROTOBUF_HRD ${PB_DIR}/src)
+
+set(3PP_PROTOBUF_CPP_GEN "${FRAM_BIN_PATH}/protoc")
+set(3PP_PROTOBUF_CPP_INCLUDE "-I")
+set(3PP_PROTOBUF_CPP_OUTPUT "--cpp_out")
+set(3PP_PROTOBUF_LIBS libprotobuf.so libprotoc.so)
 
 message("Build Protobuf done.")

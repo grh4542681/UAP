@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package message.protobuf;
+
+message MessageReqConnectProtobuf {
+    string orig_uri = 1;
+    string dest_uri = 2;
+}

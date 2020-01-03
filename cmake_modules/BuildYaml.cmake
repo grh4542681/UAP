@@ -2,7 +2,7 @@ message("Build ymal-cpp 3pp")
 
 include(ExternalProject)
 
-SET(YAML_DIR ${FRAM_3PP_PATH}/yaml-cpp)
+set(YAML_DIR ${FRAM_3PP_PATH}/yaml-cpp)
 
 set(YAML_CMAKE_ARGS)
 list(APPEND YAML_CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}")
@@ -22,5 +22,8 @@ ExternalProject_Add(yaml-cpp
                     BUILD_COMMAND $(MAKE)
                     INSTALL_COMMAND ""
                     )
+
+set(3PP_YAML_HRD "${YAML_DIR}/include") 
+set(3PP_YAML_LIBS libyaml-cpp.so)
 
 message("Build ymal-cpp 3pp done.")

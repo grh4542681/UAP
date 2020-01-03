@@ -1,9 +1,19 @@
-SET(LIBGCONTAINER_SRC container_return.cc
+set(LIBGCONTAINER_HRD "${PLAT_INFRA_PATH}/return"
+                      "${PLAT_INFRA_PATH}/mempool"
+                      "${PLAT_INFRA_PATH}/report"
+                      "${PLAT_INFRA_PATH}/util"
+                      )
+set(LIBGCONTAINER_SRC container_return.cc
                       bitmap.cc
                       node_tree.cc
 )
 
-ADD_LIBRARY(GRHcontainer_SO SHARED ${LIBGCONTAINER_SRC})
-ADD_LIBRARY(GRHcontainer_A STATIC ${LIBGCONTAINER_SRC})
-SET_TARGET_PROPERTIES(GRHcontainer_SO PROPERTIES OUTPUT_NAME "gcontainer" CLEAN_DIRECT_OUTPUT 1)
-SET_TARGET_PROPERTIES(GRHcontainer_A PROPERTIES OUTPUT_NAME "gcontainer" CLEAN_DIRECT_OUTPUT 1)
+add_library(GRHcontainer_SO SHARED ${LIBGCONTAINER_SRC})
+set_target_properties(GRHcontainer_SO PROPERTIES OUTPUT_NAME "gcontainer" CLEAN_DIRECT_OUTPUT 1)
+target_include_directories(GRHcontainer_SO PRIVATE ${LIBGCONTAINER_HRD})
+
+if(BUILD_STATIC_LIBS)
+    add_library(GRHcontainer_A STATIC ${LIBGCONTAINER_SRC})
+    set_target_properties(GRHcontainer_A PROPERTIES OUTPUT_NAME "gcontainer" CLEAN_DIRECT_OUTPUT 1)
+    target_include_directories(GRHcontainer_A PRIVATE ${LIBGCONTAINER_HRD})
+endif()

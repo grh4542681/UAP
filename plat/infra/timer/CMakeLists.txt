@@ -1,9 +1,19 @@
-SET(LIBGTIME_SRC timer_return.cc
+set(LIBGTIME_HRD "${PLAT_INFRA_PATH}/return"
+                 "${PLAT_INFRA_PATH}/io"
+                 "${PLAT_INFRA_PATH}/mempool"
+                 "${PLAT_INFRA_PATH}/report"
+                 )
+set(LIBGTIME_SRC timer_return.cc
                  timer_fd.cc
                  timer_timer.cc
 )
 
-ADD_LIBRARY(GRHtime_SO SHARED ${LIBGTIME_SRC})
-ADD_LIBRARY(GRHtime_A STATIC ${LIBGTIME_SRC})
-SET_TARGET_PROPERTIES(GRHtime_SO PROPERTIES OUTPUT_NAME "gtime" CLEAN_DIRECT_OUTPUT 1)
-SET_TARGET_PROPERTIES(GRHtime_A PROPERTIES OUTPUT_NAME "gtime" CLEAN_DIRECT_OUTPUT 1)
+add_library(GRHtime_SO SHARED ${LIBGTIME_SRC})
+set_target_properties(GRHtime_SO PROPERTIES OUTPUT_NAME "gtime" CLEAN_DIRECT_OUTPUT 1)
+target_include_directories(GRHtime_SO PRIVATE ${LIBGTIME_HRD})
+
+if(BUILD_STATIC_LIBS)
+    add_library(GRHtime_A STATIC ${LIBGTIME_SRC})
+    set_target_properties(GRHtime_A PROPERTIES OUTPUT_NAME "gtime" CLEAN_DIRECT_OUTPUT 1)
+    target_include_directories(GRHtime_A PRIVATE ${LIBGTIME_HRD})
+endif()

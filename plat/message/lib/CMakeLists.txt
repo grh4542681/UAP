@@ -1,4 +1,29 @@
-SET(LIBGRHMSG_SRC ../message_return.cc
+set(MESSAGE_PROTOBUF_SRC)
+
+add_subdirectory(protobuf)
+
+set(LIBGRHMSG_HRD "${PLAT_INFRA_PATH}/return"
+                  "${PLAT_INFRA_PATH}/process"
+                  "${PLAT_INFRA_PATH}/ipc"
+                  "${PLAT_INFRA_PATH}/socket"
+                  "${PLAT_INFRA_PATH}/file"
+                  "${PLAT_INFRA_PATH}/io"
+                  "${PLAT_INFRA_PATH}/mempool"
+                  "${PLAT_INFRA_PATH}/report"
+                  "${PLAT_INFRA_PATH}/thread"
+                  "${PLAT_INFRA_PATH}/ipc"
+                  "${PLAT_INFRA_PATH}/socket"
+                  "${PLAT_INFRA_PATH}/timer"
+                  "${PLAT_INFRA_PATH}/container"
+                  "${PLAT_INFRA_PATH}/util"
+                  "${PLAT_INFRA_PATH}/parser"
+                  "${FRAM_PLAT_PATH}/config/lib"
+                  "${3PP_RAPIDJSON_HRD}"
+                  "${3PP_YAML_HRD}"
+                  "${3PP_PROTOBUF_HRD}"
+                  )
+
+set(LIBGRHMSG_SRC message_return.cc
                   message_raw.cc
                   message_appid.cc
                   message_stream.cc
@@ -7,17 +32,16 @@ SET(LIBGRHMSG_SRC ../message_return.cc
                   message_listener.cc
                   message_endpoint.cc
                   message_remote.cc
-                  ../protobuf/message_header.pb.cc
+                  ${MESSAGE_PROTOBUF_SRC}
                   )
-INCLUDE_DIRECTORIES(${PROTOBUF_SRC_PATH}
-                    ${PLAT_MESSAGE_HRD}
-                    ${PLAT_CONFIG_HRD}
-                    ${PROTOBUF_SRC_PATH}
-                    "${FRAM_ROOT_PATH}/plat/common"
-                    "${FRAM_ROOT_PATH}/plat/infra/ipc"
-                    "${FRAM_ROOT_PATH}/plat/infra/socket"
-                    )
-ADD_LIBRARY(GRHmsg_SO SHARED ${LIBGRHMSG_SRC})
-SET_TARGET_PROPERTIES(GRHmsg_SO PROPERTIES OUTPUT_NAME "gmsg" CLEAN_DIRECT_OUTPUT 1)
-TARGET_LINK_LIBRARIES(GRHmsg_SO rt)
 
+add_library(GRHmsg_SO SHARED ${LIBGRHMSG_SRC})
+set_target_properties(GRHmsg_SO PROPERTIES OUTPUT_NAME "gmsg" CLEAN_DIRECT_OUTPUT 1)
+target_include_directories(GRHmsg_SO PRIVATE ${LIBGRHMSG_HRD})
+target_link_libraries(GRHmsg_SO rt)
+
+if(BUILD_STATIC_LIBS)
+    add_library(GRHmsg_A STATIC ${LIBGRHMSG_SRC})
+    set_target_properties(GRHmsg_A PROPERTIES OUTPUT_NAME "gmsg" CLEAN_DIRECT_OUTPUT 1)
+    target_include_directories(GRHmsg_A PRIVATE ${LIBGRHMSG_HRD})
+endif()

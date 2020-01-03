@@ -69,8 +69,8 @@ public:
     MessageHead& SetMessageBodyLen(uint32_t len);
 
     parser::ParserTvlObject* Clone();
-    parser::ParserRet SerializeTvlString(std::string* str);
-    parser::ParserRet DeserializationTvlString(const std::string& str);
+    parser::ParserRet BuildTvlString(std::string* str);
+    parser::ParserRet ParseTvlString(const std::string& str);
 private:
     long mid_;
     MessageAppid comid_;
