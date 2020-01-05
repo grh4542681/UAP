@@ -1,8 +1,24 @@
 set(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH}/test)
 
-set(COMMON_HRD ${PLAT_MESSAGE_HRD}
-             ${PROTOBUF_SRC_PATH}
-             "${FRAM_ROOT_PATH}/plat/common")
+set(COMMON_HRD "${PLAT_INFRA_PATH}/return"
+               "${PLAT_INFRA_PATH}/parser"
+               "${PLAT_INFRA_PATH}/file"
+               "${PLAT_INFRA_PATH}/io"
+               "${PLAT_INFRA_PATH}/thread"
+               "${PLAT_INFRA_PATH}/util"
+               "${PLAT_INFRA_PATH}/process"
+               "${PLAT_INFRA_PATH}/ipc"
+               "${PLAT_INFRA_PATH}/socket"
+               "${PLAT_INFRA_PATH}/timer"
+               "${PLAT_INFRA_PATH}/mempool"
+               "${PLAT_INFRA_PATH}/report"
+               "${PLAT_INFRA_PATH}/container"
+               "${FRAM_PLAT_PATH}/message/lib"
+               "${FRAM_PLAT_PATH}/config/lib"
+               "${3PP_RAPIDJSON_HRD}"
+               "${3PP_YAML_HRD}"
+               "${3PP_PROTOBUF_HRD}"
+               )
 
 add_executable(msg_agent_test msg_agent_test.cc)
 target_include_directories(msg_agent_test PRIVATE ${COMMON_HRD})
