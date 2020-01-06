@@ -8,7 +8,7 @@ namespace message {
 MessageAgent* MessageAgent::pInstance = NULL;
 std::string MessageAgent::DefaultName = "";
 
-MessageAgent::MessageAgent() : MessageRaw()
+MessageAgent::MessageAgent()
 {
     mempool_ = mempool::MemPool::getInstance();
     info_.listener_num_ = 0;
@@ -71,23 +71,7 @@ MessageEndpoint* MessageAgent::GetEndpoint(std::string listener_name, std::strin
 
 }
 
-MessageRet MessageAgent::RegisterAgent()
-{
-
-}
-
-MessageRet MessageAgent::UnregisterAgent()
-{
-
-}
-
 MessageRet MessageAgent::UnregisterListener(std::string name)
-{
-
-}
-
-template < typename ... Args >
-MessageRet MessageAgent::RegisterEndpoint(std::string l_name, Args&& ... args)
 {
 
 }
@@ -106,7 +90,7 @@ MessageListener* MessageAgent::LookupLinstener(std::string listener_name)
     return it->second;
 }
 
-MessageIO* MessageAgent::LookupEndpoint(std::string listener_name, std::string ep_name)
+MessageIO MessageAgent::LookupEndpoint(std::string listener_name, std::string ep_name)
 {
     //check local ep
 

@@ -11,7 +11,6 @@
 
 #include "message_api.h"
 #include "message_defines.h"
-#include "message_raw.h"
 #include "message_endpoint.h"
 #include "message_listener.h"
 #include "message_remote.h"
@@ -19,7 +18,7 @@
 
 namespace message {
 
-class MessageAgent : public MessageRaw {
+class MessageAgent {
 public:
     enum class Type : int {
         WorkerAgent,
@@ -56,9 +55,6 @@ public:
 
     MessageListener* GetLinstener(std::string l_name);
     MessageEndpoint* GetEndpoint(std::string listener_name, std::string ep_name);
-
-    MessageRet RegisterAgent();
-    MessageRet UnregisterAgent();
 
     template < typename ... Args > MessageRet RegisterManager(Args&& ... args) {
         if (remote_manager_ && select_.HasSelectItem(remote_manager_->GetRemoteFD())) {
@@ -98,18 +94,23 @@ public:
     }
     MessageRet UnregisterListener(std::string name);
 
-    template < typename ... Args > MessageRet RegisterEndpoint(std::string l_name, Args&& ... args);
+    template < typename ... Args > MessageRet RegisterEndpoint(std::string l_name, Args&& ... args) {
+        return MessageRet::SUCCESS;
+    }
     MessageRet UnregisterEP(std::string l_name, std::string e_name);
 
     MessageListener* LookupLinstener(std::string l_name);
-    MessageIO* LookupEndpoint(std::string listener_name, std::string ep_name);
-    MessageRet SendManager();
+    MessageIO LookupEndpoint(std::string listener_name, std::string ep_name);
 
     MessageRet Run();
 public:
     static std::string DefaultName;
     static MessageAgent* getInstance();
 
+private:
+    MessageRet _register_agent_to_manager(MessageAgent& agent);
+    MessageRet _register_listener_to_manager(MessageListener& listener);
+    MessageRet _register_endpoint_to_manager(MessageEndpoint& endpoint);
 private:
     mempool::MemPool* mempool_;
     Type type_;

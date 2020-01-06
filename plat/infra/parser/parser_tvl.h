@@ -12,7 +12,6 @@ class ParserTvlObject {
 public:
     ParserTvlObject() { }
     virtual ~ParserTvlObject() { }
-    virtual ParserTvlObject* Clone() = 0;
     virtual ParserRet BuildTvlString(std::string* str) = 0;
     virtual ParserRet ParseTvlString(const std::string& str) = 0;
 };
@@ -31,11 +30,15 @@ public:
     ParserRet StoreFile(file::File& file);
     ParserRet StoreFile(std::string str);
 
+    ssize_t GetTvlSize();
+    ParserTvl& PushHead(ParserTvl& other);
+    ParserTvl& PushHead(ParserTvlObject& other);
+    std::string PopHead();
     ParserTvl& PushBack(ParserTvl& other);
     ParserTvl& PushBack(ParserTvlObject& other);
-    ParserTvl& PopBack();
+    std::string PopBack();
 private:
-    std::vector<ParserTvlObject*> tvl_vec_;
+    std::vector<std::string> tvl_vec_;
 };
 
 }

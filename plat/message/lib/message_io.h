@@ -11,8 +11,12 @@ public:
     MessageIO() { }
     virtual ~MessageIO() { }
 
-    virtual MessageRet Recv(MessageRaw* raw) = 0;
-    virtual MessageRet Send(MessageRaw* raw) = 0;
+    virtual MessageRet Recv(MessageRaw* raw) {
+        return MessageRet::ESUBCLASS;
+    }
+    virtual MessageRet Send(MessageRaw* raw) {
+        return MessageRet::ESUBCLASS;
+    }
 };
 
 }

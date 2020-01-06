@@ -30,6 +30,7 @@ public:
         PARSER_ETYPE,
         PARSER_ESPACE,
         PARSER_ESERIAL,
+        PARSER_EFORMAT,
     };
 public:
     static ECodeMapType ECodeMap;

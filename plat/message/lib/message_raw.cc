@@ -110,11 +110,6 @@ long MessageHead::GenMessageIdByTime()
     return time(NULL);
 }
 
-parser::ParserTvlObject* MessageHead::Clone()
-{
-    return (mempool::MemPool::getInstance()->Malloc<MessageHead>(*this));
-}
-
 parser::ParserRet MessageHead::BuildTvlString(std::string* str)
 {
     protobuf::MessageHeaderProtobuf proto;
@@ -132,7 +127,12 @@ parser::ParserRet MessageHead::BuildTvlString(std::string* str)
 
 parser::ParserRet MessageHead::ParseTvlString(const std::string& str)
 {
-
+    protobuf::MessageHeaderProtobuf proto;
+    proto.ParseFromString(str);
+    mid_ = proto.mid();
+    comid_ = proto.comid();
+    appid_ = proto.appid();
+    return parser::ParserRet::SUCCESS;
 }
 
 MessageRaw::MessageRaw()
@@ -229,6 +229,8 @@ template<> MessageRet MessageRaw::Deserialization<parser::ParserXml>(parser::Par
 
 template<> MessageRet MessageRaw::Deserialization<parser::ParserTvl>(parser::ParserTvl& parser)
 {
+    std::string tvl_str = parser.PopHead();
+    Head.ParseTvlString(tvl_str);
     return DeserializationTvl(parser);
 }
 

@@ -1,8 +1,6 @@
 #ifndef __MESSAGE_INTERNAL_H__
 #define __MESSAGE_INTERNAL_H__
 
-#include "mempool.h"
-
 #include "message_raw.h"
 #include "message_uri.h"
 #include "message_appid.h"
@@ -10,7 +8,7 @@
 
 namespace message {
 
-class MessageReqConnect : public MessageRaw, public parser::ParserTvlObject {
+class MessageReqConnect : public parser::ParserTvlObject, public MessageRaw {
 public:
     MessageReqConnect() : MessageRaw(MessageAppid::MessageInternal, MessageAppid::MessageReqConnect) { }
     MessageReqConnect(std::string listener, std::string endpoint) : MessageRaw(MessageAppid::MessageInternal, MessageAppid::MessageReqConnect) {
@@ -28,9 +26,14 @@ public:
     }
     ~MessageReqConnect() { }
 
-    parser::ParserTvlObject* Clone() {
-        return mempool::MemPool::getInstance()->Malloc<MessageReqConnect>(*this);
+    MessageURI& GetOrigURI() {
+        return orig_uri_;
     }
+
+    MessageURI& GetDestURI() {
+        return dest_uri_;
+    }
+
     parser::ParserRet BuildTvlString(std::string* str)
     {
         protobuf::MessageReqConnectProtobuf proto;
@@ -46,7 +49,11 @@ public:
     }
     parser::ParserRet ParseTvlString(const std::string& str)
     {
-
+        protobuf::MessageReqConnectProtobuf proto;
+        proto.ParseFromString(str);
+        orig_uri_.SetURI(proto.orig_uri());
+        dest_uri_.SetURI(proto.dest_uri());
+        return parser::ParserRet::SUCCESS;
     }
 
     MessageRet SerializationJson(parser::ParserJsonObject& parser) {
@@ -81,7 +88,11 @@ public:
         parser.PushBack(*this);
         return MessageRet::SUCCESS;
     }
-    MessageRet DeserializationTvl(parser::ParserTvl& parser) { return MessageRet::ESUBCLASS; }
+    MessageRet DeserializationTvl(parser::ParserTvl& parser) {
+        std::string tvl_str = parser.PopHead();
+        ParseTvlString(tvl_str);
+        return MessageRet::SUCCESS;
+    }
 private:
     MessageURI orig_uri_;
     MessageURI dest_uri_;

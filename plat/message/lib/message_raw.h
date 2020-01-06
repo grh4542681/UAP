@@ -68,7 +68,6 @@ public:
     MessageHead& SetMessageAppid(const MessageAppid& appid);
     MessageHead& SetMessageBodyLen(uint32_t len);
 
-    parser::ParserTvlObject* Clone();
     parser::ParserRet BuildTvlString(std::string* str);
     parser::ParserRet ParseTvlString(const std::string& str);
 private:
