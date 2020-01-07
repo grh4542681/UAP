@@ -100,6 +100,7 @@ private:
 
         thread_info_->Unregister2Process();
         ThreadInfo::freeInstance();
+        running_flag_ = false;
         return ThreadRet::SUCCESS;
     }
 

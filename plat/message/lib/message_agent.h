@@ -15,6 +15,7 @@
 #include "message_listener.h"
 #include "message_remote.h"
 #include "message_local.h"
+#include "message_heartbeat.h"
 
 namespace message {
 
@@ -115,6 +116,7 @@ private:
     mempool::MemPool* mempool_;
     Type type_;
     Info info_;
+    MessageHeartbeat heartbeat_;
 
     MessageRemote* remote_manager_ = NULL;
     std::map<std::string, MessageListener*> listener_map_;

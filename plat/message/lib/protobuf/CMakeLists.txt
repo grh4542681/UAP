@@ -1,16 +1,45 @@
-file(STRINGS proto.list PROTOFILES)
-foreach(PROTOFILE ${PROTOFILES})
-    message("Generating cpp source file of ${PROTOFILE} ...")
-    execute_process(COMMAND ${3PP_PROTOBUF_CPP_GEN}
-                            ${3PP_PROTOBUF_CPP_INCLUDE}=${CMAKE_CURRENT_SOURCE_DIR}
-                            ${3PP_PROTOBUF_CPP_OUTPUT}=${CMAKE_CURRENT_SOURCE_DIR}
-                            ${CMAKE_CURRENT_SOURCE_DIR}/${PROTOFILE}
-                            RESULT_VARIABLE RESULT)
-    if(NOT(${RESULT} EQUAL 0))
-        message(FATAL_ERROR "Result (${RESULT})")
+#Gen protobuf cpp source code.
+set(MESSAGE_PROTOBUF_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${MESSAGE_PROTOBUF_DIR}/proto.list")
+file(STRINGS "${MESSAGE_PROTOBUF_DIR}/proto.list" PROTOFILES)
+foreach(PROTOFILE_LINE ${PROTOFILES})
+    list(LENGTH PROTOFILE_LINE PROTOFILE_LINE_LEN)
+    if(${PROTOFILE_LINE_LEN} EQUAL 1)
+        list(GET PROTOFILE_LINE 0 PROTOFILE)
+        set(PROTOFILE_LAST_TIMESTAMP 0)
+    elseif(${PROTOFILE_LINE_LEN} EQUAL 2)
+        list(GET PROTOFILE_LINE 0 PROTOFILE)
+        list(GET PROTOFILE_LINE 1 PROTOFILE_LAST_TIMESTAMP)
+    else()
+        message(FATAL_ERROR "Bad format of config for protofile \"${PROTOFILE_LINE_LEN}\"")
     endif()
     string(REGEX REPLACE ".proto$" ".pb.cc" PROTOFILECPP ${PROTOFILE})
-    string(APPEND PROTOFILECPPS ";" ${CMAKE_CURRENT_SOURCE_DIR}/${PROTOFILECPP})
-endforeach(PROTOFILE)
+    string(REGEX REPLACE ".proto$" ".pb.h" PROTOFILEHPP ${PROTOFILE})
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${MESSAGE_PROTOBUF_DIR}/${PROTOFILE})
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${MESSAGE_PROTOBUF_DIR}/${PROTOFILECPP})
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${MESSAGE_PROTOBUF_DIR}/${PROTOFILEHPP})
+    file(TIMESTAMP ${MESSAGE_PROTOBUF_DIR}/${PROTOFILE} PROTOFILE_CURR_TIMESTAMP "%s")
+    file(TIMESTAMP ${MESSAGE_PROTOBUF_DIR}/${PROTOFILECPP} PROTOFILECPP_CURR_TIMESTAMP "%s")
+    file(TIMESTAMP ${MESSAGE_PROTOBUF_DIR}/${PROTOFILEHPP} PROTOFILEHPP_CURR_TIMESTAMP "%s")
+    message("Generating cpp source file of ${PROTOFILE} ...")
+    if((NOT(PROTOFILE_LAST_TIMESTAMP EQUAL PROTOFILE_CURR_TIMESTAMP)) OR (PROTOFILECPP_CURR_TIMESTAMP STREQUAL "") OR (PROTOFILEHPP_CURR_TIMESTAMP STREQUAL ""))
+        execute_process(COMMAND ${3PP_PROTOBUF_CPP_GEN}
+                                ${3PP_PROTOBUF_CPP_INCLUDE}=${MESSAGE_PROTOBUF_DIR}
+                                ${3PP_PROTOBUF_CPP_OUTPUT}=${MESSAGE_PROTOBUF_DIR}
+                                ${MESSAGE_PROTOBUF_DIR}/${PROTOFILE}
+                                RESULT_VARIABLE RESULT)
+        if(NOT(${RESULT} EQUAL 0))
+            message(FATAL_ERROR "Result (${RESULT})")
+        endif()
+        execute_process(COMMAND "sed" "-i" "s/^${PROTOFILE}.*$/${PROTOFILE};${PROTOFILE_CURR_TIMESTAMP}/g" "${MESSAGE_PROTOBUF_DIR}/proto.list"
+                                RESULT_VARIABLE RESULT)
+        if(NOT(${RESULT} EQUAL 0))
+            message(FATAL_ERROR "Result (${RESULT})")
+        endif()
+    else()
+        message("${PROTOFILE} file has not been modified and does not need to be regenerated")
+    endif()
+    string(APPEND PROTOFILECPPS ";" ${MESSAGE_PROTOBUF_DIR}/${PROTOFILECPP})
+endforeach(PROTOFILE_LINE)
 
 set(MESSAGE_PROTOBUF_SRC ${PROTOFILECPPS} PARENT_SCOPE)

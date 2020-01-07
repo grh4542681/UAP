@@ -20,6 +20,8 @@ public:
         Unknow = 0,
 
         MessageInternal = MESSAGE_INTERNAL_COMID,
+        MessageReqHeartbeat,
+        MessageRepHeartbeat,
         MessageReqConnect,
         MessageRepConnect,
         MessageAgentRegister,

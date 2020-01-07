@@ -8,6 +8,21 @@
 
 namespace message {
 
+class MessageReqHeartbeat : public parser::ParserTvlObject, public MessageRaw {
+public:
+    MessageReqHeartbeat() : MessageRaw(MessageAppid::MessageInternal, MessageAppid::MessageReqHeartbeat) { }
+    ~MessageReqHeartbeat() { }
+
+    template <typename T>MessageRet PushExtra(const T& extra) {
+        MessageRaw* ptr = mempool::MemPool::getInstance()->Malloc<T>(extra);
+        customize_.push_back(ptr);
+        return MessageRet::SUCCESS;
+    }
+private:
+    MessageURI orig_uri_;
+    std::vector<MessageRaw*> customize_;
+};
+
 class MessageReqConnect : public parser::ParserTvlObject, public MessageRaw {
 public:
     MessageReqConnect() : MessageRaw(MessageAppid::MessageInternal, MessageAppid::MessageReqConnect) { }

@@ -1,5 +1,4 @@
 set(MESSAGE_PROTOBUF_SRC)
-
 add_subdirectory(protobuf)
 
 set(LIBGRHMSG_HRD "${PLAT_INFRA_PATH}/return"
@@ -32,6 +31,7 @@ set(LIBGRHMSG_SRC message_return.cc
                   message_listener.cc
                   message_endpoint.cc
                   message_remote.cc
+                  message_heartbeat.cc
                   ${MESSAGE_PROTOBUF_SRC}
                   )
 
