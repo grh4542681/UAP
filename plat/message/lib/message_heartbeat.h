@@ -10,7 +10,7 @@
 
 namespace message {
 
-class MessageHeartbeat {
+class MessageHeartbeatClient {
 public:
     class Element {
     public:
@@ -19,11 +19,11 @@ public:
     public:
         MessageURI uri;
         timer::Time rate;
-        MessageRemote remote;
         ExceptCallbackFunc except_callback;
         TriggerCallbackFunc trigger_callback;
     };
 
+//io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD(), listener->GetCallback());
 public:
     MessageHeartbeat();
     ~MessageHeartbeat();
@@ -31,8 +31,12 @@ public:
     MessageRet Add(MessageHeartbeat::Element& element);
     MessageRet Del(MessageURI uri);
 private:
-    static MessageRet _select_listener_thread_handler(MessageHeartbeat* instance);
-    thread::ThreadTemplate<decltype(&_select_listener_thread_handler), MessageRet> listener_thread_;
+private:
+    io::AutoSelect select_;
+};
+
+class MessageHeartbeatServer {
+
 };
 
 }

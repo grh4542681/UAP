@@ -116,7 +116,8 @@ private:
     mempool::MemPool* mempool_;
     Type type_;
     Info info_;
-    MessageHeartbeat heartbeat_;
+    MessageHeartbeatServer heartbeat_s_;
+    MessageHeartbeatClient heartbeat_c_;
 
     MessageRemote* remote_manager_ = NULL;
     std::map<std::string, MessageListener*> listener_map_;
