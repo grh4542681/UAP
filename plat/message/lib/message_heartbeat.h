@@ -1,7 +1,9 @@
 #ifndef __MESSAGE_HEARTBEAT_H__
 #define __MESSAGE_HEARTBEAT_H__
 
+#include "io_auto_select.h"
 #include "thread_template.h"
+#include "fsm.h"
 
 #include "message_return.h"
 #include "message_uri.h"
@@ -10,25 +12,25 @@
 
 namespace message {
 
+class MessageHeartbeatElement {
+public:
+    using ExceptCallbackFunc = std::function<void(MessageHeartbeatElement&)>;
+    using TriggerCallbackFunc = std::function<void(MessageHeartbeatElement&)>;
+public:
+    MessageURI uri_;
+    timer::Time rate_;
+    ExceptCallbackFunc except_callback_;
+    TriggerCallbackFunc trigger_callback_;
+
+    timer::Time last_time_;
+};
+
 class MessageHeartbeatClient {
 public:
-    class Element {
-    public:
-        using ExceptCallbackFunc = std::function<void(MessageHeartbeat::Element&)>;
-        using TriggerCallbackFunc = std::function<void(MessageHeartbeat::Element&)>;
-    public:
-        MessageURI uri;
-        timer::Time rate;
-        ExceptCallbackFunc except_callback;
-        TriggerCallbackFunc trigger_callback;
-    };
+    MessageHeartbeatClient();
+    ~MessageHeartbeatClient();
 
-//io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD(), listener->GetCallback());
-public:
-    MessageHeartbeat();
-    ~MessageHeartbeat();
-
-    MessageRet Add(MessageHeartbeat::Element& element);
+    MessageRet Add(MessageHeartbeatElement& element);
     MessageRet Del(MessageURI uri);
 private:
 private:

@@ -1,6 +1,8 @@
 #ifndef __MESSAGE_INTERNAL_H__
 #define __MESSAGE_INTERNAL_H__
 
+#include "timer_time.h"
+
 #include "message_raw.h"
 #include "message_uri.h"
 #include "message_appid.h"
@@ -13,14 +15,9 @@ public:
     MessageReqHeartbeat() : MessageRaw(MessageAppid::MessageInternal, MessageAppid::MessageReqHeartbeat) { }
     ~MessageReqHeartbeat() { }
 
-    template <typename T>MessageRet PushExtra(const T& extra) {
-        MessageRaw* ptr = mempool::MemPool::getInstance()->Malloc<T>(extra);
-        customize_.push_back(ptr);
-        return MessageRet::SUCCESS;
-    }
 private:
     MessageURI orig_uri_;
-    std::vector<MessageRaw*> customize_;
+    timer::Time curr_time_;
 };
 
 class MessageReqConnect : public parser::ParserTvlObject, public MessageRaw {
