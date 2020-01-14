@@ -2,27 +2,27 @@
 
 namespace message {
 
-MessageHeartbeatClient::MessageHeartbeatClient()
+HeartbeatClient::HeartbeatClient()
 {
 
 }
 
-MessageHeartbeatClient::~MessageHeartbeatClient()
+HeartbeatClient::~HeartbeatClient()
 {
 
 }
 
-MessageRet MessageHeartbeatClient::Add(MessageHeartbeatElement& element)
-{
-    return MessageRet::SUCCESS;
-}
-
-MessageRet MessageHeartbeatClient::Del(MessageURI uri)
+MessageRet HeartbeatClient::Add(HeartbeatElement& element)
 {
     return MessageRet::SUCCESS;
 }
 
-//MessageRet MessageHeartbeatClient::_select_listener_thread_handler(MessageHeartbeatClient* instance)
+MessageRet HeartbeatClient::Del(MessageURI uri)
+{
+    return MessageRet::SUCCESS;
+}
+
+//MessageRet HeartbeatClient::_select_listener_thread_handler(HeartbeatClient* instance)
 //{
 //    return MessageRet::SUCCESS;
 //}

@@ -14,8 +14,8 @@ namespace fsm {
 template <typename EventType, typename StateType>
 class Fsm {
 public:
-    Fsm();
-    ~Fsm();
+    Fsm() { };
+    ~Fsm() { };
 
     bool TranState(StateType state);
     bool ExecEvent(EventType event);

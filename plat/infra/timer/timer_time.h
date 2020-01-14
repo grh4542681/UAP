@@ -49,16 +49,30 @@ public:
         nanosecond_ = other.nanosecond_;
         return *this;
     }
+    const Time& operator= (const long nanosecond) {
+        second_ = nanosecond/1000000000;
+        nanosecond_ = nanosecond%1000000000;
+        return *this;
+    }
 
     Time operator+ (const Time& other) {
         Time new_timer;
         new_timer.second_ = second_ + other.second_;
         new_timer.nanosecond_ = nanosecond_ + other.nanosecond_;
+        if (new_timer.nanosecond_ >= 1000000000) {
+            new_timer.second_ += new_timer.nanosecond_/1000000000;
+            new_timer.nanosecond_ %= 1000000000;
+        }
         return new_timer;
     }
-    Time operator+ (const long second) {
+    Time operator+ (const long nanosecond) {
         Time new_timer;
-        new_timer.second_ = second_ + second;
+        new_timer.second_ = second_ + (nanosecond/1000000000);
+        new_timer.nanosecond_ = nanosecond_ + (nanosecond%1000000000);
+        if (new_timer.nanosecond_ >= 1000000000) {
+            new_timer.second_ += new_timer.nanosecond_/1000000000;
+            new_timer.nanosecond_ %= 1000000000;
+        }
         return new_timer;
     }
 
@@ -72,11 +86,66 @@ public:
         }
         return new_timer;
     }
-    Time operator- (const long second) {
+    Time operator- (const long nanosecond) {
         Time new_timer;
-        new_timer.nanosecond_ = nanosecond_;
-        new_timer.second_ = second_ - second;
+        new_timer.nanosecond_ = nanosecond_ - (nanosecond%1000000000);
+        new_timer.second_ = second_ - (nanosecond/1000000000);
+        if (new_timer.nanosecond_ < 0) {
+            new_timer.second_ -= 1;
+            new_timer.nanosecond_ += 1000000000;
+        }
         return new_timer;
+    }
+    const Time& operator+= (const Time& other) {
+        second_ += other.second_;
+        nanosecond_ += other.nanosecond_;
+        if (nanosecond_ >= 1000000000) {
+            nanosecond_ -= 1000000000;
+            second_ += 1;
+        }
+        return *this;
+    }
+    const Time& operator+= (const long nanosecond) {
+        second_ += nanosecond/1000000000;
+        nanosecond_ += nanosecond%1000000000;
+        if (nanosecond_ >= 1000000000) {
+            nanosecond_ -= 1000000000;
+            second_ += 1;
+        }
+        return *this;
+    }
+    const Time& operator-= (const Time& other) {
+        second_ -= other.second_;
+        nanosecond_ -= other.nanosecond_;
+        if (nanosecond_ < 0) {
+            nanosecond_ += 1000000000;
+            second_ -= 1;
+        }
+        return *this;
+    }
+    const Time& operator-= (const long nanosecond) {
+        second_ -= nanosecond/1000000000;
+        nanosecond_ -= nanosecond%1000000000;
+        if (nanosecond_ < 0) {
+            nanosecond_ += 1000000000;
+            second_ -= 1;
+        }
+        return *this;
+    }
+
+    bool operator== (const Time& other) {
+        if ((second_ == other.second_) && (nanosecond_ == other.nanosecond_)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    bool operator== (const long nanosecond) {
+        if ((second_ == nanosecond/1000000000) && (nanosecond_ == nanosecond%1000000000)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     bool operator< (const Time& other) {
@@ -112,14 +181,42 @@ public:
         }
         return *this;
     }
+    long GetTime(Unit unit) {
+        long rtime = 0;
+        switch (unit) {
+            case Unit::Second:
+                rtime = second_;
+                break;
+            case Unit::Millisecond:
+                rtime = (second_*1000) + (nanosecond_/1000000);
+                break;
+            case Unit::Microsecond:
+                rtime = (second_*1000000) + (nanosecond_/1000);
+                break;
+            case Unit::Nanosecond:
+                rtime = (second_*1000000000) + nanosecond_;
+                break;
+            default:
+                break;
+        }
+        return rtime;
+    }
 
     Time& SetSecond(long second) {
         second_ = second;
         return *this;
     }
 
-    Time& SetNanoSecond(long nsecond) {
-        nanosecond_ = nsecond;
+    Time& SetNanoSecond(long nanosecond) {
+        nanosecond_ = nanosecond;
+        if (nanosecond_ >= 1000000000) {
+            second_ += nanosecond/1000000000;
+            nanosecond_ %= 1000000000;
+        }
+        if (nanosecond_ < 0) {
+            nanosecond_ += 1000000000;
+            second_ -= 1;
+        }
         return *this;
     }
 
@@ -131,21 +228,21 @@ public:
         return nanosecond_;
     }
 
-    long ToSeconds() {
-        return second_;
-    }
-
-    long ToMilliseconds() {
-        return ((second_ * 1000) + (nanosecond_ / 1000000));
-    }
-
-    long ToMicrosecond() {
-        return ((second_ * 1000000) + (nanosecond_ / 1000));
-    }
-
-    long ToNanosecond() {
-        return ((second_ * 1000000000) + nanosecond_);
-    }
+//    long ToSeconds() {
+//        return second_;
+//    }
+//
+//    long ToMilliseconds() {
+//        return ((second_ * 1000) + (nanosecond_ / 1000000));
+//    }
+//
+//    long ToMicrosecond() {
+//        return ((second_ * 1000000) + (nanosecond_ / 1000));
+//    }
+//
+//    long ToNanosecond() {
+//        return ((second_ * 1000000000) + nanosecond_);
+//    }
 
     bool IsZero() {
         return (!second_ && !nanosecond_);

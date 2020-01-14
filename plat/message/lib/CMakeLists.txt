@@ -33,6 +33,7 @@ set(LIBGRHMSG_SRC message_return.cc
                   message_endpoint.cc
                   message_remote.cc
                   message_heartbeat.cc
+                  message_heartbeat_element.cc
                   ${MESSAGE_PROTOBUF_SRC}
                   )
 

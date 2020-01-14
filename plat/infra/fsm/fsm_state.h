@@ -6,6 +6,8 @@
 
 namespace fsm {
 
+template <typename EventType, typename StateType> class Fsm;
+
 template <typename StateType, typename = typename std::enable_if<std::is_enum<StateType>::value>::type>
 class FsmState {
 public:
@@ -17,9 +19,9 @@ public:
     }
 
 public:
-    std::function<bool(FsmState& prev)> Enter = nullptr;
-    std::function<bool(FsmState& next)> Exit = nullptr;
-    std::function<void(FsmState& curr)> Update= nullptr;
+    std::function<bool(void*, FsmState&)> Enter = nullptr;
+    std::function<bool(void*, FsmState&)> Exit = nullptr;
+    std::function<bool(void*)> Update= nullptr;
 private:
     StateType state_;
     std::string describe_;
