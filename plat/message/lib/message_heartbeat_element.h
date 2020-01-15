@@ -14,8 +14,8 @@ enum class HeartbeatEvent {
     Enable,
     Disable,
     Update,
-    Request,
-    Response,
+    Register,
+    Unregister,
 };
 
 enum class HeartbeatState {
@@ -31,6 +31,10 @@ public:
     HeartbeatElement(const MessageURI& orig_uri, const MessageURI dest_uri, const  timer::Time frequency, unsigned int fault_tolerance);
     ~HeartbeatElement();
 
+    MessageRet Register();
+    MessageRet Unregister();
+    MessageRet Send(MessageRaw* msg, MessageFormat& format);
+    MessageRet Recv(MessageRaw* msg, MessageFormat& format);
 private:
     fsm::Fsm<HeartbeatEvent, HeartbeatState> hb_fsm_;
 

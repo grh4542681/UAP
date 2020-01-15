@@ -23,6 +23,7 @@ public:
 private:
 private:
     io::AutoSelect select_;
+    std::map<timer::TimerFD, std::vector<HeartbeatElement>> timer_element_;
 };
 
 class HeartbeatServer {
