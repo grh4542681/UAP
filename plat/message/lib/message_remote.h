@@ -2,6 +2,7 @@
 #define __MESSAGE_REMOTE_H__
 
 #include <string>
+#include <atomic>
 #include <functional>
 
 #include "io_select_item_template.h"
@@ -56,6 +57,7 @@ private:
     State state_;
     std::string remote_uri_;
     sock::SockFD remote_fd_;
+    std::atomic_int user_count_;
     Callback callback_;
 private:
     MessageRemote(MessageRemote& other);

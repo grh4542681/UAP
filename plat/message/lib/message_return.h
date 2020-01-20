@@ -8,7 +8,7 @@ namespace message {
 class MessageRet : public ret::Return {
 public:
     enum ECode{
-        MESSAGE_EBASE = PARSER_ERROR_CODE_BASE,
+        MESSAGE_EBASE = MESSAGE_ERROR_CODE_BASE,
         MESSAGE_EMSNOSPACE,
         MESSAGE_EMSNOMESSG,
         MESSAGE_EMSMODE,
@@ -16,6 +16,8 @@ public:
         MESSAGE_EPARSER,
 
         MESSAGE_MANAGER_EEXIST,
+        MESSAGE_MANAGER_ESTATE,
+        MESSAGE_MANAGER_ESOCK,
 
         MESSAGE_LISTENER_EREPEAT,
         MESSAGE_LISTENER_EFD,
