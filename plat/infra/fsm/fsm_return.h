@@ -16,10 +16,12 @@ public:
         FSM_STATE_ENOTEXIST,
         FSM_STATE_ETRANSEXIST,
         FSM_STATE_EEXIT,
+        FSM_STATE_EUPDATE,
+        FSM_STATE_EENTER,
 
         FSM_TRANS_ENOTEXIST,
         FSM_TRANS_ECHECK,
-        FSM_TRANS_ECOMPLETE;
+        FSM_TRANS_ECOMPLETE,
     };
 public:
     static ECodeMapType ECodeMap;

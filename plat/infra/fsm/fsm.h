@@ -14,22 +14,22 @@
 
 namespace fsm {
 
-template <typename EventType, typename StateType>
+template <typename Host, typename EventType, typename StateType>
 class Fsm {
 public:
-    Fsm(const StateType& state) : state_(state) { };
+    Fsm(const StateType& state, Host* host = NULL) : host_(host), state_(state) { };
     ~Fsm() { };
 
     StateType& GetState() {
         return state_;
     }
 
-    FsmRet AddEvent(const FsmEvent<EventType>& event) {
+    FsmRet AddEvent(const FsmEvent<Host, EventType>& event) {
         auto event_it = event_map_.find(event.GetEvent());
         if (event_it != event_map_.end()) {
             event_map_.insert({event.GetEvent(), event});
         } else {
-            event_it.second = event;
+            event_it->second = event;
         }
         return FsmRet::SUCCESS;
     }
@@ -37,7 +37,7 @@ public:
         auto event_it = event_map_.find(event);
         if (event_it != event_map_.end()) {
             for (auto trans_it : trans_map_) {
-                if (trans_it.first.get<EventType>() == event) {
+                if (std::get<EventType>(trans_it->first) == event) {
                     return FsmRet::FSM_EVENT_ETRANSEXIST;
                 }
             }
@@ -45,13 +45,21 @@ public:
         }
         return FsmRet::SUCCESS;
     }
+    FsmEvent<Host, EventType>* GetEvent(const EventType& event) {
+        auto event_it = event_map_.find(GetEvent());
+        if (event_it != event_map_.end()) {
+            return (&(event_it->second));
+        } else {
+            return NULL;
+        }
+    }
 
-    FsmRet AddState(const FsmState<StateType>& state) {
+    FsmRet AddState(const FsmState<Host, StateType>& state) {
         auto state_it = state_map_.find(state.GetState());
         if (state_it != state_map_.end()) {
-            state_map_.insert({state.GetState(). state});
+            state_map_.insert({state.GetState(), state});
         } else {
-            state_it.second = state;
+            state_it->second = state;
         }
         return FsmRet::SUCCESS;
     }
@@ -59,7 +67,7 @@ public:
         auto state_it = state_map_find(state);
         if (state_it != state_map_.end()) {
             for (auto trans_it : trans_map_) {
-                if (trans_it.first.get<StateType>() == state) {
+                if (std::get<StateType>(trans_it->first) == state) {
                     return FsmRet::FSM_EVENT_ETRANSEXIST;
                 }
             }
@@ -67,8 +75,16 @@ public:
         }
         return *this;
     }
+    FsmState<Host, StateType>* GetState(const StateType& state) {
+        auto state_it = state_map_.find(state);
+        if (state_it != state_map_.end()) {
+            return (&(state_it->second));
+        } else {
+            return NULL;
+        }
+    }
 
-    FsmRet AddTransition(const FsmTransition<EventType, StateType>& trans) {
+    FsmRet AddTransition(const FsmTransition<Host, EventType, StateType>& trans) {
         EventType event = trans.GetEvent();
         StateType state = trans.GetState();
 
@@ -85,7 +101,7 @@ public:
         if (trans_it == trans_map_.end()) {
             trans_map_.insert({std::pair<EventType, StateType>(event, state), trans});
         } else {
-            trans_it.second() = trans;
+            trans_it->second = trans;
         }
         return FsmRet::SUCCESS;
     }
@@ -109,36 +125,67 @@ public:
         auto trans_it = trans_map_.find(std::pair<EventType, StateType>(event, state_));
         if (trans_it == trans_map_.end()) {
             return FsmRet::FSM_TRANS_ENOTEXIST;
+        }
+
+        auto state_it = state_map_.find(state_);
+        if (state_it == state_map_.end()) {
+            return FsmRet::FSM_STATE_ENOTEXIST;
+        }
+        auto next_state_it = state_map_.find(trans_it->second.GetNextState());
+        if (next_state_it ==state_map_.end()) {
+            return FsmRet::FSM_STATE_ENOTEXIST;
+        }
+
+        /// exec transition check function.
+        if (trans_it->second.Check != nullptr) {
+            if (!trans_it->second.Check(host_)) {
+                //check error;
+                return FsmRet::FSM_TRANS_ECHECK;
+            }
+        }
+
+        /// if this transition no state change, exec update function.
+        if (next_state_it->first == state_) {
+            state_it->second.Update(host_);
         } else {
-            if (trans_it.Check != nullptr) {
-                if (!trans_it.Check()) {
-                    //check error;
-                    return FsmRet::FSM_TRANS_ECHECK;
+            /// exec current state exit function.
+            if (state_it->second.Exit != nullptr) {
+                if (!state_it->second.Exit(host_, next_state_it->second)) {
+                    return FsmRet::FSM_STATE_EEXIT;
                 }
             }
-            auto state_it = state_map_.find(state_);
-            if (state_it == state_map_.end()) {
-                return FsmRet::FSM_STATE_ENOTEXIST;
-            } else {
-                if (state_it.Exit != nullptr) {
-                    if (!state_it.Exit()) {
-                        return FsmRet::FSM_STATE_EEXIT;
-                    }
+            /// exec next state enter function.
+            if (next_state_it->second.Enter != nullptr) {
+                if (!next_state_it->second.Enter(host_, state_it.second)) {
+                    return FsmRet::FSM_STATE_EENTER;
                 }
             }
         }
+        /// exec transition complete function
+        if (trans_it->second.Complete != nullptr) {
+            if (!trans_it->second.Complete(host_)) {
+                return FsmRet::FSM_TRANS_ECOMPLETE;
+            }
+        }
+        /// change state
+        state_ = next_state_it->first;
         return FsmRet::SUCCESS;
     }
 
     bool ChangeState(const StateType& state) {
         return true;
     }
+
+    void ChangeStateForce(const StateType& state) {
+        state_ = state;
+    }
 private:
+    Host* host_;
     StateType state_;
 
-    std::map<EventType, FsmEvent<EventType>> event_map_;
-    std::map<StateType, FsmState<StateType>> state_map_;
-    std::map<std::pair<EventType, StateType>, FsmTransition<EventType, StateType>> trans_map_;
+    std::map<EventType, FsmEvent<Host, EventType>> event_map_;
+    std::map<StateType, FsmState<Host, StateType>> state_map_;
+    std::map<std::pair<EventType, StateType>, FsmTransition<Host, EventType, StateType>> trans_map_;
 };
 
 }

@@ -15,7 +15,8 @@
 #include "message_listener.h"
 #include "message_remote.h"
 #include "message_local.h"
-#include "message_heartbeat.h"
+#include "message_manager.h"
+//#include "message_heartbeat.h"
 
 namespace message {
 
@@ -51,27 +52,27 @@ public:
     MessageAgent& SetType(const Type&);
 
     bool HasManager();
-    MessageRemote* GetManager();
-    MessageRet SetManager(MessageRemote*);
+    MessageManager* GetManager();
 
     MessageListener* GetLinstener(std::string l_name);
     MessageEndpoint* GetEndpoint(std::string listener_name, std::string ep_name);
 
     template < typename ... Args > MessageRet RegisterManager(Args&& ... args) {
-        if (remote_manager_ && select_.HasSelectItem(remote_manager_->GetRemoteFD())) {
+        if (manager_ && manager_->IsAvailable()) {
             return MessageRet::MESSAGE_MANAGER_EEXIST;
         }
-        remote_manager_ = remote_manager_ ? remote_manager_ : mempool_->Malloc<MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL", std::forward<Args>(args)...);
-        if (!remote_manager_) {
+        manager_ = manager_ ? mempool_->Reset<MessageManager>(manager_, std::forward<Args>(args)...)
+                        : mempool_->Malloc<MessageManager>(std::forward<Args>(args)...);
+        if (!manager_) {
             return MessageRet::EMALLOC;
         }
-        if (!remote_manager_->IsReady()) {
+        if (!manager_->IsAvailable()) {
             return MessageRet::MESSAGE_AGENT_ECONN;
         }
-        io::SelectItemTemplate<MessageRemote> manager_selectitem(remote_manager_, remote_manager_->GetRemoteFD(), remote_manager_->GetCallback());
+        io::SelectItemTemplate<MessageManager> manager_selectitem(manager_, manager_->GetManagerFD(), manager_->ReceiveMessageProcess);
         manager_selectitem.GetSelectEvent().SetEvent(io::SelectEvent::Input);
-        remote_manager_->GetRemoteFD().Write("hello world", 12);
-        select_.AddSelectItem<io::SelectItemTemplate<MessageRemote>>(manager_selectitem);
+        manager_->Write("hello world", 11);
+        select_.AddSelectItem<io::SelectItemTemplate<MessageManager>>(manager_selectitem);
         return MessageRet::SUCCESS;
     }
 
@@ -116,10 +117,10 @@ private:
     mempool::MemPool* mempool_;
     Type type_;
     Info info_;
-    HeartbeatServer heartbeat_s_;
-    HeartbeatClient heartbeat_c_;
+//    HeartbeatServer heartbeat_s_;
+//    HeartbeatClient heartbeat_c_;
 
-    MessageRemote* remote_manager_ = NULL;
+    MessageManager* manager_ = NULL;
     std::map<std::string, MessageListener*> listener_map_;
     std::map<std::string, MessageRemote*> listen_remote_ep_map_;
     std::map<std::string, MessageLocal*> listen_local_ep_map_;

@@ -138,9 +138,7 @@ public:
             }
     //        child->GetProcessConfig().Print();
 
-            message::MessageRemote* manager = mempool::MemPool::getInstance()->Malloc<message::MessageRemote>("LOCAL", "MSG_CTRL", "MSG_CTRL",
-                                child->GetParentProcess()->GetFD(), MessageManagerCallback);
-            message::MessageAgent::getInstance()->SetManager(manager);
+            message::MessageAgent::getInstance()->RegisterManager(child->GetParentProcess()->GetFD(), MessageManagerCallback);
             message::MessageAgent::getInstance()->Run();
 
             PROCESS_INFO("Execute child main function.");
@@ -166,7 +164,7 @@ public:
         return {ProcessRet::SUCCESS, ProcessID(0)};
     }
 
-    static io::IoRet MessageManagerCallback(message::MessageRemote* remote, io::SelectItemTemplate<message::MessageRemote>* item, int events) {
+    static io::IoRet MessageManagerCallback(message::MessageManager* manager, io::SelectItemTemplate<message::MessageManager>* item, int events) {
         printf("%s : %d ---callback--\n", __FILE__, __LINE__);
         auto fd = item->template GetFd<sock::SockFD>();
         char buff[1024];

@@ -14,7 +14,7 @@ message :
             device : ${PLATTOP}
         linksize : 100
     manager :
-        switch : false
+        switch : true
         address :
             protocol : local
             device : /plat/tmp/messaged.sock

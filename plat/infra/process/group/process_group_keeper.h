@@ -121,6 +121,7 @@ private:
         memset(buf, 0, sizeof(buf));
         worker_item->template GetFd<sock::SockFD>().Read(buf,sizeof(buf));
         printf("pid:%d recv:%s\n",pid.GetID(),buf);
+        worker_item->template GetFd<sock::SockFD>().Write("hello child", 11);
         return io::IoRet::SUCCESS;
     }
 

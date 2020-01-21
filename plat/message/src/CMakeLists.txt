@@ -26,5 +26,5 @@ set(MESSAGE_DEAMON_SRC message_server.cc
 
 add_executable(messaged ${MESSAGE_DEAMON_SRC})
 target_include_directories(messaged PRIVATE ${MESSAGE_DEAMON_HRD})
-target_link_libraries(messaged libgfile.so libgutil.so libgmsg.so libgsocket.so libgmp.so libgparser.so libgret.so libgipc.so libgprocess.so libgthread.so libgio.so libgfile.so libgtime.so libgconf.so libgcontainer.so ${3PP_YAML_LIBS} ${3PP_PROTOBUF_LIBS})
+target_link_libraries(messaged libgfile.so libgutil.so libgmsg.so libgfsm.so libgsocket.so libgmp.so libgparser.so libgret.so libgipc.so libgprocess.so libgthread.so libgio.so libgfile.so libgtime.so libgconf.so libgcontainer.so ${3PP_YAML_LIBS} ${3PP_PROTOBUF_LIBS})
 

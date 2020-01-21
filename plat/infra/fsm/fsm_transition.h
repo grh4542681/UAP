@@ -5,9 +5,7 @@
 
 namespace fsm {
 
-template <typename EventType, typename StateType> class Fsm;
-
-template <typename EventType, typename StateType, 
+template <typename Host, typename EventType, typename StateType, 
             typename = typename std::enable_if<std::is_enum<EventType>::value && std::is_enum<StateType>::value>::type>
 class FsmTransition {
 public:
@@ -19,15 +17,18 @@ public:
 
     }
 
-    EventType& GetEvent() {
+    EventType GetEvent() const {
         return event_;
     }
-    StateType& GetState() {
+    StateType GetState() const {
         return state_;
     }
+    StateType GetNextState() const {
+        return to_state_;
+    }
 public:
-    std::function<bool(Fsm<EventType, StateType>*)> Check = nullptr;
-    std::function<bool(Fsm<EventType, StateType>*)> Complete = nullptr;
+    std::function<bool(Host*)> Check = nullptr;
+    std::function<bool(Host*)> Complete = nullptr;
 private:
     EventType event_;
     StateType state_;

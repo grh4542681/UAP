@@ -5,7 +5,7 @@
 
 namespace fsm {
 
-template <typename EventType, typename = typename std::enable_if<std::is_enum<EventType>::value>::type>
+template <typename Host, typename EventType, typename = typename std::enable_if<std::is_enum<EventType>::value>::type>
 class FsmEvent {
 public:
     FsmEvent(EventType event) : event_(event) {
@@ -15,7 +15,7 @@ public:
 
     }
 
-    EventType& GetEvent() const {
+    EventType GetEvent() const {
         return event_;
     }
 

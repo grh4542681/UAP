@@ -44,21 +44,12 @@ MessageAgent& MessageAgent::SetType(const MessageAgent::Type& type)
 
 bool MessageAgent::HasManager()
 {
-    return (remote_manager_ ? true : false);
+    return (manager_ ? true : false);
 }
 
-MessageRemote* MessageAgent::GetManager()
+MessageManager* MessageAgent::GetManager()
 {
-    return remote_manager_;
-}
-
-MessageRet MessageAgent::SetManager(MessageRemote* manager)
-{
-    if (!remote_manager_) {
-        remote_manager_ = manager;
-        return MessageRet::SUCCESS;
-    }
-    return MessageRet::MessageRet::MESSAGE_MANAGER_EEXIST;
+    return manager_;
 }
 
 MessageListener* MessageAgent::GetLinstener(std::string l_name)
@@ -139,8 +130,8 @@ MessageRet MessageAgent::Run()
             }
         } else {
             // no message manager.
-            if(remote_manager_) {
-                mempool_->Free<MessageRemote>(remote_manager_);
+            if(manager_) {
+                mempool_->Free<MessageManager>(manager_);
             }
         }
 
