@@ -26,7 +26,7 @@ public:
 
     FsmRet AddEvent(const FsmEvent<Host, EventType>& event) {
         auto event_it = event_map_.find(event.GetEvent());
-        if (event_it != event_map_.end()) {
+        if (event_it == event_map_.end()) {
             event_map_.insert({event.GetEvent(), event});
         } else {
             event_it->second = event;
@@ -56,7 +56,7 @@ public:
 
     FsmRet AddState(const FsmState<Host, StateType>& state) {
         auto state_it = state_map_.find(state.GetState());
-        if (state_it != state_map_.end()) {
+        if (state_it == state_map_.end()) {
             state_map_.insert({state.GetState(), state});
         } else {
             state_it->second = state;
@@ -156,7 +156,7 @@ public:
             }
             /// exec next state enter function.
             if (next_state_it->second.Enter != nullptr) {
-                if (!next_state_it->second.Enter(host_, state_it.second)) {
+                if (!next_state_it->second.Enter(host_, state_it->second)) {
                     return FsmRet::FSM_STATE_EENTER;
                 }
             }

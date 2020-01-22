@@ -119,13 +119,13 @@ MessageRet MessageAgent::Run()
                 if (protocol == "local") {
                     std::string device = config_message_manager->Search<std::string>("address/device")->GetData();
                     RegisterManager(sock::SockAddress(sock::SockFamily::TCP_LOCAL, device.c_str()));
-                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+                    MESSAGE_INFO("message manager default address [%s] [%s]", protocol.c_str(), device.c_str());
                 } else if (protocol == "ipv4") {
                     std::string device = config_message_manager->Search<std::string>("address/device")->GetData();
-                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+                    MESSAGE_INFO("message manager default address [%s] [%s]", protocol.c_str(), device.c_str());
                 } else if (protocol == "ipv6") {
                     std::string device = config_message_manager->Search<std::string>("address/device")->GetData();
-                    MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device.c_str());
+                    MESSAGE_INFO("message manager default address [%s] [%s]", protocol.c_str(), device.c_str());
                 }
             }
         } else {

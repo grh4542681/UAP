@@ -170,7 +170,7 @@ config::ConfigRet ProcessConfig::_load_yaml_message(parser::ParserYaml& parser)
         }
         config_process_message_manager->Insert<bool>("switch", tmp_bool);
         if (tmp_bool) {
-            auto config_process_message_manager_address = config_process_message->Insert("manager")->Insert("address");
+            auto config_process_message_manager_address = config_process_message_manager->Insert("address");
             if (yaml_process_message_manager.Find("address").Find("protocol").GetData<std::string>(&tmp_string) != parser::ParserRet::SUCCESS) {
                 PROCESS_FATAL("Not found config : message/agent/address/protocol");
                 return config::ConfigRet::ERROR;

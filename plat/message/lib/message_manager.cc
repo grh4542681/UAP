@@ -9,13 +9,8 @@ MessageManager::MessageManager(const sock::SockAddress& manager_address, SelectC
 {
     manager_address_ = manager_address;
 
-
+    _fsm_init();
     _trigger_event(Event::Connect);
-//    sock::SockClient client(&manager_address_);
-//    if (client.Connect() == sock::SockRet::SUCCESS) {
-//        manager_fd_ = client.GetSockFD();
-//    } else {
-//    }
 }
 
 MessageManager::MessageManager(const sock::SockFD& manager_fd, SelectCallback ReceiveMessageProcessFunc)
@@ -81,6 +76,7 @@ io::IoRet MessageManager::_common_receive_message_process(io::SelectItemTemplate
 
 MessageRet MessageManager::_trigger_event(const Event& event)
 {
+    fsm_.TriggerEvent(event);
     return MessageRet::SUCCESS;
 }
 
@@ -92,6 +88,14 @@ bool MessageManager::_exit_Initialize(fsm::FsmState<MessageManager, State>& next
 
 bool MessageManager::_enter_Establised(fsm::FsmState<MessageManager, State>& prev)
 {
+    sock::SockClient client(&manager_address_);
+    if (client.Connect() == sock::SockRet::SUCCESS) {
+        manager_fd_ = client.GetSockFD();
+    } else {
+        MESSAGE_ERROR("Connect message manager failed");
+        MESSAGE_ERROR("Message manager enter Establised state failed");
+        return false;
+    }
     MESSAGE_INFO("Message manager enter Establised state");
     return true;
 }
