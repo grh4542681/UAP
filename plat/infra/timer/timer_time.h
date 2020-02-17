@@ -19,20 +19,18 @@
 
 namespace timer {
 
-enum class Unit {
-    Week,
-    Day,
-    Hour,
-    Second,
-    Millisecond,
-    Microsecond,
-    Nanosecond,
-};
 
 /**
 * @brief - Virtual class Time
 */
 class Time {
+public:
+    enum class Unit {
+        Second,
+        Millisecond,
+        Microsecond,
+        Nanosecond,
+    };
 public:
     Time() {
         second_ = 0;

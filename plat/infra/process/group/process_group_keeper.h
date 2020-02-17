@@ -68,8 +68,8 @@ private:
         io::SelectItemTemplate<ProcessGroupKeeper<F, Args...>> keep_timer(
                         this, timer::TimerFD(
                         timer::TimerFD::Flag::Monotonic|timer::TimerFD::Flag::Nonblock,
-                        timer::Time().SetTime(1, timer::Unit::Second),
-                        timer::Time().SetTime(5, timer::Unit::Second)),
+                        timer::Time().SetTime(1, timer::Time::Unit::Second),
+                        timer::Time().SetTime(5, timer::Time::Unit::Second)),
                         &ProcessGroupKeeper<F, Args...>::keep_timer_callback);
 
         keep_timer.GetSelectEvent().SetEvent(io::SelectEvent::Input);

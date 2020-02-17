@@ -2,6 +2,9 @@ set(LIBGTIME_HRD "${PLAT_INFRA_PATH}/return"
                  "${PLAT_INFRA_PATH}/io"
                  "${PLAT_INFRA_PATH}/mempool"
                  "${PLAT_INFRA_PATH}/report"
+                 "${PLAT_INFRA_PATH}/thread"
+                 "${PLAT_INFRA_PATH}/process"
+                 "${PLAT_INFRA_PATH}/timer"
                  )
 set(LIBGTIME_SRC timer_return.cc
                  timer_fd.cc

@@ -2,6 +2,7 @@
 #define __MESSAGE_ENDPOINT_H__
 
 #include <string>
+#include <list>
 #include <functional>
 
 #include "thread_id.h"

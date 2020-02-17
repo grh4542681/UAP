@@ -118,8 +118,8 @@ ret::Return TimerFD::SetFD(unsigned int fd, bool auto_close)
     init_flag_ = true;
     auto_close_ = auto_close;
     first_start_ = true;
-    trigger_time_.SetTime(0, Unit::Second);
-    interval_time_.SetTime(0, Unit::Second);
+    trigger_time_.SetTime(0, Time::Unit::Second);
+    interval_time_.SetTime(0, Time::Unit::Second);
     return ret::Return::SUCCESS;
 }
 

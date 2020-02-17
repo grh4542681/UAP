@@ -89,7 +89,7 @@ std::vector<SelectEvent> Select::Listen(process::signal::ProcessSignalSet* sigma
     memset(rep_evts, 0, sizeof(epoll_event) * item_size_);
 
     sigset_t* set = sigmask ? sigmask->GetSigset() : NULL;
-    int otime = overtime ? static_cast<int>(overtime->GetTime(timer::Unit::Millisecond)) : -1;
+    int otime = overtime ? static_cast<int>(overtime->GetTime(timer::Time::Unit::Millisecond)) : -1;
 
     int fd_num = epoll_pwait(efd_, rep_evts, item_size_, otime, set);
     if (fd_num == -1) {

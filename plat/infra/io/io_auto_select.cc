@@ -104,7 +104,8 @@ IoRet AutoSelect::_select_listener_thread_handler(AutoSelect* instance, process:
     memset(rep_evts, 0, sizeof(epoll_event) * item_size);
 
     sigset_t* set = sigmask.IsEmpty() ? NULL : sigmask.GetSigset();
-    int otime = instance->GetNonblock() ? 0 : (static_cast<int>(overtime.GetTime(timer::Unit::Millisecond)) == 0 ? -1 : static_cast<int>(overtime.GetTime(timer::Unit::Millisecond)));
+    int otime = instance->GetNonblock() ? 0 :
+            (static_cast<int>(overtime.GetTime(timer::Time::Unit::Millisecond)) == 0 ? -1 : static_cast<int>(overtime.GetTime(timer::Time::Unit::Millisecond)));
 
     for (;;) {
         int fd_num = epoll_pwait(instance->fd_.GetFD(), rep_evts, item_size, otime, set);
