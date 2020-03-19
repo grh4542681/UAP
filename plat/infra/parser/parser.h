@@ -3,14 +3,19 @@
 
 #include <string>
 #include "file.h"
+#include "object.h"
 
 #include "parser_return.h"
 
 namespace parser {
 
-class Parser {
+class Parser : public base::Object {
 public:
-    Parser() { };
+    Parser() {
+        object_name_ = "Parser";
+        object_type_name_ = "Parser";
+        object_describe_ = "Base class for parsing standard formats";
+    };
     virtual ~Parser() { };
 
     virtual ParserRet LoadString(std::string str) { return ParserRet::ESUBCLASS; }

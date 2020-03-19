@@ -1,5 +1,6 @@
 #include "mempool.h"
 #include "file.h"
+#include "mempool_alloctor.h"
 
 #include <utility>
 
@@ -8,14 +9,18 @@
 
 void* test_thread(void* args)
 {
-    mempool::MemPool* mp = mempool::MemPool::getInstance();
+    mempool::Mempool* mp = mempool::Mempool::getInstance();
     void* p =mp->Malloc(100);
     p = mp->Malloc(200);
+
+    mempool::MempoolAlloctor alloc;
+    void* p2 = alloc.Malloc(300);
 
     file::File fd(std::forward<file::FileFD>(stdout));    
     mp->ReportThread(fd);
     printf("-------------\n");
     mp->Free(p);
+    alloc.Free(p2);
     mp->ReportThread(fd);
     return NULL;
 }
@@ -38,7 +43,7 @@ int main()
     pthread_join(tid2, NULL);
     pthread_join(tid3, NULL);
 /*
-    mempool::MemPool* mp = mempool::MemPool::getInstance();
+    mempool::Mempool* mp = mempool::Mempool::getInstance();
     void* p =mp->Malloc(100);
     printf("%p\n",p);
     p = mp->Malloc(200);

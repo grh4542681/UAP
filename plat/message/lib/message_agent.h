@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include "mempool.h"
+#include "mempool_alloctor.h"
 #include "timer_time.h"
 #include "thread_template.h"
 #include "sock_client.h"
@@ -11,8 +11,10 @@
 
 #include "message_api.h"
 #include "message_defines.h"
+#include "message_config.h"
 #include "message_endpoint.h"
 #include "message_listener.h"
+#include "message_topology.h"
 #include "message_remote.h"
 #include "message_local.h"
 #include "message_manager.h"
@@ -37,6 +39,7 @@ public:
     };
 
     typedef struct _Info {
+        std::string name_;
         size_t listener_num_;
         timer::Time create_time_;
         State state_;
@@ -49,6 +52,7 @@ public:
     bool IsReady();
     State& GetState();
     Type& GetType();
+    MessageConfig& GetConfig();
     MessageAgent& SetType(const Type&);
 
     bool HasManager();
@@ -61,8 +65,8 @@ public:
         if (manager_ && manager_->IsAvailable()) {
             return MessageRet::MESSAGE_MANAGER_EEXIST;
         }
-        manager_ = manager_ ? mempool_->Reset<MessageManager>(manager_, std::forward<Args>(args)...)
-                        : mempool_->Malloc<MessageManager>(std::forward<Args>(args)...);
+        manager_ = manager_ ? mempool::MempoolAlloctor::Reconstruct<MessageManager>(manager_, std::forward<Args>(args)...)
+                        : alloc_.Allocate<MessageManager>(std::forward<Args>(args)...);
         if (!manager_) {
             return MessageRet::EMALLOC;
         }
@@ -80,12 +84,12 @@ public:
         if (LookupLinstener(name)) {
             return MessageRet::MESSAGE_LISTENER_EREPEAT;
         }
-        MessageListener* listener = mempool_->Malloc<MessageListener>(name, std::forward<Args>(args)...);
+        MessageListener* listener = alloc_.Allocate<MessageListener>(name, std::forward<Args>(args)...);
         if (!listener) {
             return MessageRet::EMALLOC;
         }
         if (!(listener->IsReady())) {
-            mempool_->Free<MessageListener>(listener);
+            alloc_.Deallocate<MessageListener>(listener);
             return MessageRet::MESSAGE_LISTENER_ESTATE;
         }
         io::SelectItemTemplate<MessageListener> listener_selectitem(listener, listener->GetSockServer().GetSockFD(), listener->GetCallback());
@@ -103,6 +107,7 @@ public:
 
     MessageListener* LookupLinstener(std::string l_name);
     MessageIO LookupEndpoint(std::string listener_name, std::string ep_name);
+    MessageTopology GenTopology();
 
     MessageRet Run();
 public:
@@ -114,9 +119,10 @@ private:
     MessageRet _register_listener_to_manager(MessageListener& listener);
     MessageRet _register_endpoint_to_manager(MessageEndpoint& endpoint);
 private:
-    mempool::MemPool* mempool_;
+    mempool::MempoolAlloctor alloc_;
     Type type_;
     Info info_;
+    MessageConfig config_;
 //    HeartbeatServer heartbeat_s_;
 //    HeartbeatClient heartbeat_c_;
 

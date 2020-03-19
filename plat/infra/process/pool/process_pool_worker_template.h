@@ -29,7 +29,7 @@ public:
     * @param [child] - process main function.
     */
     ProcessPoolWorkerTemplate(std::string name, F child) {
-        mempool_ = mempool::MemPool::getInstance();
+        mempool_ = mempool::Mempool::getInstance();
         name_.clear();
         config_filename_.clear();
         child_ = child;
@@ -42,7 +42,7 @@ public:
     * @param [child] - Process main function.
     */
     ProcessPoolWorkerTemplate(std::string name, std::string config_filename, F child) {
-        mempool_ = mempool::MemPool::getInstance();
+        mempool_ = mempool::Mempool::getInstance();
         name_ = name;
         config_filename_ = config_filename;
         child_ = child;
@@ -97,7 +97,7 @@ public:
             parent->GetCmdLine(&raw_cmdline, &raw_cmdline_size);
  
             //destory parent mempool
-            mempool::MemPool::freeInstance();
+            mempool::Mempool::freeInstance();
             ProcessInfo::setInstance(NULL);
 
             ProcessInfo* child = ProcessInfo::getInstance();
@@ -166,7 +166,7 @@ public:
         return {ProcessRet::SUCCESS, ProcessID(0)};
     }
 private:
-    mempool::MemPool* mempool_;         ///< Mempool pointer.
+    mempool::Mempool* mempool_;         ///< Mempool pointer.
     std::string name_;                  ///< Process Name.
     std::string config_filename_;       ///< Process config file name.
     F child_;                           ///< Process main function.

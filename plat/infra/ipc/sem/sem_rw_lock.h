@@ -46,7 +46,7 @@ public:
         sem_ = NULL;
         shm_ = NULL;
         rwlock_info_ = NULL;
-        mempool_ = mempool::MemPool::getInstance();
+        mempool_ = mempool::Mempool::getInstance();
         init_flag_ = false;
         rwlock_state_ = SemRWLockState::NLocked;
     }
@@ -435,7 +435,7 @@ public:
         _ctrl_mutex_unlock();
     }
 private:
-    mempool::MemPool* mempool_;
+    mempool::Mempool* mempool_;
     bool init_flag_;
     std::string path_;
 

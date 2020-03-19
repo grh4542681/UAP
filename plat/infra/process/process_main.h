@@ -27,7 +27,35 @@ public:
         // process info init
         ProcessInfo* process_info = ProcessInfo::getInstance();
         process_info->SetCmdLine(argc, argv, environ);
-        if (process_info->GetProcessConfig().LoadFile(config_filename_) != config::ConfigRet::SUCCESS) {
+
+        if (config_filename_.empty() || !file::IsExist(config_filename_)) {
+            PROCESS_ERROR("Con't access process config file [%s].", config_filename_.c_str());
+            return ProcessRet::PROCESS_ERAWCONFIG;
+        }
+
+        file::File config_file(config_filename_);
+        switch(config_file.GetFileFormat()) {
+    //        case file::File::Format::Ini:
+            case file::File::Format::Json:
+                if (process_info->SetProcessRawConfig<parser::ParserJson>() != ProcessRet::SUCCESS) {
+                    PROCESS_ERROR("Con't set process raw config with type Json");
+                    return ProcessRet::PROCESS_ERAWCONFIG;
+                }
+                process_info->GetProcessRawConfig().LoadFile(config_file);
+                break;
+            case file::File::Format::Yaml:
+                if (process_info->SetProcessRawConfig<parser::ParserYaml>() != ProcessRet::SUCCESS) {
+                    PROCESS_ERROR("Con't set process raw config with type Yaml");
+                    return ProcessRet::PROCESS_ERAWCONFIG;
+                }
+                process_info->GetProcessRawConfig().LoadFile(config_file);
+                break;
+            default:
+                PROCESS_ERROR("Not support config file format [%s]", file::GetFileExtension(config_filename_).c_str());
+                return ProcessRet::PROCESS_ERAWCONFIG;
+        }
+
+        if (process_info->GetProcessConfig().Load(process_info->GetProcessRawConfig()) != config::ConfigRet::SUCCESS) {
             PROCESS_FATAL("Load process config file [%s] error", config_filename_.c_str());
             return ProcessRet::PROCESS_ECONFIG;
         }
@@ -42,8 +70,10 @@ public:
                             main_, std::forward<Args>(args)...);
             group_.Run();
             message::MessageAgent::getInstance()->SetType(message::MessageAgent::Type::KeeperAgent);
+            message::MessageAgent::getInstance()->GetConfig().Load(process_info->GetProcessRawConfig());
             message::MessageAgent::getInstance()->Run();
         } else {
+            message::MessageAgent::getInstance()->GetConfig().Load(process_info->GetProcessRawConfig());
             message::MessageAgent::getInstance()->Run();
             main_(std::forward<Args>(args)...);
         }

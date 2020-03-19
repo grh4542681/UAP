@@ -2,7 +2,7 @@
 
 namespace mempool {
 
-MemPoolRet::ECodeMapType MemPoolRet::ECodeMap = {
+MempoolRet::ECodeMapType MempoolRet::ECodeMap = {
     // fifo return val
     { ECode::EALLOC, "" },
 };

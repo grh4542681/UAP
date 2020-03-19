@@ -20,7 +20,6 @@ namespace sock{
 * @brief SockFD - Default consturctor
 */
 SockFD::SockFD() : FD(){
-    mempool_ = mempool::MemPool::getInstance();
     fd_ = 0;
     init_flag_ = false;
 }
@@ -44,19 +43,16 @@ SockFD::SockFD(unsigned int fd, bool auto_close) : FD(fd, auto_close){
         init_flag_ = false;
     }
 
-    mempool_ = mempool::MemPool::getInstance();
     init_flag_ = true;
 }
 
 SockFD::SockFD(const SockFD& other) : FD(other) {
-    mempool_ = other.mempool_;
     orig = other.orig;
     dest = other.dest;
 }
 
 const SockFD& SockFD::operator=(const SockFD& other) {
     io::FD::operator=(other);
-    mempool_ = other.mempool_;
     orig = other.orig;
     dest = other.dest;
     return *this;
@@ -116,7 +112,7 @@ ret::Return SockFD::Dup(io::FD& new_fd)
 }
 
 io::FD* SockFD::Clone() {
-    return mempool_->Malloc<SockFD>(*this);
+    return alloc_.Allocate<SockFD>(*this);
 }
 
 SockAddress& SockFD::GetOrigAddress() {
@@ -873,7 +869,7 @@ ssize_t SockFD::_send(struct sockaddr* dest, const void* data, size_t datalen, v
     bool buff_free_flag = false;
 
     if (data) {
-        buff = static_cast<char*>(mempool_->Malloc(datalen));
+        buff = static_cast<char*>(alloc_.Malloc(datalen));
         if (!buff) {
             SOCK_ERROR("%s", "Malloc error");
             return (-1);
@@ -901,7 +897,7 @@ ssize_t SockFD::_send(struct sockaddr* dest, const void* data, size_t datalen, v
     ret = sendmsg(fd_, &msg, flags);
 
     if (buff_free_flag) {
-        mempool_->Free(buff);
+        alloc_.Free(buff);
     }
     return ret;
 }
@@ -923,7 +919,7 @@ ssize_t SockFD::_recv(struct sockaddr* orig, void* data, size_t datalen, void* c
 
     memset(&msg, 0x00, sizeof(struct msghdr));
     if (data) {
-        buff = static_cast<char*>(mempool_->Malloc(datalen));
+        buff = static_cast<char*>(alloc_.Malloc(datalen));
         if (!buff) {
             SOCK_ERROR("%s", "Malloc error");
             return (-1);
@@ -958,7 +954,7 @@ ssize_t SockFD::_recv(struct sockaddr* orig, void* data, size_t datalen, void* c
     //fill data
     if (data) {
         memcpy(data, buff, datalen);
-        mempool_->Free(buff);
+        alloc_.Free(buff);
     }
 
     return ret;

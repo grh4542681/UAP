@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include "file_api.h"
 #include "process.h"
 #include "process_info.h"
 
@@ -9,7 +10,7 @@ ProcessInfo* ProcessInfo::pInstance = NULL;
 
 ProcessInfo::ProcessInfo()
 {
-    mempool_ = mempool::MemPool::getInstance();
+    mempool_ = mempool::Mempool::getInstance();
     pid_ = ProcessID::GetProcessID();
     if (Process::GetProcRealPath(real_path_) != ProcessRet::SUCCESS) {
         PROCESS_ERROR("Get process path error");
@@ -93,6 +94,11 @@ ProcessInfo& ProcessInfo::GetCmdLine(char*** raw_cmdline, unsigned int* raw_cmdl
     return *this;
 }
 
+parser::Parser& ProcessInfo::GetProcessRawConfig()
+{
+    return *raw_config_;
+}
+
 ProcessConfig& ProcessInfo::GetProcessConfig()
 {
     return config_;
@@ -172,6 +178,32 @@ ProcessInfo& ProcessInfo::SetCmdLine(char** raw_cmdline, unsigned int raw_cmdlin
     raw_cmdline_ = raw_cmdline;
     raw_cmdline_size_ = raw_cmdline_size;
     return *this;
+}
+
+ProcessRet ProcessInfo::LoadProcessRawConfig(std::string filename)
+{
+    file::File config_file(filename);
+    switch(config_file.GetFileFormat()) {
+//        case file::File::Format::Ini:
+        case file::File::Format::Json:
+            if (SetProcessRawConfig<parser::ParserJson>() != ProcessRet::SUCCESS) {
+                PROCESS_ERROR("Con't set process raw config with type Json");
+                return ProcessRet::PROCESS_ERAWCONFIG;
+            }
+            raw_config_->LoadFile(config_file);
+            break;
+        case file::File::Format::Yaml:
+            if (SetProcessRawConfig<parser::ParserYaml>() != ProcessRet::SUCCESS) {
+                PROCESS_ERROR("Con't set process raw config with type Yaml");
+                return ProcessRet::PROCESS_ERAWCONFIG;
+            }
+            raw_config_->LoadFile(config_file);
+            break;
+        default:
+            PROCESS_ERROR("Not support config file format [%s]", file::GetFileExtension(filename).c_str());
+            return ProcessRet::PROCESS_ERAWCONFIG;
+    }
+    return ProcessRet::SUCCESS;
 }
 
 ProcessRet ProcessInfo::AddParentProcess(ProcessParent& parent)
@@ -313,7 +345,7 @@ void ProcessInfo::Report(std::stringstream& ss, report::ReportMode mode)
 ProcessInfo* ProcessInfo::getInstance()
 {
     if (!pInstance) {
-        mempool::MemPool* mp = mempool::MemPool::getInstance();
+        mempool::Mempool* mp = mempool::Mempool::getInstance();
         pInstance = mp->Malloc<ProcessInfo>();
     }
     return pInstance;

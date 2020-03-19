@@ -21,7 +21,7 @@ ParserIni::ParserIni(std::string filename)
 {
     this->init_flag_ = false;
     this->filename_ = filename;
-    this->mempool_ = mempool::MemPool::getInstance();
+    this->mempool_ = mempool::Mempool::getInstance();
 	if (access(filename.c_str(),F_OK|R_OK)) {
 		PARSER_ERROR("File[%s] test error [%s]",this->filename_.c_str() ,strerror(errno));
 		return ;

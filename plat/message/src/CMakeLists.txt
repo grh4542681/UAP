@@ -1,6 +1,7 @@
 # messaged
 set(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH}/plat)
 set(MESSAGE_DEAMON_HRD "${PLAT_INFRA_PATH}/return"
+                       "${PLAT_INFRA_PATH}/base"
                        "${PLAT_INFRA_PATH}/process"
                        "${PLAT_INFRA_PATH}/file"
                        "${PLAT_INFRA_PATH}/io"
@@ -21,10 +22,31 @@ set(MESSAGE_DEAMON_HRD "${PLAT_INFRA_PATH}/return"
                        "${3PP_PROTOBUF_HRD}"
                        )
 set(MESSAGE_DEAMON_SRC message_server.cc
+                       message_manager_server.cc
                        message_deamon_main.cc
                        )
+set(MESSAGE_DEAMON_LINK_LIBRARYS pthread
+                                 libgfile.so
+                                 libgutil.so
+                                 libgmsg.so
+                                 libgfsm.so
+                                 libgsocket.so
+                                 libgmp.so
+                                 libgparser.so
+                                 libgret.so
+                                 libgipc.so
+                                 libgprocess.so
+                                 libgthread.so
+                                 libgio.so
+                                 libgfile.so
+                                 libgtime.so
+                                 libgconf.so
+                                 libgcontainer.so
+                                 ${3PP_YAML_LIBS}
+                                 ${3PP_PROTOBUF_LIBS}
+                                 )
 
 add_executable(messaged ${MESSAGE_DEAMON_SRC})
 target_include_directories(messaged PRIVATE ${MESSAGE_DEAMON_HRD})
-target_link_libraries(messaged libgfile.so libgutil.so libgmsg.so libgfsm.so libgsocket.so libgmp.so libgparser.so libgret.so libgipc.so libgprocess.so libgthread.so libgio.so libgfile.so libgtime.so libgconf.so libgcontainer.so ${3PP_YAML_LIBS} ${3PP_PROTOBUF_LIBS})
+target_link_libraries(messaged ${MESSAGE_DEAMON_LINK_LIBRARYS})
 

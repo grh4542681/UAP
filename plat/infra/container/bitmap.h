@@ -31,7 +31,7 @@ public:
     void Print0();
     void Print();
 private:
-    mempool::MemPool* mempool_ = { mempool::MemPool::getInstance() };
+    mempool::Mempool* mempool_ = { mempool::Mempool::getInstance() };
     bool free_flag_ = { false };
     void* page_head_ = { NULL };
     size_t page_num_ = { 0 };

@@ -202,7 +202,7 @@ private:
     ProcessSignalCtrl();
     ~ProcessSignalCtrl();
 
-    mempool::MemPool* mempool_;                                         ///< Mempool pointer.
+    mempool::Mempool* mempool_;                                         ///< Mempool pointer.
     std::map<ProcessSignal, ProcessSignalAction> register_map_;         ///< Current register signal map.
     std::map<ProcessSignal, ProcessSignalAction> last_register_map_;    ///< Last time register signal map.
 

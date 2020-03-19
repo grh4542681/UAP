@@ -5,7 +5,7 @@ namespace message {
 MessageStream::MessageStream(Mode smode, size_t size) {
     smode_ = smode;
     limit_size_ = size;
-    mempool_ = mempool::MemPool::getInstance();
+    mempool_ = mempool::Mempool::getInstance();
     cache_ = mempool_->Malloc(limit_size_);
     if (!cache_) {
         ret_ = MessageRet::EMALLOC;
@@ -18,7 +18,7 @@ MessageStream::MessageStream(Mode smode, size_t size) {
 MessageStream::MessageStream() {
     smode_ = Mode::In;
     limit_size_ = 1024*1024;
-    mempool_ = mempool::MemPool::getInstance();
+    mempool_ = mempool::Mempool::getInstance();
     cache_ = mempool_->Malloc(limit_size_);
     if (!cache_) {
         ret_ = MessageRet::EMALLOC;

@@ -77,17 +77,17 @@ IpcRet SemSysV::Create(size_t semnum, mode_t mode)
 
     semnum_ = semnum;
 
-    unsigned short* sem_val = (unsigned short*)(mempool::MemPool::getInstance()->Malloc(semnum * (sizeof(unsigned short))));
+    unsigned short* sem_val = (unsigned short*)(mempool::Mempool::getInstance()->Malloc(semnum * (sizeof(unsigned short))));
     memset(sem_val, 0, semnum* (sizeof(unsigned short)));
 
     args.array = sem_val;
 
     if (semctl(semid_, 0, SETALL, args) < 0) {
         tmp_errno = errno;
-        mempool::MemPool::getInstance()->Free(sem_val);
+        mempool::Mempool::getInstance()->Free(sem_val);
         return tmp_errno;
     }
-    mempool::MemPool::getInstance()->Free(sem_val);
+    mempool::Mempool::getInstance()->Free(sem_val);
     init_flag_ = true;
     return IpcRet::SUCCESS;
 }

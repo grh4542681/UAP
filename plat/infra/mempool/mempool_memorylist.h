@@ -7,10 +7,10 @@ namespace mempool {
 * @brief - This linked list is used to store free memory blocks.
 *          Use the head memory of the free memory block to store the next pointer.
 */
-class MemPoolMemoryList {
+class MempoolMemoryList {
 public:
-    MemPoolMemoryList() { head_ = NULL; }
-    ~MemPoolMemoryList() { }
+    MempoolMemoryList() { head_ = NULL; }
+    ~MempoolMemoryList() { }
 
     void Push(void* element) {
         void* next = head_;
@@ -36,7 +36,7 @@ public:
 private:
     void* head_;
 
-    MemPoolMemoryList(MemPoolMemoryList&) { }
+    MempoolMemoryList(MempoolMemoryList&) { }
     void* _Next(void* e) {
         return *(reinterpret_cast<void**>(e));
     }

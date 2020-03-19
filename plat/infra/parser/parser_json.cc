@@ -1693,6 +1693,9 @@ ParserJsonObject& ParserJsonObject::operator=(const ParserJsonObject&& other)
 //ParserJson class
 ParserJson::ParserJson()
 {
+    object_name_ = "ParserJson";
+    object_type_name_ = "ParserJson";
+    object_describe_ = "Class for parsing json format";
     this->thread_safe_flag_ = false;
     this->root = ParserJsonObject(this, &(this->doc_)).setObject();
 }

@@ -30,7 +30,7 @@ namespace process {
 class Process;
 class ProcessInfo : public report::VReport {
 public:
-    friend class mempool::MemPool;
+    friend class mempool::Mempool;
     friend class Process;
 public:
 
@@ -44,6 +44,7 @@ public:
     const char* GetCmdLine(unsigned int index);
     ProcessInfo& GetCmdLine(char*** raw_cmdline, unsigned int* raw_cmdline_size);
     ProcessConfig& GetProcessConfig();
+    parser::Parser& GetProcessRawConfig();
     signal::ProcessSignalCtrl* GetSignalCtrl();
 
     ProcessInfo& SetPid(ProcessID&& pid);
@@ -52,6 +53,27 @@ public:
     ProcessInfo& SetRealPath();
     ProcessInfo& SetCmdLine(int argc, char** argv, char** env);
     ProcessInfo& SetCmdLine(char** raw_cmdline, unsigned int raw_cmdline_size);
+    template < typename T , typename ... Args> ProcessRet SetProcessRawConfig(Args&& ... args) {
+        if (raw_config_) {
+            std::string type_name = raw_config_->ObjectTypeName();
+            if (type_name == "ParserJson") {
+                mempool_->Free<parser::ParserJson>(dynamic_cast<parser::ParserJson*>(raw_config_));
+            } else if (type_name == "ParserYaml") {
+                mempool_->Free<parser::ParserYaml>(dynamic_cast<parser::ParserYaml*>(raw_config_));
+            } else {
+                // unknow
+                mempool_->Free((void*)raw_config_);
+            }
+            raw_config_ = NULL;
+        }
+        raw_config_ = mempool_->Malloc<T>(std::forward<Args>(args)...);
+        if (!raw_config_) {
+            return ProcessRet::EMALLOC;
+        }
+        return ProcessRet::SUCCESS;
+    }
+
+    ProcessRet LoadProcessRawConfig(std::string filename);
 
     ProcessRet AddThreadInfo(thread::ThreadInfo* thread_info);
     ProcessRet DelThreadInfo(thread::ThreadID& tid);
@@ -84,7 +106,7 @@ private:
 public:
 
 private:
-    mempool::MemPool* mempool_;
+    mempool::Mempool* mempool_;
 
     // base argement
     ProcessID           pid_;           ///< Process id.
@@ -102,6 +124,7 @@ private:
     std::vector<char*>  environ_;           ///< Environment arguments vector.
 
     // process static config
+    parser::Parser* raw_config_ = NULL;
     ProcessConfig config_;
 
     // process relationship

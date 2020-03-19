@@ -73,12 +73,12 @@ void NodeTree::ElementAny::Erase(int depth)
             next->Erase(depth);
         }
     }
-    mempool::MemPool::getInstance()->Free<ElementAny>(this);
+    mempool::Mempool::getInstance()->Free<ElementAny>(this);
 }
 
 NodeTree::ElementAny* NodeTree::ElementAny::Clone(int depth)
 {
-    NodeTree::ElementAny* self = mempool::MemPool::getInstance()->Malloc<NodeTree::ElementAny>(*this);
+    NodeTree::ElementAny* self = mempool::Mempool::getInstance()->Malloc<NodeTree::ElementAny>(*this);
     if (depth == 0) {
         self->parent = nullptr;
         self->next = nullptr;

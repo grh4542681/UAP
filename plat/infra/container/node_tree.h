@@ -21,7 +21,7 @@ class NodeTree {
 public:
     class ElementAny {
     public:
-        friend class mempool::MemPool;
+        friend class mempool::Mempool;
     public:
         virtual ~ElementAny() { };
         
@@ -73,7 +73,7 @@ public:
     template < typename T > class ElementData;
     class ElementPath : public ElementAny {
     public:
-        friend class mempool::MemPool;
+        friend class mempool::Mempool;
         friend class NodeTree;
     public:
         ~ElementPath() { }
@@ -171,15 +171,15 @@ public:
                     next->Erase(depth);
                 }
             }
-            mempool::MemPool::getInstance()->Free<ElementPath>(this);
+            mempool::Mempool::getInstance()->Free<ElementPath>(this);
         }
     private:
         ElementPath() : ElementAny() {
-            mempool_ = mempool::MemPool::getInstance();
+            mempool_ = mempool::Mempool::getInstance();
         }
 
         ElementPath(std::string name) : ElementAny(name) {
-            mempool_ = mempool::MemPool::getInstance();
+            mempool_ = mempool::Mempool::getInstance();
         }
 
         ElementPath(const ElementPath& other) : ElementAny(other){
@@ -190,7 +190,7 @@ public:
         }
         
         ElementPath* Clone(int depth = 0) {
-            ElementPath* self = mempool::MemPool::getInstance()->Malloc<ElementPath>(*this);
+            ElementPath* self = mempool::Mempool::getInstance()->Malloc<ElementPath>(*this);
             if (depth == 0) {
                 self->parent = nullptr;
                 self->next = nullptr;
@@ -241,12 +241,12 @@ public:
         }
 
     private:
-        mempool::MemPool* mempool_ = nullptr;
+        mempool::Mempool* mempool_ = nullptr;
     };
 public:
     template < typename T > class ElementData : public ElementAny {
     public:
-        friend class mempool::MemPool;
+        friend class mempool::Mempool;
         friend class NodeTree;
     public:
         ~ElementData() { }
@@ -344,7 +344,7 @@ public:
                     next->Erase(depth);
                 }
             }
-            mempool::MemPool::getInstance()->Free<ElementData<T>>(this);
+            mempool::Mempool::getInstance()->Free<ElementData<T>>(this);
         }
 
         ElementData<T>& SetData(const T& data) {
@@ -358,11 +358,11 @@ public:
 
     private:
         ElementData() : ElementAny() {
-            mempool_ = mempool::MemPool::getInstance();
+            mempool_ = mempool::Mempool::getInstance();
         }
 
         ElementData(std::string name) : ElementAny(name) {
-            mempool_ = mempool::MemPool::getInstance();
+            mempool_ = mempool::Mempool::getInstance();
         }
 
         ElementData(const ElementData& other) : ElementAny(other){
@@ -374,7 +374,7 @@ public:
         }
         
         ElementData<T>* Clone(int depth = 0) {
-            ElementData<T>* self = mempool::MemPool::getInstance()->Malloc<ElementData<T>>(*this);
+            ElementData<T>* self = mempool::Mempool::getInstance()->Malloc<ElementData<T>>(*this);
             if (depth == 0) {
                 self->parent = nullptr;
                 self->next = nullptr;
@@ -425,7 +425,7 @@ public:
         }
 
     private:
-        mempool::MemPool* mempool_ = nullptr;
+        mempool::Mempool* mempool_ = nullptr;
         T element_data_;
     };
 

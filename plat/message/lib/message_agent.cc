@@ -10,7 +10,7 @@ std::string MessageAgent::DefaultName = "";
 
 MessageAgent::MessageAgent()
 {
-    mempool_ = mempool::MemPool::getInstance();
+//    alloc_ = mempool::MempoolAlloctor();
     info_.listener_num_ = 0;
     info_.state_ = State::Initialize;
     type_ = Type::NormalAgent;
@@ -34,6 +34,11 @@ MessageAgent::State& MessageAgent::GetState()
 MessageAgent::Type& MessageAgent::GetType()
 {
     return type_;
+}
+
+MessageConfig& MessageAgent::GetConfig()
+{
+    return config_;
 }
 
 MessageAgent& MessageAgent::SetType(const MessageAgent::Type& type)
@@ -88,10 +93,17 @@ MessageIO MessageAgent::LookupEndpoint(std::string listener_name, std::string ep
     //check remote ep
 }
 
+MessageTopology MessageAgent::GenTopology()
+{
+
+}
+
 MessageRet MessageAgent::Run()
 {
+    printf("%s:%d ---------\n",__FILE__, __LINE__);
     process::ProcessInfo* proc = process::ProcessInfo::getInstance();
-    auto config_message = proc->GetProcessConfig().GetRoot()->Search("message");
+    config_.Print();
+    auto config_message = config_.GetRoot()->Search("message");
     auto config_message_enable = config_message->Search<bool>("switch");
     if (!config_message_enable) {
         info_.state_ = State::Error;
@@ -131,7 +143,7 @@ MessageRet MessageAgent::Run()
         } else {
             // no message manager.
             if(manager_) {
-                mempool_->Free<MessageManager>(manager_);
+                alloc_.Deallocate<MessageManager>(manager_);
             }
         }
 
@@ -148,13 +160,16 @@ MessageRet MessageAgent::Run()
                 /* if this process is child process, sock-pair is used for ctrl ep and listened 
                  * like a remote ep. No need listen again.
                  */
-                //MessageListener* default_listener = mempool_->Malloc<MessageListener>(default_ep_name, proc->GetParentProcess()->GetFD());
+                //MessageListener* default_listener = alloc_.Malloc<MessageListener>(default_ep_name, proc->GetParentProcess()->GetFD());
                 //listener_map_.insert(default_ep_name, default_listener);
                 MESSAGE_INFO("Child process no need listen agent EP, just use MSG_CTRL EP.");
             } else {
                 if (protocol == "local") {
                     std::string device_file = config_message_agent->Search<std::string>("address/device")->GetData();
-                    RegisterListener(default_ep_name, sock::SockAddress(sock::SockFamily::TCP_LOCAL, device_file.c_str()));
+                    if (RegisterListener(default_ep_name, sock::SockAddress(sock::SockFamily::TCP_LOCAL, device_file.c_str())) != MessageRet::SUCCESS) {
+                        MESSAGE_ERROR("Default message agent EP register fail.");
+                        return MessageRet::ERROR;
+                    }
                     MESSAGE_INFO("message agent default address [%s] [%s]", protocol.c_str(), device_file.c_str());
                 } else if (protocol == "ipv4") {
                     std::string device = config_message_agent->Search<std::string>("address/device")->GetData();
@@ -184,7 +199,7 @@ MessageRet MessageAgent::Run()
 MessageAgent* MessageAgent::getInstance()
 {
     if (!pInstance) {
-        pInstance = mempool::MemPool::getInstance()->Malloc<MessageAgent>();
+        pInstance = mempool::Mempool::getInstance()->Malloc<MessageAgent>();
     }
     return pInstance;
 }

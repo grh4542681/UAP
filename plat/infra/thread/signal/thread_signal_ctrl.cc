@@ -9,7 +9,7 @@ thread_local ThreadSignalCtrl* ThreadSignalCtrl::pInstance = NULL;
 
 ThreadSignalCtrl::ThreadSignalCtrl()
 {
-    mempool_ = mempool::MemPool::getInstance();
+    mempool_ = mempool::Mempool::getInstance();
 }
 
 ThreadSignalCtrl::~ThreadSignalCtrl()

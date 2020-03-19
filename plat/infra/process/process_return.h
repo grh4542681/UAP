@@ -45,6 +45,7 @@ public:
         PROCESS_EFIFOPAIR,
 
     //process config
+        PROCESS_ERAWCONFIG,
         PROCESS_ECONFIG,
     };
 public:

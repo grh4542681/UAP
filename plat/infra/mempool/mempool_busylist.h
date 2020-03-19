@@ -15,28 +15,28 @@ class File;
 
 namespace mempool {
 
-class MemPoolBusyList {
+class MempoolBusyList {
 public:
-    struct MemPoolBusyItem {
+    struct MempoolBusyItem {
         void* ptr_;
         time_t alloc_time_;
-        MemPoolItemOri ori_;
+        MempoolItemOri ori_;
     };
 public:
-    MemPoolBusyList();
-    ~MemPoolBusyList();
+    MempoolBusyList();
+    ~MempoolBusyList();
 
-    MemPoolRet Insert(void* ptr, MemPoolItemOri ori);
-    MemPoolRet Remove(void* ptr);
-    MemPoolItemOri Origin(void* ptr);
+    MempoolRet Insert(void* ptr, MempoolItemOri ori);
+    MempoolRet Remove(void* ptr);
+    MempoolItemOri Origin(void* ptr);
     
     unsigned int Size();
-    MemPoolRet Clear();
+    MempoolRet Clear();
 
     void Report(file::File& fd);
 
 private:
-    std::map<void*, MemPoolBusyItem> busy_map_;
+    std::map<void*, MempoolBusyItem> busy_map_;
 
 };
 

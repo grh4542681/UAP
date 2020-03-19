@@ -8,7 +8,7 @@ namespace mempool {
 /**
  * @brief Memory pool return value.
  */
-class MemPoolRet : public ret::Return {
+class MempoolRet : public ret::Return {
 public:
     enum ECode{
         //memort
@@ -22,21 +22,21 @@ public:
 public:
     static ECodeMapType ECodeMap;
 public:
-    MemPoolRet(int err_code = 0) : ret::Return(err_code) {
-        err_code_vec_.push_back(&MemPoolRet::ECodeMap);
+    MempoolRet(int err_code = 0) : ret::Return(err_code) {
+        err_code_vec_.push_back(&MempoolRet::ECodeMap);
     }
-    MemPoolRet(MemPoolRet& other) : ret::Return(other) { }
-    ~MemPoolRet() { };
+    MempoolRet(MempoolRet& other) : ret::Return(other) { }
+    ~MempoolRet() { };
 public:
-    MemPoolRet& operator=(int err_code) {
+    MempoolRet& operator=(int err_code) {
         Return::operator=(err_code);
         return *this;
     }   
-    MemPoolRet& operator=(MemPoolRet& ret) {
+    MempoolRet& operator=(MempoolRet& ret) {
         Return::operator=(ret);
         return *this;
     }   
-    MemPoolRet& operator=(MemPoolRet&& ret) {
+    MempoolRet& operator=(MempoolRet&& ret) {
         Return::operator=(ret);
         return *this;
     }

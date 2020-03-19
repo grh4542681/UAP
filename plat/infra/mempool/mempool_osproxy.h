@@ -5,10 +5,10 @@
 
 namespace mempool {
 
-class MemPoolOsProxy {
+class MempoolOsProxy {
 public:
-    MemPoolOsProxy();
-    ~MemPoolOsProxy();
+    MempoolOsProxy();
+    ~MempoolOsProxy();
 
     static void* Alloc(size_t size);
     static void Free(void* ptr);

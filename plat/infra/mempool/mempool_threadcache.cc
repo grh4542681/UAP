@@ -9,35 +9,35 @@
 
 namespace mempool {
 
-MemPoolThreadCache::MemPoolThreadCache()
+MempoolThreadCache::MempoolThreadCache()
 {
     init_flag_ = false;
     tid_ = (pid_t)syscall(__NR_gettid);
     center_ = NULL;
-    if (busy_list_.Clear() != MemPoolRet::SUCCESS) {
+    if (busy_list_.Clear() != MempoolRet::SUCCESS) {
         MEMPOOL_ERROR("busy list clear error");
     }   
-    if (free_list_.Clear() != MemPoolRet::SUCCESS) {
+    if (free_list_.Clear() != MempoolRet::SUCCESS) {
         MEMPOOL_ERROR("free list clear error");
     }
-    if (Init() == MemPoolRet::SUCCESS) {
+    if (Init() == MempoolRet::SUCCESS) {
         init_flag_ = true;
     }
 }
 
-MemPoolThreadCache::~MemPoolThreadCache()
+MempoolThreadCache::~MempoolThreadCache()
 {
 
 }
 
-MemPoolRet MemPoolThreadCache::Init()
+MempoolRet MempoolThreadCache::Init()
 {
-    return MemPoolRet::ERROR;
+    return MempoolRet::ERROR;
 }
 
-void* MemPoolThreadCache::Alloc(size_t size)
+void* MempoolThreadCache::Alloc(size_t size)
 {
-    MemPoolRet ret = MemPoolRet::SUCCESS;
+    MempoolRet ret = MempoolRet::SUCCESS;
     void* ptr = NULL;
 
     if (init_flag_) {
@@ -46,21 +46,21 @@ void* MemPoolThreadCache::Alloc(size_t size)
             MEMPOOL_ERROR("Alloc from free list error");
             return NULL;
         }
-        if ((ret = busy_list_.Insert(ptr, MemPoolItemOri::POOL)) != MemPoolRet::SUCCESS) {
+        if ((ret = busy_list_.Insert(ptr, MempoolItemOri::POOL)) != MempoolRet::SUCCESS) {
             MEMPOOL_ERROR("Insert into bust list error");
             free_list_.Free(ptr);
             ptr = NULL;
             return NULL;
         }
     } else {
-        ptr = MemPoolOsProxy::Alloc(size);
+        ptr = MempoolOsProxy::Alloc(size);
         if (!ptr) {
             MEMPOOL_ERROR("Alloc from os error");
             return NULL;
         }
-        if ((ret = busy_list_.Insert(ptr, MemPoolItemOri::OS)) != MemPoolRet::SUCCESS) {
+        if ((ret = busy_list_.Insert(ptr, MempoolItemOri::OS)) != MempoolRet::SUCCESS) {
             MEMPOOL_ERROR("Insert into bust list error");
-            MemPoolOsProxy::Free(ptr);
+            MempoolOsProxy::Free(ptr);
             ptr = NULL;
             return NULL;
         }
@@ -68,22 +68,22 @@ void* MemPoolThreadCache::Alloc(size_t size)
     return ptr;
 }
 
-void MemPoolThreadCache::Free(void* ptr)
+void MempoolThreadCache::Free(void* ptr)
 {
     if (!ptr) {
         return;
     }
-    MemPoolItemOri origin = busy_list_.Origin(ptr);
+    MempoolItemOri origin = busy_list_.Origin(ptr);
     switch (origin) {
-        case MemPoolItemOri::OS:
-            MemPoolOsProxy::Free(ptr);
+        case MempoolItemOri::OS:
+            MempoolOsProxy::Free(ptr);
             busy_list_.Remove(ptr);
             return;
-        case MemPoolItemOri::POOL:
+        case MempoolItemOri::POOL:
             free_list_.Free(ptr);
             busy_list_.Remove(ptr);
             return;
-        case MemPoolItemOri::NONE:
+        case MempoolItemOri::NONE:
             MEMPOOL_ERROR("Free address %p is untrack address.", ptr);
             return;
         default:
@@ -92,12 +92,12 @@ void MemPoolThreadCache::Free(void* ptr)
     }
 }
 
-void MemPoolThreadCache::Report(int fd)
+void MempoolThreadCache::Report(int fd)
 {
     //Report(file::File(fd));
 }
 
-void MemPoolThreadCache::Report(file::File& fd)
+void MempoolThreadCache::Report(file::File& fd)
 {
     char line[1024];
     memset(line, 0x00, sizeof(line));

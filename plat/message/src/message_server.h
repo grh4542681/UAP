@@ -4,8 +4,9 @@
 #include "sock_server.h"
 
 #include "message_log.h"
-#include "message_api.h"
 #include "message_return.h"
+#include "message_topology.h"
+#include "message_manager_server.h"
 
 namespace message {
 
@@ -16,9 +17,10 @@ public:
 
     MessageRet Run();
 
+    static MessageTopology Topology;
     static void Main(int i,std::string str);
 private:
-    sock::SockServer server_;
+    MessageManagerServer manager_;
 };
 
 }

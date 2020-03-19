@@ -128,7 +128,11 @@ void ParserYamlObject::_set_ret(const ParserRet& ret)
 }
 
 
-ParserYaml::ParserYaml() : Parser() { }
+ParserYaml::ParserYaml() : Parser() {
+    object_name_ = "ParserYaml";
+    object_type_name_ = "ParserYaml";
+    object_describe_ = "Class for parsing yaml format";
+}
 ParserYaml::~ParserYaml() { }
 
 ParserRet ParserYaml::LoadString(std::string str)

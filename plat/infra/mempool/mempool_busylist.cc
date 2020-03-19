@@ -5,78 +5,78 @@
 
 namespace mempool {
 
-MemPoolBusyList::MemPoolBusyList()
+MempoolBusyList::MempoolBusyList()
 {
     busy_map_.clear();
 }
 
-MemPoolBusyList::~MemPoolBusyList()
+MempoolBusyList::~MempoolBusyList()
 {
     busy_map_.clear();
 }
 
-MemPoolRet MemPoolBusyList::Insert(void* ptr, MemPoolItemOri ori)
+MempoolRet MempoolBusyList::Insert(void* ptr, MempoolItemOri ori)
 {
-    struct MemPoolBusyItem item;
+    struct MempoolBusyItem item;
     item.ptr_ = ptr;
     item.alloc_time_ = time(NULL);
     item.ori_ = ori;
 
     auto it = busy_map_.find(ptr);
     if (it != busy_map_.end()) {
-        return MemPoolRet::EBUSYLISTDUPADDRESS;
+        return MempoolRet::EBUSYLISTDUPADDRESS;
     }
 
-    std::pair<std::map<void*, MemPoolBusyItem>::iterator, bool> ret;
-    ret = busy_map_.insert(std::pair<void*, MemPoolBusyItem>(ptr, item));
+    std::pair<std::map<void*, MempoolBusyItem>::iterator, bool> ret;
+    ret = busy_map_.insert(std::pair<void*, MempoolBusyItem>(ptr, item));
     if (ret.second==false) {
-        return MemPoolRet::EBUSYLISTINSERT;
+        return MempoolRet::EBUSYLISTINSERT;
     }
 
-    return MemPoolRet::SUCCESS;
+    return MempoolRet::SUCCESS;
 }
 
-MemPoolRet MemPoolBusyList::Remove(void* ptr)
+MempoolRet MempoolBusyList::Remove(void* ptr)
 {
     auto it = busy_map_.find(ptr);
     if (it == busy_map_.end()) {
-        return MemPoolRet::EBUSYLISTNOTFOUND;
+        return MempoolRet::EBUSYLISTNOTFOUND;
     }
 
     busy_map_.erase(it);
-    return MemPoolRet::SUCCESS;
+    return MempoolRet::SUCCESS;
 }
 
-MemPoolItemOri MemPoolBusyList::Origin(void* ptr)
+MempoolItemOri MempoolBusyList::Origin(void* ptr)
 {
     auto it = busy_map_.find(ptr);
     if (it == busy_map_.end()) {
-        return MemPoolItemOri::NONE;
+        return MempoolItemOri::NONE;
     }
     return it->second.ori_;
 }
 
-unsigned int MemPoolBusyList::Size()
+unsigned int MempoolBusyList::Size()
 {
     return busy_map_.size();
 }
 
-MemPoolRet MemPoolBusyList::Clear()
+MempoolRet MempoolBusyList::Clear()
 {
-    return MemPoolRet::SUCCESS;
+    return MempoolRet::SUCCESS;
 }
 
-void MemPoolBusyList::Report(file::File& fd)
+void MempoolBusyList::Report(file::File& fd)
 {
     char line[1024];
     for (auto it : busy_map_) {
         memset(line, 0x00, sizeof(line));
         sprintf(line, "Address: %p\t alloctime: %lu\t", it.second.ptr_, it.second.alloc_time_);
         switch (it.second.ori_) {
-            case MemPoolItemOri::OS:
+            case MempoolItemOri::OS:
                 strcat(line, " ORI: OS");
                 break;
-            case MemPoolItemOri::POOL:
+            case MempoolItemOri::POOL:
                 strcat(line, " ORI: POOL");
                 break;
             default:

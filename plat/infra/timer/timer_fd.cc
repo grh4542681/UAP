@@ -130,7 +130,7 @@ ret::Return TimerFD::Dup(io::FD& new_fd)
 
 io::FD* TimerFD::Clone()
 {
-    return mempool::MemPool::getInstance()->Malloc<TimerFD>(*this);
+    return alloc_.Allocate<TimerFD>(*this);
 }
 
 void TimerFD::Close()

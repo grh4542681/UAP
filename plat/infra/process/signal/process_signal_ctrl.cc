@@ -19,7 +19,7 @@ ProcessSignalCtrl* ProcessSignalCtrl::pInstance = NULL;
 
 ProcessSignalCtrl::ProcessSignalCtrl()
 {
-    mempool_ = mempool::MemPool::getInstance();
+    mempool_ = mempool::Mempool::getInstance();
 }
 
 ProcessSignalCtrl::~ProcessSignalCtrl()

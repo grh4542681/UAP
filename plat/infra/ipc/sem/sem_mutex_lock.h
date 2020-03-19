@@ -15,14 +15,14 @@ class SemMutexLock {
 public:
     SemMutexLock() {
         path_.clear();
-        mp_ = mempool::MemPool::getInstance();
+        mp_ = mempool::Mempool::getInstance();
         sem_ = NULL;
         init_flag_ = false;
     }
 
     SemMutexLock(std::string path) {
         path_ = path;
-        mp_ = mempool::MemPool::getInstance();;
+        mp_ = mempool::Mempool::getInstance();;
         sem_ = NULL;
         init_flag_ = false;
     }
@@ -114,7 +114,7 @@ public:
 private:
     std::string path_;
     Sem* sem_;
-    mempool::MemPool* mp_;
+    mempool::Mempool* mp_;
     bool init_flag_;
 };
 

@@ -19,9 +19,9 @@ int main()
 {
     auto thread_type = test_thread;
 
-    thread::ThreadTemplate<decltype(thread_type), int> thread1(test_thread);
-    thread::ThreadTemplate<decltype(thread_type), int> thread2(test_thread);
-    thread::ThreadTemplate<decltype(thread_type), int> thread3(test_thread);
+    thread::ThreadTemplate<void, decltype(thread_type), int> thread1(test_thread);
+    thread::ThreadTemplate<void, decltype(thread_type), int> thread2(test_thread);
+    thread::ThreadTemplate<void, decltype(thread_type), int> thread3(test_thread);
 
     process::ProcessInfo* p = process::ProcessInfo::getInstance();
     file::File fd(stdout);

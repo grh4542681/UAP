@@ -93,7 +93,7 @@ public:
 
 private:
     bool init_flag_;
-    mempool::MemPool* mempool_;
+    mempool::Mempool* mempool_;
     std::string filename_;
     std::map<std::string, Section*> conftree_;
 

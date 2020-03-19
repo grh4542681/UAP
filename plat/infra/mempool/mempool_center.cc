@@ -3,19 +3,19 @@
 
 namespace mempool {
 
-MemPoolCenter* MemPoolCenter::pInstance = NULL;
+MempoolCenter* MempoolCenter::pInstance = NULL;
 
-MemPoolCenter::MemPoolCenter() {
-
-}
-
-MemPoolCenter::~MemPoolCenter() {
+MempoolCenter::MempoolCenter() {
 
 }
 
-MemPoolCenter* MemPoolCenter::getInstance() {
+MempoolCenter::~MempoolCenter() {
+
+}
+
+MempoolCenter* MempoolCenter::getInstance() {
     if (!pInstance) {
-        pInstance = new MemPoolCenter();
+        pInstance = new MempoolCenter();
     }
     return pInstance;
 }

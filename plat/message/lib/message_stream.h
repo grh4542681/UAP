@@ -95,7 +95,7 @@ private:
     void* phead_;
     void* ptail_;
 
-    mempool::MemPool* mempool_;
+    mempool::Mempool* mempool_;
 };
 
 }

@@ -3,20 +3,20 @@
 
 namespace mempool {
 
-class MemPoolCenter {
+class MempoolCenter {
 public:
     class CenterCache {
 
     };
     
 public:
-    static MemPoolCenter* pInstance;
+    static MempoolCenter* pInstance;
 
     void report();
-    static MemPoolCenter* getInstance();
+    static MempoolCenter* getInstance();
 private:
-    MemPoolCenter();
-    ~MemPoolCenter();
+    MempoolCenter();
+    ~MempoolCenter();
 };
 
 

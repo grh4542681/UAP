@@ -267,7 +267,7 @@ private:
             return NULL;
         }
         parea = reinterpret_cast<void*>(reinterpret_cast<char*>(shm_head_.object_data_area_) + ((bit_index -1 ) * (sizeof(T) + sizeof(ShmListNode))));
-        pdata  = mempool::MemPool::Construct<T>(parea, std::forward<Args>(args)...);
+        pdata  = mempool::Mempool::Construct<T>(parea, std::forward<Args>(args)...);
         if (!pdata) {
             ret_ = IpcRet::ECONSTRUCT;
             return NULL;
@@ -334,7 +334,7 @@ private:
             return NULL;
         }
         parea = reinterpret_cast<void*>(reinterpret_cast<char*>(shm_head_.object_data_area_) + ((bit_index -1 ) * (sizeof(T) + sizeof(ShmListNode))));
-        pdata  = mempool::MemPool::Construct<T>(parea, std::forward<Args>(args)...);
+        pdata  = mempool::Mempool::Construct<T>(parea, std::forward<Args>(args)...);
         if (!pdata) {
             ret_ = IpcRet::ECONSTRUCT;
             return NULL;
@@ -410,7 +410,7 @@ private:
             shm_head_.object_head_ = shm_head_.object_tail_ = NULL;
             shm_head_.info_->object_head_index_ = shm_head_.info_->object_tail_index_ = 0;
         }
-        mempool::MemPool::Destruct<T>(pdata);
+        mempool::Mempool::Destruct<T>(pdata);
 
         shm_head_.info_->object_cur_num_--;
     }

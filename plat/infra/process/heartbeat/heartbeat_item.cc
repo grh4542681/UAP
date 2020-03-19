@@ -9,7 +9,7 @@ HeartbeatItem::HeartbeatItem(io::FD& fd, timer::Time& over_time)
         state_ = HeartbeatState::INVALID;
         return;
     }
-    mempool_ = mempool::MemPool::getInstance();
+    mempool_ = mempool::Mempool::getInstance();
     over_time_ = over_time;
     dead_time_ = over_time;
     over_callback_ = NULL;

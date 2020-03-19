@@ -13,12 +13,12 @@ class File;
 
 namespace mempool {
 
-class MemPoolThreadCache {
+class MempoolThreadCache {
 public:
-    MemPoolThreadCache();
-    ~MemPoolThreadCache();
+    MempoolThreadCache();
+    ~MempoolThreadCache();
 
-    MemPoolRet Init();
+    MempoolRet Init();
 
     void* Alloc(size_t size);
     void Free(void* ptr);
@@ -28,9 +28,9 @@ public:
 private:
     bool init_flag_;
     pid_t tid_;
-    MemPoolCenter* center_;
-    MemPoolFreeList free_list_;
-    MemPoolBusyList busy_list_;
+    MempoolCenter* center_;
+    MempoolFreeList free_list_;
+    MempoolBusyList busy_list_;
 };
 
 } //namespace ned

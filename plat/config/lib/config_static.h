@@ -63,6 +63,7 @@ protected:
     
 };
 
+template <> ConfigRet ConfigStatic::Load<parser::Parser>(parser::Parser& parser);
 template <> ConfigRet ConfigStatic::Load<parser::ParserJson>(parser::ParserJson& parser);
 template <> ConfigRet ConfigStatic::Load<parser::ParserIni>(parser::ParserIni& parser);
 template <> ConfigRet ConfigStatic::Load<parser::ParserYaml>(parser::ParserYaml& parser);

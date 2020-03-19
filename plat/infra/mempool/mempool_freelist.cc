@@ -2,28 +2,28 @@
 
 namespace mempool {
 
-MemPoolFreeList::MemPoolFreeList()
+MempoolFreeList::MempoolFreeList()
 {
 }
 
-MemPoolFreeList::~MemPoolFreeList()
-{
-
-}
-
-void* MemPoolFreeList::Alloc(size_t size)
+MempoolFreeList::~MempoolFreeList()
 {
 
 }
 
-void MemPoolFreeList::Free(void* ptr)
+void* MempoolFreeList::Alloc(size_t size)
 {
 
 }
 
-MemPoolRet MemPoolFreeList::Clear()
+void MempoolFreeList::Free(void* ptr)
 {
-    return MemPoolRet::SUCCESS;
+
+}
+
+MempoolRet MempoolFreeList::Clear()
+{
+    return MempoolRet::SUCCESS;
 }
 
 } //namespace end

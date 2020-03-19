@@ -94,7 +94,7 @@ public:
     TrieTree() {
         count_ = 0;
         TT_max_key_length = TT_DEFAULT_MAX_KEY_LENGTH;
-        mp_ = mempool::MemPool::getInstance();        
+        mp_ = mempool::Mempool::getInstance();        
         root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
         _TTNode_init(root_);
     }
@@ -106,7 +106,7 @@ public:
     TrieTree(unsigned int max_len) {
         count_ = 0;
         TT_max_key_length = max_len;
-        mp_ = mempool::MemPool::getInstance();        
+        mp_ = mempool::Mempool::getInstance();        
         root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
         _TTNode_init(root_);
     }
@@ -118,7 +118,7 @@ public:
     TrieTree(TrieTree& other) {
         count_ = 0;
         TT_max_key_length = other.TT_max_key_length;
-        mp_ = mempool::MemPool::getInstance();
+        mp_ = mempool::Mempool::getInstance();
         root_ = reinterpret_cast<struct TTNode*>(mp_->Malloc(sizeof(struct TTNode)));
         _TTNode_init(root_);
         _TTNode_insert_tree(other.getRoot());
@@ -230,10 +230,10 @@ public:
 
         if (!(curnode->data_)) {
             curnode->data_ = reinterpret_cast<T*>(mp_->Malloc(sizeof(T)));
-            mempool::MemPool::Construct<T>(curnode->data_, std::forward<Args>(args)...);
+            mempool::Mempool::Construct<T>(curnode->data_, std::forward<Args>(args)...);
         } else {
-            mempool::MemPool::Destruct<T>(curnode->data_);
-            mempool::MemPool::Construct<T>(curnode->data_, std::forward<Args>(args)...);
+            mempool::Mempool::Destruct<T>(curnode->data_);
+            mempool::Mempool::Construct<T>(curnode->data_, std::forward<Args>(args)...);
         }
 
         if (!(curnode->data_)) {
@@ -302,7 +302,7 @@ private:
     //limmit
     unsigned int TT_max_key_length; ///< Key maximum length limit.
 
-    mempool::MemPool* mp_;              ///< Mempool interface class pointer.
+    mempool::Mempool* mp_;              ///< Mempool interface class pointer.
     unsigned int count_;            ///< Current count of elements.
     struct TTNode* root_;           ///< Root node pointer.
     ContainerRet last_return_;       ///< Last return value.
@@ -333,7 +333,7 @@ private:
         if (!node) {
             return;
         }
-        mempool::MemPool::Destruct<T>(node->data_);
+        mempool::Mempool::Destruct<T>(node->data_);
         mp_->Free(node->data_);
         node->data_ = NULL;
         _TTNode_clean_reverse(node);
@@ -353,7 +353,7 @@ private:
             _TTNode_delete_tree(it);
         }
         if (node->data_) {
-            mempool::MemPool::Destruct<T>(node->data_);
+            mempool::Mempool::Destruct<T>(node->data_);
             mp_->Free(node->data_);
             node->data_ = NULL;
             count_--;

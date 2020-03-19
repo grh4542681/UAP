@@ -1,0 +1,19 @@
+--- #process config
+process :
+    group :
+        switch : false
+        size : 3
+
+message :
+    switch : true
+    agent :
+        name : PLAT_TEST_DEAMON
+        address : 
+            protocol : local
+            device : /plat/tmp/testd.sock
+        linksize : 100
+    manager :
+        switch : true
+        address : 
+            protocol : local
+            device : /plat/tmp/messaged.sock

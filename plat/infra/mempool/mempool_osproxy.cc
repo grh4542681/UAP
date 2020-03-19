@@ -4,22 +4,22 @@
 
 namespace mempool {
 
-MemPoolOsProxy::MemPoolOsProxy()
+MempoolOsProxy::MempoolOsProxy()
 {
 
 }
 
-MemPoolOsProxy::~MemPoolOsProxy()
+MempoolOsProxy::~MempoolOsProxy()
 {
 
 }
 
-void* MemPoolOsProxy::Alloc(size_t size)
+void* MempoolOsProxy::Alloc(size_t size)
 {
     return malloc(size);
 }
 
-void MemPoolOsProxy::Free(void* ptr)
+void MempoolOsProxy::Free(void* ptr)
 {
     return free(ptr);
 }

@@ -69,7 +69,7 @@ ret::Return EventFD::Dup(io::FD& new_fd)
 
 io::FD* EventFD::Clone()
 {
-    return mempool::MemPool::getInstance()->Malloc<EventFD>(*this);
+    return mempool::Mempool::getInstance()->Malloc<EventFD>(*this);
 }
 
 void EventFD::Close()

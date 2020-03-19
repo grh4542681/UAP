@@ -2,6 +2,7 @@ set(MESSAGE_PROTOBUF_SRC)
 add_subdirectory(protobuf)
 
 set(LIBGRHMSG_HRD "${PLAT_INFRA_PATH}/return"
+                  "${PLAT_INFRA_PATH}/base"
                   "${PLAT_INFRA_PATH}/process"
                   "${PLAT_INFRA_PATH}/ipc"
                   "${PLAT_INFRA_PATH}/socket"
@@ -28,11 +29,13 @@ set(LIBGRHMSG_SRC message_return.cc
                   message_appid.cc
                   message_stream.cc
                   message_api.cc
+                  message_config.cc
                   message_agent.cc
                   message_listener.cc
                   message_endpoint.cc
                   message_remote.cc
                   message_manager.cc
+                  message_topology.cc
 #                  message_heartbeat.cc
 #                  message_heartbeat_element.cc
                   ${MESSAGE_PROTOBUF_SRC}

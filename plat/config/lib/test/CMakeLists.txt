@@ -2,6 +2,7 @@ set(EXECUTABLE_OUTPUT_PATH ${FRAM_BIN_PATH}/test)
 
 set(CONFIG_TEST_HRD "${PLAT_INFRA_PATH}/file"
                     "${PLAT_INFRA_PATH}/return"
+                    "${PLAT_INFRA_PATH}/base"
                     "${PLAT_INFRA_PATH}/parser"
                     "${PLAT_INFRA_PATH}/io"
                     "${PLAT_INFRA_PATH}/mempool"

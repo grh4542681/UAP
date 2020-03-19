@@ -10,12 +10,12 @@ namespace mempool {
 /**
 * @brief - Small obejct size map.
 */
-class MemPoolSizeMap {
+class MempoolSizeMap {
 public:
     /**
     * @brief - Small object size map element.
     */
-    struct MemPoolSizeClass {
+    struct MempoolSizeClass {
         size_t mem_size_;      ///< The memory size corresponding to this object.
         size_t page_size_;     ///< How many pages of memory does an object need.
         size_t num_to_move_;   ///< How many times each application or recycling.
@@ -36,11 +36,11 @@ public:
     static const size_t g_sobj_max_size = (256 * 1024);  ///< Largest small object defalue size.(256KB)
     static const size_t g_sobj_array_size = ((g_sobj_max_size + 127 + (120 << 7)) >> 7) + 1;   ///< Size of size class array.
 
-    MemPoolSizeMap();
-    ~MemPoolSizeMap();
+    MempoolSizeMap();
+    ~MempoolSizeMap();
 
 private:
-    struct MemPoolSizeClass size_class_array_[g_sobj_array_size];  ///< Size class array.
+    struct MempoolSizeClass size_class_array_[g_sobj_array_size];  ///< Size class array.
 
     /**
     * @brief SmallSizeClass - Get small size class index.

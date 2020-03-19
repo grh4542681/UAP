@@ -1,4 +1,5 @@
 --- #process config
+#common
 process :
     group :
         switch : false
@@ -10,12 +11,19 @@ message :
         name : PLAT_MESSAGE_DEAMON
         address : 
             protocol : local
-            #device : /tmp/messaged.sock
-            device : ${PLATTOP}
+            #device : /home/ezgaoro/workspace/cppfram/tmp/messaged.sock
+            device : messaged.sock
         linksize : 100
     manager :
-        switch : true
-        address :
-            protocol : local
-            device : /plat/tmp/messaged.sock
+        switch : false
 
+#messaged
+message_manager_server :
+    address : 
+        prorocol : local
+        device : messaged_manager_server.sock
+    address :
+        protocol : ipv4
+        device : 10.10.10.10:9988
+    
+    

@@ -64,7 +64,7 @@ ret::Return EpollFD::Dup(io::FD& new_fd)
 
 io::FD* EpollFD::Clone()
 {
-    return mempool::MemPool::getInstance()->Malloc<EpollFD>(*this);
+    return alloc_.Allocate<EpollFD>(*this);
 }
 
 void EpollFD::Close()

@@ -1,4 +1,5 @@
 set(LIBGRHIPC_HRD "${PLAT_INFRA_PATH}/return"
+                  "${PLAT_INFRA_PATH}/base"
                   "${PLAT_INFRA_PATH}/ipc"
                   "${PLAT_INFRA_PATH}/mempool"
                   "${PLAT_INFRA_PATH}/report"

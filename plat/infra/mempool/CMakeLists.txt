@@ -1,4 +1,5 @@
 set(LIBGRHMP_HRD "${PLAT_INFRA_PATH}/report"
+                 "${PLAT_INFRA_PATH}/base"
                  "${PLAT_INFRA_PATH}/return"
                  "${PLAT_INFRA_PATH}/file"
                  "${PLAT_INFRA_PATH}/io"
@@ -12,6 +13,7 @@ set(LIBGRHMP_SRC mempool_return.cc
                  mempool_threadcache.cc
                  mempool_sizemap.cc
                  mempool.cc
+                 mempool_alloctor.cc
                  )
 
 add_library(GRHmp_SO SHARED ${LIBGRHMP_SRC})

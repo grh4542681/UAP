@@ -44,7 +44,7 @@ public:
     * @param [child] - process main function.
     */
     ProcessTemplate(F child) {
-        mempool_ = mempool::MemPool::getInstance();
+        mempool_ = mempool::Mempool::getInstance();
         name_.clear();
         child_ = child;
         auto_create_sockpair_ = false;
@@ -57,7 +57,7 @@ public:
     * @param [child] - Process main function.
     */
     ProcessTemplate(std::string name, F child) {
-        mempool_ = mempool::MemPool::getInstance();
+        mempool_ = mempool::Mempool::getInstance();
         name_ = name;
         child_ = child;
         auto_create_sockpair_ = false;
@@ -118,7 +118,7 @@ public:
             parent->GetCmdLine(&raw_cmdline, &raw_cmdline_size);
 
             //destory parent mempool
-            mempool::MemPool::freeInstance();
+            mempool::Mempool::freeInstance();
             ProcessInfo::setInstance(NULL);
 
             ProcessInfo* child = ProcessInfo::getInstance();
@@ -181,7 +181,7 @@ public:
                 unsigned int raw_cmdline_size = parent->raw_cmdline_size_;
 
                 //destory parent mempool
-                mempool::MemPool::freeInstance();
+                mempool::Mempool::freeInstance();
 
                 ProcessInfo::pInstance = NULL;
                 ProcessInfo* child = ProcessInfo::getInstance();
@@ -205,7 +205,7 @@ public:
     }
 #endif
 private:
-    mempool::MemPool* mempool_;         ///< Mempool pointer.
+    mempool::Mempool* mempool_;         ///< Mempool pointer.
     std::string name_;                  ///< Process Name.
     F child_;                           ///< Process main function.
     bool auto_create_sockpair_;         ///< Auto create socketpair between process.
@@ -231,7 +231,7 @@ public:
     * @param [child] - Process execute path.
     */
     ProcessTemplate(std::string child) {
-        mempool_ = mempool::MemPool::getInstance();
+        mempool_ = mempool::Mempool::getInstance();
         child_ = child;
     }
 
@@ -242,7 +242,7 @@ public:
     * @param [child] - Process execute path.
     */
     ProcessTemplate(std::string name, std::string child) {
-        mempool_ = mempool::MemPool::getInstance();
+        mempool_ = mempool::Mempool::getInstance();
         name_ = name;
         child_ = child;
     }
@@ -329,7 +329,7 @@ public:
     }
 
 private:
-    mempool::MemPool* mempool_;         ///< Mempool pointer.
+    mempool::Mempool* mempool_;         ///< Mempool pointer.
     std::string name_;                  ///< Process Name.
     std::string child_;                 ///< Process execute path.
     void (*dead_callback_)(int*);    ///< Process dead callback for parent SIGCHLD.

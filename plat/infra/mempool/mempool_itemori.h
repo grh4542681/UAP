@@ -3,7 +3,7 @@
 
 namespace mempool {
 
-enum class MemPoolItemOri :int {
+enum class MempoolItemOri :int {
     POOL,
     OS,
     NONE

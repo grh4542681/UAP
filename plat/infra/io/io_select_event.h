@@ -54,13 +54,13 @@ public:
     */
     ~SelectEvent() {
         if (fd_) {
-            mempool::MemPool::getInstance()->Free<FD>(fd_);
+            alloc_.Deallocate<FD>(fd_);
         }
     }
 
     SelectEvent& operator=(const SelectEvent& other) {
         if (fd_) {
-            mempool::MemPool::getInstance()->Free<FD>(fd_);
+            alloc_.Deallocate<FD>(fd_);
             fd_ = NULL;
         }
         if (other.fd_) {
@@ -132,6 +132,7 @@ public:
 protected:
     FD* fd_ = NULL;     ///> File descriptor pointer.
     int events_ = 0;    ///> Listened events set.
+    mempool::MempoolAlloctor alloc_;
 };
 
 }

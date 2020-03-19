@@ -31,7 +31,7 @@ ThreadInfo::~ThreadInfo()
 ThreadInfo* ThreadInfo::getInstance()
 {
     if (!pInstance) {
-        pInstance = mempool::MemPool::getInstance()->Malloc<ThreadInfo>();
+        pInstance = mempool::Mempool::getInstance()->Malloc<ThreadInfo>();
     }
     return pInstance;
 }
@@ -39,7 +39,7 @@ ThreadInfo* ThreadInfo::getInstance()
 void ThreadInfo::freeInstance()
 {
     if (pInstance) {
-        mempool::MemPool::getInstance()->Free<ThreadInfo>(pInstance);
+        mempool::Mempool::getInstance()->Free<ThreadInfo>(pInstance);
         pInstance = NULL;
     }
 }

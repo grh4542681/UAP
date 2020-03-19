@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "mempool.h"
+#include "mempool_alloctor.h"
 
 #include "io_return.h"
 
@@ -195,7 +195,7 @@ public:
     }
 
     virtual FD* Clone() {
-        return mempool::MemPool::getInstance()->Malloc<FD>(*this);
+        return alloc_.Allocate<FD>(*this);
     }
     virtual ssize_t Write(const void* data, size_t datalen) {
         return 0;
@@ -207,6 +207,7 @@ protected:
     int fd_ = 0;
     bool auto_close_ = false;
     bool init_flag_ = false;
+    mempool::MempoolAlloctor alloc_;
 };
 
 bool operator<(const FD& a, const int b);

@@ -174,7 +174,7 @@ public:
     ParserJsonObject find(const char* path);
 private:
     bool thread_safe_flag_;
-    mempool::MemPool* mempool_;
+    mempool::Mempool* mempool_;
     thread::mutex::ThreadRWLock rwlock_;
 
     rapidjson::Document doc_;

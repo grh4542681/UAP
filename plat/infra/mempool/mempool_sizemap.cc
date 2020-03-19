@@ -2,11 +2,11 @@
 
 namespace mempool {
 
-MemPoolSizeMap::MemPoolSizeMap() {
+MempoolSizeMap::MempoolSizeMap() {
 
 }
 
-MemPoolSizeMap::~MemPoolSizeMap() {
+MempoolSizeMap::~MempoolSizeMap() {
 
 }
 

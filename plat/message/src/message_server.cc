@@ -33,11 +33,16 @@ MessageRet MessageServer::Run()
 //        sleep(2);
 //        afd.Close();
 //    }
-    auto pinfo = process::ProcessInfo::getInstance();
-    auto parent = pinfo->GetParentProcess();
-    sleep(10);
-    parent->GetFD().Write("hello parent", 12);
+//    auto pinfo = process::ProcessInfo::getInstance();
+//    auto parent = pinfo->GetParentProcess();
+//    sleep(10);
+//    parent->GetFD().Write("hello parent", 12);
+
+    manager_.Run();
+
     sleep(100);
+
+    return MessageRet::SUCCESS;
 }
 
 void MessageServer::Main(int i, std::string str)

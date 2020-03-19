@@ -8,17 +8,17 @@
 
 namespace mempool {
 
-class MemPoolFreeList {
+class MempoolFreeList {
 public:
-    MemPoolFreeList();
-    ~MemPoolFreeList();
+    MempoolFreeList();
+    ~MempoolFreeList();
 
     void* Alloc(size_t size);
     void Free(void* ptr);
     
-    MemPoolRet Clear();
+    MempoolRet Clear();
 private:
-//    MemPoolMemoryList list_array_[MemPoolSizeMap::g_sobj_array_size];
+//    MempoolMemoryList list_array_[MempoolSizeMap::g_sobj_array_size];
 
 };
 

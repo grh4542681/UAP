@@ -4,20 +4,21 @@
 namespace message {
 MessageListener::MessageListener(std::string name, const sock::SockAddress& addr, Callback callback)
 {
-    agent_ = MessageAgent::getInstance();
+//    agent_ = MessageAgent::getInstance();
     callback_ = callback;
     info_.name_ = name;
     info_.endpoint_num_ = 0;
     info_.address_ = addr;
     info_.state_ = State::Initialize;
     server_ = sock::SockServer(&const_cast<sock::SockAddress&>(addr));
-    if (server_.Bind() == sock::SockRet::SUCCESS)
+    auto ret = server_.Bind();
+    if (ret == sock::SockRet::SUCCESS)
     {
         printf("------- %s %d\n",__FILE__,__LINE__);
         info_.state_ = State::Ready;
         state_ = State::Ready;
     } else {
-        printf("------- %s %d\n",__FILE__,__LINE__);
+        printf("------- %s %d %s\n",__FILE__,__LINE__, ret.Message().c_str());
         info_.state_ = State::Error;
         state_ = State::Error;
     }
@@ -26,7 +27,7 @@ MessageListener::MessageListener(std::string name, const sock::SockAddress& addr
 
 MessageListener::MessageListener(std::string name, const sock::SockFD& sfd, Callback callback)
 {
-    agent_ = MessageAgent::getInstance();
+//    agent_ = MessageAgent::getInstance();
     callback_ = callback;
     info_.name_ = name;
     info_.endpoint_num_ = 0;

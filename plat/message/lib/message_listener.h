@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include "mempool.h"
+#include "mempool_alloctor.h"
 #include "timer_time.h"
 #include "thread_id.h"
 #include "sock_address.h"
@@ -17,12 +17,9 @@
 #include "message_endpoint.h"
 
 namespace message {
-class MessageAgent;
 class MessageListener : public MessageRaw {
 public:
     typedef std::function<io::IoRet(MessageListener*,io::SelectItemTemplate<MessageListener>*, int)> Callback;
-    friend class mempool::MemPool;
-    friend class MessageAgent;
 public:
     enum class Type : int {
         WorkerListener,
@@ -47,6 +44,8 @@ public:
     } Info;
 
 public:
+    MessageListener(std::string name, const sock::SockAddress& addr, Callback callback = &MessageListener::_common_listener_callback);
+    MessageListener(std::string name, const sock::SockFD& sfd, Callback callback = &MessageListener::_common_listener_callback);
     ~MessageListener();
 
     std::string GetName();
@@ -59,15 +58,13 @@ public:
 
     Callback callback_;
 private:
-    MessageAgent* agent_;
+    mempool::MempoolAlloctor alloc_;
     Info info_;
     State state_;
     sock::SockServer server_;
     sock::SockFD sfd_;
     std::map<std::string, MessageEndpoint*> tep_map_;
 private:
-    MessageListener(std::string name, const sock::SockAddress& addr, Callback callback = &MessageListener::_common_listener_callback);
-    MessageListener(std::string name, const sock::SockFD& sfd, Callback callback = &MessageListener::_common_listener_callback);
     MessageListener(MessageListener& other);
     const MessageListener& operator=(const MessageListener& other);
 

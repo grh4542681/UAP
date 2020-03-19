@@ -26,7 +26,7 @@ public:
     * @param [child] - process main function.
     */
     ProcessGroupWorkerTemplate(std::string name, F child, Args&& ... args) : tuple_args(std::forward_as_tuple(std::forward<Args>(args)...)) {
-        mempool_ = mempool::MemPool::getInstance();
+        mempool_ = mempool::Mempool::getInstance();
         name_ = name;
         config_filename_.clear();
         child_ = child;
@@ -39,7 +39,7 @@ public:
     * @param [child] - Process main function.
     */
     ProcessGroupWorkerTemplate(std::string name, std::string config_filename, F child, Args&& ... args) : tuple_args(std::forward_as_tuple(std::forward<Args>(args)...)) {
-        mempool_ = mempool::MemPool::getInstance();
+        mempool_ = mempool::Mempool::getInstance();
         name_ = name;
         config_filename_ = config_filename;
         child_ = child;
@@ -92,7 +92,7 @@ public:
             parent->GetCmdLine(&raw_cmdline, &raw_cmdline_size);
  
             //destory parent mempool
-            mempool::MemPool::freeInstance();
+            mempool::Mempool::freeInstance();
             ProcessInfo::setInstance(NULL);
 
             ProcessInfo* child = ProcessInfo::getInstance();
@@ -107,7 +107,7 @@ public:
                 auto config_root = child->GetProcessConfig().GetRoot();
                 config_root->Insert("process")->Insert("group")->Insert<bool>("switch", false);
 
-                auto config_message = config_root->Insert("message");
+                auto config_message = message::MessageAgent::getInstance()->GetConfig().GetRoot()->Insert("message");
                 config_message->Insert<bool>("switch", true);
                 auto config_message_agent = config_message->Insert("agent");
                 config_message_agent->Insert<std::string>("name", "GROUP_WORKER");
@@ -116,7 +116,8 @@ public:
                 config_message_manager->Insert<bool>("switch", true);
                 config_message_manager->Insert("address")->Insert<std::string>("protocol", "Keeper-Worker");
             } else {
-                child->GetProcessConfig().LoadFile(config_filename_);
+                child->LoadProcessRawConfig(config_filename_);
+                child->GetProcessConfig().Load(child->GetProcessRawConfig());
                 auto config_root = child->GetProcessConfig().GetRoot();
 
                 if (config_root->Search("process/group")) {
@@ -124,10 +125,7 @@ public:
                 }
                 config_root->Search("process")->Insert("group")->Insert<bool>("switch", false);
 
-                if (config_root->Search("message")) {
-                    config_root->Search("message")->Erase();
-                }
-                auto config_message = config_root->Insert("message");
+                auto config_message = message::MessageAgent::getInstance()->GetConfig().GetRoot()->Insert("message");
                 config_message->Insert<bool>("switch", true);
                 auto config_message_agent = config_message->Insert("agent");
                 config_message_agent->Insert<std::string>("name", "GROUP_WORKER");
@@ -175,7 +173,7 @@ public:
     }
 
 private:
-    mempool::MemPool* mempool_;         ///< Mempool pointer.
+    mempool::Mempool* mempool_;         ///< Mempool pointer.
     std::string name_;                  ///< Process Name.
     std::string config_filename_;       ///< Process config file name.
     F child_;                           ///< Process main function.

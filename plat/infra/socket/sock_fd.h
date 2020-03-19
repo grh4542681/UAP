@@ -65,7 +65,6 @@ public:
     ssize_t RecvFD(unsigned int *fd);
     
 private:
-    mempool::MemPool* mempool_; ///< memory pool interface.
     SockAddress orig;           ///< source address.
     SockAddress dest;           ///< destination address.
 

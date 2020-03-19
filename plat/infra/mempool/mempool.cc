@@ -4,57 +4,57 @@
 
 namespace mempool {
 
-thread_local MemPool* MemPool::pInstance = NULL;
+thread_local Mempool* Mempool::pInstance = NULL;
 
-MemPool::MemPool()
+Mempool::Mempool()
 {
 }
 
-MemPool::~MemPool()
-{
-
-}
-
-void MemPool::Report(std::stringstream& ss)
+Mempool::~Mempool()
 {
 
 }
 
-void MemPool::Report(file::File& fd)
+void Mempool::Report(std::stringstream& ss)
 {
 
 }
 
-void MemPool::ReportCenter(file::File& fd)
+void Mempool::Report(file::File& fd)
 {
 
 }
 
-void MemPool::ReportThread(file::File& fd)
+void Mempool::ReportCenter(file::File& fd)
+{
+
+}
+
+void Mempool::ReportThread(file::File& fd)
 {
     threadcache_.Report(fd);
 }
 
 //private
-void* MemPool::_malloc(size_t size)
+void* Mempool::_malloc(size_t size)
 {
     return threadcache_.Alloc(size);
 }
 
-void MemPool::_free(void* ptr)
+void Mempool::_free(void* ptr)
 {
     threadcache_.Free(ptr);
 }
 
-MemPool* MemPool::getInstance()
+Mempool* Mempool::getInstance()
 {
     if (!pInstance) {
-        pInstance = new MemPool();
+        pInstance = new Mempool();
     }
     return pInstance;
 }
 
-void MemPool::freeInstance()
+void Mempool::freeInstance()
 {
     if (pInstance) {
         delete pInstance;

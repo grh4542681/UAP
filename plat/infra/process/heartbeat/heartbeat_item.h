@@ -26,7 +26,7 @@ public:
     HeartbeatItem& SetDeadTime(timer::Time& dead_time);
 
 private:
-    mempool::MemPool* mempool_;
+    mempool::Mempool* mempool_;
     io::FD* fd_;
     HeartbeatState state_;
 

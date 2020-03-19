@@ -43,6 +43,20 @@ void ConfigStatic::Print()
     config_tree_.Print();
 }
 
+template <> ConfigRet ConfigStatic::Load<parser::Parser>(parser::Parser& parser)
+{
+    std::string type_name = parser.ObjectTypeName();
+    if (type_name == "ParserJson") {
+        return LoadJson(dynamic_cast<parser::ParserJson&>(parser));
+    } else if (type_name == "ParserYaml") {
+        return LoadYaml(dynamic_cast<parser::ParserYaml&>(parser));
+    } else if (type_name == "ParserIni") {
+        return LoadIni(dynamic_cast<parser::ParserIni&>(parser));
+    } else {
+        return ConfigRet::CONFIG_ECONFFILEFORMAT;
+    }
+}
+
 template <> ConfigRet ConfigStatic::Load<parser::ParserJson>(parser::ParserJson& parser)
 {
     return LoadJson(parser);

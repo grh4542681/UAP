@@ -100,7 +100,7 @@ private:
     ThreadSignalCtrl();
     ~ThreadSignalCtrl();
 
-    mempool::MemPool* mempool_;                                         ///< Mempool pointer.
+    mempool::Mempool* mempool_;                                         ///< Mempool pointer.
 
     process::signal::ProcessSignalSet mask_set_;         ///< Current mask signal set.
     process::signal::ProcessSignalSet last_mask_set_;    ///< Last time mask signal set.

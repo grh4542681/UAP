@@ -95,7 +95,7 @@ ret::Return FileFD::Dup(io::FD& new_fd)
 
 io::FD* FileFD::Clone()
 {
-    return mempool::MemPool::getInstance()->Malloc<FileFD>(*this);
+    return alloc_.Allocate<FileFD>(*this);
 }
 
 void FileFD::Close()

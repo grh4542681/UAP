@@ -12,11 +12,11 @@
 #include "thread_id.h"
 
 namespace thread {
-template <typename F, typename R> class ThreadTemplate;
+template <typename H, typename F, typename R> class ThreadTemplate;
 class ThreadInfo {
 public:
-    friend class mempool::MemPool;
-    template <typename F, typename R> friend class ThreadTemplate;
+    friend class mempool::Mempool;
+    template <typename H, typename F, typename R> friend class ThreadTemplate;
 public:
     static ThreadInfo* getInstance();
     static void freeInstance();

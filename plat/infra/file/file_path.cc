@@ -23,6 +23,10 @@ FilePath::FilePath(std::string raw) : raw_(raw)
         if (raw_[0] == '/') {
             abs_path_ = true;
             raw_.erase(0, 1);
+        } else {
+            if (raw_[0] != '.' && raw_[1] != '/') {
+                raw_ = "./" + raw_;
+            }
         }
         util::String::Split(raw_, "/", path_vector_);
         depth_ = path_vector_.size() - 1;
@@ -77,9 +81,9 @@ std::string FilePath::GetPath(unsigned int start, unsigned int depth) {
             path = path + "/" + path_vector_[loop];
         }
     }
-        if (!abs_path_ || start != 0) {
-            path.erase(0, 1);
-        }
+    if (!abs_path_ || start != 0) {
+        path.erase(0, 1);
+    }
     return path;
 }
 

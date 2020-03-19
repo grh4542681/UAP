@@ -18,7 +18,7 @@ class File;
 
 namespace mempool {
 
-class MemPool : public report::VReport {
+class Mempool : public report::VReport {
 public:
 
     void* Malloc(size_t size){
@@ -72,7 +72,7 @@ public:
         return ptr;
     }
 
-    static MemPool* getInstance();
+    static Mempool* getInstance();
     static void freeInstance();
 
     void Report(std::stringstream& ss);
@@ -80,10 +80,10 @@ public:
     void ReportCenter(file::File& fd);
     void ReportThread(file::File& fd);
 private:
-    MemPool();
-    ~MemPool();
-    MemPoolThreadCache threadcache_;
-    thread_local static MemPool* pInstance;
+    Mempool();
+    ~Mempool();
+    MempoolThreadCache threadcache_;
+    thread_local static Mempool* pInstance;
 
     void* _malloc(size_t size);
     void _free(void* ptr);
