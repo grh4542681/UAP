@@ -57,6 +57,9 @@ public:
         ElementAny* parent = nullptr;
         ElementAny* child = nullptr;
 
+        ElementAny* vecnext = nullptr;
+        ElementAny* vecprev = nullptr;
+
         ElementAny* SearchChild(std::string name);
         ElementAny* SearchBrother(std::string ename);
         ContainerRet Search(std::vector<std::string> path_vec, std::vector<ElementAny*>& vec);

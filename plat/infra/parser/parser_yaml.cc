@@ -86,6 +86,11 @@ bool ParserYamlObject::HasError()
     return (ret_ != ParserRet::SUCCESS);
 }
 
+bool ParserYamlObject::IsVector()
+{
+    return node_.IsSequence();
+}
+
 ParserYamlObject ParserYamlObject::Find(std::string index)
 {
  //   std::string path = index;

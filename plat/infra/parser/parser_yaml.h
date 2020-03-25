@@ -20,6 +20,7 @@ public:
     ParserYamlObject operator[](const int index);
 
     bool HasError();
+    bool IsVector();
 
     ParserYamlObject Find(std::string index);
     template < typename D > ParserRet GetData(D* data) {
